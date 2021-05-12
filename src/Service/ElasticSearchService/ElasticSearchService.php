@@ -8,102 +8,269 @@ use Elastica\Query\AbstractQuery;
 use Elastica\Index;
 
 
-class ElasticSearchService implements ElasticSearchServiceInterface
+abstract class ElasticSearchService implements ElasticSearchServiceInterface
 {
     private $client;
     private $indexName;
     private $index;
-    protected $primaryIdentifiers;
-    protected $roles;
 
     const MAX_AGG = 2147483647;
     const MAX_SEARCH = 10000;
 
+    protected const AGG_NUMERIC = "numeric";
+    protected const AGG_OBJECT = "object";
+    protected const AGG_EXACT_TEXT = "exact_text";
+    protected const AGG_NESTED = "nested";
+    protected const AGG_BOOLEAN = "bool";
+    protected const AGG_MULTIPLE_FIELDS_OBJECT = "multiple_fields_object";
+
+    protected const FILTER_NUMERIC = "numeric";
+    protected const FILTER_NUMERIC_MULTIPLE = "numeric_multiple";
+    protected const FILTER_NESTED = "nested";
+    protected const FILTER_NESTED_TOGGLE = "nested_toggle";
+    protected const FILTER_OBJECT = "object";
+    protected const FILTER_TEXT = "text";
+    protected const FILTER_TEXT_EXACT = "text_exact";
+    protected const FILTER_TEXT_MULTIPLE = "text_multiple";
+    protected const FILTER_BOOLEAN = "boolean";
+    protected const FILTER_MULTIPLE_FIELDS_OBJECT = "multiple_fields_object";
+    protected const FILTER_DATE_RANGE = "date_range";
+
+
+
     protected function __construct(
         ElasticSearchClient $client,
-        string $indexName,
-        string $typeName,
-        array $primaryIdentifiers = null,
-        array $roles = null
+        string $indexName
     ) {
         $this->client = $client;
         $this->indexName = $indexName;
         $this->index = $this->client->getIndex($indexName);
-        $this->primaryIdentifiers = $primaryIdentifiers;
-        $this->roles = $roles;
     }
 
+    /**
+     * Return Elasticsearch Client
+     *
+     * @return Index
+     */
     protected function getClient(): ElasticSearchClient
     {
         return $this->client;
     }
 
+    /**
+     * Return Elasticsearch Index
+     *
+     * @return Index
+     */
     protected function getIndex(): Index
     {
         return $this->index;
     }
 
-    protected function search(array $params = null): array
+    /**
+     * Add aggregation details to search service
+     * Return array of aggregation_field => aggregation_type
+     * @return array
+     */
+    protected abstract function getAggregationFilterConfig(): array;
+
+    protected abstract function getSearchFilterConfig(): array;
+
+    protected function getDefaultSearchParameters(): array
     {
-        // Construct query
-        $query = new Query();
-        // Number of results
-        if (isset($params['limit']) && is_numeric($params['limit'])) {
-            $query->setSize($params['limit']);
-        }
+        return [];
+    }
+
+    protected function getDefaultSearchFilters(): array
+    {
+        return [];
+    }
+
+    protected function sanitizeSearchParameters(array $params): array
+    {
+        // Set default parameters
+        $defaults = static::getDefaultSearchParameters();
+
+        $result = array_intersect_key(
+            $defaults,
+            array_flip([
+                'limit',
+                'orderBy',
+                'page',
+                'ascending'
+            ])
+        );
 
         // Pagination
-        if (isset($params['page']) && is_numeric($params['page']) &&
-            isset($params['limit']) && is_numeric($params['limit'])
-        ) {
-            $query->setFrom(($params['page'] - 1) * $params['limit']);
+        if (isset($params['limit']) && is_numeric($params['limit'])) {
+            $result['limit'] = $params['limit'];
+        }
+        if (isset($params['page']) && is_numeric($params['page'])) {
+            $result['page'] = $params['page'];
         }
 
         // Sorting
         if (isset($params['orderBy'])) {
-            if (isset($params['ascending']) && $params['ascending'] == 0) {
+            if (isset($params['ascending']) && ($params['ascending'] == '0' || $params['ascending'] == '1')) {
+                $result['ascending'] = intval($params['ascending']);
+            }
+            switch ($params['orderBy']) {
+                // convert fieldname to elastic expression
+                case 'name':
+                    $result['orderBy'] = ['name.keyword'];
+
+                    break;
+                case 'date':
+
+                    break;
+                default:
+                    $result['orderBy'] = $defaults['orderBy'];
+                    break;
+            }
+        }
+
+        return $result;
+    }
+
+    protected function sanitizeSearchFilters(array $params): array
+    {
+        // Init Filters
+        $filterDefaults = static::getDefaultSearchFilters();
+        $filters = $filterDefaults;
+
+        // Limit allowed filters
+        $filterConfig = static::getSearchFilterConfig();
+        $params_filtered = array_intersect_key($params, $filterConfig);
+
+        // Validate values
+        foreach ($params_filtered as $filterName => $filterValue) {
+            switch ($filterConfig[$filterName]['type']) {
+                case self::FILTER_NESTED:
+                    if ( is_array($filterValue) || is_numeric($filterValue) ) {
+                        $filters[$filterName] = $filterValue;
+                    }
+                    break;
+                case self::FILTER_BOOLEAN:
+                    $filters[$filterName] = ($filterValue === '1');
+                    break;
+                case 'date':
+                    if (is_array($filterValue)) {
+                        $filters[$filterName] = $filterValue;
+                        foreach (array_keys($filterValue) as $subKey) {
+                            switch ($subKey) {
+                                case 'year_from':
+                                case 'year_to':
+                                    if (is_numeric($filterValue[$subKey])) {
+                                        $filters[$filterName][$subKey] = $filterValue[$subKey];
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                    break;
+                case self::FILTER_TEXT_MULTIPLE:
+                    if (is_array($filterValue)) {
+                        $filters[$filterName] = $filterValue;
+                    }
+                    break;
+                case self::FILTER_TEXT:
+                    if (is_array($filterValue)) {
+                        $filters[$filterName] = $filterValue;
+                    }
+                    if (is_string($filterValue)) {
+                        $combination = $params[$filterName.'_combination'] ?? 'any';
+                        $combination = in_array($combination, ['any','all','phrase'],true) ? $combination: 'any';
+
+                        $filters[$filterName] = [
+                            'text' => $filterValue,
+                            'combination' => $combination
+                        ];
+                    }
+                    break;
+                default:
+                    if (is_string($filterValue)) {
+                        $filters[$filterName] = $filterValue;
+                    }
+                    break;
+            }
+        }
+
+        dump($filters);
+
+        return $filters;
+    }
+
+    protected function search(array $params = null): array
+    {
+        // sanitize search parameters
+        $searchParams = self::sanitizeSearchParameters($params);
+
+        // Construct query
+        $query = new Query();
+        // Number of results
+        if (isset($searchParams['limit']) && is_numeric($searchParams['limit'])) {
+            $query->setSize($searchParams['limit']);
+        }
+
+        // Pagination
+        if (isset($searchParams['page']) && is_numeric($searchParams['page']) &&
+            isset($searchParams['limit']) && is_numeric($searchParams['limit'])
+        ) {
+            $query->setFrom(($searchParams['page'] - 1) * $searchParams['limit']);
+        }
+
+        // Sorting
+        if (isset($searchParams['orderBy'])) {
+            if (isset($searchParams['ascending']) && $searchParams['ascending'] == 0) {
                 $order = 'desc';
             } else {
                 $order = 'asc';
             }
             $sort = [];
-            foreach ($params['orderBy'] as $field) {
+            foreach ($searchParams['orderBy'] as $field) {
                 $sort[] = [$field => $order];
             }
             $query->setSort($sort);
         }
 
         // Filtering
-        if (isset($params['filters'])) {
-            $query->setQuery(self::createQuery($params['filters']));
-            $query->setHighlight(self::createHighlight($params['filters']));
+        $searchFilters = [];
+        if (isset($params['filters']) && is_array($params['filters'])) {
+            $searchFilters = $this->sanitizeSearchFilters($params['filters']);
+            $query->setQuery(self::createSearchQuery($searchFilters));
+            $query->setHighlight(self::createHighlight($searchFilters));
         }
 
         // Search
+        dump(json_encode($query->getQuery()->toArray()));
         $data = $this->getIndex()->search($query)->getResponse()->getData();
 
         // Format response
+        // @flamsens: elastic 7 needs ['value']
         $response = [
-            'count' => $data['hits']['total'],
+            'count' => $data['hits']['total']['value'],
             'data' => []
         ];
 
         // Build array to remove _stemmer or _original blow
         $rename = [];
-        if (isset($params['filters']['text'])) {
-            foreach ($params['filters']['text'] as $key => $value) {
-                if (isset($value['field'])) {
-                    $rename[$value['field']] = explode('_', $value['field'])[0];
-                }
-            }
-        }
-        if (isset($params['filters']['multiple_text'])) {
-            foreach ($params['filters']['multiple_text'] as $multiple) {
-                foreach ($multiple as $key => $value) {
-                    if (isset($value['field'])) {
-                        $rename[$value['field']] = explode('_', $value['field'])[0];
+        $filterConfig = static::getSearchFilterConfig();
+        foreach ($searchFilters as $filterName => $filterValue)
+        {
+            switch ($filterConfig[$filterName]['type']) {
+                case self::FILTER_TEXT:
+                    if (isset($filterValue['field'])) {
+                        $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
                     }
-                }
+                    break;
+                case self::FILTER_TEXT_MULTIPLE:
+                    $filterValues = $filterValue;
+                    foreach($filterValues as $filterValue) {
+                        if (isset($filterValue['field'])) {
+                            $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
+                        }
+                    }
+                    break;
             }
         }
         foreach ($data['hits']['hits'] as $result) {
@@ -131,158 +298,147 @@ class ElasticSearchService implements ElasticSearchServiceInterface
         return $response;
     }
 
-    protected function aggregate(array $fieldTypes, array $filterValues): array
+    protected function aggregate(array $filters): array
     {
+        $aggFilters = static::getAggregationFilterConfig();
+        if ( !count($aggFilters) ) {
+            return [];
+        }
+
+        // create search query
         $query = (new Query())
-            ->setQuery(self::createQuery($filterValues))
+            ->setQuery(self::createSearchQuery($this->sanitizeSearchFilters($filters)))
             // Only aggregation will be used
             ->setSize(0);
 
-        foreach ($fieldTypes as $fieldType => $fieldNames) {
-            switch ($fieldType) {
-                case 'numeric':
-                    foreach ($fieldNames as $fieldName) {
-                        $query->addAggregation(
-                            (new Aggregation\Terms($fieldName))
-                                ->setSize(self::MAX_AGG)
-                                ->setField($fieldName)
-                        );
-                    }
+        // add aggregations
+        foreach($aggFilters as $fieldName => $aggFilter) {
+            $aggType = $aggFilter['type'];
+            switch($aggType) {
+                case self::AGG_NUMERIC:
+                    $query->addAggregation(
+                        (new Aggregation\Terms($fieldName))
+                            ->setSize(self::MAX_AGG)
+                            ->setField($fieldName)
+                    );
                     break;
+                case self::AGG_OBJECT:
+                    $query->addAggregation(
+                        (new Aggregation\Terms($fieldName))
+                            ->setSize(self::MAX_AGG)
+                            ->setField($fieldName . '.id')
+                            ->addAggregation(
+                                (new Aggregation\Terms('name'))
+                                    ->setField($fieldName . '.name.keyword')
+                            )
+                    );
                     break;
-                case 'object':
-                    foreach ($fieldNames as $fieldName) {
-                        $query->addAggregation(
-                            (new Aggregation\Terms($fieldName))
-                                ->setSize(self::MAX_AGG)
-                                ->setField($fieldName . '.id')
-                                ->addAggregation(
-                                    (new Aggregation\Terms('name'))
-                                        ->setField($fieldName . '.name.keyword')
-                                )
-                        );
-                    }
+                case self::AGG_EXACT_TEXT:
+                    $query->addAggregation(
+                        (new Aggregation\Terms($fieldName))
+                            ->setSize(self::MAX_AGG)
+                            ->setField($fieldName . '.keyword')
+                    );
                     break;
-                case 'exact_text':
-                    foreach ($fieldNames as $fieldName) {
-                        $query->addAggregation(
-                            (new Aggregation\Terms($fieldName))
-                                ->setSize(self::MAX_AGG)
-                                ->setField($fieldName . '.keyword')
-                        );
-                    }
+                case self::AGG_NESTED:
+                    $query->addAggregation(
+                        (new Aggregation\Nested($fieldName, $fieldName))
+                            ->addAggregation(
+                                (new Aggregation\Terms('id'))
+                                    ->setSize(self::MAX_AGG)
+                                    ->setField($fieldName . '.id')
+                                    ->addAggregation(
+                                        (new Aggregation\Terms('name'))
+                                            ->setField($fieldName . '.name.keyword')
+                                    )
+                            )
+                    );
                     break;
-                case 'nested':
-                    foreach ($fieldNames as $fieldName) {
-                        $query->addAggregation(
-                            (new Aggregation\Nested($fieldName, $fieldName))
-                                ->addAggregation(
-                                    (new Aggregation\Terms('id'))
-                                        ->setSize(self::MAX_AGG)
-                                        ->setField($fieldName . '.id')
-                                        ->addAggregation(
-                                            (new Aggregation\Terms('name'))
-                                                ->setField($fieldName . '.name.keyword')
-                                        )
-                                )
-                        );
-                    }
+                case self::AGG_BOOLEAN:
+                    $query->addAggregation(
+                        (new Aggregation\Terms($fieldName))
+                            ->setSize(self::MAX_AGG)
+                            ->setField($fieldName)
+                    );
                     break;
-                case 'boolean':
-                    foreach ($fieldNames as $fieldName) {
-                        $query->addAggregation(
-                            (new Aggregation\Terms($fieldName))
-                                ->setSize(self::MAX_AGG)
-                                ->setField($fieldName)
-                        );
-                    }
-                    break;
-                case 'multiple_fields_object':
+                case self::AGG_MULTIPLE_FIELDS_OBJECT:
                     // fieldName = [
                     //     [multiple_names] (e.g., [patron, scribe, related]),
                     //      'actual field name' (e.g. 'person'),
                     //      'dependend field name' (e.g. 'role')
                     //  ]
-                    foreach ($fieldNames as $fieldName) {
-                        foreach ($fieldName[0] as $key) {
-                            $query->addAggregation(
-                                (new Aggregation\Nested($key, $key))
-                                    ->addAggregation(
-                                        (new Aggregation\Terms('id'))
-                                            ->setSize(self::MAX_AGG)
-                                            ->setField($key . '.id')
-                                            ->addAggregation(
-                                                (new Aggregation\Terms('name'))
-                                                    ->setField($key . '.name.keyword')
-                                            )
-                                    )
-                            );
-                        }
+                    foreach ($fieldName[0] as $key) {
+                        $query->addAggregation(
+                            (new Aggregation\Nested($key, $key))
+                                ->addAggregation(
+                                    (new Aggregation\Terms('id'))
+                                        ->setSize(self::MAX_AGG)
+                                        ->setField($key . '.id')
+                                        ->addAggregation(
+                                            (new Aggregation\Terms('name'))
+                                                ->setField($key . '.name.keyword')
+                                        )
+                                )
+                        );
                     }
                     break;
-            }
+                }
         }
 
+        // parse query result
         $searchResult = $this->getIndex()->search($query);
         $results = [];
-        foreach ($fieldTypes as $fieldType => $fieldNames) {
-            switch ($fieldType) {
-                case 'numeric':
-                    foreach ($fieldNames as $fieldName) {
-                        $aggregation = $searchResult->getAggregation($fieldName);
-                        foreach ($aggregation['buckets'] as $result) {
-                            $results[$fieldName][] = [
-                                'id' => $result['key'],
-                                'name' => $result['key'],
-                            ];
-                        }
+
+        foreach($aggFilters as $fieldName => $aggFilter) {
+            $aggType = $aggFilter['type'];
+            switch($aggType) {
+                case self::AGG_NUMERIC:
+                    $aggregation = $searchResult->getAggregation($fieldName);
+                    foreach ($aggregation['buckets'] as $result) {
+                        $results[$fieldName][] = [
+                            'id' => $result['key'],
+                            'name' => $result['key'],
+                        ];
                     }
                     break;
-                case 'object':
-                    foreach ($fieldNames as $fieldName) {
-                        $aggregation = $searchResult->getAggregation($fieldName);
-                        foreach ($aggregation['buckets'] as $result) {
-                            $results[$fieldName][] = [
-                                'id' => $result['key'],
-                                'name' => $result['name']['buckets'][0]['key'],
-                            ];
-                        }
+                case self::AGG_OBJECT:
+                    $aggregation = $searchResult->getAggregation($fieldName);
+                    foreach ($aggregation['buckets'] as $result) {
+                        $results[$fieldName][] = [
+                            'id' => $result['key'],
+                            'name' => $result['name']['buckets'][0]['key'],
+                        ];
                     }
                     break;
-                case 'exact_text':
-                    foreach ($fieldNames as $fieldName) {
-                        $aggregation = $searchResult->getAggregation($fieldName);
-                        foreach ($aggregation['buckets'] as $result) {
-                            $results[$fieldName][] = [
-                                'id' => $result['key'],
-                                'name' => $result['key'],
-                            ];
-                        }
+                case self::AGG_EXACT_TEXT:
+                    $aggregation = $searchResult->getAggregation($fieldName);
+                    foreach ($aggregation['buckets'] as $result) {
+                        $results[$fieldName][] = [
+                            'id' => $result['key'],
+                            'name' => $result['key'],
+                        ];
                     }
                     break;
-                case 'nested':
-                    foreach ($fieldNames as $fieldName) {
-                        $aggregation = $searchResult->getAggregation($fieldName);
-                        foreach ($aggregation['id']['buckets'] as $result) {
-                            $results[$fieldName][] = [
-                                'id' => $result['key'],
-                                'name' => $result['name']['buckets'][0]['key'],
-                            ];
-                        }
+                case self::AGG_NESTED:
+                    $aggregation = $searchResult->getAggregation($fieldName);
+                    foreach ($aggregation['id']['buckets'] as $result) {
+                        $results[$fieldName][] = [
+                            'id' => $result['key'],
+                            'name' => $result['name']['buckets'][0]['key'],
+                        ];
                     }
                     break;
-                case 'boolean':
-                    foreach ($fieldNames as $fieldName) {
-                        $aggregation = $searchResult->getAggregation($fieldName);
-                        foreach ($aggregation['buckets'] as $result) {
-                            $results[$fieldName][] = [
-                                'id' => $result['key'],
-                                'name' => $result['key_as_string'],
-                            ];
-                        }
+                case self::AGG_BOOLEAN:
+                    $aggregation = $searchResult->getAggregation($fieldName);
+                    foreach ($aggregation['buckets'] as $result) {
+                        $results[$fieldName][] = [
+                            'id' => $result['key'],
+                            'name' => $result['key_as_string'],
+                        ];
                     }
                     break;
-                case 'multiple_fields_object':
+                case self::AGG_MULTIPLE_FIELDS_OBJECT:
+                    /*
                     foreach ($fieldNames as $fieldName) {
                         // fieldName = [
                         //     [multiple_names] (e.g., [patron, scribe, related]),
@@ -330,177 +486,200 @@ class ElasticSearchService implements ElasticSearchServiceInterface
                             }
                         }
                     }
+                    */
                     break;
+
             }
         }
 
         return $results;
     }
 
-    protected static function createQuery(array $filterTypes): Query\BoolQuery
+    public function searchAndAggregate(array $params): array
     {
+        // search
+        $result = $this->search($params);
+
+        // aggregate
+        $result['aggregation'] = $this->aggregate($params['filters'] ?? []);
+
+        return $result;
+    }
+
+    protected static function createSearchQuery(array $filters): Query\BoolQuery
+    {
+        $filterConfig = static::getSearchFilterConfig();
         $filterQuery = new Query\BoolQuery();
-        foreach ($filterTypes as $filterType => $filterValues) {
-            switch ($filterType) {
-                case 'numeric':
-                    foreach ($filterValues as $key => $value) {
+        dump($filters);
+        dump($filterConfig);
+        foreach ($filters as $filterName => $filterValue) {
+            switch ($filterConfig[$filterName]['type']) {
+                case self::FILTER_NUMERIC:
+                    $filterQuery->addMust(
+                        new Query\Match($filterName, $filterValue)
+                    );
+                    break;
+                case self::FILTER_OBJECT:
+                    // If value == -1, select all entries without a value for a specific field
+                    if ($filterValue == -1) {
+                        $filterQuery->addMustNot(
+                            new Query\Exists($filterValue)
+                        );
+                    } else {
                         $filterQuery->addMust(
-                            new Query\Match($key, $value)
+                            new Query\Match($filterName . '.id', $filterValue)
                         );
                     }
                     break;
-                case 'object':
-                    foreach ($filterValues as $key => $value) {
-                        // If value == -1, select all entries without a value for a specific field
-                        if ($value == -1) {
-                            $filterQuery->addMustNot(
-                                new Query\Exists($key)
+                case self::FILTER_DATE_RANGE:
+                    // If type is not set, us broad match (backward compatibility)
+                    // The data interval must exactly match the search interval
+                    if (isset($filterValue['type']) && $filterValue['type'] == 'exact') {
+                        if (isset($filterValue['startDate'])) {
+                            $filterQuery->addMust(
+                                new Query\Match($filterValue['floorField'], $filterValue['startDate'])
+                            );
+                        }
+                        if (isset($filterValue['endDate'])) {
+                            $filterQuery->addMust(
+                                new Query\Match($filterValue['ceilingField'], $filterValue['endDate'])
+                            );
+                        }
+                    }
+                    // The data interval must be included in the search interval
+                    // If only start or end: exact match with start or end
+                    // range must be between floor and ceiling
+                    if (isset($filterValue['type']) && $filterValue['type'] == 'included') {
+                        if (isset($filterValue['startDate']) && !isset($filterValue['endDate'])) {
+                            $filterQuery->addMust(
+                                new Query\Match($filterValue['floorField'], $filterValue['startDate'])
+                            );
+                        } elseif (isset($filterValue['endDate']) && !isset($filterValue['startDate'])) {
+                            $filterQuery->addMust(
+                                new Query\Match($filterValue['ceilingField'], $filterValue['endDate'])
                             );
                         } else {
                             $filterQuery->addMust(
-                                new Query\Match($key . '.id', $value)
+                                (new Query\Range())
+                                    ->addField($filterValue['floorField'], ['gte' => $filterValue['startDate']])
                             );
-                        }
-                    }
-                    break;
-                case 'date_range':
-                    foreach ($filterValues as $value) {
-                        // If type is not set, us broad match (backward compatibility)
-                        // The data interval must exactly match the search interval
-                        if (isset($value['type']) && $value['type'] == 'exact') {
-                            if (isset($value['startDate'])) {
-                                $filterQuery->addMust(
-                                    new Query\Match($value['floorField'], $value['startDate'])
-                                );
-                            }
-                            if (isset($value['endDate'])) {
-                                $filterQuery->addMust(
-                                    new Query\Match($value['ceilingField'], $value['endDate'])
-                                );
-                            }
-                        }
-                        // The data interval must be included in the search interval
-                        // If only start or end: exact match with start or end
-                        // range must be between floor and ceiling
-                        if (isset($value['type']) && $value['type'] == 'included') {
-                            if (isset($value['startDate']) && !isset($value['endDate'])) {
-                                $filterQuery->addMust(
-                                    new Query\Match($value['floorField'], $value['startDate'])
-                                );
-                            } elseif (isset($value['endDate']) && !isset($value['startDate'])) {
-                                $filterQuery->addMust(
-                                    new Query\Match($value['ceilingField'], $value['endDate'])
-                                );
-                            } else {
-                                $filterQuery->addMust(
-                                    (new Query\Range())
-                                        ->addField($value['floorField'], ['gte' => $value['startDate']])
-                                );
-                                $filterQuery->addMust(
-                                    (new Query\Range())
-                                        ->addField($value['ceilingField'], ['lte' => $value['endDate']])
-                                );
-                            }
-                        }
-                        // The data interval must include the search interval
-                        // If only start or end: exact match with start or end
-                        // range must be between floor and ceiling
-                        if (isset($value['type']) && $value['type'] == 'include') {
-                            if (isset($value['startDate']) && !isset($value['endDate'])) {
-                                $filterQuery->addMust(
-                                    new Query\Match($value['floorField'], $value['startDate'])
-                                );
-                            } elseif (isset($value['endDate']) && !isset($value['startDate'])) {
-                                $filterQuery->addMust(
-                                    new Query\Match($value['ceilingField'], $value['endDate'])
-                                );
-                            } else {
-                                $filterQuery->addMust(
-                                    (new Query\Range())
-                                        ->addField($value['floorField'], ['lte' => $value['startDate']])
-                                );
-                                $filterQuery->addMust(
-                                    (new Query\Range())
-                                        ->addField($value['ceilingField'], ['gte' => $value['endDate']])
-                                );
-                            }
-                        }
-                        // The data interval must overlap with the search interval
-                        // floor or ceiling must be within range, or range must be between floor and ceiling
-                        else {
-                            $args = [];
-                            if (isset($value['startDate'])) {
-                                $args['gte'] = $value['startDate'];
-                            }
-                            if (isset($value['endDate'])) {
-                                $args['lte'] = $value['endDate'];
-                            }
-                            $subQuery = (new Query\BoolQuery())
-                                // floor
-                                ->addShould(
-                                    (new Query\Range())
-                                        ->addField(
-                                            $value['floorField'],
-                                            $args
-                                        )
-                                )
-                                // ceiling
-                                ->addShould(
-                                    (new Query\Range())
-                                        ->addField(
-                                            $value['ceilingField'],
-                                            $args
-                                        )
-                                );
-                            if (isset($value['startDate']) && isset($value['endDate'])) {
-                                $subQuery
-                                    // between floor and ceiling
-                                    ->addShould(
-                                        (new Query\BoolQuery())
-                                            ->addMust(
-                                                (new Query\Range())
-                                                    ->addField($value['floorField'], ['lte' => $value['startDate']])
-                                            )
-                                            ->addMust(
-                                                (new Query\Range())
-                                                    ->addField($value['ceilingField'], ['gte' => $value['endDate']])
-                                            )
-                                    );
-                            }
                             $filterQuery->addMust(
-                                $subQuery
+                                (new Query\Range())
+                                    ->addField($filterValue['ceilingField'], ['lte' => $filterValue['endDate']])
                             );
                         }
                     }
+                    // The data interval must include the search interval
+                    // If only start or end: exact match with start or end
+                    // range must be between floor and ceiling
+                    if (isset($filterValue['type']) && $filterValue['type'] == 'include') {
+                        if (isset($filterValue['startDate']) && !isset($filterValue['endDate'])) {
+                            $filterQuery->addMust(
+                                new Query\Match($filterValue['floorField'], $filterValue['startDate'])
+                            );
+                        } elseif (isset($filterValue['endDate']) && !isset($filterValue['startDate'])) {
+                            $filterQuery->addMust(
+                                new Query\Match($filterValue['ceilingField'], $filterValue['endDate'])
+                            );
+                        } else {
+                            $filterQuery->addMust(
+                                (new Query\Range())
+                                    ->addField($filterValue['floorField'], ['lte' => $filterValue['startDate']])
+                            );
+                            $filterQuery->addMust(
+                                (new Query\Range())
+                                    ->addField($filterValue['ceilingField'], ['gte' => $filterValue['endDate']])
+                            );
+                        }
+                    }
+                    // The data interval must overlap with the search interval
+                    // floor or ceiling must be within range, or range must be between floor and ceiling
+                    else {
+                        $args = [];
+                        if (isset($filterValue['startDate'])) {
+                            $args['gte'] = $filterValue['startDate'];
+                        }
+                        if (isset($filterValue['endDate'])) {
+                            $args['lte'] = $filterValue['endDate'];
+                        }
+                        $subQuery = (new Query\BoolQuery())
+                            // floor
+                            ->addShould(
+                                (new Query\Range())
+                                    ->addField(
+                                        $filterValue['floorField'],
+                                        $args
+                                    )
+                            )
+                            // ceiling
+                            ->addShould(
+                                (new Query\Range())
+                                    ->addField(
+                                        $filterValue['ceilingField'],
+                                        $args
+                                    )
+                            );
+                        if (isset($filterValue['startDate']) && isset($filterValue['endDate'])) {
+                            $subQuery
+                                // between floor and ceiling
+                                ->addShould(
+                                    (new Query\BoolQuery())
+                                        ->addMust(
+                                            (new Query\Range())
+                                                ->addField($filterValue['floorField'], ['lte' => $filterValue['startDate']])
+                                        )
+                                        ->addMust(
+                                            (new Query\Range())
+                                                ->addField($filterValue['ceilingField'], ['gte' => $filterValue['endDate']])
+                                        )
+                                );
+                        }
+                        $filterQuery->addMust(
+                            $subQuery
+                        );
+                    }
                     break;
-                case 'nested':
-                    foreach ($filterValues as $key => $value) {
+                case self::FILTER_NESTED:
+                    // multiple values?
+                    if ( is_array($filterValue) ) {
+                        $subquery = new Query\BoolQuery();
+                        foreach( $filterValue as $val) {
+                            $subquery->addShould(['match' => [$filterName . '.id' => $val]]);
+                        }
+                        $filterQuery->addMust(
+                            (new Query\Nested())
+                                ->setPath($filterName)
+                                ->setQuery($subquery)
+                        );
+                    }
+                    // single value
+                    else {
                         // If value == -1, select all entries without a value for a specific field
-                        if ($value == -1) {
+                        if ($filterValue == -1) {
                             $filterQuery->addMustNot(
                                 (new Query\Nested())
-                                    ->setPath($key)
+                                    ->setPath($filterName)
                                     ->setQuery(
                                         (new Query\BoolQuery())
-                                            ->addMust(new Query\Exists($key))
+                                            ->addMust(new Query\Exists($filterName))
                                     )
                             );
                         } else {
                             $filterQuery->addMust(
                                 (new Query\Nested())
-                                    ->setPath($key)
+                                    ->setPath($filterName)
                                     ->setQuery(
                                         (new Query\BoolQuery())
-                                            ->addMust(['match' => [$key . '.id' => $value]])
+                                            ->addMust(['match' => [$filterName . '.id' => $filterValue]])
                                     )
                             );
                         }
                     }
                     break;
-                case 'nested_toggle':
-                    foreach ($filterValues as $key => $value) {
+                case self::FILTER_NESTED_TOGGLE:
+                    foreach ($filterValue as $key => $filterValue) {
                         // value = [actual value, include/exclude]
-                        if (!$value[1]) {
+                        if (!$filterValue[1]) {
                             // management collection not present
                             // no management collections present or only other management collections present
                             $filterQuery->addMust(
@@ -523,7 +702,7 @@ class ElasticSearchService implements ElasticSearchServiceInterface
                                                     ->setPath($key)
                                                     ->setQuery(
                                                         (new Query\BoolQuery())
-                                                            ->addMust(['match' => [$key . '.id' => $value[0]]])
+                                                            ->addMust(['match' => [$key . '.id' => $filterValue[0]]])
                                                     )
                                             )
                                     )
@@ -535,49 +714,41 @@ class ElasticSearchService implements ElasticSearchServiceInterface
                                     ->setPath($key)
                                     ->setQuery(
                                         (new Query\BoolQuery())
-                                            ->addMust(['match' => [$key . '.id' => $value[0]]])
+                                            ->addMust(['match' => [$key . '.id' => $filterValue[0]]])
                                     )
                             );
                         }
                     }
                     break;
-                case 'text':
-                    foreach ($filterValues as $key => $value) {
-                        $filterQuery->addMust(self::constructTextQuery($key, $value));
-                    }
+                case self::FILTER_TEXT:
+                    $filterQuery->addMust(self::constructTextQuery($filterName, $filterValue));
                     break;
-                case 'multiple_text':
-                    foreach ($filterValues as $field => $options) {
-                        $subQuery = new Query\BoolQuery();
-                        foreach ($options as $key => $value) {
-                            $subQuery->addShould(self::constructTextQuery($key, $value));
-                        }
-                        $filterQuery->addMust($subQuery);
+                case self::FILTER_TEXT_MULTIPLE:
+                    $subQuery = new Query\BoolQuery();
+                    foreach ($filterValue as $field => $filterValue) {
+                        $subQuery->addShould(self::constructTextQuery($field, $filterValue));
                     }
+                    $filterQuery->addMust($subQuery);
                     break;
-                case 'exact_text':
-                    foreach ($filterValues as $key => $value) {
-                        if ($value == -1) {
-                            $filterQuery->addMustNot(
-                                new Query\Exists($key)
-                            );
-                        } else {
-                            $filterQuery->addMust(
-                                (new Query\Match($key . '.keyword', $value))
-                            );
-                        }
-                    }
-                    break;
-                case 'boolean':
-                    foreach ($filterValues as $key => $value) {
+                case self::FILTER_TEXT_EXACT:
+                    if ($filterValue == -1) {
+                        $filterQuery->addMustNot(
+                            new Query\Exists($filterName)
+                        );
+                    } else {
                         $filterQuery->addMust(
-                            (new Query\Match($key, $value))
+                            (new Query\Match($filterName . '.keyword', $filterValue))
                         );
                     }
                     break;
-                case 'multiple_fields_object':
+                case self::FILTER_BOOLEAN:
+                    $filterQuery->addMust(
+                        (new Query\Match($filterName, $filterValue))
+                    );
+                    break;
+                case self::FILTER_MULTIPLE_FIELDS_OBJECT:
                     // options = [[keys], value]
-                    foreach ($filterValues as $key => $options) {
+                    foreach ($filterValue as $key => $options) {
                         $subQuery = new Query\BoolQuery();
                         foreach ($options[0] as $key) {
                             $subQuery->addShould(
@@ -597,27 +768,7 @@ class ElasticSearchService implements ElasticSearchServiceInterface
         return $filterQuery;
     }
 
-    protected function getIdentifierSystemNames(): array
-    {
-        return array_map(
-            function ($identifier) {
-                return $identifier->getSystemName();
-            },
-            $this->primaryIdentifiers
-        );
-    }
-
-    protected function getRoleSystemNames(bool $viewInternal): array
-    {
-        return array_map(
-            function ($role) use ($viewInternal) {
-                return $viewInternal ? $role->getSystemName() : $role->getSystemName() . '_public';
-            },
-            $this->roles
-        );
-    }
-
-    protected static function createHighlight(array $filterTypes): array
+    protected static function createHighlight(array $filters): array
     {
         $highlights = [
             'number_of_fragments' => 0,
@@ -625,24 +776,25 @@ class ElasticSearchService implements ElasticSearchServiceInterface
             'post_tags' => ['</mark>'],
             'fields' => [],
         ];
-        foreach ($filterTypes as $filterType => $filterValues) {
+
+        $filterConfig = static::getSearchFilterConfig();
+
+        foreach( $filters as $filterName => $filterValue ) {
+            $filterType = $filterConfig[$filterName]['type'];
             switch ($filterType) {
-                case 'text':
-                    foreach ($filterValues as $key => $value) {
+                case self::FILTER_TEXT:
+                    $field = $filterValue['field'] ?? $filterName;
+                    $highlights['fields'][$filterName] = new \stdClass();
+                    break;
+                case self::FILTER_TEXT_MULTIPLE:
+                    foreach ($filterValue as $key => $value) {
                         $field = $value['field'] ?? $key;
                         $highlights['fields'][$field] = new \stdClass();
                     }
                     break;
-                case 'multiple_text':
-                    foreach ($filterValues as $options) {
-                        foreach ($options as $key => $value) {
-                            $field = $value['field'] ?? $key;
-                            $highlights['fields'][$field] = new \stdClass();
-                        }
-                    }
-                    break;
             }
         }
+
         return $highlights;
     }
 

@@ -1,0 +1,52 @@
+.search-page {
+  .count-records {
+    left: 10px;
+    margin-top: .75em;
+    position: absolute;
+    right: 10px;
+    text-align: center;
+  }
+
+  .collection-select-all {
+    position: absolute;
+    right: 10px;
+    z-index: 1;
+
+    &.top {
+      margin-top: 2.35em;
+    }
+
+    &.bottom {
+      margin-top: -1em;
+    }
+  }
+
+  .VueTables {
+    .row:first-child {
+      display: block !important;
+
+      .col-md-12:first-child {
+        min-height: 3.667em;
+      }
+    }
+  }
+
+  .VuePagination__count {
+    display: none;
+  }
+
+  table {
+    .no-wrap {
+      white-space: nowrap;
+    }
+
+    .checkbox {
+      margin-top: 0;
+    }
+  }
+}
+
+mark,
+.mark {
+  padding: 0;
+}

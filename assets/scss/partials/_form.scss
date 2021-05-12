@@ -1,0 +1,23 @@
+.form-control {
+  &.listbox {
+    height: inherit;
+  }
+}
+
+.form-group {
+  .hint {
+    padding-top: .5em;
+  }
+}
+
+.radio-list {
+  label {
+    padding-left: 20px;
+    padding-right: 20px;
+
+    input {
+      margin-left: -20px;
+      position: absolute;
+    }
+  }
+}

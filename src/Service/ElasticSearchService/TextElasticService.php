@@ -3,188 +3,116 @@
 namespace App\Service\ElasticSearchService;
 
 use Elastica\Mapping;
+use Elastica\Settings;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class TextElasticService extends ElasticEntityService
+class TextElasticService extends ElasticBaseService
 {
+    const indexName = "texts";
+
     public function __construct(ElasticSearchClient $client, ContainerInterface $container)
     {
         parent::__construct(
             $client,
-            'texts',
-            'text'
-//            $container->get('identifier_manager')->getByType('person')
-        );
+            self::indexName);
     }
 
     public function setup(): void
     {
         $index = $this->getIndex();
+
+        // delete index
         if ($index->exists()) {
             $index->delete();
         }
-        // Configure analysis
-        $index->create(Analysis::ANALYSIS);
 
-        $mapping = new Mapping;
-        $mapping->setProperties(
-            [
-                'name' => [
-                    'type' => 'text',
-                    // Needed for sorting
-                    'fields' => [
-                        'keyword' => [
-                            'type' => 'keyword',
-                            'normalizer' => 'case_insensitive',
-                            'ignore_above' => 256,
-                        ],
+        // configure analysis
+        $index->create($this->getIndexProperties());
+
+        // configure mapping
+        $mapProperties = $this->getMappingProperties();
+        if (count($mapProperties)) {
+            $mapping = new Mapping;
+            $mapping->setProperties($mapProperties);
+            $mapping->send($this->getIndex());
+        }
+    }
+
+    protected function getMappingProperties() {
+        return [
+            'title' => [
+                'type' => 'text',
+                // Needed for sorting
+                'fields' => [
+                    'keyword' => [
+                        'type' => 'keyword',
+                        'normalizer' => 'case_insensitive',
+                        'ignore_above' => 256,
                     ],
                 ],
+            ],
+            'era' => ['type' => 'nested'],
+            'archive' => ['type' => 'nested'],
+            'project' => ['type' => 'nested'],
+            'script' => ['type' => 'nested'],
+            'form' => ['type' => 'nested'],
+            'material' => ['type' => 'nested'],
+            'social_distance' => ['type' => 'nested'],
+        ];
+    }
+
+    protected function getIndexProperties() {
+        return [
+            'settings' => [
+                'analysis' => Analysis::ANALYSIS
             ]
-        );
-        $mapping->send($this->getIndex());
+        ];
     }
 
-    public function searchAndAggregate(array $params, bool $viewInternal): array
-    {
-        // search
-        if (!empty($params['filters'])) {
-            $params['filters'] = $this->classifySearchFilters($params['filters'], $viewInternal);
-        }
-        $result = $this->search($params);
+    protected function getSearchFilterConfig(): array {
+        $searchFilters = [
+            'title' => ['type' => self::FILTER_TEXT],
+            'id' => ['type' => self::FILTER_NUMERIC],
+            'tm_id' => ['type' => self::FILTER_NUMERIC],
+            'script' => ['type' => self::FILTER_NESTED],
+            'form' => ['type' => self::FILTER_NESTED],
+            'material' => ['type' => self::FILTER_NESTED],
+            'social_distance' => ['type' => self::FILTER_NESTED],
+            'era' => ['type' => self::FILTER_NESTED],
+            'archive' => ['type' => self::FILTER_NESTED],
+            'project' => ['type' => self::FILTER_NESTED],
+        ];
 
-        // aggregate
-        $aggregationFilters = ['historical', 'modern', 'role', 'office', 'self_designation', 'origin'];
-        if ($viewInternal) {
-            // add internal filters ...
-        }
+        // add extra filters if user role allows
+        // ...
 
-        $result['aggregation'] = $this->aggregate(
-            $this->classifyAggregationFilters(array_merge($this->getIdentifierSystemNames(), $aggregationFilters), $viewInternal),
-            !empty($params['filters']) ? $params['filters'] : []
-        );
-
-        // Add 'no-selectors' for primary identifiers
-        if ($viewInternal) {
-            foreach ($this->primaryIdentifiers as $identifier) {
-                $result['aggregation'][$identifier->getSystemName()][] = [
-                    'id' => -1,
-                    'name' => 'No ' . $identifier->getName(),
-                ];
-            }
-        }
-
-        return $result;
+        return $searchFilters;
     }
 
-    /**
-     * Add elasticsearch information to aggregation filters
-     * @param  array  $filters
-     * @param  bool   $viewInternal indicates whether internal (non-public) data can be displayed
-     * @return array
-     */
-    public function classifyAggregationFilters(array $filters, bool $viewInternal): array
-    {
-        $result = [];
-        foreach ($filters as $key => $value) {
-            // Primary identifiers
-            if (in_array($value, $this->getIdentifierSystemNames())) {
-                $result['exact_text'][] = $value;
-                continue;
-            }
+    protected function getAggregationFilterConfig(): array {
+        $aggregationFilters = [
+            'script' => ['type' => self::AGG_NESTED],
+            'form'  => ['type' => self::AGG_NESTED],
+            'material'  => ['type' => self::AGG_NESTED],
+            'social_distance' => ['type' => self::AGG_NESTED],
+            'era' => ['type' => self::AGG_NESTED],
+            'archive' => ['type' => self::AGG_NESTED],
+            'project' => ['type' => self::AGG_NESTED],
+        ];
 
-            switch ($value) {
-            case 'role':
-            case 'self_designation':
-            case 'office':
-            case 'origin':
-            case 'management':
-                $result['nested'][] = $value;
-                break;
-            case 'public':
-            case 'historical':
-            case 'modern':
-                $result['boolean'][] = $value;
-                break;
-            }
-        }
-        return $result;
+        // add extra filters if user role allows
+        // ...
+
+        return $aggregationFilters;
     }
 
-    /**
-     * Add elasticsearch information to search filters
-     * @param  array $filters
-     * @param  bool   $viewInternal indicates whether internal (non-public) data can be displayed
-     * @return array
-     */
-    public function classifySearchFilters(array $filters, bool $viewInternal): array
-    {
-        $result = [];
-        foreach ($filters as $key => $value) {
-            if (!isset($value) || $value === '') {
-                continue;
-            }
-
-            // Primary identifiers
-            if (in_array($key, $this->getIdentifierSystemNames())) {
-                $result['exact_text'][$key] = $value;
-                continue;
-            }
-
-            switch ($key) {
-            case 'date':
-                $date_result = [
-                    'floorField' => 'born_date_floor_year',
-                    'ceilingField' => 'death_date_ceiling_year',
-                    'type' => $filters['date_search_type'],
-                ];
-                if (array_key_exists('from', $value)) {
-                    $date_result['startDate'] = $value['from'];
-                }
-                if (array_key_exists('to', $value)) {
-                    $date_result['endDate'] = $value['to'];
-                }
-                $result['date_range'][] = $date_result;
-                break;
-            case 'role':
-            case 'self_designation':
-            case 'office':
-            case 'origin':
-                $result['nested'][$key] = $value;
-                break;
-            case 'management':
-                if (isset($filters['management_inverse']) && $filters['management_inverse']) {
-                    $result['nested_toggle'][$key] = [$value, false];
-                } else {
-                    $result['nested_toggle'][$key] = [$value, true];
-                }
-                break;
-            case 'name':
-            case 'public_comment':
-                $result['text'][$key] = [
-                    'text' => $value,
-                    'combination' => 'any',
-                ];
-                break;
-            case 'comment':
-                $result['multiple_text'][$key] = [
-                    'public_comment'=> [
-                        'text' => $value,
-                        'combination' => 'any',
-                    ],
-                    'private_comment'=> [
-                        'text' => $value,
-                        'combination' => 'any',
-                    ],
-                ];
-                break;
-            case 'public':
-            case 'historical':
-            case 'modern':
-                $result['boolean'][$key] = ($value === '1');
-                break;
-            }
-        }
-        return $result;
+    protected function getDefaultSearchParameters(): array {
+        return [
+            'limit' => 25,
+            'page' => 1,
+            'ascending' => 1,
+            'orderBy' => ['title.keyword'],
+        ];
     }
+
 }

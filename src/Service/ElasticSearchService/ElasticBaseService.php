@@ -9,19 +9,6 @@ use Elastica\Document;
 
 abstract class ElasticBaseService extends ElasticSearchService
 {
-    /*
-    public function updateRoleMapping(): void
-    {
-        $mapping = new Mapping;
-        $properties = [];
-        foreach ($this->getRoleSystemNames(true) as $role) {
-            $properties[$role] = ['type' => 'nested'];
-            $properties[$role . '_public'] = ['type' => 'nested'];
-        }
-        $mapping->setProperties($properties);
-        $mapping->send($this->getIndex());
-    }
-    */
 
     public function addMultiple(ResourceCollection $resources): void
     {
