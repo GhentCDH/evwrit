@@ -3,7 +3,7 @@
 namespace App\Command;
 
 use App\Repository\TextRepository;
-use App\Resource\TextResource;
+use App\Resource\TextElasticResource;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -52,16 +52,25 @@ class IndexElasticsearchCommand extends Command
 
 
         $repository = $this->container->get('text_repository' );
-        $service = $this->container->get('text_elastic_service');
 
-        $repository->indexQuery()->where('text_id', '<', 100)->chunk(20,
+        $service = $this->container->get('text_elastic_service');
+        $service->setup();
+
+//        $text = $repository->indexQuery()->find(69108);
+//        print_r($text);
+//        $res = new TextElasticResource($text);
+//        print_r($res->toJson(null));
+//        return Command::SUCCESS;
+
+        $repository->indexQuery()->where('text_id', '<', 500)->chunk(100,
             function($res) use ($service) {
                 foreach ($res as $text) {
-                    $res = new TextResource($text);
+                    $res = new TextElasticResource($text);
                     $service->add($res);
             }
         });
 
         return Command::SUCCESS;
+
     }
 }
