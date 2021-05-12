@@ -11,7 +11,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class TextRepository implements RepositoryInterface, IndexProviderInterface
 {
-    protected $relations = ['scripts', 'forms','languages','materials', 'socialDistances','productionStages'];
+    protected $relations = [
+        'scripts',
+        'forms',
+        'languages',
+        'materials',
+        'socialDistances',
+        'productionStages',
+        'era',
+        'projects',
+        'archive'
+    ];
 
     public function find(int $id, $relations = []): Model
     {
