@@ -1,9 +1,9 @@
 import Vue from 'vue'
-import PersonSearchApp from '../apps/PersonSearchApp'
+import TextSearchApp from '../apps/TextSearchApp'
 
 new Vue({
-    el: '#person-search-app',
+    el: '#text-search-app',
     components: {
-        PersonSearchApp
+        TextSearchApp
     }
 })

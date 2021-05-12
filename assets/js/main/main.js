@@ -1,14 +1,11 @@
+import '../../scss/screen.scss';
+
 import $ from 'jquery';
 require('mark.js/dist/jquery.mark.js');
 require('bootstrap-sass');
-require('ekko-lightbox');
 import '@firstandthird/toc/dist/toc.js';
 
 (function() {
-    $(document).on('click', '[data-toggle="lightbox"]', function (event) {
-        event.preventDefault();
-        $(this).ekkoLightbox();
-    });
 
     $('.thumbnail.hidden img').on('load', function (event) {
         $(this).closest('.thumbnail').fadeIn(500).removeClass('hidden');
