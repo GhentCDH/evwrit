@@ -1,4 +1,7 @@
 {
+  "dependencies": {
+    "huisstijl2016": "git+ssh://git@github.ugent.be/lw/huisstijl2016.git"
+  },
   "devDependencies": {
     "@firstandthird/toc": "^1.4.1",
     "@symfony/webpack-encore": "^0.24.0",
