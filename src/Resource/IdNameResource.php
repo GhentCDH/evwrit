@@ -3,7 +3,7 @@
 namespace App\Resource;
 
 
-class TextResource extends BaseResource
+class IdNameResource extends BaseResource
 {
     /**
      * Transform the resource into an array.
@@ -11,16 +11,14 @@ class TextResource extends BaseResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request = null)
     {
-        return [
-            'id' => $this->getId(),
-            'title' => $this->title,
-//            'text' => $this->text,
-            'script' => $this->scripts->modelKeys(),
-            'form' => $this->forms->modelKeys(),
-//            'material' => $this->materials->modelKeys(),
-//            'social_distance' => $this->socialDistances->modelKeys()
-        ];
+        if ($this->resource) {
+            return [
+                'id' => $this->getId(),
+                'name' => $this->name,
+            ];
+        }
+        return [];
     }
 }
