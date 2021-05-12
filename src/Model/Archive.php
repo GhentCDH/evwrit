@@ -8,6 +8,6 @@ namespace App\Model;
  *
  * @package App\Model
  */
-class Location extends IdNameModel
+class Archive extends IdNameModel
 {
 }

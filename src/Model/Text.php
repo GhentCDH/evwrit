@@ -60,5 +60,19 @@ class Text extends BaseModel
         return $this->belongsToMany(ProductionStage::class);
     }
 
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class);
+    }
+
+    public function archive()
+    {
+        return $this->belongsTo( Archive::class, 'archive_id', 'archive_id');
+    }
+
+    public function collaborators()
+    {
+        return $this->belongsToMany(Collaborator::class);
+    }
 
 }
