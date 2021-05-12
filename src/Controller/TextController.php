@@ -4,8 +4,11 @@ namespace App\Controller;
 
 use App\Model\Text;
 use App\Resource\TextResource;
+use App\Service\ElasticSearchService\TextElasticService;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -46,5 +49,64 @@ class TextController extends AbstractController
         return $this->render('text/index.html.twig', [
             'controller_name' => 'TextController',
         ]);
+    }
+
+    /**
+     * @Route("/text/search", name="text_search")
+     * @Method("GET")
+     * @param Request $request
+     * @param TextElasticService $elasticservice
+     * @return Response
+     */
+    public function search(
+        Request $request,
+        TextElasticService $elasticService
+    ) {
+        return $this->render(
+            'Text/overview.html.twig',
+            [
+                'urls' => json_encode([
+                    // @codingStandardsIgnoreStart Generic.Files.LineLength
+                    'text_search_api' => $this->generateUrl('text_search_api'),
+//                    'login' => $this->generateUrl('saml_login'),
+                    // @codingStandardsIgnoreEnd
+                ]),
+                'data' => json_encode(
+                    $elasticService->searchAndAggregate(
+                        $this->sanitize($request->query->all())
+                    )
+                ),
+                'identifiers' => json_encode([]),
+                'managements' => json_encode([])
+            ]
+        );
+    }
+
+    /**
+     * @Route("/text/search_api", name="text_search_api")
+     * @Method("GET")
+     * @param Request $request
+     * @param TextElasticService $elasticService
+     * @return JsonResponse
+     */
+    public function searchAPI(
+        Request $request,
+        TextElasticService $elasticService
+    ) {
+        $result = $elasticService->searchAndAggregate(
+            $this->sanitize($request->query->all())
+        );
+
+        return new JsonResponse($result);
+    }
+
+    /**
+     * Sanitize data from request string
+     * @param array $params
+     * @return array
+     */
+    private function sanitize(array $params): array
+    {
+        return $params;
     }
 }
