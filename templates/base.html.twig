@@ -1,19 +1,200 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {# Run `composer require symfony/webpack-encore-bundle`
-           and uncomment the following Encore helpers to start using Symfony UX #}
+        <title>Database of Everyday Writing</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
         {% block stylesheets %}
-            {#{{ encore_entry_link_tags('app') }}#}
+            {{ encore_entry_link_tags('main') }}
         {% endblock %}
+        <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('build/static/icons/apple-icon-57x57.png') }}"/>
+        <link rel="apple-touch-icon" sizes="60x60" href="{{ asset('build/static/icons/apple-icon-60x60.png') }}"/>
+        <link rel="apple-touch-icon" sizes="72x72" href="{{ asset('build/static/icons/apple-icon-72x72.png') }}"/>
+        <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('build/static/icons/apple-icon-76x76.png') }}"/>
+        <link rel="apple-touch-icon" sizes="114x114" href="{{ asset('build/static/icons/apple-icon-114x114.png') }}"/>
+        <link rel="apple-touch-icon" sizes="120x120" href="{{ asset('build/static/icons/apple-icon-120x120.png') }}"/>
+        <link rel="apple-touch-icon" sizes="144x144" href="{{ asset('build/static/icons/apple-icon-144x144.png') }}"/>
+        <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('build/static/icons/apple-icon-152x152.png') }}"/>
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('build/static/icons/apple-icon-180x180.png') }}"/>
+        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('build/static/icons/android-icon-192x192.png') }}"/>
+        <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('build/static/icons/favicon-96x96.png') }}"/>
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('build/static/icons/favicon-32x32.png') }}"/>
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('build/static/icons/favicon-16x16.png') }}"/>
+        <link rel="icon" sizes="16x16 32x32" href="{{ asset('build/static/icons/favicon.ico') }}"/>
+        <link rel="manifest" href="{{ asset('build/static/icons/manifest.json') }}"/>
 
-        {% block javascripts %}
-            {#{{ encore_entry_script_tags('app') }}#}
-        {% endblock %}
+        <meta name="msapplication-TileColor" content="#ffffff"/>
+        <meta name="msapplication-TileImage" content="{{ asset('build/static/icons/ms-icon-144x144.png') }}"/>
+        <meta name="theme-color" content="#ffffff"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+        <meta name="author" content="The Database of Byzantine Book Epigrams (DBBE) Team">
+
+        <meta property="og:title" content="Database of Everyday Writing">
+        <meta property="og:type" content="website" />
+        <meta property="og:description" content="The Database of Byzantine Book Epigrams (DBBE) project makes available textual and contextual data of book epigrams from medieval Greek manuscripts. We define book epigrams as poems in books and on books: their subject is the very manuscript in which they are found.">
+        <meta property="og:image" content="{{ app.request.getSchemeAndHttpHost() ~ asset('build/static/images/logo_square.png') }}">
+        <meta property="og:url" content="{{ app.request.uri }}">
     </head>
+    <!-- Global Site Tag (gtag.js) - Google Analytics -->
+    <!--
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-67248980-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-67248980-1');
+    </script>
+    -->
+
     <body>
-        {% block body %}{% endblock %}
+        <div class="fluid-container">
+            <div class="row">
+                <header class="pageheader col-xs-12 ">
+                    <nav class="navbar navbar-default">
+                        <div class="row">
+                            <div class="navbar-header col-xs-12 col-sm-2">
+                                <div class="page-logo">
+                                    <a href="https://www.ugent.be/" class="link">
+                                        <img src="{{ asset('build/static/images/logo_ugent_en.svg') }}" alt="Ghent University">
+                                    </a>
+                                </div>
+                                <a href="#" class="toggle-search">
+                                    <i class="glyphicon glyphicon-search"></i>
+                                    <span>ZOEK</span>
+                                </a>
+                                <a href="#" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar" role="button">
+                                    <span class="">MENU</span>
+                                    <div class="block">
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                    </div>
+                                </a>
+                            </div>
+                            <div id="navbar" class="collapse navbar-collapse col-sm-10" role="navigation">
+                                <div class="row menu">
+                                    <div class="col-xs-12">
+                                        <div class="bg-primary spacer">
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <ul class="nav-tertiary nav navbar-nav navbar-right">
+                                                        <li>
+                                                            <a href="https://www.ugent.be/lw/en" title="Home Faculty of Arts and Philosophy">Home Faculty of Arts and Philosophy</a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="https://www.ugent.be/en" title="Home Ghent University">Home Ghent University</a>
+                                                        </li>
+                                                        {% if is_granted("ROLE_USER") %}
+                                                            <li>
+                                                                <span><i class="fa fa-key"></i>&nbsp;{{ app.user.getUsername() }}</span>
+                                                            </li>
+                                                            <li>
+{#                                                                <a href="{{ path('saml_logout') }}">Log out</a>#}
+                                                            </li>
+                                                        {% else %}
+                                                            <li>
+{#                                                                <a href="{{ path('saml_login') }}">Login</a>#}
+                                                            </li>
+                                                        {% endif %}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row menu">
+                                    <div class="col-xs-12">
+                                        <ul class="nav-primary nav navbar-nav">
+                                            <li class="{{ app.request.get('_route') == 'text_search' ? 'active' }}">
+                                                <a href="{{ path('text_search') }}">
+                                                    <span>Text</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="row branding-wrapper">
+                        <div class="col-xs-12 col-sm-10 col-sm-offset-2 branding-container header_title faculty-1">
+                            <a href="/">
+                                <h1>Database of Everyday Writing</h1>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+            </div>
+            {% if app.environment != 'prod' and app.environment != 'stage' %}
+                <div class="row">
+                    <div class="col-xs-12">
+                        <h2 class="text-danger text-center">
+                            This is a test environment.
+                        </h2>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="fluid-container">
+            {% if app.request.hasPreviousSession %}
+                {% for type, messages in app.session.flashbag.all() %}
+                    {% for message in messages %}
+                        <div role="alert" class="alert alert-dismissible alert-{{ type }}">
+                            <button aria-label="Close" data-dismiss="alert" class="close" type="button"><span aria-hidden="true">×</span></button>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
+            <div class="row">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+
+        <footer class="page-footer fluid-container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="banner-img padding-20">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-4 pbottom-small branding-container footer_title faculty">
+                                <h2>
+                                    <a href="https://www.ugent.be/lw/en">
+                                        <img class="svg" alt="Logo Faculty of Arts and Philosophy" src="{{ asset('build/static/images/logo_lw_en.svg') }}" />
+                                    </a>
+                                </h2>
+                            </div>
+                            <div class="col-xs-12 col-sm-4 branding-container app-logo-container">
+{#
+                                <a href="{{ path('homepage') }}">
+                                    <img class="svg app-logo" src="{{ asset('build/static/images/logo.svg') }}" alt="Logo DBBE">
+                                </a>
+#}
+                            </div>
+                            <div class="col-xs-12 col-sm-4">
+                                <ul class="list-inline list-unstyled pull-right">
+
+                                    <li>
+                                        &copy; {{ "now"|date("Y") }} Ghent University
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="container-share col-xs-12 col-sm-4">
+                                <!-- social -->
+                                <ul class="list-inline list-unstyled social">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        {% block javascript %}
+            {{ encore_entry_script_tags('main') }}
+        {% endblock %}
     </body>
 </html>
