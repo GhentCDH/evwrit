@@ -11,8 +11,32 @@ class TextElasticResource extends BaseResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request=null)
     {
+/*
+ * EVWRIT ID
+
+Communicative goal (main)
+Communicative goal (subtype)
+
+Name ancient person
+TM Person ID
+Patronymic
+
+Role
+Gender
+Occupation
+Social rank (main)
+Social rank (hypertype)
+Honorofic epithet
+Domicile
+Type domicile
+Type graph
+
+Status Revision
+
+ */
+
         return [
             'id' => $this->getId(),
             'tm_id' => $this->tm_id,
@@ -20,15 +44,25 @@ class TextElasticResource extends BaseResource
             'text' => $this->text,
             'year_begin' => $this->year_begin,
             'year_end' => $this->year_end,
-            'era' => (new IdNameResource($this->era))->toArray(),
-            'archive' => (new IdNameResource($this->archive))->toArray(),
+            'era' => new IdNameResource($this->era),
+            'archive' => new IdNameResource($this->archive),
 
-
-            'script' => IdNameResource::collection($this->scripts)->toArray(null),
-            'form' => IdNameResource::collection($this->forms)->toArray(null),
             'material' => IdNameResource::collection($this->materials)->toArray(null),
+            'language' => IdNameResource::collection($this->materials)->toArray(null),
+
+            'text_type' => new IdNameResource($this->textType),
+            'text_subtype' => new IdNameResource($this->textSubtype),
+
+            'collaborator' => IdNameResource::collection($this->collaborators)->toArray(null),
             'social_distance' => IdNameResource::collection($this->socialDistances)->toArray(null),
             'project' => IdNameResource::collection($this->projects)->toArray(null),
+            'keyword' => IdNameResource::collection($this->keywords)->toArray(null),
+
+            'location_found' => IdNameResource::collection($this->locationsFound)->toArray(null),
+            'location_written' => IdNameResource::collection($this->locationsWritten)->toArray(null),
+
+            'agentive_role' => AgentiveRoleElasticResource::collection($this->textAgentiveRoles)->toArray(null),
+            'communicative_goal' => CommunicativeGoalElasticResource::collection($this->textCommunicativeGoals)->toArray(null),
         ];
     }
 }

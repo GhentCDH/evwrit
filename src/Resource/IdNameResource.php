@@ -11,7 +11,7 @@ class IdNameResource extends BaseResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request = null)
+    public function toArray($request = null): array
     {
         if ($this->resource) {
             return [

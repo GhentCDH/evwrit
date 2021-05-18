@@ -5,23 +5,33 @@ namespace App\Resource;
 
 
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use JsonSerializable;
 
 class BaseResource extends AbstractResource
 {
+    public function jsonSerialize(): array
+    {
+        return $this->resolve();
+    }
 
-    public function toJson($options = 0): ?string
+    /**
+     * Resolve the resource to an array.
+     *
+     * @param  \Illuminate\Http\Request|null  $request
+     * @return array
+     */
+    public function resolve($request = null): array
     {
         $data = $this->toArray(null);
-        /*
+
         if ($data instanceof Arrayable) {
             $data = $data->toArray();
         } elseif ($data instanceof JsonSerializable) {
             $data = $data->jsonSerialize();
         }
-        */
 
-        $data = $this->filter((array) $data);
-        return json_encode($data);
+        return $this->filter((array) $data);
     }
+
 }

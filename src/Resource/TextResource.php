@@ -11,7 +11,7 @@ class TextResource extends BaseResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request=null): array
     {
         return [
             'id' => $this->getId(),
