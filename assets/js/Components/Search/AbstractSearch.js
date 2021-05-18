@@ -62,6 +62,26 @@ export default {
         }
     },
     computed: {
+        fields() {
+            let res = {};
+            if (this.schema && this.schema.fields) {
+                this.schema.fields.forEach( field => {
+                    if (!this.multiple || field.multi === true)
+                        res[field.model] = field;
+                });
+            }
+            if (this.schema && this.schema.groups) {
+                this.schema.groups.forEach( group => {
+                    if (group.fields) {
+                        group.fields.forEach(field => {
+                            if (!this.multiple || field.multi === true)
+                                res[field.model] = field;
+                        });
+                    }
+                });
+            }
+            return res;
+        },
         showReset() {
             for (let key in this.model) {
                 if (this.model.hasOwnProperty(key)) {
@@ -147,7 +167,7 @@ export default {
             let result = {}
             if (this.model != null) {
                 for (let fieldName of Object.keys(this.model)) {
-                    if (this.schema.fields[fieldName] != null && this.schema.fields[fieldName].type === 'multiselectClear') {
+                    if (this.fields[fieldName] != null && this.fields[fieldName].type === 'multiselectClear') {
                         if (this.model[fieldName] != null) {
                             if (Array.isArray(this.model[fieldName]))
                             {
@@ -208,8 +228,8 @@ export default {
                 && (
                     this.lastChangedField === 'dateInput'
                     || (
-                        this.schema.fields[this.lastChangedField]
-                        && this.schema.fields[this.lastChangedField].type === 'input'
+                        this.fields[this.lastChangedField]
+                        && this.fields[this.lastChangedField].type === 'input'
                     )
                 )
             ) {
@@ -318,8 +338,8 @@ export default {
             }
 
             // Update aggregation fields
-            for (let fieldName of Object.keys(this.schema.fields)) {
-                let field = this.schema.fields[fieldName]
+            for (let fieldName of Object.keys(this.fields)) {
+                let field = this.fields[fieldName]
                 if (field.type === 'multiselectClear') {
                     let values = this.aggregation[fieldName] == null ? [] : this.aggregation[fieldName].sort(this.sortByName)
                     field.values = values
@@ -356,8 +376,8 @@ export default {
             let model = JSON.parse(JSON.stringify(this.originalModel))
             if (params.hasOwnProperty('filters')) {
                 Object.keys(params['filters']).forEach((key) => {
-                    if (this.schema.fields.hasOwnProperty(key)) {
-                        if (this.schema.fields[key].type === 'multiselectClear' && this.aggregation[key] != null) {
+                    if (this.fields.hasOwnProperty(key)) {
+                        if (this.fields[key].type === 'multiselectClear' && this.aggregation[key] != null) {
                             if (Array.isArray(params['filters'][key])) {
                                 model[key] = this.aggregation[key].filter(v => params['filters'][key].includes(String(v.id)))
                             }
