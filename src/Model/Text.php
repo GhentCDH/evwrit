@@ -2,7 +2,12 @@
 
 namespace App\Model;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use ReflectionException;
 use function Symfony\Component\String\u;
 
 /**
@@ -25,54 +30,186 @@ class Text extends BaseModel
     protected $fillable = ['text_id','title','text'];
 
 
-    public function era()
+    /**
+     * @return BelongsTo|Era
+     * @throws ReflectionException
+     */
+    public function era(): BelongsTo
     {
         return $this->belongsTo( Era::class, 'era_id', 'era_id');
     }
 
-    public function scripts()
+    /**
+     * @return BelongsToMany|Collection|Script[]
+     * @throws ReflectionException
+     */
+    public function scripts(): BelongsToMany
     {
         return $this->belongsToMany(Script::class);
     }
 
-    public function forms()
+    /**
+     * @return BelongsToMany|Collection|Form[]
+     * @throws ReflectionException
+     */
+    public function forms(): BelongsToMany
     {
         return $this->belongsToMany(Form::class);
     }
 
-    public function languages()
+    /**
+     * @return BelongsToMany|Collection|Language[]
+     * @throws ReflectionException
+     */
+    public function languages(): BelongsToMany
     {
         return $this->belongsToMany(Language::class);
     }
 
-    public function materials()
+    /**
+     * @return BelongsToMany|Collection|Material[]
+     * @throws ReflectionException
+     */
+    public function materials(): BelongsToMany
     {
         return $this->belongsToMany(Material::class);
     }
 
-    public function socialDistances()
+    /**
+     * @return BelongsToMany|Collection|SocialDistance[]
+     * @throws ReflectionException
+     */
+    public function socialDistances(): BelongsToMany
     {
         return $this->belongsToMany(SocialDistance::class);
     }
 
-    public function productionStages()
+    /**
+     * @return BelongsToMany|Collection|ProductionStage[]
+     * @throws ReflectionException
+     */
+    public function productionStages(): BelongsToMany
     {
         return $this->belongsToMany(ProductionStage::class);
     }
 
-    public function projects()
+    /**
+     * @return BelongsToMany|Collection|Project[]
+     * @throws ReflectionException
+     */
+    public function projects(): BelongsToMany
     {
         return $this->belongsToMany(Project::class);
     }
 
-    public function archive()
+    /**
+     * @return BelongsToMany|Collection|Keyword[]
+     * @throws ReflectionException
+     */
+    public function keywords(): BelongsToMany
+    {
+        return $this->belongsToMany(Keyword::class);
+    }
+
+    /**
+     * @return BelongsTo|Archive
+     * @throws ReflectionException
+     */
+    public function archive(): BelongsTo
     {
         return $this->belongsTo( Archive::class, 'archive_id', 'archive_id');
     }
 
-    public function collaborators()
+    /**
+     * @return BelongsTo|TextType
+     * @throws ReflectionException
+     */
+    public function textType(): BelongsTo
+    {
+        return $this->belongsTo( TextType::class, 'text_type_id', 'text_type_id');
+    }
+
+    /**
+     * @return BelongsTo|TextSubtype
+     * @throws ReflectionException
+     */
+    public function textSubtype(): BelongsTo
+    {
+        return $this->belongsTo( TextSubtype::class);
+    }
+
+    /**
+     * @return BelongsTo|TextFormat
+     * @throws ReflectionException
+     */
+    public function textFormat(): BelongsTo
+    {
+        return $this->belongsTo( TextFormat::class);
+    }
+
+    /**
+     * @return BelongsToMany|Collection|Collaborator[]
+     * @throws ReflectionException
+     */
+    public function collaborators(): BelongsToMany
     {
         return $this->belongsToMany(Collaborator::class);
     }
+
+    /**
+     * @return BelongsToMany|Collection|Location[]
+     * @throws ReflectionException
+     */
+    public function locations(): BelongsToMany
+    {
+        return $this->belongsToMany(Location::class);
+    }
+
+    /**
+     * @return BelongsToMany|Collection|WritingDirection[]
+     * @throws ReflectionException
+     */
+    public function writingDirections(): BelongsToMany
+    {
+        return $this->belongsToMany(WritingDirection::class);
+    }
+
+    /**
+     * @return HasMany|Attestation[]
+     */
+    public function attestations(): HasMany
+    {
+        return $this->hasMany(Attestation::class, 'text_id', 'text_id');
+    }
+
+    /**
+     * @return BelongsToMany|Location[]
+     * @throws ReflectionException
+     */
+    public function locationsFound()
+    {
+        //return Location::join('text__location','location.location_id','text__location.location_id')->select('location.*')->where('text__location.is_found',1)->where('text__location.text_id', $this->getId())->get();
+        return $this->locations()->wherePivot('is_found', 1);
+    }
+
+    /**
+     * @return BelongsToMany|Location[]
+     * @throws ReflectionException
+     */
+    public function locationsWritten()
+    {
+        return $this->locations()->wherePivot('is_written',1);
+    }
+
+    public function textAgentiveRoles(): HasMany
+    {
+        return $this->hasMany(Text_AgentiveRole::class);
+    }
+
+    public function textCommunicativeGoals(): HasMany
+    {
+        return $this->hasMany(Text_CommunicativeGoal::class);
+    }
+
 
 }
