@@ -28,6 +28,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
     protected const FILTER_NUMERIC_MULTIPLE = "numeric_multiple";
     protected const FILTER_NESTED = "nested";
     protected const FILTER_NESTED_TOGGLE = "nested_toggle";
+    protected const FILTER_NESTED_MULTIPLE = "nested";
     protected const FILTER_OBJECT = "object";
     protected const FILTER_TEXT = "text";
     protected const FILTER_TEXT_EXACT = "text_exact";
@@ -69,11 +70,20 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
 
     /**
      * Add aggregation details to search service
-     * Return array of aggregation_field => aggregation_type
+     * Return array of aggregation_field => [
+     *  'type' => aggregation type
+     * ]
      * @return array
      */
     protected abstract function getAggregationFilterConfig(): array;
 
+    /**
+     * Add search filter details to search service
+     * Return array of search_field => [
+     *  'type' => aggregation type
+     * ]
+     * @return array
+     */
     protected abstract function getSearchFilterConfig(): array;
 
     protected function getDefaultSearchParameters(): array
@@ -89,7 +99,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
     protected function sanitizeSearchParameters(array $params): array
     {
         // Set default parameters
-        $defaults = static::getDefaultSearchParameters();
+        $defaults = $this->getDefaultSearchParameters();
 
         $result = array_intersect_key(
             $defaults,
@@ -135,11 +145,11 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
     protected function sanitizeSearchFilters(array $params): array
     {
         // Init Filters
-        $filterDefaults = static::getDefaultSearchFilters();
+        $filterDefaults = $this->getDefaultSearchFilters();
         $filters = $filterDefaults;
 
         // Limit allowed filters
-        $filterConfig = static::getSearchFilterConfig();
+        $filterConfig = $this->getSearchFilterConfig();
         $params_filtered = array_intersect_key($params, $filterConfig);
 
         // Validate values
@@ -200,6 +210,10 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
         return $filters;
     }
 
+    protected function sanitizeSearchResult(array $result) {
+        return $result;
+    }
+
     protected function search(array $params = null): array
     {
         // sanitize search parameters
@@ -237,16 +251,14 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
         $searchFilters = [];
         if (isset($params['filters']) && is_array($params['filters'])) {
             $searchFilters = $this->sanitizeSearchFilters($params['filters']);
-            $query->setQuery(self::createSearchQuery($searchFilters));
-            $query->setHighlight(self::createHighlight($searchFilters));
+            $query->setQuery($this->createSearchQuery($searchFilters));
+            $query->setHighlight($this->createHighlight($searchFilters));
         }
 
         // Search
-        dump(json_encode($query->getQuery()->toArray()));
         $data = $this->getIndex()->search($query)->getResponse()->getData();
 
         // Format response
-        // @flamsens: elastic 7 needs ['value']
         $response = [
             'count' => $data['hits']['total']['value'],
             'data' => []
@@ -254,7 +266,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
 
         // Build array to remove _stemmer or _original blow
         $rename = [];
-        $filterConfig = static::getSearchFilterConfig();
+        $filterConfig = $this->getSearchFilterConfig();
         foreach ($searchFilters as $filterName => $filterValue)
         {
             switch ($filterConfig[$filterName]['type']) {
@@ -292,7 +304,9 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     unset($part['original_' . $key]);
                 }
             }
-            $response['data'][] = $part;
+
+            // sanitize result
+            $response['data'][] = $this->sanitizeSearchResult($part);
         }
 
         return $response;
@@ -300,65 +314,96 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
 
     protected function aggregate(array $filters): array
     {
-        $aggFilters = static::getAggregationFilterConfig();
+        $aggFilters = $this->getAggregationFilterConfig();
         if ( !count($aggFilters) ) {
             return [];
         }
 
         // create search query
         $query = (new Query())
-            ->setQuery(self::createSearchQuery($this->sanitizeSearchFilters($filters)))
+            ->setQuery($this->createSearchQuery($this->sanitizeSearchFilters($filters)))
             // Only aggregation will be used
             ->setSize(0);
 
         // add aggregations
-        foreach($aggFilters as $fieldName => $aggFilter) {
-            $aggType = $aggFilter['type'];
+        foreach($aggFilters as $aggName => $aggConfig) {
+            $aggType = $aggConfig['type'];
+            $aggField = $aggConfig['field'] ?? $aggName;
             switch($aggType) {
                 case self::AGG_NUMERIC:
                     $query->addAggregation(
-                        (new Aggregation\Terms($fieldName))
+                        (new Aggregation\Terms($aggName))
                             ->setSize(self::MAX_AGG)
-                            ->setField($fieldName)
+                            ->setField($aggField)
                     );
                     break;
                 case self::AGG_OBJECT:
                     $query->addAggregation(
-                        (new Aggregation\Terms($fieldName))
+                        (new Aggregation\Terms($aggName))
                             ->setSize(self::MAX_AGG)
-                            ->setField($fieldName . '.id')
+                            ->setField($aggField . '.id')
                             ->addAggregation(
                                 (new Aggregation\Terms('name'))
-                                    ->setField($fieldName . '.name.keyword')
+                                    ->setField($aggField . '.name.keyword')
                             )
                     );
                     break;
                 case self::AGG_EXACT_TEXT:
                     $query->addAggregation(
-                        (new Aggregation\Terms($fieldName))
+                        (new Aggregation\Terms($aggName))
                             ->setSize(self::MAX_AGG)
-                            ->setField($fieldName . '.keyword')
+                            ->setField($aggField . '.keyword')
                     );
                     break;
                 case self::AGG_NESTED:
-                    $query->addAggregation(
-                        (new Aggregation\Nested($fieldName, $fieldName))
-                            ->addAggregation(
-                                (new Aggregation\Terms('id'))
-                                    ->setSize(self::MAX_AGG)
-                                    ->setField($fieldName . '.id')
-                                    ->addAggregation(
-                                        (new Aggregation\Terms('name'))
-                                            ->setField($fieldName . '.name.keyword')
-                                    )
-                            )
-                    );
+                    $aggPath = $aggConfig['path'] ?? $aggName;
+                    $aggField = isset($aggConfig['path']) ? $aggConfig['path'].'.'.$aggName : $aggName;
+                    $aggFilter = $aggConfig['filter'] ?? false;
+
+                    // id|name term aggregation
+                    $aggTerm = (new Aggregation\Terms('id'))
+                        ->setSize(self::MAX_AGG)
+                        ->setField($aggField . '.id')
+                        ->addAggregation(
+                            (new Aggregation\Terms('name'))
+                                ->setField($aggField . '.name.keyword')
+                        );
+
+                    // filtered aggregation?
+                    if ($aggFilter) {
+                        $filterQuery = new Query\BoolQuery();
+                        foreach($aggFilter as $filterField => $filterValue) {
+                            if (isset($filters[$filterValue])) {
+                                $filterQuery->addFilter(
+                                    (new Query\Term())
+                                        ->setTerm($aggPath.'.'.$filterField, $filters[$filterValue])
+                                );
+                            }
+                        }
+
+                        $query->addAggregation(
+                            (new Aggregation\Nested($aggName, $aggPath))
+                                ->addAggregation(
+                                (new Aggregation\Filter($aggName.":filter"))
+                                    ->setFilter($filterQuery)
+                                    ->addAggregation($aggTerm)
+                                )
+                        );
+                    } else {
+                    // no aggregation filter
+                        $query->addAggregation(
+                            (new Aggregation\Nested($aggName, $aggPath))
+                                ->addAggregation($aggTerm)
+                        );
+
+                    }
+
                     break;
                 case self::AGG_BOOLEAN:
                     $query->addAggregation(
-                        (new Aggregation\Terms($fieldName))
+                        (new Aggregation\Terms($aggName))
                             ->setSize(self::MAX_AGG)
-                            ->setField($fieldName)
+                            ->setField($aggField)
                     );
                     break;
                 case self::AGG_MULTIPLE_FIELDS_OBJECT:
@@ -367,7 +412,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     //      'actual field name' (e.g. 'person'),
                     //      'dependend field name' (e.g. 'role')
                     //  ]
-                    foreach ($fieldName[0] as $key) {
+                    foreach ($aggName[0] as $key) {
                         $query->addAggregation(
                             (new Aggregation\Nested($key, $key))
                                 ->addAggregation(
@@ -385,53 +430,59 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                 }
         }
 
+        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
+
         // parse query result
         $searchResult = $this->getIndex()->search($query);
         $results = [];
 
-        foreach($aggFilters as $fieldName => $aggFilter) {
-            $aggType = $aggFilter['type'];
+        foreach($aggFilters as $aggName => $aggConfig) {
+            $aggType = $aggConfig['type'];
             switch($aggType) {
                 case self::AGG_NUMERIC:
-                    $aggregation = $searchResult->getAggregation($fieldName);
+                    $aggregation = $searchResult->getAggregation($aggName);
                     foreach ($aggregation['buckets'] as $result) {
-                        $results[$fieldName][] = [
+                        $results[$aggName][] = [
                             'id' => $result['key'],
                             'name' => $result['key'],
                         ];
                     }
                     break;
                 case self::AGG_OBJECT:
-                    $aggregation = $searchResult->getAggregation($fieldName);
+                    $aggregation = $searchResult->getAggregation($aggName);
                     foreach ($aggregation['buckets'] as $result) {
-                        $results[$fieldName][] = [
+                        $results[$aggName][] = [
                             'id' => $result['key'],
                             'name' => $result['name']['buckets'][0]['key'],
                         ];
                     }
                     break;
                 case self::AGG_EXACT_TEXT:
-                    $aggregation = $searchResult->getAggregation($fieldName);
+                    $aggregation = $searchResult->getAggregation($aggName);
                     foreach ($aggregation['buckets'] as $result) {
-                        $results[$fieldName][] = [
+                        $results[$aggName][] = [
                             'id' => $result['key'],
                             'name' => $result['key'],
                         ];
                     }
                     break;
                 case self::AGG_NESTED:
-                    $aggregation = $searchResult->getAggregation($fieldName);
-                    foreach ($aggregation['id']['buckets'] as $result) {
-                        $results[$fieldName][] = [
+                    $aggFilter = $aggConfig['filter'] ?? false;
+                    $aggregation = $searchResult->getAggregation($aggName);
+                    // filtered?
+                    $aggregation_results = $aggFilter ? $aggregation[$aggName.':filter']['id']['buckets'] : $aggregation['id']['buckets'];
+
+                    foreach ($aggregation_results as $result) {
+                        $results[$aggName][] = [
                             'id' => $result['key'],
                             'name' => $result['name']['buckets'][0]['key'],
                         ];
                     }
                     break;
                 case self::AGG_BOOLEAN:
-                    $aggregation = $searchResult->getAggregation($fieldName);
+                    $aggregation = $searchResult->getAggregation($aggName);
                     foreach ($aggregation['buckets'] as $result) {
-                        $results[$fieldName][] = [
+                        $results[$aggName][] = [
                             'id' => $result['key'],
                             'name' => $result['key_as_string'],
                         ];
@@ -506,27 +557,28 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
         return $result;
     }
 
-    protected static function createSearchQuery(array $filters): Query\BoolQuery
+    protected function createSearchQuery(array $filters): Query\BoolQuery
     {
-        $filterConfig = static::getSearchFilterConfig();
-        $filterQuery = new Query\BoolQuery();
-        dump($filters);
-        dump($filterConfig);
+
+        $filterConfigs = $this->getSearchFilterConfig();
+        $query = new Query\BoolQuery();
         foreach ($filters as $filterName => $filterValue) {
-            switch ($filterConfig[$filterName]['type']) {
+            $filterConfig = $filterConfigs[$filterName];
+            $filterType = $filterConfig['type'];
+            switch ($filterType) {
                 case self::FILTER_NUMERIC:
-                    $filterQuery->addMust(
+                    $query->addMust(
                         new Query\Match($filterName, $filterValue)
                     );
                     break;
                 case self::FILTER_OBJECT:
                     // If value == -1, select all entries without a value for a specific field
                     if ($filterValue == -1) {
-                        $filterQuery->addMustNot(
+                        $query->addMustNot(
                             new Query\Exists($filterValue)
                         );
                     } else {
-                        $filterQuery->addMust(
+                        $query->addMust(
                             new Query\Match($filterName . '.id', $filterValue)
                         );
                     }
@@ -536,12 +588,12 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     // The data interval must exactly match the search interval
                     if (isset($filterValue['type']) && $filterValue['type'] == 'exact') {
                         if (isset($filterValue['startDate'])) {
-                            $filterQuery->addMust(
+                            $query->addMust(
                                 new Query\Match($filterValue['floorField'], $filterValue['startDate'])
                             );
                         }
                         if (isset($filterValue['endDate'])) {
-                            $filterQuery->addMust(
+                            $query->addMust(
                                 new Query\Match($filterValue['ceilingField'], $filterValue['endDate'])
                             );
                         }
@@ -551,19 +603,19 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     // range must be between floor and ceiling
                     if (isset($filterValue['type']) && $filterValue['type'] == 'included') {
                         if (isset($filterValue['startDate']) && !isset($filterValue['endDate'])) {
-                            $filterQuery->addMust(
+                            $query->addMust(
                                 new Query\Match($filterValue['floorField'], $filterValue['startDate'])
                             );
                         } elseif (isset($filterValue['endDate']) && !isset($filterValue['startDate'])) {
-                            $filterQuery->addMust(
+                            $query->addMust(
                                 new Query\Match($filterValue['ceilingField'], $filterValue['endDate'])
                             );
                         } else {
-                            $filterQuery->addMust(
+                            $query->addMust(
                                 (new Query\Range())
                                     ->addField($filterValue['floorField'], ['gte' => $filterValue['startDate']])
                             );
-                            $filterQuery->addMust(
+                            $query->addMust(
                                 (new Query\Range())
                                     ->addField($filterValue['ceilingField'], ['lte' => $filterValue['endDate']])
                             );
@@ -574,19 +626,19 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     // range must be between floor and ceiling
                     if (isset($filterValue['type']) && $filterValue['type'] == 'include') {
                         if (isset($filterValue['startDate']) && !isset($filterValue['endDate'])) {
-                            $filterQuery->addMust(
+                            $query->addMust(
                                 new Query\Match($filterValue['floorField'], $filterValue['startDate'])
                             );
                         } elseif (isset($filterValue['endDate']) && !isset($filterValue['startDate'])) {
-                            $filterQuery->addMust(
+                            $query->addMust(
                                 new Query\Match($filterValue['ceilingField'], $filterValue['endDate'])
                             );
                         } else {
-                            $filterQuery->addMust(
+                            $query->addMust(
                                 (new Query\Range())
                                     ->addField($filterValue['floorField'], ['lte' => $filterValue['startDate']])
                             );
-                            $filterQuery->addMust(
+                            $query->addMust(
                                 (new Query\Range())
                                     ->addField($filterValue['ceilingField'], ['gte' => $filterValue['endDate']])
                             );
@@ -634,21 +686,46 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                                         )
                                 );
                         }
-                        $filterQuery->addMust(
+                        $query->addMust(
                             $subQuery
                         );
                     }
                     break;
+                    /*
+                                    case self::FILTER_NESTED_MULTIPLE:
+                                        // filtervalue = [ property_name, value|[values] ]
+                                        foreach ( $filterValue as $filterOptions ) {
+                                            $fieldName = $filterOptions[0];
+                                            $fieldValues = is_array($filterOptions[1]) ? $filterOptions[1] : [ $filterOptions[1] ];
+
+                                            $subquery = new Query\BoolQuery();
+                                            foreach($fieldValues as $val) {
+                                                $subquery->addShould(['match' => [$fieldName . '.id' => $val]]);
+                                            }
+
+                                            $filterQuery->addMust(
+                                                (new Query\Nested())
+                                                    ->setPath($filterName)
+                                                    ->setQuery($subquery)
+                                            );
+                                        }
+
+                    break;
+                    */
                 case self::FILTER_NESTED:
+                    $filterPath = $filterConfig['path'] ?? $filterName;
+                    $filterField = isset($filterConfig['path']) ? $filterConfig['path'].'.'.$filterName : $filterName;
+                    $filterFieldId = $filterField.".id";
+
                     // multiple values?
                     if ( is_array($filterValue) ) {
                         $subquery = new Query\BoolQuery();
                         foreach( $filterValue as $val) {
-                            $subquery->addShould(['match' => [$filterName . '.id' => $val]]);
+                            $subquery->addShould(['match' => [$filterFieldId => $val]]);
                         }
-                        $filterQuery->addMust(
+                        $query->addMust(
                             (new Query\Nested())
-                                ->setPath($filterName)
+                                ->setPath($filterPath)
                                 ->setQuery($subquery)
                         );
                     }
@@ -656,21 +733,21 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     else {
                         // If value == -1, select all entries without a value for a specific field
                         if ($filterValue == -1) {
-                            $filterQuery->addMustNot(
+                            $query->addMustNot(
                                 (new Query\Nested())
-                                    ->setPath($filterName)
+                                    ->setPath($filterPath)
                                     ->setQuery(
                                         (new Query\BoolQuery())
-                                            ->addMust(new Query\Exists($filterName))
+                                            ->addMust(new Query\Exists($filterField))
                                     )
                             );
                         } else {
-                            $filterQuery->addMust(
+                            $query->addMust(
                                 (new Query\Nested())
-                                    ->setPath($filterName)
+                                    ->setPath($filterPath)
                                     ->setQuery(
                                         (new Query\BoolQuery())
-                                            ->addMust(['match' => [$filterName . '.id' => $filterValue]])
+                                            ->addMust(['match' => [$filterFieldId => $filterValue]])
                                     )
                             );
                         }
@@ -682,7 +759,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                         if (!$filterValue[1]) {
                             // management collection not present
                             // no management collections present or only other management collections present
-                            $filterQuery->addMust(
+                            $query->addMust(
                                 (new Query\BoolQuery())
                                     ->addShould(
                                         (new Query\BoolQuery())
@@ -709,7 +786,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                             );
                         } else {
                             // management collection present
-                            $filterQuery->addMust(
+                            $query->addMust(
                                 (new Query\Nested())
                                     ->setPath($key)
                                     ->setQuery(
@@ -721,28 +798,28 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     }
                     break;
                 case self::FILTER_TEXT:
-                    $filterQuery->addMust(self::constructTextQuery($filterName, $filterValue));
+                    $query->addMust(self::constructTextQuery($filterName, $filterValue));
                     break;
                 case self::FILTER_TEXT_MULTIPLE:
                     $subQuery = new Query\BoolQuery();
                     foreach ($filterValue as $field => $filterValue) {
                         $subQuery->addShould(self::constructTextQuery($field, $filterValue));
                     }
-                    $filterQuery->addMust($subQuery);
+                    $query->addMust($subQuery);
                     break;
                 case self::FILTER_TEXT_EXACT:
                     if ($filterValue == -1) {
-                        $filterQuery->addMustNot(
+                        $query->addMustNot(
                             new Query\Exists($filterName)
                         );
                     } else {
-                        $filterQuery->addMust(
+                        $query->addMust(
                             (new Query\Match($filterName . '.keyword', $filterValue))
                         );
                     }
                     break;
                 case self::FILTER_BOOLEAN:
-                    $filterQuery->addMust(
+                    $query->addMust(
                         (new Query\Match($filterName, $filterValue))
                     );
                     break;
@@ -760,15 +837,17 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                                     )
                             );
                         }
-                        $filterQuery->addMust($subQuery);
+                        $query->addMust($subQuery);
                     }
                     break;
             }
         }
-        return $filterQuery;
+
+        dump(json_encode($query->toArray()));
+        return $query;
     }
 
-    protected static function createHighlight(array $filters): array
+    protected function createHighlight(array $filters): array
     {
         $highlights = [
             'number_of_fragments' => 0,
@@ -777,7 +856,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
             'fields' => [],
         ];
 
-        $filterConfig = static::getSearchFilterConfig();
+        $filterConfig = $this->getSearchFilterConfig();
 
         foreach( $filters as $filterName => $filterValue ) {
             $filterType = $filterConfig[$filterName]['type'];
@@ -819,7 +898,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
      * @param  array          $value Array with [combination] of match (any, all, phrase), the [text] to search for and optionally the [field] to search in (if not provided, $key is used)
      * @return AbstractQuery
      */
-    protected static function constructTextQuery($key, $value): AbstractQuery
+    protected static function constructTextQuery(string $key, array $value): AbstractQuery
     {
         // Verse initialization
         if (isset($value['init']) && $value['init']) {
