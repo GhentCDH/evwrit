@@ -5,6 +5,8 @@ namespace App\Resource;
 
 class TextResource extends BaseResource
 {
+    const CACHENAME = "text";
+
     /**
      * Transform the resource into an array.
      *

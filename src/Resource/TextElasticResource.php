@@ -5,6 +5,8 @@ namespace App\Resource;
 
 class TextElasticResource extends BaseResource
 {
+    const CACHENAME = "text_elastic";
+
     /**
      * Transform the resource into an array.
      *
@@ -15,9 +17,6 @@ class TextElasticResource extends BaseResource
     {
 /*
  * EVWRIT ID
-
-Communicative goal (main)
-Communicative goal (subtype)
 
 Name ancient person
 TM Person ID
@@ -31,7 +30,6 @@ Social rank (hypertype)
 Honorofic epithet
 Domicile
 Type domicile
-Type graph
 
 Status Revision
 
@@ -48,7 +46,7 @@ Status Revision
             'archive' => new IdNameResource($this->archive),
 
             'material' => IdNameResource::collection($this->materials)->toArray(null),
-            'language' => IdNameResource::collection($this->materials)->toArray(null),
+            'language' => IdNameResource::collection($this->languages)->toArray(null),
 
             'text_type' => new IdNameResource($this->textType),
             'text_subtype' => new IdNameResource($this->textSubtype),
@@ -63,6 +61,18 @@ Status Revision
 
             'agentive_role' => AgentiveRoleElasticResource::collection($this->textAgentiveRoles)->toArray(null),
             'communicative_goal' => CommunicativeGoalElasticResource::collection($this->textCommunicativeGoals)->toArray(null),
+
+            'attestation_education' => AttestationEducationElasticResource::collection(
+                $this->attestations->reject( fn($attestation) => $attestation->education_id == null )
+            )->toArray(null),
+
+            'attestation_age' => AttestationAgeElasticResource::collection(
+                $this->attestations->reject( fn($attestation) => $attestation->age_id == null )
+            )->toArray(null),
+
+            'attestation_graph_type' => AttestationGraphTypeElasticResource::collection(
+                $this->attestations->reject( fn($attestation) => $attestation->graph_type_id == null )
+            )->toArray(null),
         ];
     }
 }
