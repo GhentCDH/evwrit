@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use ReflectionException;
 use function Symfony\Component\String\u;
 
@@ -42,7 +43,7 @@ class Attestation extends BaseModel
      * @return BelongsTo|AncientPerson
      * @throws ReflectionException
      */
-    public function ancientPerson(): belongsTo
+    public function ancientPerson(): BelongsTo
     {
         return $this->belongsTo(AncientPerson::class);
     }
@@ -51,7 +52,7 @@ class Attestation extends BaseModel
      * @return BelongsToMany|Role
      * @throws ReflectionException
      */
-    public function roles(): belongsToMany
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);
     }
@@ -60,7 +61,7 @@ class Attestation extends BaseModel
      * @return BelongsToMany|Occupation
      * @throws ReflectionException
      */
-    public function occupations(): belongsToMany
+    public function occupations(): BelongsToMany
     {
         return $this->belongsToMany(Occupation::class);
     }
@@ -69,7 +70,7 @@ class Attestation extends BaseModel
      * @return BelongsToMany|SocialRank
      * @throws ReflectionException
      */
-    public function socialRanks(): belongsToMany
+    public function socialRanks(): BelongsToMany
     {
         return $this->belongsToMany(SocialRank::class);
     }
@@ -78,10 +79,23 @@ class Attestation extends BaseModel
      * @return BelongsToMany|HonorificEpithet
      * @throws ReflectionException
      */
-    public function honorificEpithets(): belongsToMany
+    public function honorificEpithets(): BelongsToMany
     {
         return $this->belongsToMany(HonorificEpithet::class);
     }
 
+    public function age(): BelongsTo
+    {
+        return $this->belongsTo( Age::class);
+    }
 
+    public function education(): BelongsTo
+    {
+        return $this->belongsTo( Education::class);
+    }
+
+    public function graphType(): BelongsTo
+    {
+        return $this->belongsTo( Age::class);
+    }
 }
