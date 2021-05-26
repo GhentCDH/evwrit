@@ -3,97 +3,63 @@
         <aside class="col-sm-3">
             <div class="bg-tertiary padding-default">
                 <div
-                    v-if="showReset"
-                    class="form-group"
+                        v-if="showReset"
+                        class="form-group"
                 >
                     <button
-                        class="btn btn-block"
-                        @click="resetAllFilters"
+                            class="btn btn-block"
+                            @click="resetAllFilters"
                     >
                         Reset all filters
                     </button>
                 </div>
                 <vue-form-generator
-                    ref="form"
-                    :schema="schema"
-                    :model="model"
-                    :options="formOptions"
-                    @model-updated="modelUpdated"
-                    @validated="onValidated"
+                        ref="form"
+                        :model="model"
+                        :options="formOptions"
+                        :schema="schema"
+                        @validated="onValidated"
+                        @model-updated="modelUpdated"
                 />
             </div>
         </aside>
         <article class="col-sm-9 search-page">
             <div
-                v-if="countRecords"
-                class="count-records"
+                    v-if="countRecords"
+                    class="count-records"
             >
                 <h6>{{ countRecords }}</h6>
             </div>
             <v-server-table
-                ref="resultTable"
-                :url="urls['text_search_api']"
-                :columns="tableColumns"
-                :options="tableOptions"
-                @data="onData"
-                @loaded="onLoaded"
+                    ref="resultTable"
+                    :columns="tableColumns"
+                    :options="tableOptions"
+                    :url="urls['text_search_api']"
+                    @data="onData"
+                    @loaded="onLoaded"
             >
-                <template
-                    slot="h__self_designation"
-                >
-                    (Self) designation
-                </template>
-                <template
-                    slot="name"
-                    slot-scope="props"
-                >
-                    <a
-                        v-if="props.row.name.constructor !== Array"
-                        :href="urls['text_get'].replace('text_id', props.row.id)"
-                    >
-                        {{ props.row.name }}
+                <template slot="title" slot-scope="props">
+                    <a :href="urls['text_get_single'].replace('text_id', props.row.id)">
+                        {{ props.row.title }}
                     </a>
-                    <template v-else>
-                        <!-- eslint-disable vue/no-v-html -->
-                        <a
-                            v-if="props.row.name.length === 1"
-                            :href="urls['text_get'].replace('text_id', props.row.id)"
-                            v-html="props.row.name[0]"
-                        />
-                        <!-- eslint-enable -->
-                        <ul v-else>
-                            <!-- eslint-disable vue/no-v-html -->
-                            <li
-                                v-for="(item, index) in props.row.name"
-                                :key="index"
-                                v-html="item"
-                            />
-                            <!-- eslint-enable -->
-                        </ul>
-                    </template>
                 </template>
-                <template
-                    slot="c"
-                    slot-scope="props"
-                >
-                    <span class="checkbox checkbox-primary">
-                        <input
-                            :id="props.row.id"
-                            v-model="collectionArray"
-                            :name="props.row.id"
-                            :value="props.row.id"
-                            type="checkbox"
-                        >
-                        <label :for="props.row.id" />
-                    </span>
+                <template slot="id" slot-scope="props">
+                    <a :href="urls['text_get_single'].replace('text_id', props.row.id)">
+                        {{ props.row.id }}
+                    </a>
+                </template>
+                <template slot="tm_id" slot-scope="props">
+                    <a :href="urls['text_get_single'].replace('text_id', props.row.id)">
+                        {{ props.row.tm_id }}
+                    </a>
                 </template>
             </v-server-table>
         </article>
         <div
-            v-if="openRequests"
-            class="loading-overlay"
+                v-if="openRequests"
+                class="loading-overlay"
         >
-            <div class="spinner" />
+            <div class="spinner"/>
         </div>
     </div>
 </template>
@@ -114,10 +80,6 @@ export default {
         AbstractSearch,
     ],
     props: {
-        initPersons: {
-            type: String,
-            default: '',
-        },
     },
     data() {
         let data = {
@@ -126,104 +88,166 @@ export default {
             },
             persons: null,
             schema: {
-                fields: {
-                    title: {
-                        type: 'input',
-                        inputType: 'text',
-                        label: 'Title',
-                        model: 'title',
+                groups: [
+                    {
+                        styleClasses: 'collapsible',
+                        legend: 'Physical information',
+                        fields: [
+                            {
+                                type: 'input',
+                                inputType: 'text',
+                                label: 'Title',
+                                model: 'title',
+                            },
+                            {
+                                type: 'input',
+                                inputType: 'text',
+                                label: 'Text ID',
+                                model: 'id',
+                            },
+                            {
+                                type: 'input',
+                                inputType: 'text',
+                                label: 'Trismegistos ID',
+                                model: 'tm_id',
+                            },
+                            this.createMultiSelect('Keyword',
+                                {
+                                    model: 'keyword'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            {
+                                type: 'input',
+                                inputType: 'number',
+                                label: 'Year from',
+                                model: 'year_from',
+                                min: AbstractSearch.YEAR_MIN,
+                                max: AbstractSearch.YEAR_MAX,
+                                validator: VueFormGenerator.validators.number,
+                            },
+                            {
+                                type: 'input',
+                                inputType: 'number',
+                                label: 'Year to',
+                                model: 'year_to',
+                                min: AbstractSearch.YEAR_MIN,
+                                max: AbstractSearch.YEAR_MAX,
+                                validator: VueFormGenerator.validators.number,
+                            },
+                            {
+                                type: 'radio',
+                                label: 'The person date interval must ... the search date interval:',
+                                labelClasses: 'control-label',
+                                model: 'date_search_type',
+                                values: [
+                                    {value: 'exact', name: 'exactly match'},
+                                    {value: 'included', name: 'be included in'},
+                                    {value: 'overlap', name: 'overlap with'},
+                                ],
+                            },
+                            this.createMultiSelect('Era',
+                                {
+                                    model: 'era'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            this.createMultiSelect('Location found',
+                                {
+                                    model: 'location_found'
+                                }
+                            ),
+                            this.createMultiSelect('Location written',
+                                {
+                                    model: 'location_written'
+                                }
+                            ),
+                            this.createMultiSelect('Language',
+                                {
+                                    model: 'language'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            this.createMultiSelect('Material',
+                                {
+                                    model: 'material'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                        ]
                     },
-                    id: {
-                      type: 'input',
-                      inputType: 'text',
-                      label: 'Text ID',
-                      model: 'id',
+                    {
+                        styleClasses: 'collapsible',
+                        legend: 'Communicative information',
+                        fields: [
+                            this.createMultiSelect('Archive',
+                                {
+                                    model: 'archive'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            this.createMultiSelect('Text type', {model: 'text_type'}),
+                            this.createMultiSelect('Text subtype', {model: 'text_subtype'}),
+                            this.createMultiSelect('Social distance',
+                                {
+                                    model: 'social_distance'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            this.createMultiSelect('Generic agentive role', {model: 'generic_agentive_role'}),
+                            this.createMultiSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
+                            this.createMultiSelect('Generic communicative goal', {model: 'generic_communicative_goal'}),
+                            this.createMultiSelect('Communicative goal', {model: 'communicative_goal', 'dependency': 'generic_communicative_goal'}),
+                        ]
                     },
-                    tm_id: {
-                      type: 'input',
-                      inputType: 'text',
-                      label: 'Trismegistos ID',
-                      model: 'tm_id',
+                    {
+                        styleClasses: 'collapsible',
+                        legend: 'Ancient persons',
+                        fields: [
+                            this.createMultiSelect('Age', {model: 'attestation_age'}),
+                            this.createMultiSelect('Education', {model: 'attestation_education'}),
+                            this.createMultiSelect('Graph type', {model: 'attestation_graph_type'}),
+                        ]
                     },
-                    year_from: {
-                          type: 'input',
-                          inputType: 'number',
-                          label: 'Year from',
-                          model: 'year_from',
-                          min: AbstractSearch.YEAR_MIN,
-                          max: AbstractSearch.YEAR_MAX,
-                          validator: VueFormGenerator.validators.number,
-                      },
-                      year_to: {
-                          type: 'input',
-                          inputType: 'number',
-                          label: 'Year to',
-                          model: 'year_to',
-                          min: AbstractSearch.YEAR_MIN,
-                          max: AbstractSearch.YEAR_MAX,
-                          validator: VueFormGenerator.validators.number,
-                      },
-                      date_search_type: {
-                          type: 'radio',
-                          label: 'The person date interval must ... the search date interval:',
-                          labelClasses: 'control-label',
-                          model: 'date_search_type',
-                          values: [
-                              { value: 'exact', name: 'exactly match' },
-                              { value: 'included', name: 'be included in' },
-                              { value: 'overlap', name: 'overlap with' },
-                          ],
-                      },
-                      era: this.createMultiSelect('Era',
-                          {
-                            model: 'era'
-                          },
-                          {
-                            multiple: true,
-                            closeOnSelect: false,
-                          }
-                      ),
-                      archive: this.createMultiSelect('Archive',
-                          {
-                            model: 'archive'
-                          },
-                          {
-                            multiple: true,
-                            closeOnSelect: false,
-                          }
-                      ),
-                      project: this.createMultiSelect('Project',
-                          {
-                            model: 'project'
-                          },
-                          {
-                            multiple: true,
-                            closeOnSelect: false,
-                          }
-                      ),
-                      script: this.createMultiSelect('Script',
-                          {
-                            model: 'script'
-                          },
-                          {
-                            multiple: true,
-                            closeOnSelect: false,
-                          }
-                      ),
-                      material: this.createMultiSelect('Material',
-                          {
-                            model: 'material'
-                          },
-                          {
-                            multiple: true,
-                            closeOnSelect: false,
-                          }
-                      ),
-                }
+                    {
+                        styleClasses: 'collapsible',
+                        legend: 'Administrative information',
+                        fields: [
+                            this.createMultiSelect('Project',
+                                {
+                                    model: 'project'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            this.createMultiSelect('Collaborator', {model: 'collaborator'}),
+
+                        ]
+                    }
+                ],
             },
             tableOptions: {
                 headings: {
-                    comment: 'Comment (matching lines only)',
                 },
                 columnsClasses: {
                     name: 'no-wrap',
@@ -237,9 +261,9 @@ export default {
                 'sortable': ['title'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
-                rowClassCallback: function(row) {
-                  return '';
-                  // return (row.public == null || row.public) ? '' : 'warning'
+                rowClassCallback: function (row) {
+                    return '';
+                    // return (row.public == null || row.public) ? '' : 'warning'
                 },
             },
             submitModel: {
@@ -251,17 +275,6 @@ export default {
 
         // Add view internal only fields
         if (this.isViewInternal) {
-            data.schema.fields['historical'] = this.createMultiSelect(
-                'Historical',
-                {
-                    styleClasses: 'has-warning',
-                },
-                {
-                    customLabel: ({id, name}) => {
-                        return name === 'true' ? 'Historical only' : 'Non-historical only'
-                    },
-                }
-            )
         }
 
         return data
@@ -281,8 +294,7 @@ export default {
             return columns
         },
     },
-    watch: {
-    },
+    watch: {},
     methods: {
         update() {
             // Don't create a new history item
@@ -312,6 +324,48 @@ export default {
                 option => this.removeGreekAccents(option.name).includes(this.removeGreekAccents(searchQuery))
             );
         },
+        collapse(e) {
+            const group = e.target.parentElement;
+            group.classList.toggle("collapsed");
+        }
+    },
+    mounted() {
+        const collapsableLegends = this.$el.querySelectorAll('.vue-form-generator .collapsible legend');
+        collapsableLegends.forEach(legend => legend.onclick = this.collapse);
     }
 }
 </script>
+
+<style lang="sass">
+.vue-form-generator .collapsible {
+
+    legend::after {
+        content: '\f107';
+        font-family: 'fontawesome';
+        float: right;
+        font-size: 100%;
+        font-weight: normal;
+        transition: 0.3s;
+    }
+
+    .form-group {
+        transition: 0.3s;
+    }
+
+    &.collapsed {
+
+        legend::after {
+            transform: rotate(-90deg);
+        }
+
+        .form-group {
+            display: block;
+            height: 0;
+            overflow: hidden;
+            opacity: 0;
+            padding: 0;
+            margin: 0;
+        }
+    }
+}
+</style>
