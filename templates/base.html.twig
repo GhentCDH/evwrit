@@ -112,6 +112,22 @@
                                                     <span>Text</span>
                                                 </a>
                                             </li>
+                                            <li class="{{ app.request.get('_route') == 'materiality_search' ? 'active' }}">
+                                                <a href="{{ path('materiality_search') }}">
+                                                    <span>Materiality</span>
+                                                </a>
+                                            </li>
+                                            <li class="{{ app.request.get('_route') == 'structure_search' ? 'active' }}">
+                                                <a href="">
+                                                    <span>Text structure</span>
+                                                </a>
+                                            </li>
+                                            <li class="{{ app.request.get('_route') == 'languages_scripts_search' ? 'active' }}">
+                                                <a href="">
+                                                    <span>Languages & scripts</span>
+                                                </a>
+                                            </li>
+
                                         </ul>
                                     </div>
                                 </div>
@@ -121,21 +137,19 @@
                     <div class="row branding-wrapper">
                         <div class="col-xs-12 col-sm-10 col-sm-offset-2 branding-container header_title faculty-1">
                             <a href="/">
-                                <h1>Database of Everyday Writing</h1>
+                                <h1>
+                                    Database of Everyday Writing
+                                    {% if app.environment != 'prod' and app.environment != 'stage' %}
+                                        <span class="text-danger">
+                                        [{{ app.environment }}]
+                                    </span>
+                                    {% endif %}
+                                </h1>
                             </a>
                         </div>
                     </div>
                 </header>
             </div>
-            {% if app.environment != 'prod' and app.environment != 'stage' %}
-                <div class="row">
-                    <div class="col-xs-12">
-                        <h2 class="text-danger text-center">
-                            This is a test environment.
-                        </h2>
-                    </div>
-                </div>
-            {% endif %}
         </div>
 
         <div class="fluid-container">
