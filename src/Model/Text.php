@@ -166,6 +166,24 @@ class Text extends BaseModel
     }
 
     /**
+     * @return BelongsToMany|Collection|Url[]
+     * @throws ReflectionException
+     */
+    public function links(): BelongsToMany
+    {
+        return $this->belongsToMany(Url::class);
+    }
+
+    /**
+     * @return BelongsToMany|Collection|Image[]
+     * @throws ReflectionException
+     */
+    public function images(): BelongsToMany
+    {
+        return $this->belongsToMany(Image::class);
+    }
+
+    /**
      * @return BelongsToMany|Collection|WritingDirection[]
      * @throws ReflectionException
      */
@@ -181,6 +199,15 @@ class Text extends BaseModel
     {
         return $this->hasMany(Attestation::class, 'text_id', 'text_id');
     }
+
+    /**
+     * @return HasMany|TextTranslation[]
+     */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(TextTranslation::class, 'text_id', 'text_id');
+    }
+
 
     /**
      * @return BelongsToMany|Location[]
@@ -210,6 +237,7 @@ class Text extends BaseModel
     {
         return $this->hasMany(Text_CommunicativeGoal::class);
     }
+
 
 
 }

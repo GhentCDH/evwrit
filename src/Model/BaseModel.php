@@ -47,7 +47,7 @@ class BaseModel extends Model
      * @return BelongsTo
      * @throws ReflectionException
      */
-    public function belongsTo(string $related, string $foreignKey = null, string $ownerKey = null, $relation = null): BelongsTo
+    public function belongsTo($related, $foreignKey = null, $ownerKey = null, $relation = null): BelongsTo
     {
         $related_table = u((new ReflectionClass($related))->getShortName())->snake();
         $related_pk = $related_table.'_id';
@@ -78,7 +78,7 @@ class BaseModel extends Model
      * @return BelongsToMany
      * @throws ReflectionException
      */
-    public function belongsToMany(string $related, string $table = NULL, string $foreignPivotKey = NULL, string $relatedPivotKey = NULL, $parentKey = NULL, $relatedKey = NULL, $relation = NULL): BelongsToMany
+    public function belongsToMany($related, $table = NULL, $foreignPivotKey = NULL, $relatedPivotKey = NULL, $parentKey = NULL, $relatedKey = NULL, $relation = NULL): BelongsToMany
     {
         $related_table = u((new ReflectionClass($related))->getShortName())->snake();
         $related_pk = $related_table.'_id';
@@ -106,7 +106,7 @@ class BaseModel extends Model
      * @param string|null $localKey
      * @return HasMany
      */
-    public function hasMany(string $related, string $foreignKey = null, string $localKey = null): HasMany
+    public function hasMany($related, $foreignKey = null, $localKey = null): HasMany
     {
         if (is_null($foreignKey)) {
             $foreignKey = $this->getKeyName();
@@ -124,7 +124,7 @@ class BaseModel extends Model
      * @param string|null $localKey
      * @return HasOne
      */
-    public function hasOne(string $related, string $foreignKey = null, string $localKey = null): HasOne
+    public function hasOne($related, $foreignKey = null, $localKey = null): HasOne
     {
         if (is_null($foreignKey)) {
             $foreignKey = $this->getKeyName();
