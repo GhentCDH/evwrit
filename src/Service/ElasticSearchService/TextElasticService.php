@@ -51,6 +51,8 @@ class TextElasticService extends ElasticBaseService
                     ],
                 ],
             ],
+            'year_begin' => ['type' => 'short'],
+            'year_end' => ['type' => 'short'],
             'archive' => ['type' => 'nested'],
             'era' => ['type' => 'nested'],
             'keyword' => ['type' => 'nested'],
@@ -62,12 +64,19 @@ class TextElasticService extends ElasticBaseService
             'text_subtype' => ['type' => 'nested'],
             'location_found' => ['type' => 'nested'],
             'location_written' => ['type' => 'nested'],
-            'agentive_role' => [
+            'agentive_role' => ['type' => 'nested'],
+            'communicative_goal'  => ['type' => 'nested'],
+            'attestation_education'  => ['type' => 'nested'],
+            'attestation_age'  => ['type' => 'nested'],
+            'attestation_graph_type'  => ['type' => 'nested'],
+            'ancient_person' => [
                 'type' => 'nested',
-            ],
-            'communicative_goal'  => [
-                'type' => 'nested',
-            ],
+//                'properties' => [
+//                    'role' => [
+//                        'type' => 'nested'
+//                    ]
+//                ]
+            ]
         ];
     }
 
@@ -102,6 +111,13 @@ class TextElasticService extends ElasticBaseService
                 'type' => self::FILTER_NESTED,
                 'path' => 'communicative_goal'
             ],
+            'date'=> [
+                'type' => self::FILTER_DATE_RANGE,
+                'floorField' => 'year_begin',
+                'ceilingField' => 'year_end',
+                'typeField' => 'date_search_type',
+            ],
+            'form' => ['type' => self::FILTER_NESTED],
             'keyword' => ['type' => self::FILTER_NESTED],
             'language' => ['type' => self::FILTER_NESTED],
             'location_written' => ['type' => self::FILTER_NESTED],
@@ -111,6 +127,19 @@ class TextElasticService extends ElasticBaseService
             'social_distance' => ['type' => self::FILTER_NESTED],
             'text_type' => ['type' => self::FILTER_NESTED],
             'text_subtype' => ['type' => self::FILTER_NESTED],
+
+            'ap_education' => [
+                'type' => self::FILTER_NESTED,
+                'path' => 'ancient_person'
+            ],
+            'ap_age' => [
+                'type' => self::FILTER_NESTED,
+                'path' => 'ancient_person'
+            ],
+            'ap_role' => [
+                'type' => self::FILTER_NESTED,
+                'path' => 'ancient_person'
+            ],
         ];
 
         // add extra filters if user role allows
@@ -122,34 +151,85 @@ class TextElasticService extends ElasticBaseService
     protected function getAggregationFilterConfig(): array {
         $aggregationFilters = [
             'agentive_role' => [
-                'type' => self::AGG_NESTED,
+                'type' => self::AGG_NESTED_ID_NAME,
                 'path' => 'agentive_role',
-                'filter' => [ 'generic_agentive_role.id' => 'generic_agentive_role' ]
+                'filter' => [ 'generic_agentive_role' => 'generic_agentive_role.id' ]
             ],
             'communicative_goal' => [
-                'type' => self::AGG_NESTED,
+                'type' => self::AGG_NESTED_ID_NAME,
                 'path' => 'communicative_goal',
-                'filter' => [ 'generic_communicative_goal.id' => 'generic_communicative_goal' ]
+                'filter' => [ 'generic_communicative_goal' => 'generic_communicative_goal.id' ]
             ],
-            'archive' => ['type' => self::AGG_NESTED],
-            'era' => ['type' => self::AGG_NESTED],
+            'archive' => ['type' => self::AGG_NESTED_ID_NAME],
+            'era' => ['type' => self::AGG_NESTED_ID_NAME],
             'generic_agentive_role' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::AGG_NESTED_ID_NAME,
                 'path' => 'agentive_role',
             ],
             'generic_communicative_goal' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::AGG_NESTED_ID_NAME,
                 'path' => 'communicative_goal',
             ],
-            'form'  => ['type' => self::AGG_NESTED],
-            'keyword' => ['type' => self::AGG_NESTED],
-            'location_written' => ['type' => self::AGG_NESTED],
-            'location_found' => ['type' => self::AGG_NESTED],
-            'material'  => ['type' => self::AGG_NESTED],
-            'script' => ['type' => self::AGG_NESTED],
-            'social_distance' => ['type' => self::AGG_NESTED],
-            'text_type' => ['type' => self::AGG_NESTED],
-            'text_subtype' => ['type' => self::AGG_NESTED],
+            'form'  => ['type' => self::AGG_NESTED_ID_NAME],
+            'keyword' => ['type' => self::AGG_NESTED_ID_NAME],
+            'language' => ['type' => self::AGG_NESTED_ID_NAME],
+            'location_written' => ['type' => self::AGG_NESTED_ID_NAME],
+            'location_found' => ['type' => self::AGG_NESTED_ID_NAME],
+            'material'  => ['type' => self::AGG_NESTED_ID_NAME],
+            'script' => ['type' => self::AGG_NESTED_ID_NAME],
+            'social_distance' => ['type' => self::AGG_NESTED_ID_NAME],
+            'text_type' => ['type' => self::AGG_NESTED_ID_NAME],
+            'text_subtype' => ['type' => self::AGG_NESTED_ID_NAME],
+
+            'ap_education' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'path' => 'ancient_person',
+                'field' => 'education',
+            ],
+            'ap_age' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'path' => 'ancient_person',
+                'field' => 'age',
+            ],
+            'ap_role' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'path' => 'ancient_person',
+                'field' => 'age',
+            ],
+
+            /*
+            'attestation_education' => [
+                'type' => self::AGG_NESTED,
+                'age' => [
+                    'age_id' => 'attestation_age',
+                    'ancient_person_id' => 'attestation_ancient_person',
+                    ]
+            ],
+            'attestation_age' => [
+                'type' => self::AGG_NESTED,
+                'education' => [
+                    'education_id' => 'attestation_education',
+                    'ancient_person_id' => 'attestation_ancient_person',
+                    'graph_type_id' => 'attestation_graph_type',
+                ]
+            ],
+            'attestation_ancient_person' => [
+                'type' => self::AGG_NESTED,
+                'education' => [
+                    'age_id' => 'attestation_age',
+                    'education_id' => 'attestation_education',
+                    'graph_type_id' => 'attestation_graph_type',
+                ]
+            ],
+            'attestation_graph_type' => [
+                'type' => self::AGG_NESTED,
+                'education' => [
+                    'age_id' => 'attestation_age',
+                    'education_id' => 'attestation_education',
+                    'ancient_person_id' => 'attestation_ancient_person',
+                ]
+            ],
+            */
         ];
 
         // add extra filters if user role allows
@@ -169,11 +249,33 @@ class TextElasticService extends ElasticBaseService
 
     protected function sanitizeSearchResult(array $result): array
     {
-        $returnProps = ['id', 'tm_id', 'title'];
+        $returnProps = ['id', 'tm_id', 'title', 'year_begin', 'year_end'];
 
         $result = array_intersect_key($result, array_flip($returnProps));
 
         return $result;
+    }
+
+    protected function sanitizeSearchParameters(array $params): array
+    {
+        if (isset($params['orderBy'])) {
+            switch ($params['orderBy']) {
+                // convert fieldname to elastic expression
+                case 'title':
+                    $params['orderBy'] = ['title.keyword'];
+
+                    break;
+                case 'year_begin':
+                case 'year_end':
+                    $params['orderBy'] = [ $params['orderBy'] ];
+                    break;
+                default:
+                    unset($params['orderBy']);
+                    break;
+            }
+        }
+
+        return parent::sanitizeSearchParameters($params);
     }
 
 }
