@@ -124,7 +124,7 @@ export default {
                                 type: 'input',
                                 inputType: 'number',
                                 label: 'Year from',
-                                model: 'year_from',
+                                model: 'year_begin',
                                 min: AbstractSearch.YEAR_MIN,
                                 max: AbstractSearch.YEAR_MAX,
                                 validator: VueFormGenerator.validators.number,
@@ -133,14 +133,14 @@ export default {
                                 type: 'input',
                                 inputType: 'number',
                                 label: 'Year to',
-                                model: 'year_to',
+                                model: 'year_end',
                                 min: AbstractSearch.YEAR_MIN,
                                 max: AbstractSearch.YEAR_MAX,
                                 validator: VueFormGenerator.validators.number,
                             },
                             {
                                 type: 'radio',
-                                label: 'The person date interval must ... the search date interval:',
+                                label: 'The text date interval must ... the search date interval:',
                                 labelClasses: 'control-label',
                                 model: 'date_search_type',
                                 values: [
@@ -156,6 +156,7 @@ export default {
                                 {
                                     multiple: true,
                                     closeOnSelect: false,
+                                    customLabel: ({id,name,count}) => { return name + ' (' + count + ')'}
                                 }
                             ),
                             this.createMultiSelect('Location found',
@@ -258,7 +259,7 @@ export default {
                 },
                 'perPage': 25,
                 'perPageValues': [25, 50, 100],
-                'sortable': ['title'],
+                'sortable': ['title', 'year_begin', 'year_end'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
@@ -281,7 +282,7 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['id', 'tm_id', 'title']
+            let columns = ['id', 'tm_id', 'title','year_begin','year_end']
             // if (this.commentSearch) {
             //     columns.unshift('comment')
             // }
@@ -301,24 +302,12 @@ export default {
             this.noHistory = true;
             this.$refs.resultTable.refresh();
         },
-        formatPersonDate(date) {
-            if (date == null || date.floor == null || date.ceiling == null) {
-                return null
-            }
-            return date.floor + ' - ' + date.ceiling
-        },
-        formatInterval(born_floor, born_ceiling, death_floor, death_ceiling) {
-            let born = born_floor === born_ceiling ? born_floor : born_floor + '-' + born_ceiling
-            let death = death_floor === death_ceiling ? death_floor : death_floor + '-' + death_ceiling
-            return born === death ? born : '(' + born + ') - (' + death + ')'
-        },
         formatObjectArray(objects) {
             if (objects == null || objects.length === 0) {
                 return null
             }
             return objects.map(objects => objects.name).join(', ')
         },
-
         greekSearch(searchQuery) {
             this.schema.fields.self_designation.values = this.schema.fields.self_designation.originalValues.filter(
                 option => this.removeGreekAccents(option.name).includes(this.removeGreekAccents(searchQuery))
