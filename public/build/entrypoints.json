@@ -1,0 +1,36 @@
+{
+  "entrypoints": {
+    "main": {
+      "css": [
+        "/evwrit/public/build/main.e0d293d5.css"
+      ],
+      "js": [
+        "/evwrit/public/build/main.aff0f414.js"
+      ]
+    },
+    "text-search": {
+      "css": [
+        "/evwrit/public/build/text-search.f081b466.css"
+      ],
+      "js": [
+        "/evwrit/public/build/text-search.2d8e8470.js"
+      ]
+    },
+    "materiality-search": {
+      "css": [
+        "/evwrit/public/build/materiality-search.b8468d26.css"
+      ],
+      "js": [
+        "/evwrit/public/build/materiality-search.4b7f93a3.js"
+      ]
+    },
+    "text-view": {
+      "css": [
+        "/evwrit/public/build/text-view.aa03a80f.css"
+      ],
+      "js": [
+        "/evwrit/public/build/text-view.848904a0.js"
+      ]
+    }
+  }
+}
