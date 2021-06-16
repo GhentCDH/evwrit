@@ -3,7 +3,9 @@
 namespace App\Command;
 
 use App\Repository\TextRepository;
+use App\Resource\CommunicativeGoalElasticResource;
 use App\Resource\TextElasticResource;
+use App\Service\ElasticSearchService\TextElasticService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -48,27 +50,30 @@ class IndexElasticsearchCommand extends Command
             // ...
         }
 
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
-
-
+        /**
+         * @var $repository TextRepository
+         */
         $repository = $this->container->get('text_repository' );
 
+        /**
+         * @var $service TextElasticService
+         */
         $service = $this->container->get('text_elastic_service');
         $service->setup();
 
-//        $text = $repository->indexQuery()->find(69108);
-//        print_r($text);
-//        $res = new TextElasticResource($text);
-//        print_r($res->toJson(null));
-//        return Command::SUCCESS;
 
-        $repository->indexQuery()->where('text_id', '<', 500)->chunk(100,
-            function($res) use ($service) {
+        $count = 0;
+        //$repository->indexQuery()->where('text_id', '<', 100)->chunk(100,
+        $repository->findByProjectId(3)->limit(100)->chunk(100,
+            function($res) use ($service,$count) {
                 foreach ($res as $text) {
                     $res = new TextElasticResource($text);
                     $service->add($res);
+                    $count++;
             }
         });
+
+        $io->success("Succesfully indexed {$count} records");
 
         return Command::SUCCESS;
 
