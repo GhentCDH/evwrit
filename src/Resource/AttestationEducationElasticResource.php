@@ -21,4 +21,5 @@ class AttestationEducationElasticResource extends BaseResource
             'graph_type_id' => $this->graph_type_id,
         ];
     }
+
 }

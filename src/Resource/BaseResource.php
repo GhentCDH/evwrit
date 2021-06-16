@@ -34,4 +34,9 @@ class BaseResource extends AbstractResource
         return $this->filter((array) $data);
     }
 
+    protected function convertNewlines($text)
+    {
+        return str_replace("\v", "\n", $text);
+    }
+
 }

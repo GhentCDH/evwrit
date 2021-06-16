@@ -14,8 +14,8 @@ class CommunicativeGoalElasticResource extends BaseResource
     public function toArray($request=null)
     {
         return [
-            'generic_communicative_goal' => new IdNameResource($this->genericCommunicativeGoal),
-            'communicative_goal' => new IdNameResource($this->communicativeGoal),
+            'generic_communicative_goal' => new IdNameElasticResource($this->genericCommunicativeGoal),
+            'communicative_goal' => new IdNameElasticResource($this->communicativeGoal),
         ];
     }
 }

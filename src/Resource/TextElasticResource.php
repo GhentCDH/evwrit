@@ -42,26 +42,27 @@ Status Revision
             'text' => $this->text,
             'year_begin' => $this->year_begin,
             'year_end' => $this->year_end,
-            'era' => new IdNameResource($this->era),
-            'archive' => new IdNameResource($this->archive),
+            'era' => new IdNameElasticResource($this->era),
+            'archive' => new IdNameElasticResource($this->archive),
 
-            'material' => IdNameResource::collection($this->materials)->toArray(null),
-            'language' => IdNameResource::collection($this->languages)->toArray(null),
+            'material' => IdNameElasticResource::collection($this->materials)->toArray(null),
+            'language' => IdNameElasticResource::collection($this->languages)->toArray(null),
 
-            'text_type' => new IdNameResource($this->textType),
-            'text_subtype' => new IdNameResource($this->textSubtype),
+            'text_type' => new IdNameElasticResource($this->textType),
+            'text_subtype' => new IdNameElasticResource($this->textSubtype),
 
-            'collaborator' => IdNameResource::collection($this->collaborators)->toArray(null),
-            'social_distance' => IdNameResource::collection($this->socialDistances)->toArray(null),
-            'project' => IdNameResource::collection($this->projects)->toArray(null),
-            'keyword' => IdNameResource::collection($this->keywords)->toArray(null),
+            'collaborator' => IdNameElasticResource::collection($this->collaborators)->toArray(null),
+            'social_distance' => IdNameElasticResource::collection($this->socialDistances)->toArray(null),
+            'project' => IdNameElasticResource::collection($this->projects)->toArray(null),
+            'keyword' => IdNameElasticResource::collection($this->keywords)->toArray(null),
 
-            'location_found' => IdNameResource::collection($this->locationsFound)->toArray(null),
-            'location_written' => IdNameResource::collection($this->locationsWritten)->toArray(null),
+            'location_found' => IdNameElasticResource::collection($this->locationsFound)->toArray(null),
+            'location_written' => IdNameElasticResource::collection($this->locationsWritten)->toArray(null),
 
             'agentive_role' => AgentiveRoleElasticResource::collection($this->textAgentiveRoles)->toArray(null),
             'communicative_goal' => CommunicativeGoalElasticResource::collection($this->textCommunicativeGoals)->toArray(null),
 
+            /*
             'attestation_education' => AttestationEducationElasticResource::collection(
                 $this->attestations->reject( fn($attestation) => $attestation->education_id == null )
             )->toArray(null),
@@ -73,6 +74,20 @@ Status Revision
             'attestation_graph_type' => AttestationGraphTypeElasticResource::collection(
                 $this->attestations->reject( fn($attestation) => $attestation->graph_type_id == null )
             )->toArray(null),
+            */
+
+            'ancient_person' => AttestationElasticResource::collection($this->attestations)->toArray(0)
+            /*
+            'attestation_role' => '',
+            'attestation_social_rank' => '',
+            'attestation_occupation' => '',
+            'attestation_honorific_epithet' => '',
+
+            'ancient_person' => '',
+
+            'ancient_person'
+            */
+
         ];
     }
 }

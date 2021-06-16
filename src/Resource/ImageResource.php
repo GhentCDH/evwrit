@@ -3,7 +3,7 @@
 namespace App\Resource;
 
 
-class AgentiveRoleElasticResource extends BaseResource
+class ImageResource extends BaseResource
 {
     /**
      * Transform the resource into an array.
@@ -14,8 +14,8 @@ class AgentiveRoleElasticResource extends BaseResource
     public function toArray($request=null)
     {
         return [
-            'generic_agentive_role' => new IdNameElasticResource($this->genericAgentiveRole),
-            'agentive_role' => new IdNameElasticResource($this->agentiveRole),
+            'id' => $this->image_id,
+            'filename' => $this->filename
         ];
     }
 }
