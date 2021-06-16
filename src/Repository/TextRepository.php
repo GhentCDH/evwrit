@@ -20,17 +20,28 @@ class TextRepository implements RepositoryInterface, IndexProviderInterface
         'productionStages',
         'era',
         'projects',
-        'archive'
+        'archive',
+        'keywords',
+        'textType',
+        'textSubtype',
+        'textFormat',
     ];
 
-    public function find(int $id, $relations = []): Model
+    public function find(int $id, $relations = []): Text
     {
-        return $this->defaultQuery()->with($relations)->find($id);
+        return $this->indexQuery()->with($relations)->find($id);
     }
 
     public function findAll(int $limit = 0, $relations = [])
     {
-        return $this->defaultQuery()->with($relations)->limit($limit)->get();
+        return $this->indexQuery()->with($relations)->limit($limit)->get();
+    }
+
+    public function findByProjectId(int $project_id)
+    {
+        return $this->indexQuery()->whereHas('projects', function(Builder $query) use ($project_id) {
+            $query->where('project.project_id','=', $project_id);
+        });
     }
 
     public function builder(): Builder
@@ -45,6 +56,6 @@ class TextRepository implements RepositoryInterface, IndexProviderInterface
 
     public function indexQuery(): Builder
     {
-        return $this->builder()->with($this->relations);
+        return $this->defaultQuery()->with($this->relations);
     }
 }
