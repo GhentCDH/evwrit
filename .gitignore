@@ -19,7 +19,8 @@ bower_components
 node_modules
 /images/
 .idea/
-
+.env
+.env.*
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
 /public/build/
