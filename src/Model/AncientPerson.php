@@ -37,4 +37,45 @@ class AncientPerson extends BaseModel
     {
         return $this->belongsTo(Gender::class);
     }
+
+    /**
+     * @return string
+     */
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAlias(): ?string
+    {
+        return $this->alias;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPatronymic(): ?string
+    {
+        return $this->patronymic;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTmId(): ?int
+    {
+        return $this->tm_id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getGenderId(): ?int
+    {
+        return $this->gender_id;
+    }
+
 }

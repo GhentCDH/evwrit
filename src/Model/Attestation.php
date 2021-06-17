@@ -96,6 +96,6 @@ class Attestation extends BaseModel
 
     public function graphType(): BelongsTo
     {
-        return $this->belongsTo( Age::class);
+        return $this->belongsTo( GraphType::class);
     }
 }
