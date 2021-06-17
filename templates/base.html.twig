@@ -139,7 +139,7 @@
                             <a href="/">
                                 <h1>
                                     Database of Everyday Writing
-                                    {% if app.environment != 'prod' and app.environment != 'stage' %}
+                                    {% if app.environment != 'prod' %}
                                         <span class="text-danger">
                                         [{{ app.environment }}]
                                     </span>
