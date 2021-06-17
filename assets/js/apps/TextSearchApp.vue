@@ -156,7 +156,6 @@ export default {
                                 {
                                     multiple: true,
                                     closeOnSelect: false,
-                                    customLabel: ({id,name,count}) => { return name + ' (' + count + ')'}
                                 }
                             ),
                             this.createMultiSelect('Location found',
