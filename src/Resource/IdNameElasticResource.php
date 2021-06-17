@@ -11,7 +11,7 @@ class IdNameElasticResource extends BaseResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request = null): array
+    public function toArray($request = null): ?array
     {
         if ($this->resource) {
             return [
@@ -19,6 +19,6 @@ class IdNameElasticResource extends BaseResource
                 'id_name' => $this->getId()."_".$this->name,
             ];
         }
-        return [];
+        return null;
     }
 }
