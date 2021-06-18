@@ -96,20 +96,20 @@ class TextElasticService extends ElasticBaseService
             'archive' => ['type' => self::FILTER_NESTED],
             'agentive_role' => [
                 'type' => self::FILTER_NESTED,
-                'path' => 'agentive_role'
+                'nested_path' => 'agentive_role'
             ],
             'communicative_goal' => [
                 'type' => self::FILTER_NESTED,
-                'path' => 'communicative_goal'
+                'nested_path' => 'communicative_goal'
             ],
             'era' => ['type' => self::FILTER_NESTED],
             'generic_agentive_role' => [
                 'type' => self::FILTER_NESTED,
-                'path' => 'agentive_role'
+                'nested_path' => 'agentive_role'
             ],
             'generic_communicative_goal' => [
                 'type' => self::FILTER_NESTED,
-                'path' => 'communicative_goal'
+                'nested_path' => 'communicative_goal'
             ],
             'date'=> [
                 'type' => self::FILTER_DATE_RANGE,
@@ -124,22 +124,47 @@ class TextElasticService extends ElasticBaseService
             'location_found' => ['type' => self::FILTER_NESTED],
             'material' => ['type' => self::FILTER_NESTED],
             'project' => ['type' => self::FILTER_NESTED],
+            'collaborator' => ['type' => self::FILTER_ID],
             'social_distance' => ['type' => self::FILTER_NESTED],
             'text_type' => ['type' => self::FILTER_NESTED],
             'text_subtype' => ['type' => self::FILTER_NESTED],
 
-            'ap_education' => [
-                'type' => self::FILTER_NESTED,
-                'path' => 'ancient_person'
-            ],
-            'ap_age' => [
-                'type' => self::FILTER_NESTED,
-                'path' => 'ancient_person'
+            'ap_tm_id' => [
+                'type' => self::FILTER_NUMERIC,
+                'nested_path' => 'ancient_person',
+                'field' => 'tm_id'
             ],
             'ap_role' => [
                 'type' => self::FILTER_NESTED,
-                'path' => 'ancient_person'
+                'nested_path' => 'ancient_person',
+                'field' => 'role'
             ],
+            'ap_gender' => [
+                'type' => self::FILTER_NESTED,
+                'nested_path' => 'ancient_person',
+                'field' => 'gender'
+            ],
+            'ap_occupation' => [
+                'type' => self::FILTER_NESTED,
+                'nested_path' => 'ancient_person',
+                'field' => 'occupation'
+            ],
+            'ap_social_rank' => [
+                'type' => self::FILTER_NESTED,
+                'nested_path' => 'ancient_person',
+                'field' => 'social_rank'
+            ],
+            'ap_honorific_epithet' => [
+                'type' => self::FILTER_NESTED,
+                'nested_path' => 'ancient_person',
+                'field' => 'honorific_epithet'
+            ],
+            'ap_graph_type' => [
+                'type' => self::FILTER_NESTED,
+                'nested_path' => 'ancient_person',
+                'field' => 'graph_type'
+            ],
+
         ];
 
         // add extra filters if user role allows
@@ -152,23 +177,23 @@ class TextElasticService extends ElasticBaseService
         $aggregationFilters = [
             'agentive_role' => [
                 'type' => self::AGG_NESTED_ID_NAME,
-                'path' => 'agentive_role',
+                'nested_path' => 'agentive_role',
                 'filter' => [ 'generic_agentive_role' => 'generic_agentive_role.id' ]
             ],
             'communicative_goal' => [
                 'type' => self::AGG_NESTED_ID_NAME,
-                'path' => 'communicative_goal',
+                'nested_path' => 'communicative_goal',
                 'filter' => [ 'generic_communicative_goal' => 'generic_communicative_goal.id' ]
             ],
             'archive' => ['type' => self::AGG_NESTED_ID_NAME],
             'era' => ['type' => self::AGG_NESTED_ID_NAME],
             'generic_agentive_role' => [
                 'type' => self::AGG_NESTED_ID_NAME,
-                'path' => 'agentive_role',
+                'nested_path' => 'agentive_role',
             ],
             'generic_communicative_goal' => [
                 'type' => self::AGG_NESTED_ID_NAME,
-                'path' => 'communicative_goal',
+                'nested_path' => 'communicative_goal',
             ],
             'form'  => ['type' => self::AGG_NESTED_ID_NAME],
             'keyword' => ['type' => self::AGG_NESTED_ID_NAME],
@@ -176,60 +201,48 @@ class TextElasticService extends ElasticBaseService
             'location_written' => ['type' => self::AGG_NESTED_ID_NAME],
             'location_found' => ['type' => self::AGG_NESTED_ID_NAME],
             'material'  => ['type' => self::AGG_NESTED_ID_NAME],
+            'collaborator'  => ['type' => self::AGG_ID_NAME],
+            'project'  => ['type' => self::AGG_NESTED_ID_NAME],
             'script' => ['type' => self::AGG_NESTED_ID_NAME],
             'social_distance' => ['type' => self::AGG_NESTED_ID_NAME],
             'text_type' => ['type' => self::AGG_NESTED_ID_NAME],
             'text_subtype' => ['type' => self::AGG_NESTED_ID_NAME],
 
-            'ap_education' => [
+            'ap_name' => [
                 'type' => self::AGG_NESTED_ID_NAME,
-                'path' => 'ancient_person',
-                'field' => 'education',
-            ],
-            'ap_age' => [
-                'type' => self::AGG_NESTED_ID_NAME,
-                'path' => 'ancient_person',
-                'field' => 'age',
+                'nested_path' => 'ancient_person',
+                'field' => ''
             ],
             'ap_role' => [
                 'type' => self::AGG_NESTED_ID_NAME,
-                'path' => 'ancient_person',
-                'field' => 'age',
+                'nested_path' => 'ancient_person',
+                'field' => 'role'
             ],
-
-            /*
-            'attestation_education' => [
-                'type' => self::AGG_NESTED,
-                'age' => [
-                    'age_id' => 'attestation_age',
-                    'ancient_person_id' => 'attestation_ancient_person',
-                    ]
+            'ap_gender' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'ancient_person',
+                'field' => 'gender'
             ],
-            'attestation_age' => [
-                'type' => self::AGG_NESTED,
-                'education' => [
-                    'education_id' => 'attestation_education',
-                    'ancient_person_id' => 'attestation_ancient_person',
-                    'graph_type_id' => 'attestation_graph_type',
-                ]
+            'ap_occupation' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'ancient_person',
+                'field' => 'occupation'
             ],
-            'attestation_ancient_person' => [
-                'type' => self::AGG_NESTED,
-                'education' => [
-                    'age_id' => 'attestation_age',
-                    'education_id' => 'attestation_education',
-                    'graph_type_id' => 'attestation_graph_type',
-                ]
+            'ap_social_rank' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'ancient_person',
+                'field' => 'social_rank'
             ],
-            'attestation_graph_type' => [
-                'type' => self::AGG_NESTED,
-                'education' => [
-                    'age_id' => 'attestation_age',
-                    'education_id' => 'attestation_education',
-                    'ancient_person_id' => 'attestation_ancient_person',
-                ]
+            'ap_honorific_epithet' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'ancient_person',
+                'field' => 'honorific_epithet'
             ],
-            */
+            'ap_graph_type' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'ancient_person',
+                'field' => 'graph_type'
+            ],
         ];
 
         // add extra filters if user role allows
