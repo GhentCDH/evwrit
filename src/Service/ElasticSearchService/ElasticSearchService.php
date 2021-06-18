@@ -23,9 +23,12 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
     protected const AGG_NESTED = "nested";
     protected const AGG_BOOLEAN = "bool";
     protected const AGG_MULTIPLE_FIELDS_OBJECT = "multiple_fields_object";
+
     protected const AGG_NESTED_ID_NAME = "nested_id_name";
+    protected const AGG_ID_NAME = "id_name";
 
     protected const FILTER_NUMERIC = "numeric";
+    protected const FILTER_ID = "dot_id";
     protected const FILTER_NUMERIC_MULTIPLE = "numeric_multiple";
     protected const FILTER_NESTED = "nested";
     protected const FILTER_NESTED_TOGGLE = "nested_toggle";
@@ -269,7 +272,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
 
         // Format response
         $response = [
-            'count' => $data['hits']['total']['value'],
+            'count' => $data['hits']['total']['value'] ?? 0,
             'data' => []
         ];
 
@@ -338,6 +341,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
 
             switch($aggType) {
                 case self::AGG_NESTED_ID_NAME:
+                case self::AGG_ID_NAME:
                     $aggOrFilters[$aggName] = $aggConfig;
             }
         }
@@ -359,11 +363,11 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
 
         // sanitize filter values
         $filterValues = $this->sanitizeSearchFilters($filterValues);
-        dump($filterValues);
+        //dump($filterValues);
 
         // get multiselect filters (with values only)
         $aggMultiSelectFilters = $this->getMultiSelectAggregationFilters($filterValues);
-        dump($aggMultiSelectFilters);
+        //dump($aggMultiSelectFilters);
 
         // create search query (exclude multiselect filters, will be added to aggregations)
         $query = (new Query())
@@ -397,27 +401,19 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                             ->setField($aggField)
                     );
                     break;
-                case self::AGG_OBJECT:
-                    $aggParentQuery->addAggregation(
-                        (new Aggregation\Terms($aggName))
-                            ->setSize(self::MAX_AGG)
-                            ->setField($aggField . '.id')
-                            ->addAggregation(
-                                (new Aggregation\Terms('name'))
-                                    ->setField($aggField . '.name.keyword')
-                            )
-                    );
-                    break;
                 case self::AGG_EXACT_TEXT:
+                    $aggField = $aggField.'.keyword';
+                    $aggField = ltrim($aggField,'.'); // aggField might be empty
+
                     $aggParentQuery->addAggregation(
                         (new Aggregation\Terms($aggName))
                             ->setSize(self::MAX_AGG)
-                            ->setField($aggField . '.keyword')
+                            ->setField($aggField)
                     );
                     break;
                 case self::AGG_NESTED:
-                    $aggPath = $aggConfig['path'] ?? $aggName;
-                    $aggField = isset($aggConfig['path']) ? $aggConfig['path'].'.'.$aggName : $aggName;
+                    $aggNestedPath = $aggConfig['nested_path'] ?? $aggName;
+                    $aggField = isset($aggConfig['nested_path']) ? $aggConfig['nested_path'].'.'.$aggField : $aggField;
 
                     $aggNestedFilter = $aggConfig['filter'] ?? [];
                     unset($aggNestedFilter[$aggName]); // do not filter myself
@@ -425,7 +421,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
 
                     // nested?
                     if ( true ) {
-                        $aggSubQuery = new Aggregation\Nested($aggName, $aggPath);
+                        $aggSubQuery = new Aggregation\Nested($aggName, $aggNestedPath);
                         $aggParentQuery->addAggregation($aggSubQuery);
                         $aggParentQuery = $aggSubQuery;
 
@@ -438,7 +434,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                             foreach($aggNestedFilter as $queryFilterField => $aggFilterField ) {
                                 $filterQuery->addFilter(
                                     (new Query\Term())
-                                        ->setTerm($aggPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
+                                        ->setTerm($aggNestedPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
                                 );
                             }
                             $aggSubQuery->setFilter($filterQuery);
@@ -460,9 +456,26 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     $aggParentQuery->addAggregation($aggTerm);
 
                     break;
+                case self::AGG_ID_NAME:
+                    $aggField = $aggField.'.id_name.keyword';
+                    $aggField = ltrim($aggField,'.'); // aggField might be empty
+
+                    $aggTerm = (new Aggregation\Terms($aggName))
+                        ->setSize(self::MAX_AGG)
+                        ->setField($aggField);
+                    $aggParentQuery->addAggregation($aggTerm);
+
+                    break;
                 case self::AGG_NESTED_ID_NAME:
-                    $aggPath = $aggConfig['path'] ?? $aggName;
-                    $aggField = isset($aggConfig['path']) ? $aggConfig['path'].'.'.$aggName : $aggName;
+                    $aggNestedPath = $aggConfig['nested_path'] ?? $aggName;
+
+                    $aggField = $aggField.'.id_name.keyword';
+                    $aggField = ltrim($aggField,'.'); // aggField might be empty
+
+                    // add path?
+                    if ( isset($aggConfig['nested_path']) ) {
+                        $aggField = $aggNestedPath.'.'.$aggField;
+                    }
 
                     $aggNestedFilter = $aggConfig['filter'] ?? [];
                     unset($aggNestedFilter[$aggName]); // do not filter myself
@@ -470,7 +483,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
 
                     // nested?
                     if ( true ) {
-                        $aggSubQuery = new Aggregation\Nested($aggName, $aggPath);
+                        $aggSubQuery = new Aggregation\Nested($aggName, $aggNestedPath);
                         $aggParentQuery->addAggregation($aggSubQuery);
                         $aggParentQuery = $aggSubQuery;
                     }
@@ -484,7 +497,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                         foreach($aggNestedFilter as $queryFilterField => $aggFilterField ) {
                             $filterQuery->addFilter(
                                 (new Query\Term())
-                                    ->setTerm($aggPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
+                                    ->setTerm($aggNestedPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
                             );
                         }
                         $aggSubQuery->setFilter($filterQuery);
@@ -493,10 +506,11 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                         $aggParentQuery = $aggSubQuery;
                     }
 
-                    // id aggregation + name subaggregation
+                    // id_name
                     $aggTerm = (new Aggregation\Terms('id_name'))
                         ->setSize(self::MAX_AGG)
-                        ->setField($aggField . '.id_name.keyword');
+                        ->setField($aggField)
+                        ->addAggregation( new Aggregation\ReverseNested('top_reverse_nested') );
                     $aggParentQuery->addAggregation($aggTerm);
 
                     break;
@@ -531,20 +545,19 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                 }
         }
 
-        //dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
+        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
 
         // parse query result
         $searchResult = $this->getIndex()->search($query);
         $results = [];
 
-        //dump($searchResult->getAggregations());
-
+        $arrAggData = $searchResult->getAggregations();
         foreach($aggFilters as $aggName => $aggConfig) {
             $aggType = $aggConfig['type'];
             switch($aggType) {
                 case self::AGG_NUMERIC:
                 case self::AGG_EXACT_TEXT:
-                    $aggregation = $searchResult->getAggregation($aggName);
+                    $aggregation = $arrAggData[$aggName] ?? [];
                     foreach ($aggregation['buckets'] as $result) {
                         $results[$aggName][] = [
                             'id' => $result['key'],
@@ -554,7 +567,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     }
                     break;
                 case self::AGG_OBJECT:
-                    $aggregation = $searchResult->getAggregation($aggName);
+                    $aggregation = $arrAggData[$aggName] ?? [];
                     foreach ($aggregation['buckets'] as $result) {
                         $results[$aggName][] = [
                             'id' => $result['key'],
@@ -564,7 +577,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     }
                     break;
                 case self::AGG_NESTED:
-                    $aggregation = $searchResult->getAggregation($aggName);
+                    $aggregation = $arrAggData[$aggName] ?? [];
 
                     // filtered?
                     $aggregation = $aggregation[$aggName] ?? $aggregation;
@@ -578,16 +591,14 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                         ];
                     }
                     break;
-                case self::AGG_NESTED_ID_NAME:
-                    $aggregation = $searchResult->getAggregation($aggName);
-                    //dump($aggregation);
+                case self::AGG_ID_NAME:
+                    $aggregation = $arrAggData[$aggName] ?? [];
 
-                    // filtered?
+                    // global/local filtered?
                     while ( isset($aggregation[$aggName]) ) {
                         $aggregation = $aggregation[$aggName];
                     }
-                    $aggregation_results = $aggregation['id_name']['buckets'];
-                    //dump($aggregation_results);
+                    $aggregation_results = $aggregation['buckets'];
 
                     foreach ($aggregation_results as $result) {
                         $parts = explode('_',$result['key'],2);
@@ -598,8 +609,29 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                         ];
                     }
                     break;
+
+                case self::AGG_NESTED_ID_NAME:
+                    $aggregation = $arrAggData[$aggName] ?? [];
+
+                    dump($aggregation);
+
+                    // global/local filtered?
+                    while ( isset($aggregation[$aggName]) ) {
+                        $aggregation = $aggregation[$aggName];
+                    }
+                    $aggregation_results = $aggregation['id_name']['buckets'];
+
+                    foreach ($aggregation_results as $result) {
+                        $parts = explode('_',$result['key'],2);
+                        $results[$aggName][] = [
+                            'id' => $parts[0],
+                            'name' => $parts[1],
+                            'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
+                        ];
+                    }
+                    break;
                 case self::AGG_BOOLEAN:
-                    $aggregation = $searchResult->getAggregation($aggName);
+                    $aggregation = $arrAggData[$aggName] ?? [];
                     foreach ($aggregation['buckets'] as $result) {
                         $results[$aggName][] = [
                             'id' => $result['key'],
@@ -660,23 +692,25 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
 
             $filterConfig = $filterConfigs[$filterName];
             $filterType = $filterConfig['type'];
+            $filterField = $filterConfig['field'] ?? $filterName;
 
             // type
             switch ($filterType) {
                 case self::FILTER_NUMERIC:
                     $query->addMust(
-                        new Query\Match($filterName, $filterValue)
+                        new Query\Match($filterField, $filterValue)
                     );
                     break;
+                case self::FILTER_ID:
                 case self::FILTER_OBJECT:
                     // If value == -1, select all entries without a value for a specific field
                     if ($filterValue == -1) {
                         $query->addMustNot(
-                            new Query\Exists($filterValue)
+                            new Query\Exists($filterField)
                         );
                     } else {
                         $query->addMust(
-                            new Query\Match($filterName . '.id', $filterValue)
+                            new Query\Match($filterField . '.id', $filterValue)
                         );
                     }
                     break;
@@ -774,30 +808,9 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                         );
                     }
                     break;
-                    /*
-                                    case self::FILTER_NESTED_MULTIPLE:
-                                        // filtervalue = [ property_name, value|[values] ]
-                                        foreach ( $filterValue as $filterOptions ) {
-                                            $fieldName = $filterOptions[0];
-                                            $fieldValues = is_array($filterOptions[1]) ? $filterOptions[1] : [ $filterOptions[1] ];
-
-                                            $subquery = new Query\BoolQuery();
-                                            foreach($fieldValues as $val) {
-                                                $subquery->addShould(['match' => [$fieldName . '.id' => $val]]);
-                                            }
-
-                                            $filterQuery->addMust(
-                                                (new Query\Nested())
-                                                    ->setPath($filterName)
-                                                    ->setQuery($subquery)
-                                            );
-                                        }
-
-                    break;
-                    */
                 case self::FILTER_NESTED:
-                    $filterPath = $filterConfig['path'] ?? $filterName;
-                    $filterField = isset($filterConfig['path']) ? $filterConfig['path'].'.'.$filterName : $filterName;
+                    $filterPath = $filterConfig['nested_path'] ?? $filterName;
+                    $filterField = isset($filterConfig['nested_path']) ? $filterConfig['nested_path'].'.'.$filterField : $filterField;
                     $filterFieldId = $filterField.".id";
 
                     // multiple values?
