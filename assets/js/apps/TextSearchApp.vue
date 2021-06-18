@@ -222,9 +222,19 @@ export default {
                         styleClasses: 'collapsible',
                         legend: 'Ancient persons',
                         fields: [
-                            this.createMultiSelect('Age', {model: 'attestation_age'}),
-                            this.createMultiSelect('Education', {model: 'attestation_education'}),
-                            this.createMultiSelect('Graph type', {model: 'attestation_graph_type'}),
+                            this.createMultiSelect('Name', {model: 'ap_name'}),
+                            {
+                                type: 'input',
+                                inputType: 'text',
+                                label: 'Trismegistos ID',
+                                model: 'ap_tm_id',
+                            },
+                            this.createMultiSelect('Role', {model: 'ap_role'}),
+                            this.createMultiSelect('Gender', {model: 'ap_gender'}),
+                            this.createMultiSelect('Occupation', {model: 'ap_occupation'}),
+                            this.createMultiSelect('Social rank', {model: 'ap_social_rank'}),
+                            this.createMultiSelect('Honorific epithet', {model: 'ap_honorific_epithet'}),
+                            this.createMultiSelect('Type graph', {model: 'ap_graph_type'}),
                         ]
                     },
                     {
@@ -333,11 +343,11 @@ export default {
         float: right;
         font-size: 100%;
         font-weight: normal;
-        transition: 0.3s;
+        transition: 0.1s;
     }
 
     .form-group {
-        transition: 0.3s;
+        transition: 0.1s;
     }
 
     &.collapsed {
