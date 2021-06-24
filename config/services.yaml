@@ -41,6 +41,12 @@ services:
         public: true
     App\Service\ElasticSearchService\TextElasticService: '@text_elastic_service'
 
+    text_materiality_elastic_service:
+        class: App\Service\ElasticSearchService\TextMaterialityElasticService
+        arguments: ['@elastic_search_client', '@service_container']
+        public: true
+    App\Service\ElasticSearchService\TextMaterialityElasticService: '@text_materiality_elastic_service'
+
     text_repository:
         class: App\Repository\TextRepository
         arguments: []
