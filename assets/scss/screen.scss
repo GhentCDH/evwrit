@@ -1,72 +1,72 @@
 // settings and bootstrap
-@import '../../node_modules/huisstijl2016/sass/settings';
-@import '../../node_modules/huisstijl2016/sass/bootstrap-custom';
-@import '../../node_modules/huisstijl2016/node_modules/bootstrap-sass/assets/stylesheets/bootstrap/panels';
+@import '~huisstijl2016/sass/settings';
+@import '~huisstijl2016/sass/bootstrap-custom';
+@import '~bootstrap-sass/assets/stylesheets/bootstrap/panels';
 
 // external
-//@import '../../node_modules/huisstijl2016/node_modules/ekko-lightbox/dist/ekko-lightbox';
-@import '../../node_modules/huisstijl2016/node_modules/bootstrap-grid-ms/scss/bootstrap-grid-ms';
-@import '../../node_modules/huisstijl2016/node_modules/font-awesome/scss/font-awesome';
+//@import '~huisstijl2016/node_modules/ekko-lightbox/dist/ekko-lightbox';
+@import '~bootstrap-grid-ms/scss/bootstrap-grid-ms';
+@import '~font-awesome/scss/font-awesome';
 
 //base
-@import '../../node_modules/huisstijl2016/sass/base/typography';
-@import '../../node_modules/huisstijl2016/sass/base/layout';
+@import '~huisstijl2016/sass/base/typography';
+@import '~huisstijl2016/sass/base/layout';
 
 // partials
-@import '../../node_modules/huisstijl2016/sass/partials/baseline';
-@import '../../node_modules/huisstijl2016/sass/partials/bootstrap-select';
-@import '../../node_modules/huisstijl2016/sass/partials/bootstrap-checkbox';
-// @import '../../node_modules/huisstijl2016/sass/partials/datepicker';
-@import '../../node_modules/huisstijl2016/sass/partials/fonts';
-@import '../../node_modules/huisstijl2016/sass/partials/footer';
-@import '../../node_modules/huisstijl2016/sass/partials/form';
-@import '../../node_modules/huisstijl2016/sass/partials/table';
-@import '../../node_modules/huisstijl2016/sass/partials/generic-elements';
+@import '~huisstijl2016/sass/partials/baseline';
+@import '~huisstijl2016/sass/partials/bootstrap-select';
+@import '~huisstijl2016/sass/partials/bootstrap-checkbox';
+// @import '~huisstijl2016/sass/partials/datepicker';
+@import '~huisstijl2016/sass/partials/fonts';
+@import '~huisstijl2016/sass/partials/footer';
+@import '~huisstijl2016/sass/partials/form';
+@import '~huisstijl2016/sass/partials/table';
+@import '~huisstijl2016/sass/partials/generic-elements';
 // Partially override generic-elements
 @import 'partials/generic-elements';
-@import '../../node_modules/huisstijl2016/sass/partials/icons';
-@import '../../node_modules/huisstijl2016/sass/partials/pageheader';
-@import '../../node_modules/huisstijl2016/sass/partials/breadcrumb';
-@import '../../node_modules/huisstijl2016/sass/partials/linklist';
-@import '../../node_modules/huisstijl2016/sass/partials/content-header';
-@import '../../node_modules/huisstijl2016/sass/partials/content-header-home';
-@import '../../node_modules/huisstijl2016/sass/partials/content-header-subhome';
-@import '../../node_modules/huisstijl2016/sass/partials/content-text';
-@import '../../node_modules/huisstijl2016/sass/partials/content-list';
-@import '../../node_modules/huisstijl2016/sass/partials/content-image';
-@import '../../node_modules/huisstijl2016/sass/partials/content-text-image';
-@import '../../node_modules/huisstijl2016/sass/partials/content-contact';
-@import '../../node_modules/huisstijl2016/sass/partials/content-types';
-@import '../../node_modules/huisstijl2016/sass/partials/buttons';
-@import '../../node_modules/huisstijl2016/sass/partials/lightbox';
-@import '../../node_modules/huisstijl2016/sass/partials/result-item';
-@import '../../node_modules/huisstijl2016/sass/partials/result-header';
-@import '../../node_modules/huisstijl2016/sass/partials/pagination';
-@import '../../node_modules/huisstijl2016/sass/partials/inpage-nav-container';
-@import '../../node_modules/huisstijl2016/sass/partials/panels';
-@import '../../node_modules/huisstijl2016/sass/partials/example-layout';
-@import '../../node_modules/huisstijl2016/sass/partials/quote';
-@import '../../node_modules/huisstijl2016/sass/partials/news-aside';
-@import '../../node_modules/huisstijl2016/sass/partials/newsitem';
-@import '../../node_modules/huisstijl2016/sass/partials/linklist-events';
-@import '../../node_modules/huisstijl2016/sass/partials/linklist-news';
-@import '../../node_modules/huisstijl2016/sass/partials/linklist-newsoverview';
-@import '../../node_modules/huisstijl2016/sass/partials/modal';
-@import '../../node_modules/huisstijl2016/sass/partials/share';
-@import '../../node_modules/huisstijl2016/sass/partials/typeahead';
-@import '../../node_modules/huisstijl2016/sass/partials/banner';
-@import '../../node_modules/huisstijl2016/sass/partials/image-panel';
-@import '../../node_modules/huisstijl2016/sass/partials/date';
+@import '~huisstijl2016/sass/partials/icons';
+@import '~huisstijl2016/sass/partials/pageheader';
+@import '~huisstijl2016/sass/partials/breadcrumb';
+@import '~huisstijl2016/sass/partials/linklist';
+@import '~huisstijl2016/sass/partials/content-header';
+@import '~huisstijl2016/sass/partials/content-header-home';
+@import '~huisstijl2016/sass/partials/content-header-subhome';
+@import '~huisstijl2016/sass/partials/content-text';
+@import '~huisstijl2016/sass/partials/content-list';
+@import '~huisstijl2016/sass/partials/content-image';
+@import '~huisstijl2016/sass/partials/content-text-image';
+@import '~huisstijl2016/sass/partials/content-contact';
+@import '~huisstijl2016/sass/partials/content-types';
+@import '~huisstijl2016/sass/partials/buttons';
+@import '~huisstijl2016/sass/partials/lightbox';
+@import '~huisstijl2016/sass/partials/result-item';
+@import '~huisstijl2016/sass/partials/result-header';
+@import '~huisstijl2016/sass/partials/pagination';
+@import '~huisstijl2016/sass/partials/inpage-nav-container';
+@import '~huisstijl2016/sass/partials/panels';
+@import '~huisstijl2016/sass/partials/example-layout';
+@import '~huisstijl2016/sass/partials/quote';
+@import '~huisstijl2016/sass/partials/news-aside';
+@import '~huisstijl2016/sass/partials/newsitem';
+@import '~huisstijl2016/sass/partials/linklist-events';
+@import '~huisstijl2016/sass/partials/linklist-news';
+@import '~huisstijl2016/sass/partials/linklist-newsoverview';
+@import '~huisstijl2016/sass/partials/modal';
+@import '~huisstijl2016/sass/partials/share';
+@import '~huisstijl2016/sass/partials/typeahead';
+@import '~huisstijl2016/sass/partials/banner';
+@import '~huisstijl2016/sass/partials/image-panel';
+@import '~huisstijl2016/sass/partials/date';
 
 // helpers
-@import '../../node_modules/huisstijl2016/sass/base/helpers';
+@import '~huisstijl2016/sass/base/helpers';
 
 // Bootstrap overwrites
-@import '../../node_modules/huisstijl2016/sass/partials/thumbnail';
-@import '../../node_modules/huisstijl2016/sass/partials/alert';
-@import '../../node_modules/huisstijl2016/sass/partials/bootstrap-overwrites';
-@import '../../node_modules/huisstijl2016/sass/partials/print-overwrites';
-@import '../../node_modules/huisstijl2016/sass/partials/tooltip';
+@import '~huisstijl2016/sass/partials/thumbnail';
+@import '~huisstijl2016/sass/partials/alert';
+@import '~huisstijl2016/sass/partials/bootstrap-overwrites';
+@import '~huisstijl2016/sass/partials/print-overwrites';
+@import '~huisstijl2016/sass/partials/tooltip';
 
 // Extra
 // @import 'partials/checkbox';
@@ -91,3 +91,4 @@
 @import 'partials/search';
 @import 'partials/thumbnail';
 @import 'partials/type';
+@import 'partials/nouislider';
