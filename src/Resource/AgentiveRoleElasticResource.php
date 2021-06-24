@@ -14,8 +14,8 @@ class AgentiveRoleElasticResource extends BaseResource
     public function toArray($request=null)
     {
         return [
-            'generic_agentive_role' => new IdNameElasticResource($this->genericAgentiveRole),
-            'agentive_role' => new IdNameElasticResource($this->agentiveRole),
+            'generic_agentive_role' => new ElasticIdNameResource($this->genericAgentiveRole),
+            'agentive_role' => new ElasticIdNameResource($this->agentiveRole),
         ];
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Resource;
 
 
-class IdNameElasticResource extends BaseResource
+class ElasticIdNameResource extends BaseResource
 {
     /**
      * Transform the resource into an array.

@@ -31,15 +31,15 @@ class AttestationElasticResource extends BaseResource
 
             'tm_id' => $ap->getTmId(),
             'name' => $ap->getName(),
-            'gender' => new IdNameElasticResource($ap->gender),
+            'gender' => new ElasticIdNameResource($ap->gender),
 
-            'education' => new IdNameElasticResource($this->education),
-            'age' => new IdNameElasticResource($this->age),
-            'graph_type' => new IdNameElasticResource($this->graphType),
-            'role' => IdNameElasticResource::collection($this->roles)->toArray(0),
-            'social_rank' => IdNameElasticResource::collection($this->socialRanks)->toArray(0),
-            'occupation' => IdNameElasticResource::collection($this->occupations)->toArray(0),
-            'honorific_epithet' => IdNameElasticResource::collection($this->honorificEpithets)->toArray(0),
+            'education' => new ElasticIdNameResource($this->education),
+            'age' => new ElasticIdNameResource($this->age),
+            'graph_type' => new ElasticIdNameResource($this->graphType),
+            'role' => ElasticIdNameResource::collection($this->roles)->toArray(0),
+            'social_rank' => ElasticIdNameResource::collection($this->socialRanks)->toArray(0),
+            'occupation' => ElasticIdNameResource::collection($this->occupations)->toArray(0),
+            'honorific_epithet' => ElasticIdNameResource::collection($this->honorificEpithets)->toArray(0),
         ];
     }
 }
