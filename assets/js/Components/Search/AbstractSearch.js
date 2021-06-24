@@ -95,66 +95,8 @@ export default {
             }
             return false
         },
-        histWeights: function () {
-            if (this.aggregation.histWeights == null) {
-                return []
-            }
-            let keys = Object.keys(this.aggregation.histWeights);
-            let numKeys = keys.map(Number);
-            function sortNumber(a,b) {
-                return a - b;
-            }
-            numKeys.sort(sortNumber);
-            let histWeights = [];
-            for(let key of numKeys)
-            {
-                histWeights.push([key, this.aggregation.histWeights[key.toString()]]);
-            }
-            return histWeights;
-        },
-        maxHeight: function () {
-            if (this.aggregation.histWeights == null) {
-                return 0
-            }
-            let maxHeight = null;
-            let values = Object.values(this.aggregation.histWeights);
-            for(let value of values)
-            {
-                if(maxHeight == null || maxHeight < value)
-                {
-                    maxHeight = value;
-                }
-            }
-            return maxHeight;
-        },
-        minHist: function() {
-            if (this.histWeights.length === 0) {
-                return 0;
-            }
-            return this.histWeights[0][0];
-        },
-        maxHist: function() {
-            if (this.histWeights.length === 0) {
-                return 0;
-            }
-            return this.histWeights[this.histWeights.length - 1][0];
-        },
         querystring: function() {
             return qs.stringify({filters: this.oldFilterValues});
-        },
-        dateRange: function () {
-            if (this.model.dateRange != null) {
-                return  {
-                    value: [this.model.dateRange[0], this.model.dateRange[1]],
-                    min: this.minHist,
-                    max: this.maxHist,
-                }
-            }
-            return {
-                value: [this.minHist, this.maxHist],
-                min: this.minHist,
-                max: this.maxHist,
-            }
         },
     },
     mounted () {
@@ -166,36 +108,23 @@ export default {
         constructFilterValues() {
             let result = {}
             if (this.model != null) {
+                // loop model
                 for (let fieldName of Object.keys(this.model)) {
+                    // fieldtype multiselectClear? create array of id's
                     if (this.fields[fieldName] != null && this.fields[fieldName].type === 'multiselectClear') {
                         if (this.model[fieldName] != null) {
-                            if (Array.isArray(this.model[fieldName]))
-                            {
+                            if (Array.isArray(this.model[fieldName])) {
                                 var ids = []
                                 for (let value of this.model[fieldName]) {
                                     ids.push(value['id'])
                                 }
                                 result[fieldName] = ids
-
-                            }
-                            else
-                            {
+                            } else {
                                 result[fieldName] = this.model[fieldName]['id']
                             }
-
                         }
-                    }
-                    else {
-                        if(fieldName === 'dateRange')
-                        {
-                            if (this.model.dateRange[0] !== this.minHist || this.model.dateRange[1] !== this.maxHist) {
-                                result[fieldName] = this.model[fieldName]
-                            }
-                        }
-                        else
-                        {
-                            result[fieldName] = this.model[fieldName]
-                        }
+                    } else {
+                        result[fieldName] = this.model[fieldName]
                     }
                 }
             }
@@ -205,7 +134,7 @@ export default {
             this.lastChangedField = fieldName
         },
         onValidated(isValid, errors) {
-            // do nothin but cancelling requests if invalid
+            // do nothing but cancelling requests if invalid
             if (!isValid) {
                 if (this.inputCancel !== null) {
                     window.clearTimeout(this.inputCancel)
@@ -236,9 +165,9 @@ export default {
                 timeoutValue = 1000
             }
 
-            // Remove column ordering if text or comment is searched, reset when no value is provided
+            // Remove column ordering if text is searched, reset when no value is provided
             // Do not refresh twice
-            if (this.lastChangedField == 'text' || this.lastChangedField == 'comment') {
+            if ( this.lastChangedField == 'text' ) {
                 this.actualRequest = false
                 if (this.model[this.lastChangedField] == null || this.model[this.lastChangedField == '']) {
                     if (this.lastOrder == null) {
@@ -319,12 +248,6 @@ export default {
         },
         onData(data) {
             this.aggregation = data.aggregation
-            if (this.model.dateRange != null) {
-                this.originalModel.dateRange = [
-                    this.minHist,
-                    this.maxHist,
-                ]
-            }
         },
         onLoaded(data) {
             // Update model and ordering if not initialized or history request
@@ -389,9 +312,6 @@ export default {
                             model[key] = params['filters'][key]
                         }
                     }
-                    if (key === 'dateRange') {
-                        model[key] = params['filters'][key]
-                    }
                 }, this)
             }
             this.model = model
@@ -443,32 +363,6 @@ export default {
         },
         isLoginError(error) {
             return error.message === 'Network Error'
-        },
-        formatDate (date) {
-            if(date != null){
-                if(date < 0) {
-                    return (-1) * date + " BC"
-                }
-                else {
-                    return date + " AD"
-                }
-            }
-        },
-        sliderChange () {
-            this.model.dateRange = this.dateRange.value;
-            this.onValidated(true);
-        },
-        dateInputChange() {
-            if (
-                this.model.dateRange[0] >= this.minHist
-                && this.model.dateRange[1] >= this.minHist
-                && this.model.dateRange[0] <= this.maxHist
-                && this.model.dateRange[1] <= this.maxHist
-                && this.model.dateRange[0] <= this.model.dateRange[1]
-            ) {
-                this.lastChangedField = 'dateInput'
-                this.onValidated(true);
-            }
         },
     },
     requestFunction (data) {
