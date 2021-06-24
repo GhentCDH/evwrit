@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Resource\TextElasticResource;
+use App\Resource\ElasticTextResource;
 use App\Resource\TextResource;
 use App\Service\ElasticSearchService\ElasticSearchService;
 use App\Service\ElasticSearchService\TextElasticService;
@@ -139,7 +139,7 @@ class TextController extends BaseController
         $repository = $this->container->get('text_repository' );
         $text = $repository->find(69108);
 
-        $res = new TextElasticResource($text);
+        $res = new ElasticTextResource($text);
         $arr = $res->toJson(0);
 
         dump($arr);
