@@ -666,7 +666,14 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     break;
                 case self::AGG_BOOLEAN:
                     $aggregation = $arrAggData[$aggName] ?? [];
-                    foreach ($aggregation['buckets'] as $result) {
+
+                    // global/local filtered?
+                    while ( isset($aggregation[$aggName]) ) {
+                        $aggregation = $aggregation[$aggName];
+                    }
+                    $aggregation_results = $aggregation['buckets'];
+
+                    foreach ($aggregation_results as $result) {
                         $results[$aggName][] = [
                             'id' => $result['key'],
                             'name' => $result['key_as_string'],
