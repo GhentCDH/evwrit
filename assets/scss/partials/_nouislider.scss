@@ -1,0 +1,38 @@
+.field-noUiSlider {
+  .noUi-target {
+    border-radius: 0;
+    border: 1px solid #A1A1A1;
+  }
+
+  .noUi-horizontal {
+
+    height: 10px;
+
+    &.contain-tooltip {
+      margin-top: 40px;
+    }
+
+    .noUi-connects {
+      border-radius: 0;
+    }
+
+    .noUi-connect {
+      background: #1E64C8;
+    }
+
+    .noUi-handle {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #A1A1A1;
+
+      &:before, &:after {
+        display: none;
+      }
+    }
+
+    .noUi-tooltip {
+      border-radius: 0;
+      padding: 4px 5px;
+    }
+  }
+}
