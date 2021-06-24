@@ -1,3 +1,8 @@
+import wNumb from 'wnumb'
+
+const RANGE_MIN_INVALID = -1
+const RANGE_MAX_INVALID = 10000
+
 export default {
     methods: {
         createMultiSelect(label, extra = null, extraSelectOptions = null) {
@@ -32,6 +37,35 @@ export default {
                 }
             }
             return result
+        },
+        createRangeSlider(model, label, min, max, step, extra = null) {
+            let result = {
+                type: "noUiSlider",
+                label: label,
+                model: model,
+                min: min,
+                max: max,
+                noUiSliderOptions: {
+                    connect: true,
+                    range: {
+                        'min': [RANGE_MIN_INVALID,1],
+                        '10%': [min,step],
+                        '90%': [max,RANGE_MAX_INVALID],
+                        'max': [RANGE_MAX_INVALID]
+                    },
+                    start: [-1, 10000],
+                    tooltips: { to: this.formatSliderToolTip },
+                }
+            }
+
+            return result;
+        },
+        formatSliderToolTip(value) {
+            if ( value > -1 && value < 10000 ) {
+                return wNumb({decimals: 0}).to(value)
+            } else {
+                return 'off';
+            }
         },
         disableField(field, model = null) {
             if (model == null) {
@@ -186,5 +220,7 @@ export default {
             let stripped = encoded.replace(/%C[^EF]%[0-9A-F]{2}/gi, '');
             return decodeURIComponent(stripped).toLocaleLowerCase();
         },
-    }
+    },
+    RANGE_MIN_INVALID: RANGE_MIN_INVALID,
+    RANGE_MAX_INVALID: RANGE_MAX_INVALID,
 }
