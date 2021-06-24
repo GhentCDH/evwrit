@@ -66,17 +66,7 @@ class TextElasticService extends ElasticBaseService
             'location_written' => ['type' => 'nested'],
             'agentive_role' => ['type' => 'nested'],
             'communicative_goal'  => ['type' => 'nested'],
-            'attestation_education'  => ['type' => 'nested'],
-            'attestation_age'  => ['type' => 'nested'],
-            'attestation_graph_type'  => ['type' => 'nested'],
-            'ancient_person' => [
-                'type' => 'nested',
-//                'properties' => [
-//                    'role' => [
-//                        'type' => 'nested'
-//                    ]
-//                ]
-            ]
+            'ancient_person' => [ 'type' => 'nested' ],
         ];
     }
 
