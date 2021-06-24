@@ -23,6 +23,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
     protected const AGG_NESTED = "nested";
     protected const AGG_BOOLEAN = "bool";
     protected const AGG_MULTIPLE_FIELDS_OBJECT = "multiple_fields_object";
+    protected const AGG_GLOBAL_STATS = "stats";
 
     protected const AGG_NESTED_ID_NAME = "nested_id_name";
     protected const AGG_ID_NAME = "id_name";
@@ -40,6 +41,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
     protected const FILTER_BOOLEAN = "boolean";
     protected const FILTER_MULTIPLE_FIELDS_OBJECT = "multiple_fields_object";
     protected const FILTER_DATE_RANGE = "date_range";
+    protected const FILTER_NUMERIC_RANGE_SLIDER = "numeric_range";
 
     public const ENABLE_CACHE = 1;
 
@@ -164,7 +166,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     break;
                 case self::FILTER_BOOLEAN:
                     if ($filterValue === false) continue;
-                    $filters[$filterName] = ($filterValue === '1');
+                        $filters[$filterName] = ($filterValue === '1');
                     break;
                 case self::FILTER_DATE_RANGE:
                     $rangeFilter = [];
@@ -182,6 +184,26 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     $valueField = $filterConfig['typeField'];
                     if (isset($params[$valueField]) && in_array($params[$valueField], ['exact','included','include','overlap'], true)) {
                         $rangeFilter['type'] = $params[$valueField];
+                    }
+
+                    if ( $rangeFilter) {
+                        $filters[$filterName] = $rangeFilter;
+                    }
+
+                    break;
+                case self::FILTER_NUMERIC_RANGE_SLIDER:
+                    $rangeFilter = [];
+                    $ignore = $filterConfig['ignore'] ?? [];
+                    $ignore = is_array($ignore) ? $ignore : [ $ignore ];
+
+                    $value = $filterValue[0] ?? null;
+                    if ( is_numeric($value) && !in_array(floatval($value), $ignore)) {
+                        $rangeFilter['floor'] = floatval($value);
+                    }
+
+                    $value = $filterValue[1] ?? null;
+                    if ( is_numeric($value) && !in_array(floatval($value), $ignore)) {
+                        $rangeFilter['ceiling'] = floatval($value);
                     }
 
                     if ( $rangeFilter) {
@@ -374,6 +396,10 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
             ->setQuery($this->createSearchQuery($filterValues, array_keys($aggMultiSelectFilters)))
             ->setSize(0); // Only aggregation will be used
 
+        // create global aggregation (unfiltered, full dataset)
+        $aggGlobalQuery = new Aggregation\GlobalAggregation("global_aggregation");
+        $query->addAggregation($aggGlobalQuery);
+
         // add aggregations
         foreach($aggFilters as $aggName => $aggConfig) {
             $aggType = $aggConfig['type'];
@@ -398,6 +424,12 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     $aggParentQuery->addAggregation(
                         (new Aggregation\Terms($aggName))
                             ->setSize(self::MAX_AGG)
+                            ->setField($aggField)
+                    );
+                    break;
+                case self::AGG_GLOBAL_STATS:
+                    $aggGlobalQuery->addAggregation(
+                        (new Aggregation\Stats($aggName))
                             ->setField($aggField)
                     );
                     break;
@@ -545,13 +577,15 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                 }
         }
 
-        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
 
         // parse query result
         $searchResult = $this->getIndex()->search($query);
         $results = [];
 
         $arrAggData = $searchResult->getAggregations();
+        dump($arrAggData);
+        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
+
         foreach($aggFilters as $aggName => $aggConfig) {
             $aggType = $aggConfig['type'];
             switch($aggType) {
@@ -613,7 +647,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                 case self::AGG_NESTED_ID_NAME:
                     $aggregation = $arrAggData[$aggName] ?? [];
 
-                    dump($aggregation);
+                    //dump($aggregation);
 
                     // global/local filtered?
                     while ( isset($aggregation[$aggName]) ) {
@@ -711,6 +745,23 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     } else {
                         $query->addMust(
                             new Query\Match($filterField . '.id', $filterValue)
+                        );
+                    }
+                    break;
+                case self::FILTER_NUMERIC_RANGE_SLIDER:
+                    $floorField = $filterConfig['floorField'] ?? $filterName;
+                    $ceilingField = $filterConfig['ceilingField'] ?? $filterName;
+
+                    if (isset($filterValue['floor'])) {
+                        $query->addMust(
+                            (new Query\Range())
+                                ->addField($floorField, ['gte' => $filterValue['floor']])
+                        );
+                    }
+                    if (isset($filterValue['ceiling'])) {
+                        $query->addMust(
+                            (new Query\Range())
+                                ->addField($ceilingField, ['lte' => $filterValue['ceiling']])
                         );
                     }
                     break;
