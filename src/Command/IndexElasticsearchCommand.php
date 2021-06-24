@@ -3,13 +3,13 @@
 namespace App\Command;
 
 use App\Repository\TextRepository;
-use App\Resource\CommunicativeGoalElasticResource;
-use App\Resource\TextElasticResource;
+
+use App\Resource\ElasticTextResource;
+use App\Resource\ElasticTextMaterialityResource;
 use App\Service\ElasticSearchService\TextElasticService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -32,46 +32,62 @@ class IndexElasticsearchCommand extends Command
     {
         $this
             ->setDescription(self::$defaultDescription)
-            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
-            ->setHelp('This command allows you to reindex elasticsearch.')
-            ->addOption('index', 'i', InputOption::VALUE_OPTIONAL, 'Which index should be reindexed?');
+            ->addArgument('index', InputArgument::REQUIRED, 'Which index should be reindexed?')
+            ->setHelp('This command allows you to reindex elasticsearch.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $arg1 = $input->getArgument('arg1');
-
-        if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
-        }
-
-        if ($input->getOption('index')) {
-            // ...
-        }
-
-        /**
-         * @var $repository TextRepository
-         */
-        $repository = $this->container->get('text_repository' );
-
-        /**
-         * @var $service TextElasticService
-         */
-        $service = $this->container->get('text_elastic_service');
-        $service->setup();
-
 
         $count = 0;
-        //$repository->indexQuery()->where('text_id', '<', 100)->chunk(100,
-        $repository->findByProjectId(3)->limit(100)->chunk(100,
-            function($res) use ($service,$count) {
-                foreach ($res as $text) {
-                    $res = new TextElasticResource($text);
-                    $service->add($res);
-                    $count++;
+        if ($index = $input->getArgument('index')) {
+            switch ($index) {
+                case 'text':
+                    /** @var $repository TextRepository */
+                    $repository = $this->container->get('text_repository' );
+
+                    /** @var $service TextElasticService */
+                    $service = $this->container->get('text_elastic_service');
+                    $service->setup();
+
+                    $repository->findByProjectId(3)->limit(100)->chunk(100,
+                        function($res) use ($service,$count) {
+                            foreach ($res as $text) {
+                                $res = new ElasticTextResource($text);
+                                $service->add($res);
+                                $count++;
+                            }
+                        });
+
+                    break;
+                case 'text_materiality':
+                    /** @var $repository TextRepository */
+                    $repository = $this->container->get('text_repository' );
+
+                    /** @var $service TextElasticService */
+                    $service = $this->container->get('text_materiality_elastic_service');
+                    $service->setup();
+
+                    $repository->findByProjectId(3)->limit(100)->chunk(100,
+                        function($res) use ($service,$count) {
+                            foreach ($res as $text) {
+                                $res = new ElasticTextMaterialityResource($text);
+                                $service->add($res);
+                                $count++;
+                            }
+                        });
+
+                    break;
             }
-        });
+
+
+
+
+        }
+
+
+
 
         $io->success("Succesfully indexed {$count} records");
 
