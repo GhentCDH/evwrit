@@ -103,22 +103,20 @@ class TextController extends BaseController
                     Response::HTTP_NOT_FOUND
                 );
             }
-            return new JsonResponse($resource->toJson());
+            return new JsonResponse($resource);
         } else {
             // Let the 404 page handle the not found exception
             $repository = $container->get('text_repository' );
             $model = $repository->find($id);
             $resource = new TextResource($model);
 
-            dump($model->text);
-            dump(str_replace("\v","\n",$model->text));
-
-            dump($resource->toJson());
             return $this->render(
                 $this->templateFolder. '/detail.html.twig',
                 [
                     'urls' => json_encode([
                         // @codingStandardsIgnoreStart Generic.Files.LineLength
+                        'text_search' => $this->generateUrl('text_search'),
+                        'materiality_search' => $this->generateUrl('materiality_search'),
                         'text_search_api' => $this->generateUrl('text_search_api'),
                         'text_get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
                         // @codingStandardsIgnoreEnd
