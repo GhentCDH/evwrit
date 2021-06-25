@@ -13,23 +13,23 @@
         "/build/text-search.4f540282.css"
       ],
       "js": [
-        "/build/text-search.07e17bb8.js"
+        "/build/text-search.ed3d3ee5.js"
       ]
     },
     "materiality-search": {
       "css": [
-        "/build/materiality-search.35f60bed.css"
+        "/build/materiality-search.62d40b78.css"
       ],
       "js": [
-        "/build/materiality-search.f6cb9a3b.js"
+        "/build/materiality-search.b130d878.js"
       ]
     },
     "text-view": {
       "css": [
-        "/build/text-view.a8c79c13.css"
+        "/build/text-view.9e63779f.css"
       ],
       "js": [
-        "/build/text-view.f716d3d7.js"
+        "/build/text-view.b00c1100.js"
       ]
     }
   }
