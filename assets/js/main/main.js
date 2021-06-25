@@ -5,6 +5,8 @@ require('mark.js/dist/jquery.mark.js');
 require('bootstrap-sass');
 import '@firstandthird/toc/dist/toc.js';
 
+import regeneratorRuntime from "regenerator-runtime"
+
 (function() {
 
     $('.thumbnail.hidden img').on('load', function (event) {
