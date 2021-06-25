@@ -2,7 +2,13 @@
 
 namespace App\Resource;
 
+use App\Model\Text;
 
+/**
+ * Class AttestationResource
+ * @package App\Resource
+ * @mixin Text
+ */
 class ElasticTextResource extends ElasticBaseResource
 {
     const CACHENAME = "text_elastic";
@@ -47,14 +53,14 @@ Status Revision
             'project' => ElasticIdNameResource::collection($this->projects)->toArray(null),
             'keyword' => ElasticIdNameResource::collection($this->keywords)->toArray(null),
 
-            'agentive_role' => AgentiveRoleElasticResource::collection($this->textAgentiveRoles)->toArray(null),
-            'communicative_goal' => CommunicativeGoalElasticResource::collection($this->textCommunicativeGoals)->toArray(null),
+            'agentive_role' => ElasticAgentiveRoleResource::collection($this->textAgentiveRoles)->toArray(null),
+            'communicative_goal' => ElasticCommunicativeGoalResource::collection($this->textCommunicativeGoals)->toArray(null),
 
             /* unique */
             'location_found' => ElasticIdNameResource::collection($this->locationsFound)->toArray(null),
             'location_written' => ElasticIdNameResource::collection($this->locationsWritten)->toArray(null),
 
-            'ancient_person' => AttestationElasticResource::collection($this->attestations)->toArray(0)
+            'ancient_person' => ElasticAttestationResource::collection($this->attestations)->toArray(0)
         ];
     }
 }

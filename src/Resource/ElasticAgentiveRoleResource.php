@@ -3,7 +3,7 @@
 namespace App\Resource;
 
 
-class AgentiveRoleElasticResource extends BaseResource
+class ElasticAgentiveRoleResource extends BaseResource
 {
     /**
      * Transform the resource into an array.

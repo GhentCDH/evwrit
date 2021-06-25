@@ -47,8 +47,8 @@ Status Revision
             'project' => ElasticIdNameResource::collection($this->projects)->toArray(null),
             'keyword' => ElasticIdNameResource::collection($this->keywords)->toArray(null),
 
-            'agentive_role' => AgentiveRoleElasticResource::collection($this->textAgentiveRoles)->toArray(null),
-            'communicative_goal' => CommunicativeGoalElasticResource::collection($this->textCommunicativeGoals)->toArray(null),
+            'agentive_role' => ElasticAgentiveRoleResource::collection($this->textAgentiveRoles)->toArray(null),
+            'communicative_goal' => ElasticCommunicativeGoalResource::collection($this->textCommunicativeGoals)->toArray(null),
 
             /* unique */
             'production_stage' =>ElasticIdNameResource::collection($this->productionStages)->toArray(null),

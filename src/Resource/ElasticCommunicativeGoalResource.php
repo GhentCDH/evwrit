@@ -3,7 +3,7 @@
 namespace App\Resource;
 
 
-class CommunicativeGoalElasticResource extends BaseResource
+class ElasticCommunicativeGoalResource extends BaseResource
 {
     /**
      * Transform the resource into an array.

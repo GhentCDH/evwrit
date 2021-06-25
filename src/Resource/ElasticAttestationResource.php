@@ -7,11 +7,11 @@ use App\Model\AncientPerson;
 use App\Model\Attestation;
 
 /**
- * Class AttestationElasticResource
+ * Class ElasticAttestationResource
  * @package App\Resource
  * @mixin Attestation
  */
-class AttestationElasticResource extends BaseResource
+class ElasticAttestationResource extends BaseResource
 {
     /**
      * Transform the resource into an array.
