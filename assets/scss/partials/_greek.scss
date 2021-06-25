@@ -42,6 +42,19 @@ $nau-font-path: '../../fonts/new-athena-unicode';
       font-family: NewAthenaUnicode, Arial, sans-serif;
     }
   }
+
+  &.text {
+    line-height: 1.9;
+
+    .line-number {
+      display: inline-block;
+      width: 2em;
+      border-right: 1px solid #ccc;
+      color: #ccc;
+      padding: 0px 0;
+      margin-right: 0.5em;
+    }
+  }
 }
 
 .modal-title {
