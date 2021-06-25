@@ -632,7 +632,7 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                     while ( isset($aggregation[$aggName]) ) {
                         $aggregation = $aggregation[$aggName];
                     }
-                    $aggregation_results = $aggregation['buckets'];
+                    $aggregation_results = $aggregation['buckets'] ?? [];
 
                     foreach ($aggregation_results as $result) {
                         $parts = explode('_',$result['key'],2);
@@ -647,13 +647,11 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
                 case self::AGG_NESTED_ID_NAME:
                     $aggregation = $arrAggData[$aggName] ?? [];
 
-                    //dump($aggregation);
-
                     // global/local filtered?
                     while ( isset($aggregation[$aggName]) ) {
                         $aggregation = $aggregation[$aggName];
                     }
-                    $aggregation_results = $aggregation['id_name']['buckets'];
+                    $aggregation_results = $aggregation['id_name']['buckets'] ?? [];
 
                     foreach ($aggregation_results as $result) {
                         $parts = explode('_',$result['key'],2);
