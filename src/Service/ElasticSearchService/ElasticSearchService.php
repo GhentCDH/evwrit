@@ -583,8 +583,8 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
         $results = [];
 
         $arrAggData = $searchResult->getAggregations();
-        dump($arrAggData);
-        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
+        //dump($arrAggData);
+        //dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
 
         foreach($aggFilters as $aggName => $aggConfig) {
             $aggType = $aggConfig['type'];
