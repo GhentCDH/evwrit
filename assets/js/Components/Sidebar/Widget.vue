@@ -1,0 +1,107 @@
+<template>
+    <div class="widget" :class="{closed: !isOpen}">
+        <div class="sticky-block">
+            <div class="title">
+                <span class="toggle-open" @click="toggleOpen()">
+                    <i class="fa fa-angle-down" aria-hidden="true"></i>
+                </span>
+                <span @click="toggleOpen()">{{ title }}</span>
+            </div>
+        </div>
+        <div class="body" :class="{fixed: fixed}">
+            <slot></slot>
+        </div>
+    </div>
+</template>
+
+<script>
+import VueCookies from 'vue-cookies'
+
+import Vue from 'vue'
+Vue.use(VueCookies)
+
+export default {
+    name: "Widget",
+    components: {
+        VueCookies
+    },
+    props: {
+        title: {
+            type: String,
+            required: true
+        },
+        initFixed: {
+            type: Boolean,
+            default: false
+        },
+        initOpen: {
+            type: Boolean,
+            default: true
+        }
+    },
+    data() {
+        return {
+            open: this.initOpen,
+            fixed: this.initFixed
+        }
+    },
+    computed: {
+        isOpen: function() { return this.open }
+    },
+    methods: {
+        toggleOpen: function() {
+            this.open = !this.open;
+            this.$cookies.set(this.cookieName(),this.open,'30d')
+        },
+        cookieName() {
+            return 'sbw-'+this.title
+        },
+    },
+    created() {
+        if ( !this.$cookies.isKey(this.cookieName()) )
+            this.$cookies.set(this.cookieName(),this.initOpen,'30d')
+        else
+            this.open = (this.$cookies.get(this.cookieName()) == "true")
+    }
+}
+</script>
+
+<style scoped lang="scss">
+.widget {
+
+  .sticky-block {
+
+  }
+
+  .title {
+    text-transform: uppercase;
+    font-size: 18px;
+    letter-spacing: .1em;
+    cursor: pointer;
+    padding: 15px 0 5px;
+  }
+
+  .body {
+
+    &.fixed {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+  }
+}
+
+.widget.closed {
+  .toggle-open .fa {
+    transform: rotate(-90deg);
+  }
+
+  .body {
+    max-height: 0;
+    overflow: hidden;
+    transition: 1s;
+    margin: 0;
+    padding: 0;
+  }
+}
+</style>
