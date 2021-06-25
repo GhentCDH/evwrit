@@ -18,6 +18,8 @@ Encore
     .autoProvidejQuery()
     .addEntry('main', './assets/js/main/main.js')
     .addEntry('text-search', './assets/js/main/text-search.js')
+    .addEntry('materiality-search', './assets/js/main/materiality-search.js')
+    .addEntry('text-view', './assets/js/main/text-view.js')
 
     // allow sass/scss files to be processed
     .enableSassLoader()

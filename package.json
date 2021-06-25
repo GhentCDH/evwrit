@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "huisstijl2016": "git+ssh://git@github.ugent.be/lw/huisstijl2016.git"
+    "regenerator-runtime": "^0.13.7"
   },
   "devDependencies": {
     "@firstandthird/toc": "^1.4.1",
@@ -9,9 +9,11 @@
     "bootstrap-sass": "^3.4.1",
     "ckeditor": "^4.11.3",
     "ekko-lightbox": "^5.3.0",
+    "huisstijl2016": "git+ssh://git@github.ugent.be/lw/huisstijl2016.git",
     "jquery": "^3.2.1",
     "mark.js": "^8.11.1",
     "node-sass": "^4.14.1",
+    "nouislider": "^15.2.0",
     "pug": "^2.0.0-rc.4",
     "pug-plain-loader": "^1.0.0",
     "qs": "^6.6.0",
@@ -19,6 +21,7 @@
     "uiv": "^0.31.2",
     "vue": "^2.6.8",
     "vue-ckeditor2": "^2.1.4",
+    "vue-cookies": "^1.7.4",
     "vue-form-generator": "~2.3.4",
     "vue-loader": "^15.7.0",
     "vue-multiselect": "^2.1.4",
@@ -26,6 +29,7 @@
     "vue-template-compiler": "^2.6.8",
     "vue2-dropzone": "^3.5.2",
     "vuedraggable": "^2.19.1",
-    "webpack-shell-plugin": "^0.5.0"
+    "webpack-shell-plugin": "^0.5.0",
+    "wnumb": "^1.2.0"
   }
 }
