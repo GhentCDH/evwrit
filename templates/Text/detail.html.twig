@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <div id="text-view-app">
+        <text-view-app
+            init-urls="{{ urls }}"
+            init-data="{{ data }}"
+        />
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('text-view') }}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('text-view') }}
+{% endblock %}
