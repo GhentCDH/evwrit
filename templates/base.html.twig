@@ -117,12 +117,12 @@
                                                     <span>Materiality</span>
                                                 </a>
                                             </li>
-                                            <li class="{{ app.request.get('_route') == 'structure_search' ? 'active' }}">
+                                            <li class="hidden {{ app.request.get('_route') == 'structure_search' ? 'active' }}">
                                                 <a href="">
                                                     <span>Text structure</span>
                                                 </a>
                                             </li>
-                                            <li class="{{ app.request.get('_route') == 'languages_scripts_search' ? 'active' }}">
+                                            <li class="hidden {{ app.request.get('_route') == 'languages_scripts_search' ? 'active' }}">
                                                 <a href="">
                                                     <span>Languages & scripts</span>
                                                 </a>
