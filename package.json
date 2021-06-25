@@ -22,6 +22,7 @@
     "vue": "^2.6.8",
     "vue-ckeditor2": "^2.1.4",
     "vue-cookies": "^1.7.4",
+    "vue-cool-lightbox": "^2.7.4",
     "vue-form-generator": "~2.3.4",
     "vue-loader": "^15.7.0",
     "vue-multiselect": "^2.1.4",

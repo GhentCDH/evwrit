@@ -1,11 +1,13 @@
 <template>
     <div>
+        <CoolLightBox
+                :items="images"
+                :index="imageIndex"
+                @close="imageIndex = null">
+        </CoolLightBox>
         <article class="col-sm-9">
             <h1>{{ text.title }}</h1>
-            <div class="greek text" v-html="formatText(text.text)"></div>
-            <a @click="loadText(32110)">prev</a>
-            <a @click="loadText(54692)">next</a>
-            <div v-for="translation in text.translation" class="text">{{ translation.text }}</div>
+            <GreekText :text="text.text" />
         </article>
         <aside class="col-sm-3">
             <div class="bg-tertiary padding-default">
@@ -26,26 +28,27 @@
                     <PageMetrics v-bind="text"></PageMetrics>
                 </Widget>
 
-                <Widget title="Images" :init-open="false">
-                    <div v-for="image in text.image">
-                        <img :src="'https://media.evwrit.ugent.be/image.php?secret=RHRVvbV4ScZITUVjfbab85DCteR9dsPgw2s5G2aD&filename=' + image.filename" style="width: 100%">
+                <Widget title="Attestation" :init-open="false">
+                </Widget>
+
+                <Widget title="Images" :count="text.image.length" :init-open="false">
+                    <div v-for="(url,index) in images" :key="index">
+                        <img :src="url" style="width: 100%; cursor: pointer" @click="imageIndex = index">
                     </div>
                 </Widget>
 
-                <Widget title="Links" :init-open="false">
+                <Widget title="Links" :count="text.link.length" :init-open="false">
                     <div v-for="link in text.link">
                         <a :href="link.url">{{ link.title }}</a>
                     </div>
                 </Widget>
 
-                <Widget title="Translations" :init-open="false">
+                <Widget title="Translations" :count="text.translation.length" :init-open="false">
                     <div v-for="translation in text.translation">
                         <em>{{ translation.language.name}}</em>
                         <span>{{translation.text}}</span>
                     </div>
                 </Widget>
-
-
 
             </div>
         </aside>
@@ -57,8 +60,11 @@ import Vue from 'vue'
 import Widget from '../Components/Sidebar/Widget'
 import LabelValue from '../Components/Sidebar/LabelValue'
 import LabelObject from '../Components/Sidebar/LabelObject'
-
 import PageMetrics from '../Components/Sidebar/PageMetrics'
+import GreekText from '../Components/Shared/GreekText'
+
+import CoolLightBox from 'vue-cool-lightbox'
+import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 
 import axios from 'axios'
 
@@ -67,7 +73,7 @@ import axios from 'axios'
 export default {
     name: "TextViewApp",
     components: {
-        Widget, LabelValue, PageMetrics, LabelObject
+        Widget, LabelValue, PageMetrics, LabelObject, GreekText, CoolLightBox
     },
     props: {
         initUrls: {
@@ -82,13 +88,23 @@ export default {
     data() {
         let data = {
             urls: JSON.parse(this.initUrls),
-            data: JSON.parse(this.initData)
+            data: JSON.parse(this.initData),
+            imageIndex: null
         }
         return data
     },
     computed: {
         text: function() {
             return this.data.text
+        },
+        images: function() {
+            let result = []
+            if ( this.data.text.hasOwnProperty('image') && this.data.text.image.length ) {
+                this.data.text.image.forEach( function(image,index) {
+                    result.push('https://media.evwrit.ugent.be/image.php?secret=RHRVvbV4ScZITUVjfbab85DCteR9dsPgw2s5G2aD&filename=' + image.filename)
+                })
+            }
+            return result
         }
     },
     methods: {
@@ -104,20 +120,12 @@ export default {
         urlSearch(url, filter) {
             return (value) => ( this.urls[url] + '?' + filter + '=' + value )
         },
-        formatText(text) {
-            const regexLineNumbers = /^([0-9]+)\./gm;
-            const replaceLineNumbers = '<span class="line-number">$1 </span>'
-            text = text.replace(regexLineNumbers, replaceLineNumbers);
-
-            return text
-        },
         async loadText(id) {
             const result = await axios.get(this.urls.text_get_single.replace('text_id',id))
             if (result.data) {
                 this.data.text = result.data;
             }
-        }
-
+        },
     }
 }
 </script>
