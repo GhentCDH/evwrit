@@ -1,11 +1,13 @@
 <template>
     <div class="widget" :class="{closed: !isOpen}">
-        <div class="sticky-block">
+        <div class="sticky-block" @click="toggleOpen()">
             <div class="title">
-                <span class="toggle-open" @click="toggleOpen()">
+                <span class="toggle-open" >
                     <i class="fa fa-angle-down" aria-hidden="true"></i>
                 </span>
-                <span @click="toggleOpen()">{{ title }}</span>
+                <span>{{ title }}
+                    <span v-if="count"> ({{ count}})</span>
+                </span>
             </div>
         </div>
         <div class="body" :class="{fixed: fixed}">
@@ -29,6 +31,10 @@ export default {
         title: {
             type: String,
             required: true
+        },
+        count: {
+            type: Number,
+            required: false
         },
         initFixed: {
             type: Boolean,
@@ -70,18 +76,22 @@ export default {
 .widget {
 
   .sticky-block {
-
   }
-
   .title {
     text-transform: uppercase;
     font-size: 18px;
     letter-spacing: .1em;
     cursor: pointer;
     padding: 15px 0 5px;
+
+    .toggle-open {
+      float: right;
+    }
   }
 
   .body {
+
+    padding: 15px 0;
 
     &.fixed {
       max-height: 200px;
