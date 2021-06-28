@@ -112,7 +112,7 @@ export default {
   .body {
     max-height: 0;
     overflow: hidden;
-    transition: 1s;
+    transition: 0.2s;
     margin: 0;
     padding: 0;
   }
