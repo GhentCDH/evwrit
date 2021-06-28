@@ -1,9 +1,12 @@
 <template>
     <span v-if="url">
-        <a  :href="url">{{ value }}</a>
+        <a :href="url">{{ value }}</a>
+    </span>
+    <span v-else-if="value != null">
+        {{ value }}
     </span>
     <span v-else>
-        {{ value }}
+        {{ unknown }}
     </span>
 </template>
 
@@ -21,7 +24,6 @@ export default {
         url: {
             type: String,
         }
-
     },
 }
 </script>

@@ -84,6 +84,9 @@ export default {
     cursor: pointer;
     padding: 15px 0 5px;
 
+    font-family: "PannoTextMedium", Arial, sans-serif;
+    color: #777;
+
     .toggle-open {
       float: right;
     }
