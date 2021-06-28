@@ -15,26 +15,34 @@
                 <Widget title="Metadata">
                     <LabelValue label="ID" :value="text.id"></LabelValue>
                     <LabelValue label="Trismegistos ID" :value="text.tm_id"></LabelValue>
-                    <LabelValue label="Date" :value="text.year_begin + ' - ' + text.year_end"></LabelValue>
+                    <LabelRange label="Date" :value="[text.year_begin, text.year_end]"></LabelRange>
                     <LabelObject label="Era" :value="text.era" :url_generator="urlSearch('text_search', 'era')"></LabelObject>
                     <LabelObject v-if="text.keyword" label="Keywords" :value="text.keyword" :url_generator="urlSearch('text_search', 'keyword')"></LabelObject>
                 </Widget>
 
                 <Widget title="Materiality" :init-open="false">
-                    <LabelObject label="Production stage" :value="text.production_stage" :url_generator="urlSearch('materiality_search','production_stage')"></LabelObject>
-                    <LabelObject label="Writing direction" :value="text.writing_direction" :url_generator="urlSearch('materiality_search','writing_direction')"></LabelObject>
-                    <LabelObject label="Format" :value="text.text_format" :url_generator="urlSearch('materiality_search','text_format')"></LabelObject>
-                    <LabelObject label="Material" :value="text.material" :url_generator="urlSearch('materiality_search','material')"></LabelObject>
-                    <PageMetrics v-bind="text"></PageMetrics>
+                    <PropertyGroup>
+                        <LabelObject label="Production stage" :value="text.production_stage" :url_generator="urlSearch('materiality_search','production_stage')"></LabelObject>
+                        <LabelObject label="Material" :value="text.material" :url_generator="urlSearch('materiality_search','material')"></LabelObject>
+                        <LabelObject label="Writing direction" :value="text.writing_direction" :url_generator="urlSearch('materiality_search','writing_direction')"></LabelObject>
+                        <LabelObject label="Format" :value="text.text_format" :url_generator="urlSearch('materiality_search','text_format')"></LabelObject>
+                    </PropertyGroup>
+                    <PropertyGroup>
+                        <PageMetrics v-bind="text"></PageMetrics>
+                    </PropertyGroup>
+                    <PropertyGroup>
+                        <LabelRange label="Lines" :value="text.lines"></LabelRange>
+                        <LabelRange label="Columns" :value="text.columns"></LabelRange>
+                        <LabelRange label="Letters per line" :value="text.letters_per_line"></LabelRange>
+                        <LabelValue label="Interlinear space" :value="text.interlinear_space" ></LabelValue>
+                    </PropertyGroup>
                 </Widget>
 
                 <Widget title="Attestation" :init-open="false">
                 </Widget>
 
                 <Widget title="Images" :count="text.image.length" :init-open="false">
-                    <div v-for="(url,index) in images" :key="index">
-                        <img :src="url" style="width: 100%; cursor: pointer" @click="imageIndex = index">
-                    </div>
+                    <Gallery :images="images" :onClick="(index,url) => (imageIndex = index)" />
                 </Widget>
 
                 <Widget title="Links" :count="text.link.length" :init-open="false">
@@ -60,20 +68,24 @@ import Vue from 'vue'
 import Widget from '../Components/Sidebar/Widget'
 import LabelValue from '../Components/Sidebar/LabelValue'
 import LabelObject from '../Components/Sidebar/LabelObject'
+import LabelRange from '../Components/Sidebar/LabelRange'
 import PageMetrics from '../Components/Sidebar/PageMetrics'
 import GreekText from '../Components/Shared/GreekText'
+import PropertyGroup from '../Components/Sidebar/PropertyGroup'
+import Gallery from '../Components/Sidebar/Gallery'
 
 import CoolLightBox from 'vue-cool-lightbox'
 import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 
 import axios from 'axios'
+import qs from 'qs'
 
 
 
 export default {
     name: "TextViewApp",
     components: {
-        Widget, LabelValue, PageMetrics, LabelObject, GreekText, CoolLightBox
+        Widget, LabelValue, PageMetrics, LabelObject, GreekText, CoolLightBox, LabelRange, PropertyGroup, Gallery
     },
     props: {
         initUrls: {
@@ -108,17 +120,8 @@ export default {
         }
     },
     methods: {
-        outputValue: function(value, format = null) {
-            if ( ['string','number'].includes(typeof(value)) ) {
-                return value;
-            } else if ( typeof(value) == 'object' && value.hasOwnProperty('name') ) {
-                return value.name
-            }
-
-            return null
-        },
         urlSearch(url, filter) {
-            return (value) => ( this.urls[url] + '?' + filter + '=' + value )
+            return (value) => ( this.urls[url] + '?' + qs.stringify( { filters: {[filter]: value } } ) )
         },
         async loadText(id) {
             const result = await axios.get(this.urls.text_get_single.replace('text_id',id))
