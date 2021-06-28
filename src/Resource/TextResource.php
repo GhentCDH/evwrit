@@ -73,9 +73,9 @@ class TextResource extends BaseResource
             'is_transversa_charta' => $this->is_transversa_charta,
             'kollesis' => $this->kollesis,
 
-            'lines' => [ $this->lines_min, $this->lines_max ],
-            'columns' => [ $this->columns_min, $this->columns_max ],
-            'letters_per_line_min' => [ $this->letters_per_line_min, $this->letters_per_line_max ],
+            'lines' => is_null($this->lines_min) ? null : [ $this->lines_min, $this->lines_max ],
+            'columns' => is_null($this->columns_min) ? null : [ $this->columns_min, $this->columns_max ],
+            'letters_per_line_min' => is_null($this->letters_per_line_min) ? null : [ $this->letters_per_line_min, $this->letters_per_line_max ],
             'interlinear_space' => $this->interlinear_space,
 
             /* attestation */
