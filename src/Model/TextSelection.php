@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Model;
+
+
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use ReflectionException;
+
+/**
+ * Class TextTranslation
+ *
+ * @property int $text_selection_id
+ * @property int $text_id
+ * @property string $text
+ * @property string $text_edited
+ * @property int $line_number_start
+ * @property int $line_number_end
+ * @property int $selection_start
+ * @property int $selection_end
+ * @property int $selection_length
+ * @package App\Model
+ */
+class TextSelection extends BaseModel
+{
+    /**
+     * @return BelongsTo|Text
+     * @throws ReflectionException
+     */
+    public function text(): belongsTo
+    {
+        return $this->belongsTo(Text::class);
+    }
+}
