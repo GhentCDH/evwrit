@@ -6,7 +6,7 @@ namespace App\Resource;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class AbstractResource extends JsonResource
+abstract class AbstractResource extends JsonResource
 {
     // Self-referential 'abstract' declaration
     const CACHENAME = self::class;

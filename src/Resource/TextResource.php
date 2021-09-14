@@ -5,14 +5,12 @@ namespace App\Resource;
 use App\Model\Text;
 
 /**
- * Class AttestationResource
+ * Class TextResource
  * @package App\Resource
  * @mixin Text
  */
 class TextResource extends BaseResource
 {
-    const CACHENAME = "text";
-
     /**
      * Transform the resource into an array.
      *
