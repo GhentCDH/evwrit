@@ -1,5 +1,7 @@
 <?php
-namespace App\Model;
+namespace App\Model\Lookup;
+
+use App\Model\AbstractModel;
 
 
 /**

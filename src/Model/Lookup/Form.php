@@ -3,11 +3,13 @@
 namespace App\Model;
 
 
+use App\Model\Lookup\IdNameModel;
+
 /**
  * Class Script
  *
  * @package App\Model
  */
-class ProductionStage extends IdNameModel
+class Form extends IdNameModel
 {
 }
