@@ -27,15 +27,11 @@ use ReflectionException;
  * @property int $annotation_other_type_id
  * @package App\Model
  */
-class LanguageAnnotation extends BaseModel
+class LanguageAnnotation extends AbstractAnnotationModel
 {
-    /**
-     * @return BelongsTo|TextSelection
-     * @throws ReflectionException
-     */
-    public function textSelection(): belongsTo
+    public function getAnnotationType(): string
     {
-        return $this->belongsTo(TextSelection::class);
+        return 'language';
     }
 
     /**

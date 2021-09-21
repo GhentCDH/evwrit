@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Service\ElasticSearchService;
+namespace App\Service\ElasticSearch;
 
 use Elastica\Mapping;
 use Elastica\Settings;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class TextMaterialityElasticService extends ElasticBaseService
+class TextMaterialityElasticSearchService extends AbstractElasticSearchService
 {
     const indexName = "texts_materiality";
 
@@ -15,88 +15,6 @@ class TextMaterialityElasticService extends ElasticBaseService
         parent::__construct(
             $client,
             self::indexName);
-    }
-
-    public function setup(): void
-    {
-        $index = $this->getIndex();
-
-        // delete index
-        if ($index->exists()) {
-            $index->delete();
-        }
-
-        // configure analysis
-        $index->create($this->getIndexProperties());
-
-        // configure mapping
-        $mapProperties = $this->getMappingProperties();
-        if (count($mapProperties)) {
-            $mapping = new Mapping;
-            $mapping->setProperties($mapProperties);
-            $mapping->send($this->getIndex());
-        }
-    }
-
-    protected function getMappingProperties(): array {
-        return [
-            'title' => [
-                'type' => 'text',
-                // Needed for sorting
-                'fields' => [
-                    'keyword' => [
-                        'type' => 'keyword',
-                        'normalizer' => 'case_insensitive',
-                        'ignore_above' => 256,
-                    ],
-                ],
-            ],
-            'year_begin' => ['type' => 'short'],
-            'year_end' => ['type' => 'short'],
-
-            'production_stage' => ['type' => 'nested'],
-            'material' => ['type' => 'nested'],
-            'text_format' => ['type' => 'nested'],
-            'writing_direction' => ['type' => 'nested'],
-
-            'columns_min' => ['type' => 'short'],
-            'columns_max' => ['type' => 'short'],
-            'letters_per_line_min' => ['type' => 'short'],
-            'letters_per_line_max' => ['type' => 'short'],
-
-            'lines_min' => ['type' => 'short'],
-            'lines_max' => ['type' => 'short'],
-
-            'margin_left' => ['type' => 'half_float'],
-            'margin_right' => ['type' => 'half_float'],
-            'margin_top' => ['type' => 'half_float'],
-            'margin_bottom' => ['type' => 'half_float'],
-            'interlinear_space' => ['type' => 'half_float'],
-            'width' => ['type' => 'half_float'],
-            'height' => ['type' => 'half_float'],
-
-            'era' => ['type' => 'nested'],
-            'keyword' => ['type' => 'nested'],
-            'language' => ['type' => 'nested'],
-            'social_distance' => ['type' => 'nested'],
-            'text_type' => ['type' => 'nested'],
-            'text_subtype' => ['type' => 'nested'],
-            'agentive_role' => ['type' => 'nested'],
-            'communicative_goal'  => ['type' => 'nested'],
-            'project' => ['type' => 'nested'],
-
-            'is_recto' => ['type' => 'boolean'],
-            'is_verso' => ['type' => 'boolean'],
-            'is_transversa_charta' => ['type' => 'boolean'],
-        ];
-    }
-
-    protected function getIndexProperties(): array {
-        return [
-            'settings' => [
-                'analysis' => Analysis::ANALYSIS
-            ]
-        ];
     }
 
     protected function getSearchFilterConfig(): array {

@@ -1,14 +1,48 @@
 <?php
 
-namespace App\Service\ElasticSearchService;
+namespace App\Service\ElasticSearch;
 
 use App\Resource\BaseResource;
+use Elastica\Mapping;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 use Elastica\Document;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-abstract class ElasticBaseService extends ElasticSearchService
+abstract class AbstractElasticIndexService extends AbstractElasticService
 {
+
+    public function __construct(ElasticSearchClient $client, ContainerInterface $container)
+    {
+        parent::__construct(
+            $client,
+            self::indexName);
+    }
+
+    abstract protected function getIndexProperties(): array;
+
+    abstract protected function getMappingProperties(): array;
+
+    public function setup(): void
+    {
+        $index = $this->getIndex();
+
+        // delete index
+        if ($index->exists()) {
+            $index->delete();
+        }
+
+        // configure analysis
+        $index->create($this->getIndexProperties());
+
+        // configure mapping
+        $mapProperties = $this->getMappingProperties();
+        if (count($mapProperties)) {
+            $mapping = new Mapping;
+            $mapping->setProperties($mapProperties);
+            $mapping->send($this->getIndex());
+        }
+    }
 
     public function addMultiple(ResourceCollection $resources): void
     {

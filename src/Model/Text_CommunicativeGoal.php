@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int $text__agentive_role_id
  * @package App\Model
  */
-class Text_CommunicativeGoal extends BaseModel
+class Text_CommunicativeGoal extends AbstractModel
 {
     protected $table = "text__communicative_goal";
 

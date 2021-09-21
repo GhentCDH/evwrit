@@ -20,7 +20,7 @@ namespace App\Model;
  * @property float $interlinear_space
  * @package App\Model
  */
-class Image extends BaseModel
+class Image extends AbstractModel
 {
 
 

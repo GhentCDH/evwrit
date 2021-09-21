@@ -1,12 +1,12 @@
 <?php
 
 
-namespace App\Service\ElasticSearchService;
+namespace App\Service\ElasticSearch;
 
-use Elastica\Client;
+use Elastica;
 use Elastica\Index;
 
-class ElasticSearchClient extends Client
+class Client extends Elastica\Client
 {
     protected $indexPrefix;
 

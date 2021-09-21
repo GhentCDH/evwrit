@@ -11,7 +11,7 @@ use ReflectionClass;
 use ReflectionException;
 use function Symfony\Component\String\u;
 
-class BaseModel extends Model
+abstract class AbstractModel extends Model
 {
     protected $primaryKey;
     protected $table;

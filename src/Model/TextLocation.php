@@ -2,12 +2,8 @@
 
 namespace App\Model;
 
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use ReflectionException;
-use function Symfony\Component\String\u;
 
 /**
  * Class Attestation
@@ -19,7 +15,7 @@ use function Symfony\Component\String\u;
  * @property int $is_found
  * @package App\Model
  */
-class TextLocation extends BaseModel
+class TextLocation extends AbstractModel
 {
     protected $table = "text__location";
 

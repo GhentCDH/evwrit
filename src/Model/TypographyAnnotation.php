@@ -33,15 +33,11 @@ use ReflectionException;
  * @property string $text
  * @package App\Model
  */
-class TypographyAnnotation extends BaseModel
+class TypographyAnnotation extends AbstractAnnotationModel
 {
-    /**
-     * @return BelongsTo|TextSelection
-     * @throws ReflectionException
-     */
-    public function textSelection(): belongsTo
+    public function getAnnotationType(): string
     {
-        return $this->belongsTo(TextSelection::class);
+        return 'typography';
     }
 
     /**

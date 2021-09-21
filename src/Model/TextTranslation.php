@@ -13,7 +13,7 @@ namespace App\Model;
  * @property string $iso_language_name
  * @package App\Model
  */
-class TextTranslation extends BaseModel
+class TextTranslation extends AbstractModel
 {
 
 

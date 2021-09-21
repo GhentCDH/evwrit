@@ -3,12 +3,10 @@
 namespace App\Model;
 
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use ReflectionException;
-use function Symfony\Component\String\u;
 
 /**
  * Class Text
@@ -20,7 +18,7 @@ use function Symfony\Component\String\u;
  * @property int $year_end
  * @package App\Model
  */
-class Text extends BaseModel
+class Text extends AbstractModel
 {
     /**
      * The attributes that are mass assignable.

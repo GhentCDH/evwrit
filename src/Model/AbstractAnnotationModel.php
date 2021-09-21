@@ -6,15 +6,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use ReflectionException;
 
 /**
- * Class OrthographyLexisAnnotation
- *
- * @property int $orthography_lexis_annotation_id
  * @property int $text_selection_id
-
- * @package App\Model
  */
-class OrthographyLexisAnnotation extends BaseModel
+abstract class AbstractAnnotationModel extends AbstractModel
 {
+    abstract function getAnnotationType(): string;
+
     /**
      * @return BelongsTo|TextSelection
      * @throws ReflectionException
@@ -24,4 +21,11 @@ class OrthographyLexisAnnotation extends BaseModel
         return $this->belongsTo(TextSelection::class);
     }
 
+    /**
+     * @return Text|BelongsTo
+     * @throws ReflectionException
+     */
+    public function text() {
+        return $this->textSelection()->text();
+    }
 }

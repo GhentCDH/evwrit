@@ -11,7 +11,7 @@ namespace App\Model;
  * @property string $url
  * @package App\Model
  */
-class Url extends BaseModel
+class Url extends AbstractModel
 {
 
 

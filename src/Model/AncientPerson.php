@@ -2,12 +2,8 @@
 
 namespace App\Model;
 
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use ReflectionException;
-use function Symfony\Component\String\u;
 
 /**
  * Class AncientPerson
@@ -20,7 +16,7 @@ use function Symfony\Component\String\u;
  * @property int $gender_id
  * @package App\Model
  */
-class AncientPerson extends BaseModel
+class AncientPerson extends AbstractModel
 {
     /**
      * The attributes that are mass assignable.

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\ElasticSearchService;
+namespace App\Service\ElasticSearch;
 
 use Elastica\Aggregation;
 use Elastica\Query;
@@ -8,12 +8,8 @@ use Elastica\Query\AbstractQuery;
 use Elastica\Index;
 
 
-abstract class ElasticSearchService implements ElasticSearchServiceInterface
+abstract class AbstractElasticSearchService extends AbstractElasticService implements ElasticSearchServiceInterface
 {
-    private $client;
-    private $indexName;
-    private $index;
-
     const MAX_AGG = 2147483647;
     const MAX_SEARCH = 10000;
 
@@ -53,26 +49,6 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
         $this->client = $client;
         $this->indexName = $indexName;
         $this->index = $this->client->getIndex($indexName);
-    }
-
-    /**
-     * Return Elasticsearch Client
-     *
-     * @return Index
-     */
-    protected function getClient(): ElasticSearchClient
-    {
-        return $this->client;
-    }
-
-    /**
-     * Return Elasticsearch Index
-     *
-     * @return Index
-     */
-    protected function getIndex(): Index
-    {
-        return $this->index;
     }
 
     /**
@@ -295,7 +271,9 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
         // Format response
         $response = [
             'count' => $data['hits']['total']['value'] ?? 0,
-            'data' => []
+            'data' => [],
+            'search' => $searchParams,
+            'filters' => ( isset($params['filters']) && is_array($params['filters']) ? $params['filters'] : [])
         ];
 
         // Build array to remove _stemmer or _original blow
@@ -709,6 +687,8 @@ abstract class ElasticSearchService implements ElasticSearchServiceInterface
             $this->getClient()->getConnection()->addConfig('headers', ['elasticsearch-cache-key' => "aqg-".$cache_key]);
         }
         $result['aggregation'] = $this->aggregate($params['filters'] ?? []);
+
+
 
         return $result;
     }

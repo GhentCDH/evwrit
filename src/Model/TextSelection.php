@@ -20,7 +20,7 @@ use ReflectionException;
  * @property int $selection_length
  * @package App\Model
  */
-class TextSelection extends BaseModel
+class TextSelection extends AbstractModel
 {
     /**
      * @return BelongsTo|Text
