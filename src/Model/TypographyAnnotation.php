@@ -2,6 +2,26 @@
 
 namespace App\Model;
 
+use App\Model\Lookup\AnnotationAbbreviation;
+use App\Model\Lookup\AnnotationAccentuation;
+use App\Model\Lookup\AnnotationAccronym;
+use App\Model\Lookup\AnnotationConnectivity;
+use App\Model\Lookup\AnnotationCorrection;
+use App\Model\Lookup\AnnotationCurvature;
+use App\Model\Lookup\AnnotationDeletion;
+use App\Model\Lookup\AnnotationExpansion;
+use App\Model\Lookup\AnnotationInsertion;
+use App\Model\Lookup\AnnotationOrientation;
+use App\Model\Lookup\AnnotationPositionInText;
+use App\Model\Lookup\AnnotationPunctuation;
+use App\Model\Lookup\AnnotationRegularity;
+use App\Model\Lookup\AnnotationScriptType;
+use App\Model\Lookup\AnnotationSlope;
+use App\Model\Lookup\AnnotationSymbol;
+use App\Model\Lookup\AnnotationVacat;
+use App\Model\Lookup\AnnotationWeight;
+use App\Model\Lookup\AnnotationWordClass;
+use App\Model\Lookup\AnnotationWordSplitting;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use ReflectionException;
 
@@ -71,7 +91,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationInsertion(): belongsTo
+    public function insertion(): belongsTo
     {
         return $this->belongsTo(AnnotationInsertion::class);
     }
@@ -80,7 +100,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationExpansion(): belongsTo
+    public function expansion(): belongsTo
     {
         return $this->belongsTo(AnnotationExpansion::class);
     }
@@ -89,7 +109,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationConnectivity(): belongsTo
+    public function connectivity(): belongsTo
     {
         return $this->belongsTo(AnnotationConnectivity::class);
     }
@@ -98,7 +118,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationCorrection(): belongsTo
+    public function correction(): belongsTo
     {
         return $this->belongsTo(AnnotationCorrection::class);
     }
@@ -107,7 +127,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationCurvature(): belongsTo
+    public function curvature(): belongsTo
     {
         return $this->belongsTo(AnnotationCurvature::class);
     }
@@ -116,7 +136,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationDeletion(): belongsTo
+    public function deletion(): belongsTo
     {
         return $this->belongsTo(AnnotationDeletion::class);
     }
@@ -125,7 +145,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationOrientation(): belongsTo
+    public function orientation(): belongsTo
     {
         return $this->belongsTo(AnnotationOrientation::class);
     }
@@ -134,7 +154,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationVacat(): belongsTo
+    public function vacat(): belongsTo
     {
         return $this->belongsTo(AnnotationVacat::class);
     }
@@ -143,7 +163,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationWeight(): belongsTo
+    public function weight(): belongsTo
     {
         return $this->belongsTo(AnnotationWeight::class);
     }
@@ -152,7 +172,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationSymbol(): belongsTo
+    public function symbol(): belongsTo
     {
         return $this->belongsTo(AnnotationSymbol::class);
     }
@@ -161,7 +181,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationWordSplitting(): belongsTo
+    public function wordSplitting(): belongsTo
     {
         return $this->belongsTo(AnnotationWordSplitting::class);
     }
@@ -170,7 +190,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationWordClass(): belongsTo
+    public function wordClass(): belongsTo
     {
         return $this->belongsTo(AnnotationWordClass::class);
     }
@@ -179,7 +199,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationPunctuation(): belongsTo
+    public function punctuation(): belongsTo
     {
         return $this->belongsTo(AnnotationPunctuation::class);
     }
@@ -188,7 +208,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationPositionInText(): belongsTo
+    public function positionInText(): belongsTo
     {
         return $this->belongsTo(AnnotationPositionInText::class);
     }
@@ -197,7 +217,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationRegularity(): belongsTo
+    public function regularity(): belongsTo
     {
         return $this->belongsTo(AnnotationRegularity::class);
     }
@@ -206,7 +226,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationSlope(): belongsTo
+    public function slope(): belongsTo
     {
         return $this->belongsTo(AnnotationSlope::class);
     }
@@ -215,7 +235,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function AnnotationScriptType(): belongsTo
+    public function scriptType(): belongsTo
     {
         return $this->belongsTo(AnnotationScriptType::class);
     }

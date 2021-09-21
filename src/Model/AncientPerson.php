@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use App\Model\Lookup\Gender;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use ReflectionException;
 

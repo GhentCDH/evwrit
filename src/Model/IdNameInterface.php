@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Lookup;
+namespace App\Model;
 
 interface IdNameInterface
 {

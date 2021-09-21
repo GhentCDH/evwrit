@@ -2,6 +2,19 @@
 
 namespace App\Model;
 
+use App\Model\Lookup\AnnotationBigraphismComments;
+use App\Model\Lookup\AnnotationBigraphismDomain;
+use App\Model\Lookup\AnnotationBigraphismFormulaicity;
+use App\Model\Lookup\AnnotationBigraphismRank;
+use App\Model\Lookup\AnnotationCodeswitchingComments;
+use App\Model\Lookup\AnnotationCodeswitchingDomain;
+use App\Model\Lookup\AnnotationCodeswitchingRank;
+use App\Model\Lookup\AnnotationCodeswitchingType;
+use App\Model\Lookup\AnnotationOtherComments;
+use App\Model\Lookup\AnnotationOtherDomain;
+use App\Model\Lookup\AnnotationOtherFormulaicity;
+use App\Model\Lookup\AnnotationOtherRank;
+use App\Model\Lookup\AnnotationOtherType;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use ReflectionException;
 

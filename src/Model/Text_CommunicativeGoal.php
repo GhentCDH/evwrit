@@ -2,6 +2,8 @@
 
 namespace App\Model;
 
+use App\Model\Lookup\CommunicativeGoal;
+use App\Model\Lookup\GenericCommunicativeGoal;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**

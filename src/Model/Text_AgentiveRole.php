@@ -2,6 +2,8 @@
 
 namespace App\Model;
 
+use App\Model\Lookup\AgentiveRole;
+use App\Model\Lookup\GenericAgentiveRole;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**

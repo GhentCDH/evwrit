@@ -2,6 +2,13 @@
 
 namespace App\Model;
 
+use App\Model\Lookup\Age;
+use App\Model\Lookup\Education;
+use App\Model\Lookup\GraphType;
+use App\Model\Lookup\HonorificEpithet;
+use App\Model\Lookup\Occupation;
+use App\Model\Lookup\Role;
+use App\Model\Lookup\SocialRank;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use ReflectionException;

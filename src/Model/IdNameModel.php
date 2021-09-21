@@ -1,5 +1,5 @@
 <?php
-namespace App\Model\Lookup;
+namespace App\Model;
 
 use App\Model\AbstractModel;
 

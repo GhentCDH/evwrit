@@ -2,6 +2,15 @@
 
 namespace App\Model;
 
+use App\Model\Lookup\AnnotationFormulaicityOrthography;
+use App\Model\Lookup\AnnotationIdentifierOrthography;
+use App\Model\Lookup\AnnotationPositionInWordOrthography;
+use App\Model\Lookup\AnnotationPrescriptionOrthography;
+use App\Model\Lookup\AnnotationProscriptionOrthography;
+use App\Model\Lookup\AnnotationStandardFormOrthography;
+use App\Model\Lookup\AnnotationSubtypeOrthography;
+use App\Model\Lookup\AnnotationTypeOrthography;
+use App\Model\Lookup\AnnotationWordclassOrthography;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**

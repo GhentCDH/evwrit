@@ -2,6 +2,18 @@
 
 namespace App\Model;
 
+use App\Model\Lookup\Archive;
+use App\Model\Lookup\Era;
+use App\Model\Lookup\Form;
+use App\Model\Lookup\Language;
+use App\Model\Lookup\Material;
+use App\Model\Lookup\ProductionStage;
+use App\Model\Lookup\Script;
+use App\Model\Lookup\SocialDistance;
+use App\Model\Lookup\TextFormat;
+use App\Model\Lookup\TextSubtype;
+use App\Model\Lookup\TextType;
+use App\Model\Lookup\WritingDirection;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -205,7 +217,6 @@ class Text extends AbstractModel
     {
         return $this->hasMany(TextTranslation::class, 'text_id', 'text_id');
     }
-
 
     /**
      * @return BelongsToMany|Location[]
