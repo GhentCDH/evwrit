@@ -2,6 +2,6 @@
 
 namespace App\Service\ElasticSearch;
 
-interface SearchServiceInterface
+interface IndexServiceInterface
 {
 }
