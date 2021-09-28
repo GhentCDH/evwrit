@@ -26,7 +26,7 @@ class TextSelection extends AbstractModel
      * @return BelongsTo|Text
      * @throws ReflectionException
      */
-    public function text(): belongsTo
+    public function sourceText(): belongsTo
     {
         return $this->belongsTo(Text::class);
     }

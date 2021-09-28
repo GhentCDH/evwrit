@@ -25,7 +25,7 @@ abstract class AbstractAnnotationModel extends AbstractModel
      * @return Text|BelongsTo
      * @throws ReflectionException
      */
-    public function text() {
-        return $this->textSelection()->text();
+    public function sourceText() {
+        return $this->textSelection->sourceText;
     }
 }
