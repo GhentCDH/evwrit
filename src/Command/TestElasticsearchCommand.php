@@ -3,7 +3,7 @@
 namespace App\Command;
 
 use App\Repository\TextRepository;
-use App\Resource\CommunicativeGoalElasticResource;
+use App\Resource\ElasticCommunicativeGoalResource;
 use App\Resource\ElasticTextResource;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -38,7 +38,7 @@ class TestElasticsearchCommand extends Command
 
         $repository = $this->container->get('text_repository' );
 
-        $service = $this->container->get('text_elastic_service');
+        $service = $this->container->get('text_index_service');
         $service->setup();
 
         $text = $repository->indexQuery()->find(69108);

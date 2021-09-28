@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\ElasticSearchService\TextMaterialityElasticService;
+use App\Service\ElasticSearch\TextMaterialitySearchService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -34,7 +34,7 @@ class MaterialityController extends BaseController
      */
     public function search(
         Request $request,
-        TextMaterialityElasticService $elasticService
+        TextMaterialitySearchService $elasticService
     ) {
         return $this->render(
             $this->templateFolder. '/overview.html.twig',
@@ -59,12 +59,12 @@ class MaterialityController extends BaseController
     /**
      * @Route("/materiality/search_api", name="materiality_search_api", methods={"GET"})
      * @param Request $request
-     * @param TextMaterialityElasticService $elasticService
+     * @param TextMaterialitySearchService $elasticService
      * @return JsonResponse
      */
     public function searchAPI(
         Request $request,
-        TextMaterialityElasticService $elasticService
+        TextMaterialitySearchService $elasticService
     ) {
         $result = $elasticService->searchAndAggregate(
             $this->sanitize($request->query->all())

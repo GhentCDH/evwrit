@@ -2,10 +2,16 @@
 
 namespace App\Controller;
 
+use App\Model\Text;
+use App\Repository\LanguageAnnotationRepository;
+use App\Resource\BaseAnnotationResource;
+use App\Resource\BaseElasticAnnotationResource;
+use App\Resource\ElasticLanguageAnnotationResource;
 use App\Resource\ElasticTextResource;
+use App\Resource\ElasticTypographyAnnotationResource;
 use App\Resource\TextResource;
-use App\Service\ElasticSearchService\ElasticSearchService;
-use App\Service\ElasticSearchService\TextElasticService;
+use App\Service\ElasticSearch\AbstractSearchService;
+use App\Service\ElasticSearch\TextBasicSearchService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,12 +41,12 @@ class TextController extends BaseController
     /**
      * @Route("/text/search", name="text_search", methods={"GET"})
      * @param Request $request
-     * @param TextElasticService $elasticservice
+     * @param TextBasicSearchService $elasticservice
      * @return Response
      */
     public function search(
         Request $request,
-        TextElasticService $elasticService
+        TextBasicSearchService $elasticService
     ) {
         return $this->render(
             $this->templateFolder. '/overview.html.twig',
@@ -53,7 +59,7 @@ class TextController extends BaseController
                 ]),
                 'data' => json_encode(
                     $elasticService->searchAndAggregate(
-                        $this->sanitize($request->query->all()), ElasticSearchService::ENABLE_CACHE
+                        $this->sanitize($request->query->all()), AbstractSearchService::ENABLE_CACHE
                     )
                 ),
                 'identifiers' => json_encode([]),
@@ -65,15 +71,15 @@ class TextController extends BaseController
     /**
      * @Route("/text/search_api", name="text_search_api", methods={"GET"})
      * @param Request $request
-     * @param TextElasticService $elasticService
+     * @param TextBasicSearchService $elasticService
      * @return JsonResponse
      */
     public function searchAPI(
         Request $request,
-        TextElasticService $elasticService
+        TextBasicSearchService $elasticService
     ) {
         $result = $elasticService->searchAndAggregate(
-            $this->sanitize($request->query->all()), ElasticSearchService::ENABLE_CACHE
+            $this->sanitize($request->query->all()), AbstractSearchService::ENABLE_CACHE
         );
 
         return new JsonResponse($result);

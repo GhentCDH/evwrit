@@ -5,8 +5,7 @@ namespace App\Command;
 use App\Repository\TextRepository;
 
 use App\Resource\ElasticTextResource;
-use App\Resource\ElasticTextMaterialityResource;
-use App\Service\ElasticSearchService\TextElasticService;
+use App\Service\ElasticSearch\TextIndexService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -47,8 +46,8 @@ class IndexElasticsearchCommand extends Command
                     /** @var $repository TextRepository */
                     $repository = $this->container->get('text_repository' );
 
-                    /** @var $service TextElasticService */
-                    $service = $this->container->get('text_elastic_service');
+                    /** @var $service TextIndexService */
+                    $service = $this->container->get('text_index_service');
                     $service->setup();
 
                     $repository->findByProjectId(3)->limit(100)->chunk(100,
@@ -61,37 +60,11 @@ class IndexElasticsearchCommand extends Command
                         });
 
                     break;
-                case 'text_materiality':
-                    /** @var $repository TextRepository */
-                    $repository = $this->container->get('text_repository' );
-
-                    /** @var $service TextElasticService */
-                    $service = $this->container->get('text_materiality_elastic_service');
-                    $service->setup();
-
-                    $repository->findByProjectId(3)->limit(100)->chunk(100,
-                        function($res) use ($service,$count) {
-                            foreach ($res as $text) {
-                                $res = new ElasticTextMaterialityResource($text);
-                                $service->add($res);
-                                $count++;
-                            }
-                        });
-
-                    break;
             }
-
-
-
-
         }
-
-
-
 
         $io->success("Succesfully indexed {$count} records");
 
         return Command::SUCCESS;
-
     }
 }
