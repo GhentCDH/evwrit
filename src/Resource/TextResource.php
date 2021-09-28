@@ -7,10 +7,13 @@ use App\Model\Text;
 /**
  * Class TextResource
  * @package App\Resource
+ * @property Text $resource
  * @mixin Text
  */
 class TextResource extends BaseResource
 {
+    const CACHENAME = 'text';
+
     /**
      * Transform the resource into an array.
      *
@@ -19,65 +22,67 @@ class TextResource extends BaseResource
      */
     public function toArray($request=null): array
     {
+        $text = $this->resource;
+
         return [
-            'id' => $this->getId(),
-            'tm_id' => $this->tm_id,
-            'title' => $this->title,
-            'text' => $this->convertNewlines($this->text),
-            'apparatus' => $this->convertNewlines($this->text),
-            'translation' => TranslationResource::collection($this->translations)->toArray(null),
+            'id' => $text->getId(),
+            'tm_id' => $text->tm_id,
+            'title' => $text->title,
+            'text' => $this->convertNewlines($text->text),
+            'apparatus' => $this->convertNewlines($text->apparatus),
+            'translation' => TranslationResource::collection($text->translations)->toArray(null),
 
-            'year_begin' => $this->year_begin,
-            'year_end' => $this->year_end,
+            'year_begin' => $text->year_begin,
+            'year_end' => $text->year_end,
 
-            'era' => new IdNameResource($this->era),
-            'archive' => new IdNameResource($this->archive),
+            'era' => new IdNameResource($text->era),
+            'archive' => new IdNameResource($text->archive),
 
-            'language' => IdNameResource::collection($this->languages)->toArray(null),
+            'language' => IdNameResource::collection($text->languages)->toArray(null),
 
-            'text_type' => new IdNameResource($this->textType),
-            'text_subtype' => new IdNameResource($this->textSubtype),
+            'text_type' => new IdNameResource($text->textType),
+            'text_subtype' => new IdNameResource($text->textSubtype),
 
-            'collaborator' => IdNameResource::collection($this->collaborators)->toArray(null),
-            'social_distance' => IdNameResource::collection($this->socialDistances)->toArray(null),
-            'project' => IdNameResource::collection($this->projects)->toArray(null),
-            'keyword' => IdNameResource::collection($this->keywords)->toArray(null),
+            'collaborator' => IdNameResource::collection($text->collaborators)->toArray(null),
+            'social_distance' => IdNameResource::collection($text->socialDistances)->toArray(null),
+            'project' => IdNameResource::collection($text->projects)->toArray(null),
+            'keyword' => IdNameResource::collection($text->keywords)->toArray(null),
 
-            'location_found' => IdNameResource::collection($this->locationsFound)->toArray(null),
-            'location_written' => IdNameResource::collection($this->locationsWritten)->toArray(null),
+            'location_found' => IdNameResource::collection($text->locationsFound)->toArray(null),
+            'location_written' => IdNameResource::collection($text->locationsWritten)->toArray(null),
 
-            'agentive_role' => ElasticAgentiveRoleResource::collection($this->textAgentiveRoles)->toArray(null),
-            'communicative_goal' => ElasticCommunicativeGoalResource::collection($this->textCommunicativeGoals)->toArray(null),
+            'agentive_role' => ElasticAgentiveRoleResource::collection($text->textAgentiveRoles)->toArray(null),
+            'communicative_goal' => ElasticCommunicativeGoalResource::collection($text->textCommunicativeGoals)->toArray(null),
 
-            'image' => ImageResource::collection($this->images)->toArray(null),
-            'link' => LinkResource::collection($this->links)->toArray(null),
+            'image' => ImageResource::collection($text->images)->toArray(null),
+            'link' => LinkResource::collection($text->links)->toArray(null),
 
             /* materiality */
-            'width' => $this->width,
-            'height' => $this->height,
+            'width' => $text->width,
+            'height' => $text->height,
 
-            'margin_top' => $this->margin_top,
-            'margin_left' => $this->margin_left,
-            'margin_right' => $this->margin_right,
-            'margin_bottom' => $this->margin_bottom,
+            'margin_top' => $text->margin_top,
+            'margin_left' => $text->margin_left,
+            'margin_right' => $text->margin_right,
+            'margin_bottom' => $text->margin_bottom,
 
-            'production_stage' => IdNameResource::collection($this->productionStages)->toArray(null),
-            'writing_direction' => IdNameResource::collection($this->writingDirections)->toArray(null),
-            'material' => IdNameResource::collection($this->materials)->toArray(null),
-            'text_format' => new IdNameResource($this->textFormat),
+            'production_stage' => IdNameResource::collection($text->productionStages)->toArray(null),
+            'writing_direction' => IdNameResource::collection($text->writingDirections)->toArray(null),
+            'material' => IdNameResource::collection($text->materials)->toArray(null),
+            'text_format' => new IdNameResource($text->textFormat),
 
-            'is_recto' => $this->is_recto,
-            'is_verso' => $this->is_verso,
-            'is_transversa_charta' => $this->is_transversa_charta,
-            'kollesis' => $this->kollesis,
+            'is_recto' => $text->is_recto,
+            'is_verso' => $text->is_verso,
+            'is_transversa_charta' => $text->is_transversa_charta,
+            'kollesis' => $text->kollesis,
 
-            'lines' => is_null($this->lines_min) ? null : [ $this->lines_min, $this->lines_max ],
-            'columns' => is_null($this->columns_min) ? null : [ $this->columns_min, $this->columns_max ],
-            'letters_per_line_min' => is_null($this->letters_per_line_min) ? null : [ $this->letters_per_line_min, $this->letters_per_line_max ],
-            'interlinear_space' => $this->interlinear_space,
+            'lines' => is_null($text->lines_min) ? null : [ $text->lines_min, $text->lines_max ],
+            'columns' => is_null($text->columns_min) ? null : [ $text->columns_min, $text->columns_max ],
+            'letters_per_line_min' => is_null($text->letters_per_line_min) ? null : [ $text->letters_per_line_min, $text->letters_per_line_max ],
+            'interlinear_space' => $text->interlinear_space,
 
             /* attestation */
-            'ancient_person' => AttestationResource::collection($this->attestations)->toArray(0)
+            'ancient_person' => AttestationResource::collection($text->attestations)->toArray(0)
         ];
     }
 }
