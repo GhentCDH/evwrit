@@ -6,11 +6,11 @@ use Elastica\Mapping;
 use Elastica\Settings;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class TextDefaultSearchService extends AbstractSearchService
+class TextBasicSearchService extends AbstractSearchService
 {
     const indexName = "texts";
 
-    public function __construct(ElasticSearchClient $client, ContainerInterface $container)
+    public function __construct(Client $client)
     {
         parent::__construct(
             $client,
@@ -22,22 +22,22 @@ class TextDefaultSearchService extends AbstractSearchService
             'title' => ['type' => self::FILTER_TEXT],
             'id' => ['type' => self::FILTER_NUMERIC],
             'tm_id' => ['type' => self::FILTER_NUMERIC],
-            'archive' => ['type' => self::FILTER_NESTED],
+            'archive' => ['type' => self::FILTER_NESTED_ID],
             'agentive_role' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'agentive_role'
             ],
             'communicative_goal' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'communicative_goal'
             ],
-            'era' => ['type' => self::FILTER_NESTED],
+            'era' => ['type' => self::FILTER_NESTED_ID],
             'generic_agentive_role' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'agentive_role'
             ],
             'generic_communicative_goal' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'communicative_goal'
             ],
             'date'=> [
@@ -46,17 +46,17 @@ class TextDefaultSearchService extends AbstractSearchService
                 'ceilingField' => 'year_end',
                 'typeField' => 'date_search_type',
             ],
-            'form' => ['type' => self::FILTER_NESTED],
-            'keyword' => ['type' => self::FILTER_NESTED],
-            'language' => ['type' => self::FILTER_NESTED],
-            'location_written' => ['type' => self::FILTER_NESTED],
-            'location_found' => ['type' => self::FILTER_NESTED],
-            'material' => ['type' => self::FILTER_NESTED],
-            'project' => ['type' => self::FILTER_NESTED],
-            'collaborator' => ['type' => self::FILTER_ID],
-            'social_distance' => ['type' => self::FILTER_NESTED],
-            'text_type' => ['type' => self::FILTER_NESTED],
-            'text_subtype' => ['type' => self::FILTER_NESTED],
+            'form' => ['type' => self::FILTER_NESTED_ID],
+            'keyword' => ['type' => self::FILTER_NESTED_ID],
+            'language' => ['type' => self::FILTER_NESTED_ID],
+            'location_written' => ['type' => self::FILTER_NESTED_ID],
+            'location_found' => ['type' => self::FILTER_NESTED_ID],
+            'material' => ['type' => self::FILTER_NESTED_ID],
+            'project' => ['type' => self::FILTER_NESTED_ID],
+            'collaborator' => ['type' => self::FILTER_OBJECT_ID],
+            'social_distance' => ['type' => self::FILTER_NESTED_ID],
+            'text_type' => ['type' => self::FILTER_NESTED_ID],
+            'text_subtype' => ['type' => self::FILTER_NESTED_ID],
 
             'ap_tm_id' => [
                 'type' => self::FILTER_NUMERIC,
@@ -64,32 +64,32 @@ class TextDefaultSearchService extends AbstractSearchService
                 'field' => 'tm_id'
             ],
             'ap_role' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'ancient_person',
                 'field' => 'role'
             ],
             'ap_gender' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'ancient_person',
                 'field' => 'gender'
             ],
             'ap_occupation' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'ancient_person',
                 'field' => 'occupation'
             ],
             'ap_social_rank' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'ancient_person',
                 'field' => 'social_rank'
             ],
             'ap_honorific_epithet' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'ancient_person',
                 'field' => 'honorific_epithet'
             ],
             'ap_graph_type' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'ancient_person',
                 'field' => 'graph_type'
             ],
@@ -102,7 +102,7 @@ class TextDefaultSearchService extends AbstractSearchService
         return $searchFilters;
     }
 
-    protected function getAggregationFilterConfig(): array {
+    protected function getAggregationConfig(): array {
         $aggregationFilters = [
             'agentive_role' => [
                 'type' => self::AGG_NESTED_ID_NAME,
@@ -130,7 +130,7 @@ class TextDefaultSearchService extends AbstractSearchService
             'location_written' => ['type' => self::AGG_NESTED_ID_NAME],
             'location_found' => ['type' => self::AGG_NESTED_ID_NAME],
             'material'  => ['type' => self::AGG_NESTED_ID_NAME],
-            'collaborator'  => ['type' => self::AGG_ID_NAME],
+            'collaborator'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'project'  => ['type' => self::AGG_NESTED_ID_NAME],
             'script' => ['type' => self::AGG_NESTED_ID_NAME],
             'social_distance' => ['type' => self::AGG_NESTED_ID_NAME],

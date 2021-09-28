@@ -8,7 +8,7 @@ use Elastica\Query\AbstractQuery;
 use Elastica\Index;
 
 
-abstract class AbstractElasticSearchService extends AbstractElasticService implements ElasticSearchServiceInterface
+abstract class AbstractSearchService extends AbstractService implements SearchServiceInterface
 {
     const MAX_AGG = 2147483647;
     const MAX_SEARCH = 10000;
@@ -22,15 +22,14 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
     protected const AGG_GLOBAL_STATS = "stats";
 
     protected const AGG_NESTED_ID_NAME = "nested_id_name";
-    protected const AGG_ID_NAME = "id_name";
+    protected const AGG_OBJECT_ID_NAME = "object_id_name";
 
     protected const FILTER_NUMERIC = "numeric";
-    protected const FILTER_ID = "dot_id";
+    protected const FILTER_OBJECT_ID = "object_id";
     protected const FILTER_NUMERIC_MULTIPLE = "numeric_multiple";
-    protected const FILTER_NESTED = "nested";
+    protected const FILTER_NESTED_ID = "nested_id";
     protected const FILTER_NESTED_TOGGLE = "nested_toggle";
-    protected const FILTER_NESTED_MULTIPLE = "nested";
-    protected const FILTER_OBJECT = "object";
+    protected const FILTER_NESTED_MULTIPLE = "nested_multiple";
     protected const FILTER_TEXT = "text";
     protected const FILTER_TEXT_EXACT = "text_exact";
     protected const FILTER_TEXT_MULTIPLE = "text_multiple";
@@ -41,16 +40,6 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
 
     public const ENABLE_CACHE = 1;
 
-
-    protected function __construct(
-        ElasticSearchClient $client,
-        string $indexName
-    ) {
-        $this->client = $client;
-        $this->indexName = $indexName;
-        $this->index = $this->client->getIndex($indexName);
-    }
-
     /**
      * Add aggregation details to search service
      * Return array of aggregation_field => [
@@ -58,7 +47,7 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
      * ]
      * @return array
      */
-    protected abstract function getAggregationFilterConfig(): array;
+    protected abstract function getAggregationConfig(): array;
 
     /**
      * Add search filter details to search service
@@ -134,10 +123,21 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
                         $filters[$filterName] = $filterValue;
                     }
                     break;
-                case self::FILTER_NESTED:
+                case self::FILTER_OBJECT_ID:
+                case self::FILTER_NESTED_ID:
                     if ($filterValue === false) continue;
                     if (is_array($filterValue) || is_numeric($filterValue)) {
                         $filters[$filterName] = $filterValue;
+                    }
+                    break;
+                case self::FILTER_NESTED_MULTIPLE:
+                    // for each subfilter, clean value
+                    foreach($filterConfig['filters'] as $subFilterName => $subFilterConfig) {
+                        $subFilterValue = $params[$subFilterName] ?? false;
+                        if ($subFilterValue === false) continue;
+                        if (is_array($subFilterValue) || is_numeric($subFilterValue)) {
+                            $filters[$subFilterName] = $subFilterValue;
+                        }
                     }
                     break;
                 case self::FILTER_BOOLEAN:
@@ -261,8 +261,10 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
         $searchFilters = [];
         if (isset($params['filters']) && is_array($params['filters'])) {
             $searchFilters = $this->sanitizeSearchFilters($params['filters']);
-            $query->setQuery($this->createSearchQuery($searchFilters));
+            $searchQuery = $this->createSearchQuery($searchFilters);
+            $query->setQuery($searchQuery);
             $query->setHighlight($this->createHighlight($searchFilters));
+            dump(json_encode($searchQuery->toArray(), JSON_PRETTY_PRINT));
         }
 
         // Search
@@ -278,20 +280,23 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
 
         // Build array to remove _stemmer or _original blow
         $rename = [];
-        $filterConfig = $this->getSearchFilterConfig();
-        foreach ($searchFilters as $filterName => $filterValue)
+        $filterConfigs = $this->getSearchFilterConfig();
+        foreach ($filterConfigs as $filterName => $filterConfig)
         {
-            switch ($filterConfig[$filterName]['type']) {
+            switch ($filterConfig['type'] ?? null) {
                 case self::FILTER_TEXT:
+                    $filterValue = $filterValues[$filterName] ?? null;
                     if (isset($filterValue['field'])) {
                         $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
                     }
                     break;
                 case self::FILTER_TEXT_MULTIPLE:
-                    $filterValues = $filterValue;
-                    foreach($filterValues as $filterValue) {
-                        if (isset($filterValue['field'])) {
-                            $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
+                    $filterValues = $filterValues[$filterName] ?? null;
+                    if ( is_array($filterValues) ) {
+                        foreach($filterValues as $filterValue) {
+                            if (isset($filterValue['field'])) {
+                                $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
+                            }
                         }
                     }
                     break;
@@ -317,6 +322,18 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
                 }
             }
 
+            // add inner_hits
+            if ( isset($result['inner_hits']) ) {
+                $part['inner_hits'] = [];
+                foreach( $result['inner_hits'] as $field_name => $inner_hit ) {
+                    $values = [];
+                    foreach($inner_hit['hits']['hits'] as $hit) {
+                        $values[] = $hit['_source'];
+                    }
+                    $part['inner_hits'][$field_name] = $values;
+                }
+            }
+
             // sanitize result
             $response['data'][] = $this->sanitizeSearchResult($part);
         }
@@ -325,29 +342,24 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
     }
 
 
-    private function getMultiSelectAggregationFilters(array $filterValues = null): array {
+    /**
+     * Return filters that are used in aggregations
+     * Todo: Now based on aggregation type or config, could be based on aggregation config check
+     */
+    private function getAggregationFilters(): array {
 
-        // empty filter values, empty result
-        if ( $filterValues && count($filterValues) == 0 ) {
-            return [];
-        }
-
-        $filters = $this->getAggregationFilterConfig();
-
+        $filters = $this->getSearchFilterConfig();
         $aggOrFilters = [];
-        foreach( $filters as $aggName => $aggConfig ) {
-            $aggType = $aggConfig['type'];
-            $aggField = $aggConfig['field'] ?? $aggName;
-
-            switch($aggType) {
-                case self::AGG_NESTED_ID_NAME:
-                case self::AGG_ID_NAME:
-                    $aggOrFilters[$aggName] = $aggConfig;
+        foreach( $filters as $filterName => $filterConfig ) {
+            $filterType = $filterConfig['type'];
+            switch($filterType) {
+                case self::FILTER_NESTED_ID:
+                case self::FILTER_NESTED_MULTIPLE:
+                    if ( ($aggConfig['aggregationFilter'] ?? true) ) {
+                        $aggOrFilters[$filterName] = $filterConfig;
+                    }
+                    break;
             }
-        }
-
-        if ( $filterValues ) {
-            $aggOrFilters = array_intersect_key($aggOrFilters, $filterValues); // filters with filter values only
         }
 
         return $aggOrFilters;
@@ -355,9 +367,10 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
 
     protected function aggregate(array $filterValues): array
     {
-        // get filters
-        $aggFilters = $this->getAggregationFilterConfig();
-        if ( !count($aggFilters) ) {
+        // get agg config
+        $aggConfigs = $this->getAggregationConfig();
+        dump($aggConfigs);
+        if ( !count($aggConfigs) ) {
             return [];
         }
 
@@ -365,38 +378,54 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
         $filterValues = $this->sanitizeSearchFilters($filterValues);
         //dump($filterValues);
 
-        // get multiselect filters (with values only)
-        $aggMultiSelectFilters = $this->getMultiSelectAggregationFilters($filterValues);
-        //dump($aggMultiSelectFilters);
+        // get filters used in multiselect aggregations
+        $aggFilterConfigs = $this->getAggregationFilters($filterValues);
+        dump($aggFilterConfigs);
 
-        // create search query (exclude multiselect filters, will be added to aggregations)
+        // create global search query
+        // exclude aggregation filters, will be added to aggregations
         $query = (new Query())
-            ->setQuery($this->createSearchQuery($filterValues, array_keys($aggMultiSelectFilters)))
+            ->setQuery($this->createSearchQuery($filterValues, array_keys($aggFilterConfigs)))
             ->setSize(0); // Only aggregation will be used
 
         // create global aggregation (unfiltered, full dataset)
+        // global aggregations will be added as sub-aggregations to this aggregation
         $aggGlobalQuery = new Aggregation\GlobalAggregation("global_aggregation");
         $query->addAggregation($aggGlobalQuery);
 
-        // add aggregations
-        foreach($aggFilters as $aggName => $aggConfig) {
+        // walk aggregation configs
+        foreach($aggConfigs as $aggName => $aggConfig) {
+            // aggregation type
             $aggType = $aggConfig['type'];
+            // global aggregation
+            $boolIsGlobal = $this->isGlobalAggregation($aggName);
+
+            // aggregation field = field property or config name
             $aggField = $aggConfig['field'] ?? $aggName;
 
             // query root
-            $aggParentQuery = $query;
+            $aggParentQuery = $boolIsGlobal ? $aggGlobalQuery : $query;
 
-            // filter aggregation (do not filter myself)
-            $aggGlobalFilters = array_intersect_key($filterValues,$aggMultiSelectFilters);
-            unset($aggGlobalFilters[$aggName]);
-            if (count($aggGlobalFilters)) {
-                $aggSubQuery = new Aggregation\Filter($aggName);
-                $aggSubQuery->setFilter($this->createSearchQuery($aggGlobalFilters));
+            // add aggregation filter (if not global)
+            // - remove excludeFilter
+            // - don't filter myself
+            if ( !$boolIsGlobal ) {
+                $aggSearchFilters = array_diff_key($aggFilterConfigs, array_flip($aggConfig['excludeFilter'] ?? []));
+                unset($aggSearchFilters[$aggName]);
 
-                $aggParentQuery->addAggregation($aggSubQuery);
-                $aggParentQuery = $aggSubQuery;
+                if (count($aggSearchFilters)) {
+                    $filterQuery = $this->createSearchQuery($filterValues, [], $aggSearchFilters);
+                    if ( $filterQuery->count() ) {
+                        $aggSubQuery = new Aggregation\Filter($aggName);
+                        $aggSubQuery->setFilter($filterQuery);
+
+                        $aggParentQuery->addAggregation($aggSubQuery);
+                        $aggParentQuery = $aggSubQuery;
+                    }
+                }
             }
 
+            // add aggregation
             switch($aggType) {
                 case self::AGG_NUMERIC:
                     $aggParentQuery->addAggregation(
@@ -406,7 +435,7 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
                     );
                     break;
                 case self::AGG_GLOBAL_STATS:
-                    $aggGlobalQuery->addAggregation(
+                    $aggParentQuery->addAggregation(
                         (new Aggregation\Stats($aggName))
                             ->setField($aggField)
                     );
@@ -442,10 +471,16 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
 
                             $filterQuery = new Query\BoolQuery();
                             foreach($aggNestedFilter as $queryFilterField => $aggFilterField ) {
-                                $filterQuery->addFilter(
-                                    (new Query\Term())
-                                        ->setTerm($aggNestedPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
-                                );
+                                if ( is_array($filterValues[$queryFilterField]) ) {
+                                    $filterQuery->addFilter(
+                                        new Query\Terms($aggNestedPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
+                                    );
+                                } else {
+                                    $filterQuery->addFilter(
+                                        (new Query\Term())
+                                            ->setTerm($aggNestedPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
+                                    );
+                                }
                             }
                             $aggSubQuery->setFilter($filterQuery);
 
@@ -466,7 +501,7 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
                     $aggParentQuery->addAggregation($aggTerm);
 
                     break;
-                case self::AGG_ID_NAME:
+                case self::AGG_OBJECT_ID_NAME:
                     $aggField = $aggField.'.id_name.keyword';
                     $aggField = ltrim($aggField,'.'); // aggField might be empty
 
@@ -505,10 +540,16 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
 
                         $filterQuery = new Query\BoolQuery();
                         foreach($aggNestedFilter as $queryFilterField => $aggFilterField ) {
-                            $filterQuery->addFilter(
-                                (new Query\Term())
-                                    ->setTerm($aggNestedPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
-                            );
+                            if ( is_array($filterValues[$queryFilterField]) ) {
+                                $filterQuery->addFilter(
+                                    new Query\Terms($aggNestedPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
+                                );
+                            } else {
+                                $filterQuery->addFilter(
+                                    (new Query\Term())
+                                        ->setTerm($aggNestedPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
+                                );
+                            }
                         }
                         $aggSubQuery->setFilter($filterQuery);
 
@@ -555,6 +596,7 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
                 }
         }
 
+        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
 
         // parse query result
         $searchResult = $this->getIndex()->search($query);
@@ -562,9 +604,8 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
 
         $arrAggData = $searchResult->getAggregations();
         //dump($arrAggData);
-        //dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
 
-        foreach($aggFilters as $aggName => $aggConfig) {
+        foreach($aggConfigs as $aggName => $aggConfig) {
             $aggType = $aggConfig['type'];
             switch($aggType) {
                 case self::AGG_NUMERIC:
@@ -603,7 +644,7 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
                         ];
                     }
                     break;
-                case self::AGG_ID_NAME:
+                case self::AGG_OBJECT_ID_NAME:
                     $aggregation = $arrAggData[$aggName] ?? [];
 
                     // global/local filtered?
@@ -688,30 +729,32 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
         }
         $result['aggregation'] = $this->aggregate($params['filters'] ?? []);
 
-
-
         return $result;
     }
 
-    protected function createSearchQuery(array $filters, array $exclude = null): Query\BoolQuery
+    protected function createSearchQuery(array $filters, array $excludeConfigs = null, $useOnlyConfigs = null): Query\BoolQuery
     {
+        $filterConfigs = $useOnlyConfigs ?? $this->getSearchFilterConfig();
 
-        $filterConfigs = $this->getSearchFilterConfig();
+        // parent query
         $query = new Query\BoolQuery();
-        foreach ($filters as $filterName => $filterValue) {
-            // filter set?
-            if ( !isset($filterConfigs[$filterName]) ) {
+
+        // walk filter configs
+        foreach ($filterConfigs as $filterName => $filterConfig) {
+
+            // skip excluded filters
+            if ( $excludeConfigs && in_array($filterName, $excludeConfigs, true) ) {
                 continue;
             }
 
-            // exclude?
-            if ( $exclude && in_array($filterName, $exclude, true) ) {
-                continue;
-            }
-
-            $filterConfig = $filterConfigs[$filterName];
+            $filterValue = $filters[$filterName] ?? null;
             $filterType = $filterConfig['type'];
             $filterField = $filterConfig['field'] ?? $filterName;
+
+            // skip filter if no subfilters and no filter value
+            if ( !isset($filterConfig['filters']) && !$filterValue ) {
+                continue;
+            }
 
             // type
             switch ($filterType) {
@@ -720,8 +763,7 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
                         new Query\Match($filterField, $filterValue)
                     );
                     break;
-                case self::FILTER_ID:
-                case self::FILTER_OBJECT:
+                case self::FILTER_OBJECT_ID:
                     // If value == -1, select all entries without a value for a specific field
                     if ($filterValue == -1) {
                         $query->addMustNot(
@@ -844,7 +886,7 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
                         );
                     }
                     break;
-                case self::FILTER_NESTED:
+                case self::FILTER_NESTED_ID:
                     $filterPath = $filterConfig['nested_path'] ?? $filterName;
                     $filterField = isset($filterConfig['nested_path']) ? $filterConfig['nested_path'].'.'.$filterField : $filterField;
                     $filterFieldId = $filterField.".id";
@@ -859,6 +901,7 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
                             (new Query\Nested())
                                 ->setPath($filterPath)
                                 ->setQuery($subquery)
+                            ->setInnerHits()
                         );
                     }
                     // single value
@@ -883,6 +926,40 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
                                     )
                             );
                         }
+                    }
+                    break;
+                case self::FILTER_NESTED_MULTIPLE:
+                    $filterPath = $filterConfig['nested_path'] ?? $filterName;
+
+                    // subfilters with values
+                    $subFilters = array_intersect_key($filterConfig['filters'] ?? [], $filters);
+
+                    // add subfilters
+                    if (count($subFilters)) {
+                        $subquery = new Query\BoolQuery();
+                        foreach($subFilters as $subFilterName => $subFilterConfig) {
+                            $subFilterValue = $filters[$subFilterName] ?? null;
+                            $subFilterField = $subFilterConfig['field'] ?? $subFilterName;
+                            $subFilterField = isset($filterConfig['nested_path']) ? $filterConfig['nested_path'].'.'.$subFilterField : $subFilterField;
+                            $subFilterFieldId = $subFilterField.".id";
+
+                            if ( is_array($subFilterValue) ) {
+                                $subFilterQuery = new Query\Terms($subFilterFieldId, $subFilterValue);
+                                $subquery->addMust( $subFilterQuery );
+                            }
+                        }
+
+                        // create nested query
+                        $queryNested = (new Query\Nested())
+                                ->setPath($filterPath)
+                                ->setQuery($subquery);
+
+                        // inner hits?
+                        if ($filterConfig['innerHits']) {
+                            $queryNested->setInnerHits( new Query\InnerHits() );
+                        }
+
+                        $query->addMust($queryNested);
                     }
                     break;
                 case self::FILTER_NESTED_TOGGLE:
@@ -975,7 +1052,6 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
             }
         }
 
-        //dump(json_encode($query->toArray()));
         return $query;
     }
 
@@ -991,7 +1067,7 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
         $filterConfig = $this->getSearchFilterConfig();
 
         foreach( $filters as $filterName => $filterValue ) {
-            $filterType = $filterConfig[$filterName]['type'];
+            $filterType = $filterConfig[$filterName]['type'] ?? false;
             switch ($filterType) {
                 case self::FILTER_TEXT:
                     $field = $filterValue['field'] ?? $filterName;
@@ -1104,4 +1180,11 @@ abstract class AbstractElasticSearchService extends AbstractElasticService imple
 
         return $result;
     }
+
+    /** check if aggregation works on global dataset or filtered dataset */
+    protected function isGlobalAggregation($config_name) {
+        $config = $this->getAggregationConfig()[$config_name];
+        return ( in_array($config['type'], [self::AGG_GLOBAL_STATS],true) || ($config['globalAggregation'] ?? false) );
+    }
+
 }

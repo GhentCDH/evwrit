@@ -6,11 +6,11 @@ use Elastica\Mapping;
 use Elastica\Settings;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class TextMaterialityElasticSearchService extends AbstractElasticSearchService
+class TextMaterialitySearchService extends AbstractSearchService
 {
-    const indexName = "texts_materiality";
+    const indexName = "texts";
 
-    public function __construct(ElasticSearchClient $client, ContainerInterface $container)
+    public function __construct(Client $client)
     {
         parent::__construct(
             $client,
@@ -22,28 +22,28 @@ class TextMaterialityElasticSearchService extends AbstractElasticSearchService
             'title' => ['type' => self::FILTER_TEXT],
             'id' => ['type' => self::FILTER_NUMERIC],
             'tm_id' => ['type' => self::FILTER_NUMERIC],
-            'material' => ['type' => self::FILTER_NESTED],
-            'text_format' => ['type' => self::FILTER_NESTED],
-            'writing_direction' => ['type' => self::FILTER_NESTED],
-            'project' => ['type' => self::FILTER_NESTED],
-            'production_stage' => ['type' => self::FILTER_NESTED],
+            'material' => ['type' => self::FILTER_NESTED_ID],
+            'text_format' => ['type' => self::FILTER_NESTED_ID],
+            'writing_direction' => ['type' => self::FILTER_NESTED_ID],
+            'project' => ['type' => self::FILTER_NESTED_ID],
+            'production_stage' => ['type' => self::FILTER_NESTED_ID],
 
             // copy from text
             'agentive_role' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'agentive_role'
             ],
             'communicative_goal' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'communicative_goal'
             ],
-            'era' => ['type' => self::FILTER_NESTED],
+            'era' => ['type' => self::FILTER_NESTED_ID],
             'generic_agentive_role' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'agentive_role'
             ],
             'generic_communicative_goal' => [
-                'type' => self::FILTER_NESTED,
+                'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'communicative_goal'
             ],
             'date'=> [
@@ -52,9 +52,9 @@ class TextMaterialityElasticSearchService extends AbstractElasticSearchService
                 'ceilingField' => 'year_end',
                 'typeField' => 'date_search_type',
             ],
-            'social_distance' => ['type' => self::FILTER_NESTED],
-            'text_type' => ['type' => self::FILTER_NESTED],
-            'text_subtype' => ['type' => self::FILTER_NESTED],
+            'social_distance' => ['type' => self::FILTER_NESTED_ID],
+            'text_type' => ['type' => self::FILTER_NESTED_ID],
+            'text_subtype' => ['type' => self::FILTER_NESTED_ID],
             'is_recto' => ['type' => self::FILTER_BOOLEAN],
             'is_verso' => ['type' => self::FILTER_BOOLEAN],
             'is_transversa_charta' => ['type' => self::FILTER_BOOLEAN],
@@ -93,7 +93,7 @@ class TextMaterialityElasticSearchService extends AbstractElasticSearchService
         return $searchFilters;
     }
 
-    protected function getAggregationFilterConfig(): array {
+    protected function getAggregationConfig(): array {
         $aggregationFilters = [
             'material'  => ['type' => self::AGG_NESTED_ID_NAME],
             'text_format' => ['type' => self::AGG_NESTED_ID_NAME],
@@ -124,7 +124,7 @@ class TextMaterialityElasticSearchService extends AbstractElasticSearchService
             ],
             'keyword' => ['type' => self::AGG_NESTED_ID_NAME],
             'language' => ['type' => self::AGG_NESTED_ID_NAME],
-            'collaborator'  => ['type' => self::AGG_ID_NAME],
+            'collaborator'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'project'  => ['type' => self::AGG_NESTED_ID_NAME],
             'social_distance' => ['type' => self::AGG_NESTED_ID_NAME],
             'text_type' => ['type' => self::AGG_NESTED_ID_NAME],
