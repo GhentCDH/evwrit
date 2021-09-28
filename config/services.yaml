@@ -30,25 +30,43 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     elastic_search_client:
-        class: App\Service\ElasticSearchService\ElasticSearchClient
+        class: App\Service\ElasticSearch\Client
         arguments: ['%elasticsearch.config%','%elasticsearch.index_prefix%']
         public: true
-    App\Service\ElasticSearchService\ElasticSearchClient: '@elastic_search_client'
+    App\Service\ElasticSearch\Client: '@elastic_search_client'
 
-    text_elastic_service:
-        class: App\Service\ElasticSearchService\TextElasticService
-        arguments: ['@elastic_search_client', '@service_container']
+    text_basic_search_service:
+        class: App\Service\ElasticSearch\TextBasicSearchService
+        arguments: ['@elastic_search_client']
         public: true
-    App\Service\ElasticSearchService\TextElasticService: '@text_elastic_service'
+    App\Service\ElasticSearch\TextBasicSearchService: '@text_basic_search_service'
 
-    text_materiality_elastic_service:
-        class: App\Service\ElasticSearchService\TextMaterialityElasticService
-        arguments: ['@elastic_search_client', '@service_container']
+    text_materiality_search_service:
+        class: App\Service\ElasticSearch\TextMaterialitySearchService
+        arguments: ['@elastic_search_client']
         public: true
-    App\Service\ElasticSearchService\TextMaterialityElasticService: '@text_materiality_elastic_service'
+    App\Service\ElasticSearch\TextMaterialitySearchService: '@text_materiality_search_service'
+
+    text_index_service:
+        class: App\Service\ElasticSearch\TextIndexService
+        arguments: ['@elastic_search_client']
+        public: true
+    App\Service\ElasticSearch\TextIndexService: '@text_index_service'
 
     text_repository:
         class: App\Repository\TextRepository
         arguments: []
         public: true
     App\Repository\TextRepository: '@text_repository'
+
+    language_annotation_repository:
+        class: App\Repository\LanguageAnnotationRepository
+        arguments: []
+        public: true
+    App\Repository\LanguageAnnotationRepository: '@language_annotation_repository'
+
+    typography_annotation_repository:
+        class: App\Repository\TypographyAnnotationRepository
+        arguments: []
+        public: true
+    App\Repository\TypographyAnnotationRepository: '@typography_annotation_repository'

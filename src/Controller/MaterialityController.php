@@ -29,7 +29,7 @@ class MaterialityController extends BaseController
     /**
      * @Route("/materiality/search", name="materiality_search", methods={"GET"})
      * @param Request $request
-     * @param TextMaterialityElasticService $elasticservice
+     * @param TextMaterialitySearchService $elasticservice
      * @return Response
      */
     public function search(
