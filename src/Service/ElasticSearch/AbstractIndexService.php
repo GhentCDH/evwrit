@@ -9,16 +9,8 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 use Elastica\Document;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-abstract class AbstractElasticIndexService extends AbstractElasticService
+abstract class AbstractIndexService extends AbstractService implements SearchServiceInterface
 {
-
-    public function __construct(ElasticSearchClient $client, ContainerInterface $container)
-    {
-        parent::__construct(
-            $client,
-            self::indexName);
-    }
-
     abstract protected function getIndexProperties(): array;
 
     abstract protected function getMappingProperties(): array;
