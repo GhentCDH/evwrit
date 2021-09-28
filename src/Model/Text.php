@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use ReflectionException;
 
 /**
@@ -237,16 +238,67 @@ class Text extends AbstractModel
         return $this->locations()->wherePivot('is_written',1);
     }
 
+    /**
+     * @return HasMany
+     */
     public function textAgentiveRoles(): HasMany
     {
         return $this->hasMany(Text_AgentiveRole::class);
     }
 
+    /**
+     * @return HasMany
+     */
     public function textCommunicativeGoals(): HasMany
     {
         return $this->hasMany(Text_CommunicativeGoal::class);
     }
 
+    /**
+     * @return HasMany|TextSelection[]
+     */
+    public function textSelections(): HasMany {
+        return $this->hasMany(TextSelection::class);
+    }
 
+    /**
+     * @return HasManyThrough|LexisAnnotation[]
+     */
+    public function lexisAnnotations()
+    {
+        return $this->hasManyThrough(LexisAnnotation::class, TextSelection::class);
+    }
+
+    /**
+     * @return HasManyThrough|LanguageAnnotation[]
+     */
+    public function languageAnnotations()
+    {
+        return $this->hasManyThrough(LanguageAnnotation::class, TextSelection::class);
+    }
+
+    /**
+     * @return HasManyThrough|TypographyAnnotation[]
+     */
+    public function typographyAnnotations()
+    {
+        return $this->hasManyThrough(TypographyAnnotation::class, TextSelection::class);
+    }
+
+    /**
+     * @return HasManyThrough|OrthographyAnnotation[]
+     */
+    public function orthographyAnnotations()
+    {
+        return $this->hasManyThrough(OrthographyAnnotation::class, TextSelection::class);
+    }
+
+    /**
+     * @return HasManyThrough|OrthographyAnnotation[]
+     */
+    public function morphologyAnnotations()
+    {
+        return $this->hasManyThrough(MorphologyAnnotation::class, TextSelection::class);
+    }
 
 }
