@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use ReflectionClass;
 use ReflectionException;
@@ -146,4 +147,26 @@ abstract class AbstractModel extends Model
         return $this->getKey();
     }
 
+    /**
+     * @param  string  $related
+     * @param  string  $through
+     * @param  string|null  $firstKey
+     * @param  string|null  $secondKey
+     * @param  string|null  $localKey
+     * @param  string|null  $secondLocalKey
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function hasManyThrough($related, $through, $firstKey = null, $secondKey = null, $localKey = null, $secondLocalKey = null)
+    {
+//        $related_table = u((new ReflectionClass($related))->getShortName())->snake();
+//        $related_pk = $related_table.'_id';
+        $through_table = u((new ReflectionClass($through))->getShortName())->snake();
+        $through_pk = $through_table.'_id';
+
+        if (is_null($localKey)) {
+            $localKey = $this->getKeyName();
+        }
+
+        return parent::hasManyThrough($related, $through, $localKey, $through_pk, $localKey, $through_pk);
+    }
 }
