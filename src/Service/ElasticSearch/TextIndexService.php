@@ -74,6 +74,7 @@ class TextIndexService extends AbstractIndexService
                     'lexis' => ['type' => 'nested'],
                     'orthography' => ['type' => 'nested'],
                     'morphology' => ['type' => 'nested'],
+                    'morpho_syntactical' => ['type' => 'nested'],
                 ],
             ],
         ];
