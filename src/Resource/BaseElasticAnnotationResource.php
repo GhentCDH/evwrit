@@ -5,6 +5,7 @@ namespace App\Resource;
 
 
 use App\Model\AbstractAnnotationModel;
+use App\Model\Text;
 use App\Model\TextSelection;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -46,21 +47,48 @@ class BaseElasticAnnotationResource extends BaseResource
     }
 
     protected function createTextSelectionContext() {
+        /** @var Text $resource */
         $resource = $this->resource;
+        /** @var TextSelection $text_selection */
         $text_selection = $resource->textSelection;
+
         $text = $resource->textSelection->sourceText->text;
 
-        /** @var TextSelection $text_selection */
-        $nstart = mb_strrpos($text, "\v", -mb_strlen($text) + $text_selection->selection_start + 1) ?: 0;
-        $nstart && $nstart++;
-        $nend = -1 + ( mb_strpos($text, "\v", $text_selection->selection_end) ?: strlen($text) );
+        // todo: nog eens goed bekijken!!
+
+
+        // text end
+        $t_len = mb_strlen($text);
+        $t_end = $t_len - 1;
+
+        // selection start/end
+        $s_start = min(max(0, $text_selection->selection_start), $t_end); // fix incorrect selection start
+        $s_end = min($text_selection->selection_end, $t_end); // fix incorrect selection end
+
+//        echo "selection: {$s_start} - {$s_end} - {$t_len} \n";
+
+        // context start: if selelection start > 0, find first vertical tab to the left of selection_end
+        $c_start = 0;
+        if ( $s_start && ( ( $pos = mb_strrpos($text, "\v", -$t_len + $s_start)) !== false ) ) {
+            $c_start = min($pos + 1, $t_end);
+        }
+
+        // context end: find first vertical tab to the right of selection_end
+        $c_end = $t_end;
+        if ( $s_end < $t_end ) {
+            $c_end = mb_strpos($text, "\v", $s_end) ?: $t_end;
+        }
+
+//        echo "context: {$c_start} - {$c_end}\n";
 
         // left pos
         $context = [
-            'text' => mb_substr($text, $nstart, $nend - $nstart + 1 ),
-            'start' => $nstart,
-            'end' => $nend
+            'text' => mb_substr($text, $c_start, $c_end - $c_start + 1 ),
+            'start' => $c_start,
+            'end' => $c_end
         ];
+
+        $context['text'] = $this->convertNewlines($context['text']);
 
         return $context;
     }
