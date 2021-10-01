@@ -93,7 +93,7 @@ Status Revision
                 'lexis' => BaseElasticAnnotationResource::collection($this->lexisAnnotations)->toArray(null),
                 'orthography' => BaseElasticAnnotationResource::collection($this->orthographyAnnotations)->toArray(null),
                 'morphology' => BaseElasticAnnotationResource::collection($this->morphologyAnnotations)->toArray(null),
-//                'morpho_syntactical' => BaseElasticAnnotationResource::collection($this->morphoSyntacticalAnnotations)->toArray(null),
+                'morpho_syntactical' => BaseElasticAnnotationResource::collection($this->morphoSyntacticalAnnotations)->toArray(null),
             ]
         ];
 

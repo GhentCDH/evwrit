@@ -301,4 +301,13 @@ class Text extends AbstractModel
         return $this->hasManyThrough(MorphologyAnnotation::class, TextSelection::class);
     }
 
+    /**
+     * @return HasManyThrough|MorphoSyntacticalAnnotation[]
+     */
+    public function morphoSyntacticalAnnotations()
+    {
+        return $this->hasManyThrough(MorphoSyntacticalAnnotation::class, TextSelection::class);
+    }
+
+
 }
