@@ -302,7 +302,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     break;
             }
         }
-        foreach ($data['hits']['hits'] as $result) {
+        foreach ( ($data['hits']['hits'] ?? []) as $result) {
             $part = $result['_source'];
             if (isset($result['highlight'])) {
                 foreach ($result['highlight'] as $key => $value) {
