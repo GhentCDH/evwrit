@@ -9,7 +9,7 @@ Encore
     .enableVersioning()
 
     // the public path used by the web server to access the previous directory
-    .setPublicPath('/evwrit/public/build/')
+    .setPublicPath(Encore.isProduction() ? '/build/' : '/evwrit/public/build/')
 
     // allow pug templates in vue components
     .enableVueLoader()
@@ -19,6 +19,7 @@ Encore
     .addEntry('main', './assets/js/main/main.js')
     .addEntry('text-search', './assets/js/main/text-search.js')
     .addEntry('materiality-search', './assets/js/main/materiality-search.js')
+    .addEntry('base-annotation-search', './assets/js/main/base-annotation-search.js')
     .addEntry('text-view', './assets/js/main/text-view.js')
 
     // allow sass/scss files to be processed
