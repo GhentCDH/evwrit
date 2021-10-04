@@ -264,7 +264,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $searchQuery = $this->createSearchQuery($searchFilters);
             $query->setQuery($searchQuery);
             $query->setHighlight($this->createHighlight($searchFilters));
-            dump(json_encode($searchQuery->toArray(), JSON_PRETTY_PRINT));
+//            dump(json_encode($searchQuery->toArray(), JSON_PRETTY_PRINT));
         }
 
         // Search
@@ -369,7 +369,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     {
         // get agg config
         $aggConfigs = $this->getAggregationConfig();
-        dump($aggConfigs);
+//        dump($aggConfigs);
         if ( !count($aggConfigs) ) {
             return [];
         }
@@ -380,7 +380,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // get filters used in multiselect aggregations
         $aggFilterConfigs = $this->getAggregationFilters($filterValues);
-        dump($aggFilterConfigs);
+//        dump($aggFilterConfigs);
 
         // create global search query
         // exclude aggregation filters, will be added to aggregations
@@ -596,7 +596,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 }
         }
 
-        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
+//        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
 
         // parse query result
         $searchResult = $this->getIndex()->search($query);

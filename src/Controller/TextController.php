@@ -86,6 +86,90 @@ class TextController extends BaseController
     }
 
     /**
+     * @Route("/text/dump", name="text_dump", methods={"GET"})
+     */
+    public function dump(Request $request, ContainerInterface $container): Response
+    {
+        $repository = $container->get('text_repository');
+        /** @var Text $text */
+        $text = $repository->find(12059);
+
+        $text->load(['languageAnnotations']);
+
+        $res = new ElasticTextResource($text);
+
+        $arrRes = $res->toArray();
+
+        dump($arrRes);
+
+        foreach( $arrRes['annotations'] as $annoType => $annos ) {
+            foreach( $annos as $anno ) {
+//                dump($anno['text_selection']['text']);
+//                dump($anno['context']['text']);
+            }
+        }
+
+
+
+        /* query test */
+        /*
+        $repository = $container->get('text_repository' );
+        $texts = $repository->indexQuery()->where('text_id', '<', 500)->get();
+        foreach ($texts as $text) {
+            $res = new TextResource($text);
+            $res->toJson();
+        }
+        */
+
+        /*
+        $texts = TextRepository::queryAll()->where('text_id', '<', 100)->with(['scripts','forms'])->chunk(20, function($res) {
+            foreach ($res as $text) {
+                $res = new TextResource($text);
+                print_r($res->toJson());
+            }
+        });
+        */
+
+//        $repository = $container->get('typography_annotation_repository');
+//        $annotation = $repository->find(75649);
+//
+//        $res = new ElasticTypographyAnnotationResource($annotation);
+//        $arr = $res->toJson(0);
+//
+//        dump($arr);
+
+        //print_r($text->era->name);
+
+        /*
+        $texts = TextRepository::queryAll()->where('text_id', '<', 100)->with(['scripts','forms'])->chunk(20, function($res) {
+            foreach ($res as $text) {
+                $res = new TextResource($text);
+                print_r($res->toJson());
+            }
+        });
+        */
+
+        //$text = TextResource::collection();
+
+//        $repository = $container->get('text_repository' );
+//        $texts = $repository->findAll(5);
+//
+//        $col = TextResource::collection($texts);
+//        dump($col);
+//        $col->toJson();
+
+//        foreach( $texts as $text ) {
+//            $ret = $text->toArray(null);
+//            print_r($ret);
+//        }
+
+
+        return $this->render('Text/index.html.twig', [
+            'controller_name' => 'TextController',
+        ]);
+    }
+
+    /**
      * @Route("/text/{id}", name="text_get_single", methods={"GET"})
      * @param int $id
      * @param Request $request
@@ -134,50 +218,6 @@ class TextController extends BaseController
             );
         }
     }
-
-    /**
-     * @Route("/text/dump", name="text_dump", methods={"GET"})
-     */
-    public function dump(Request $request): Response
-    {
-        $repository = $this->container->get('text_repository' );
-        $text = $repository->find(69108);
-
-        $res = new ElasticTextResource($text);
-        $arr = $res->toJson(0);
-
-        dump($arr);
-        //print_r($text->era->name);
-
-        /*
-        $texts = TextRepository::queryAll()->where('text_id', '<', 100)->with(['scripts','forms'])->chunk(20, function($res) {
-            foreach ($res as $text) {
-                $res = new TextResource($text);
-                print_r($res->toJson());
-            }
-        });
-        */
-
-        //$text = TextResource::collection();
-
-//        $repository = $container->get('text_repository' );
-//        $texts = $repository->findAll(5);
-//
-//        $col = TextResource::collection($texts);
-//        dump($col);
-//        $col->toJson();
-
-//        foreach( $texts as $text ) {
-//            $ret = $text->toArray(null);
-//            print_r($ret);
-//        }
-
-
-        return $this->render('Text/index.html.twig', [
-            'controller_name' => 'TextController',
-        ]);
-    }
-
 
     /**
      * Sanitize data from request string
