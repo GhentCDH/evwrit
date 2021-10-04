@@ -97,7 +97,7 @@ class BaseAnnotationSearchService extends AbstractSearchService
 
         ];
 
-        $searchFilters = [];
+//        $searchFilters = [];
 
         // annotation filters
         $annotationFilters = [
@@ -178,7 +178,7 @@ class BaseAnnotationSearchService extends AbstractSearchService
             'columns_max' => ['type' => self::AGG_GLOBAL_STATS],
         ];
 
-        $aggregationFilters = [];
+//        $aggregationFilters = [];
 
         // annotation aggregations
         $annotationFilters = [
