@@ -5,7 +5,7 @@ const RANGE_MAX_INVALID = 10000
 
 export default {
     methods: {
-        createMultiSelect(label, extra = null, extraSelectOptions = null) {
+        createSelect(label, extra = null, extraSelectOptions = null) {
             let result = {
                 type: 'multiselectClear',
                 label: label,
@@ -37,6 +37,12 @@ export default {
                 }
             }
             return result
+        },
+        createMultiSelect(label, extra = null, extraSelectOptions) {
+            let result = this.createSelect(label, extra, extraSelectOptions)
+            result.selectOptions.multiple = true;
+            result.selectOptions.closeOnSelect = false;
+            return result;
         },
         createRangeSlider(model, label, min, max, step, extra = null) {
             let result = {
