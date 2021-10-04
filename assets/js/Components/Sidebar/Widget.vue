@@ -82,7 +82,7 @@ export default {
     font-size: 18px;
     letter-spacing: .1em;
     cursor: pointer;
-    padding: 15px 0 5px;
+    padding: 10px 0 5px;
 
     font-family: "PannoTextMedium", Arial, sans-serif;
     color: #777;
