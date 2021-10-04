@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "etali": "^1.2.3",
     "regenerator-runtime": "^0.13.7"
   },
   "devDependencies": {
