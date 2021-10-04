@@ -897,12 +897,18 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         foreach( $filterValue as $val) {
                             $subquery->addShould(['match' => [$filterFieldId => $val]]);
                         }
-                        $query->addMust(
-                            (new Query\Nested())
-                                ->setPath($filterPath)
-                                ->setQuery($subquery)
-                            ->setInnerHits()
-                        );
+
+                        // create nested query
+                        $queryNested = (new Query\Nested())
+                            ->setPath($filterPath)
+                            ->setQuery($subquery);
+
+                        // inner hits?
+                        if ($filterConfig['innerHits'] ?? false) {
+                            $queryNested->setInnerHits( new Query\InnerHits() );
+                        }
+
+                        $query->addMust($queryNested);
                     }
                     // single value
                     else {
@@ -955,7 +961,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                                 ->setQuery($subquery);
 
                         // inner hits?
-                        if ($filterConfig['innerHits']) {
+                        if ($filterConfig['innerHits'] ?? false) {
                             $queryNested->setInnerHits( new Query\InnerHits() );
                         }
 
