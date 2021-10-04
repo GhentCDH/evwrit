@@ -122,9 +122,9 @@
                                                     <span>Text structure</span>
                                                 </a>
                                             </li>
-                                            <li class="hidden {{ app.request.get('_route') == 'languages_scripts_search' ? 'active' }}">
-                                                <a href="">
-                                                    <span>Languages & scripts</span>
+                                            <li class=" {{ app.request.get('_route') == 'annotation_search' ? 'active' }}">
+                                                <a href="{{ path('annotation_search') }}">
+                                                    <span>Annotations</span>
                                                 </a>
                                             </li>
 
