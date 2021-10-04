@@ -28,6 +28,10 @@ class TextSelectionResource extends BaseResource
             $ret['id'] = $ret[$keyName];
             unset($ret[$keyName]);
         }
+
+        // convert newlines
+        $ret['text'] = $this->convertNewlines($ret['text']);
+
         return $ret;
     }
 
