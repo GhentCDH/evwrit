@@ -29,6 +29,10 @@
         min-height: 3.667em;
       }
     }
+
+    .VueTables__sort-icon {
+      color: #aaa;
+    }
   }
 
   .VuePagination__count {
@@ -49,4 +53,20 @@
 mark,
 .mark {
   padding: 0;
+}
+
+/* vue-tables columns */
+.vue-tables__col--id {
+  white-space: nowrap;
+  min-width: 70px;
+}
+
+.vue-tables__col--tm-id {
+  white-space: nowrap;
+  min-width: 70px;
+}
+
+.vue-tables__col--title {
+  white-space: nowrap;
+  min-width: 100px;
 }

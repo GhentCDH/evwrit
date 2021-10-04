@@ -1,0 +1,34 @@
+$color-annotation-red: #e61919;
+$color-annotation-orange: #f58231;
+$color-annotation-green: #18aa2a;
+$color-annotation-magenta: #f032e6;
+$color-annotation-blue: #1E64C8;
+
+.annotation {
+  font-weight: bold;
+}
+
+.greek-text .annotation {
+  font-family: NewAthenaUnicodeBold, Arial, sans-serif;
+  font-weight: normal;
+}
+
+.annotation-typography {
+  color: $color-annotation-red;
+}
+
+.annotation-ortography {
+  color: $color-annotation-orange;
+}
+
+.annotation-morpho_syntactical {
+  color: $color-annotation-green;
+}
+
+.annotation-lexis {
+  color: $color-annotation-magenta;
+}
+
+.annotation-language {
+  color: $color-annotation-blue;
+}
