@@ -53,13 +53,14 @@
                         {{ props.row.tm_id }}
                     </a>
                 </template>
-                <template slot="inner_hits" slot-scope="props">
+                <template slot="annotations" slot-scope="props">
                     <template v-for="(annotations, type) in props.row.annotations">
                         <template v-for="annotation in annotations" class="text-result">
                             <GreekText
                                     :text="annotation.context.text"
                                     :annotations="[ [annotation.text_selection.selection_start, annotation.text_selection.selection_end - 1, { id: annotation.id, type: annotation.type, class: 'annotation annotation-' + annotation.type }] ]"
-                                    :annotationOffset="annotation.context.start">
+                                    :annotationOffset="annotation.context.start"
+                                    :compact="true">
                             </GreekText>
                         </template>
                     </template>
@@ -280,9 +281,15 @@ export default {
             },
             tableOptions: {
                 headings: {
+                    id: 'ID',
+                    tm_id: 'Tm ID ',
+                    title: 'Title',
+                    annotations: 'Annotations'
                 },
                 columnsClasses: {
-                    name: 'no-wrap',
+                    id: 'vue-tables__col vue-tables__col--id',
+                    tm_id: 'vue-tables__col vue-tables__col--tm-id',
+                    title: 'vue-tables__col vue-tables__col--title'
                 },
                 'filterable': false,
                 'orderBy': {
@@ -313,7 +320,7 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['id', 'tm_id', 'title', 'inner_hits']
+            let columns = ['id', 'tm_id', 'title', 'annotations']
             // if (this.commentSearch) {
             //     columns.unshift('comment')
             // }
