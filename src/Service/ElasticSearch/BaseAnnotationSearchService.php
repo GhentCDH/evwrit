@@ -226,9 +226,18 @@ class BaseAnnotationSearchService extends AbstractSearchService
 
     protected function sanitizeSearchResult(array $result): array
     {
-        $returnProps = ['id', 'tm_id', 'title', 'year_begin', 'year_end', 'inner_hits'];
+        $returnProps = ['id', 'tm_id', 'title', 'year_begin', 'year_end', 'inner_hits', 'annotations'];
 
         $result = array_intersect_key($result, array_flip($returnProps));
+        $result['annotations'] = $result['annotations'] ?? [];
+        if ( isset($result['inner_hits']) ) {
+            $result['annotations'] = [];
+            foreach($result['inner_hits'] as $index => $hits ) {
+                $index = str_replace('annotations.','', $index);
+                $result['annotations'][$index] = $hits;
+            }
+            unset($result['inner_hits']);
+        }
 
         return $result;
     }
