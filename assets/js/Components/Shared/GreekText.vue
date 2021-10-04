@@ -1,23 +1,146 @@
 <template>
-    <div class="greek text" v-html="formatText(text)"></div>
+    <div class="greek-text" v-html="formatText(text,filteredAnnotations)"></div>
 </template>
 
 <script>
+import { FlattenRanges } from 'etali'
+
 export default {
     name: "GreekText",
     props: {
         text: {
             type: String,
+            required: true
+        },
+        annotations: {
+            type: Array,
+            default: function() {
+                return [];
+            }
+        },
+        annotationOffset: {
+            type: Number,
+            default: 0
+        }
+    },
+    computed: {
+        filteredAnnotations: function() {
+            // increase end position by one (needed for FlattenRanges) and correct by offset
+            let annos = this.annotations.map((i) => [i[0] - this.annotationOffset, i[1] + 1 - this.annotationOffset, i[2]])
+
+            annos = annos.concat(this.getLineNumberAnnotations(this.text))
+
+            // flatten and reverse ranges
+            annos = FlattenRanges(annos).reverse();
+
+            // remove line-number annotations
+            annos = annos.filter(
+                (i) => i[2].filter((details) => details.type === "lineNumber").length === 0
+            )
+
+            console.log(annos);
+
+            return annos;
         },
     },
     methods: {
-        formatText(text) {
-            const regexLineNumbers = /^([0-9]+)\./gm;
-            const replaceLineNumbers = '<span class="line-number">$1 </span>'
-            text = text.replace(regexLineNumbers, replaceLineNumbers);
+        formatText(text, annotations = []) {
 
-            return text
+            // split text into lines
+            let lines = text.split("\n");
+
+            // walk lines
+            let line_start = 0;
+            let line_end = 0;
+            let line;
+            let i = 0;
+            for (i = 0; i < lines.length; i++) {
+                line = lines[i];
+
+                // line end = line start + length - 1 + 1 newline char
+                line_end = line_start + (line.length - 1) + 1;
+
+                // annotate line
+                line = this.annotateLine(line, line_start, annotations);
+
+                // add line structure
+                line = this.structureLine(line);
+
+                // console.log([line, line_start, line_end, annotations]);
+
+                lines[i] = line;
+                line_start = line_end + 1;
+            }
+
+            // return text
+            return lines.join("\n");
         },
+        structureLine(line) {
+            const regLineNumber = /^([0-9]+[a-z]?)\./g;
+            const replaceLineNumber =
+                '<span class="greek-text__line-number">$1</span><span class="greek-text__text">';
+
+            let result = line;
+            if (result.match(regLineNumber)) {
+                result = line.replace(regLineNumber, replaceLineNumber) + "</span>";
+            } else {
+                result = '<span class="greek-text__text">' + line + "</span>";
+            }
+            return '<div class="greek-text__line">' + result + '</div>';
+        },
+        insertBefore(text, index, replacement) {
+            return text.substring(0, index) + replacement + text.substring(index);
+        },
+        intersectInterval(a, b) {
+            const min = a[0] < b[0] ? a : b;
+            const max = min == a ? b : a;
+
+            //min ends before max starts -> no intersection
+            if (min[1] < max[0]) return null; //the ranges don't intersect
+
+            return [max[0], min[1] < max[1] ? min[1] : max[1]];
+        },
+        annotateLine(line, line_start, annotations) {
+            // caculate line end position
+            // line end = line start + length - 1 + 1 newline char
+            const line_end = line_start + (line.length - 1) + 1;
+
+            // walk annotations and check line intersection
+            let i;
+            for (const annotation of annotations) {
+                // adjust anno end and line end
+                if (
+                    (i = this.intersectInterval(
+                        [annotation[0], annotation[1] - 1],
+                        [line_start, line_end - 1]
+                    ))
+                ) {
+                    line = this.insertBefore(line, i[1] - line_start + 1, "</span>");
+                    line = this.insertBefore(
+                        line,
+                        i[0] - line_start,
+                        '<span class="' + annotation[2].map( (i) => (i.class) ).join(" ") + '">'
+                    );
+                    // console.log('annotateLine');
+                    // console.log(annotation);
+                }
+            }
+
+            return line;
+        },
+        // create line number annotations
+        // end position is next character, needed for FlattenRanges
+        getLineNumberAnnotations(text) {
+            const regLineNumbers = /^([0-9]+[a-z]?\.)/gm
+
+            let annos = []
+            let ln
+            while ((ln = regLineNumbers.exec(text))) {
+                annos.push([ln.index, ln.index + ln[0].length - 1 + 1, { type: "lineNumber" }]);
+            }
+
+            return annos
+        }
     }
 }
 </script>

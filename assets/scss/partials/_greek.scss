@@ -34,27 +34,34 @@ $nau-font-path: '../../fonts/new-athena-unicode';
 
 .greek {
   font-family: NewAthenaUnicode, Arial, sans-serif;
+}
 
-  &.form-group {
-    font-family: $default-font-family;
+.greek-text {
 
-    .form-control {
-      font-family: NewAthenaUnicode, Arial, sans-serif;
-    }
-  }
-
-  &.text {
+  &__line {
+    display: flex;
     line-height: 1.9;
-
-    .line-number {
-      display: inline-block;
-      width: 2em;
-      border-right: 1px solid #ccc;
-      color: #ccc;
-      padding: 0px 0;
-      margin-right: 0.5em;
-    }
   }
+
+  &__line-number {
+    flex: 0 0 30px;
+    border-right: 1px solid #ccc;
+    color: #ccc;
+  }
+
+  &__text {
+    font-family: NewAthenaUnicode, Arial, sans-serif;
+    padding-left: 0.5em
+  }
+
+  .annotation {
+    font-family: NewAthenaUnicodeBold, Arial, Sans-Serif;
+    color: $link-color;
+  }
+}
+
+.greek-text + .greek-text {
+  margin-top: 20px;
 }
 
 .modal-title {
