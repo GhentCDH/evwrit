@@ -1,5 +1,5 @@
 <template>
-    <div class="greek-text" v-html="formatText(text,filteredAnnotations)"></div>
+    <div class="greek-text" v-html="formatText(text,filteredAnnotations)" :class="{ 'greek-text--compact': compact}"></div>
 </template>
 
 <script>
@@ -21,6 +21,10 @@ export default {
         annotationOffset: {
             type: Number,
             default: 0
+        },
+        compact: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {
@@ -38,7 +42,7 @@ export default {
                 (i) => i[2].filter((details) => details.type === "lineNumber").length === 0
             )
 
-            console.log(annos);
+            // console.log(annos);
 
             return annos;
         },
@@ -76,7 +80,7 @@ export default {
             return lines.join("\n");
         },
         structureLine(line) {
-            const regLineNumber = /^([0-9]+[a-z]?)\./g;
+            const regLineNumber = /^([0-9\/]+[a-z]?)\./g;
             const replaceLineNumber =
                 '<span class="greek-text__line-number">$1</span><span class="greek-text__text">';
 
@@ -131,7 +135,7 @@ export default {
         // create line number annotations
         // end position is next character, needed for FlattenRanges
         getLineNumberAnnotations(text) {
-            const regLineNumbers = /^([0-9]+[a-z]?\.)/gm
+            const regLineNumbers = /^([0-9\/]+[a-z]?\.)/gm
 
             let annos = []
             let ln
