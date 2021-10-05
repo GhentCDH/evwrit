@@ -27,7 +27,6 @@ class BaseAnnotationSearchService extends AbstractSearchService
             'writing_direction' => ['type' => self::FILTER_NESTED_ID],
             'production_stage' => ['type' => self::FILTER_NESTED_ID],
 
-            // copy from text
             'agentive_role' => [
                 'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'agentive_role'
@@ -95,9 +94,44 @@ class BaseAnnotationSearchService extends AbstractSearchService
                 'ignore' => [-1, 10000]
             ],
 
-        ];
+            /* ancient person */
+            'ap_tm_id' => [
+                'type' => self::FILTER_NUMERIC,
+                'nested_path' => 'ancient_person',
+                'field' => 'tm_id'
+            ],
+            'ap_role' => [
+                'type' => self::FILTER_NESTED_ID,
+                'nested_path' => 'ancient_person',
+                'field' => 'role'
+            ],
+            'ap_gender' => [
+                'type' => self::FILTER_NESTED_ID,
+                'nested_path' => 'ancient_person',
+                'field' => 'gender'
+            ],
+            'ap_occupation' => [
+                'type' => self::FILTER_NESTED_ID,
+                'nested_path' => 'ancient_person',
+                'field' => 'occupation'
+            ],
+            'ap_social_rank' => [
+                'type' => self::FILTER_NESTED_ID,
+                'nested_path' => 'ancient_person',
+                'field' => 'social_rank'
+            ],
+            'ap_honorific_epithet' => [
+                'type' => self::FILTER_NESTED_ID,
+                'nested_path' => 'ancient_person',
+                'field' => 'honorific_epithet'
+            ],
+            'ap_graph_type' => [
+                'type' => self::FILTER_NESTED_ID,
+                'nested_path' => 'ancient_person',
+                'field' => 'graph_type'
+            ],
 
-//        $searchFilters = [];
+        ];
 
         // annotation filters
         $annotationFilters = [
@@ -141,25 +175,31 @@ class BaseAnnotationSearchService extends AbstractSearchService
             'is_verso' => ['type' => self::AGG_BOOLEAN],
             'is_transversa_charta' => ['type' => self::AGG_BOOLEAN],
 
+            'era' => ['type' => self::AGG_NESTED_ID_NAME],
+
+            /* role */
             'agentive_role' => [
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'agentive_role',
                 'filter' => [ 'generic_agentive_role' => 'generic_agentive_role.id' ]
             ],
+            'generic_agentive_role' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'agentive_role',
+            ],
+            /* goal */
             'communicative_goal' => [
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'communicative_goal',
                 'filter' => [ 'generic_communicative_goal' => 'generic_communicative_goal.id' ]
             ],
-            'era' => ['type' => self::AGG_NESTED_ID_NAME],
-            'generic_agentive_role' => [
-                'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'agentive_role',
-            ],
             'generic_communicative_goal' => [
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'communicative_goal',
             ],
+
+            'archive' => ['type' => self::AGG_NESTED_ID_NAME],
+
             'keyword' => ['type' => self::AGG_NESTED_ID_NAME],
             'language' => ['type' => self::AGG_NESTED_ID_NAME],
             'collaborator'  => ['type' => self::AGG_OBJECT_ID_NAME],
@@ -167,7 +207,12 @@ class BaseAnnotationSearchService extends AbstractSearchService
             'social_distance' => ['type' => self::AGG_NESTED_ID_NAME],
             'text_type' => ['type' => self::AGG_NESTED_ID_NAME],
             'text_subtype' => ['type' => self::AGG_NESTED_ID_NAME],
+            'form'  => ['type' => self::AGG_NESTED_ID_NAME],
+            'location_written' => ['type' => self::AGG_NESTED_ID_NAME],
+            'location_found' => ['type' => self::AGG_NESTED_ID_NAME],
+            'script' => ['type' => self::AGG_NESTED_ID_NAME],
 
+            /* global stats */
             'lines_max' => ['type' => self::AGG_GLOBAL_STATS],
             'lines_min' => ['type' => self::AGG_GLOBAL_STATS],
             'width' => ['type' => self::AGG_GLOBAL_STATS],
@@ -176,6 +221,43 @@ class BaseAnnotationSearchService extends AbstractSearchService
             'letters_per_line_max' => ['type' => self::AGG_GLOBAL_STATS],
             'columns_min' => ['type' => self::AGG_GLOBAL_STATS],
             'columns_max' => ['type' => self::AGG_GLOBAL_STATS],
+
+            /* ancient person */
+            'ap_name' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'ancient_person',
+                'field' => ''
+            ],
+            'ap_role' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'ancient_person',
+                'field' => 'role'
+            ],
+            'ap_gender' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'ancient_person',
+                'field' => 'gender'
+            ],
+            'ap_occupation' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'ancient_person',
+                'field' => 'occupation'
+            ],
+            'ap_social_rank' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'ancient_person',
+                'field' => 'social_rank'
+            ],
+            'ap_honorific_epithet' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'ancient_person',
+                'field' => 'honorific_epithet'
+            ],
+            'ap_graph_type' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'ancient_person',
+                'field' => 'graph_type'
+            ],
         ];
 
 //        $aggregationFilters = [];
