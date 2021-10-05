@@ -148,20 +148,22 @@ class BaseAnnotationSearchService extends AbstractSearchService
             ]
         ];
         foreach( $annotationFilters as $type => $filters ) {
-            $searchFilters[$type] = [
+            $filter_name = "annotation_type_{$type}";
+            $searchFilters[$filter_name] = [
                 'type' => self::FILTER_NESTED_MULTIPLE,
                 'nested_path' => "annotations.{$type}",
                 'filters' => [],
                 'innerHits' => true
             ];
             foreach( $filters as $filter ) {
-                $filter_name = "{$type}_{$filter}";
-                $searchFilters[$type]['filters'][$filter_name] = [
+                $subfilter_name = "{$type}_{$filter}";
+                $searchFilters[$filter_name]['filters'][$subfilter_name] = [
                     'field' => "properties.{$filter}",
                 ];
             }
         }
 
+        dump($searchFilters);
         return $searchFilters;
     }
 
@@ -284,7 +286,7 @@ class BaseAnnotationSearchService extends AbstractSearchService
                     'type' => self::AGG_NESTED_ID_NAME,
                     'field' => "properties.{$filter}",
                     'nested_path' => "annotations.{$type}",
-                    'excludeFilter' => [$type], // exclude filter of same type
+                    'excludeFilter' => ["annotation_type_{$type}"], // exclude filter of same type
                     'filter' => array_reduce( $filters, function($carry,$item) use ($type,$filter) {
                         if ( $item != $filter ) {
                             $carry["{$type}_{$item}"] = "properties.{$item}.id";
