@@ -69,6 +69,7 @@ import VueFormGenerator from 'vue-form-generator'
 
 import AbstractField from '../Components/FormFields/AbstractField'
 import AbstractSearch from '../Components/Search/AbstractSearch'
+import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
 
 import fieldRadio from '../Components/FormFields/fieldRadio'
 
@@ -78,6 +79,7 @@ export default {
     mixins: [
         AbstractField,
         AbstractSearch,
+        CollapsibleGroups('search-text-groups')
     ],
     props: {
     },
@@ -90,7 +92,7 @@ export default {
             schema: {
                 groups: [
                     {
-                        styleClasses: 'collapsible',
+                        styleClasses: 'collapsible collapsed',
                         legend: 'Physical information',
                         fields: [
                             {
@@ -189,7 +191,7 @@ export default {
                         ]
                     },
                     {
-                        styleClasses: 'collapsible',
+                        styleClasses: 'collapsible collapsed',
                         legend: 'Communicative information',
                         fields: [
                             this.createMultiSelect('Archive',
@@ -219,7 +221,7 @@ export default {
                         ]
                     },
                     {
-                        styleClasses: 'collapsible',
+                        styleClasses: 'collapsible collapsed',
                         legend: 'Ancient persons',
                         fields: [
                             this.createMultiSelect('Name', {model: 'ap_name'}),
@@ -238,7 +240,7 @@ export default {
                         ]
                     },
                     {
-                        styleClasses: 'collapsible',
+                        styleClasses: 'collapsible collapsed',
                         legend: 'Administrative information',
                         fields: [
                             this.createMultiSelect('Project',
@@ -292,15 +294,6 @@ export default {
     computed: {
         tableColumns() {
             let columns = ['id', 'tm_id', 'title','year_begin','year_end']
-            // if (this.commentSearch) {
-            //     columns.unshift('comment')
-            // }
-            // if (this.isViewInternal) {
-            //     columns.push('created');
-            //     columns.push('modified');
-            //     columns.push('actions');
-            //     columns.push('c')
-            // }
             return columns
         },
     },
@@ -311,59 +304,6 @@ export default {
             this.noHistory = true;
             this.$refs.resultTable.refresh();
         },
-        formatObjectArray(objects) {
-            if (objects == null || objects.length === 0) {
-                return null
-            }
-            return objects.map(objects => objects.name).join(', ')
-        },
-        greekSearch(searchQuery) {
-            this.schema.fields.self_designation.values = this.schema.fields.self_designation.originalValues.filter(
-                option => this.removeGreekAccents(option.name).includes(this.removeGreekAccents(searchQuery))
-            );
-        },
-        collapse(e) {
-            const group = e.target.parentElement;
-            group.classList.toggle("collapsed");
-        }
     },
-    mounted() {
-        const collapsableLegends = this.$el.querySelectorAll('.vue-form-generator .collapsible legend');
-        collapsableLegends.forEach(legend => legend.onclick = this.collapse);
-    }
 }
 </script>
-
-<style lang="sass">
-.vue-form-generator .collapsible {
-
-    legend::after {
-        content: '\f107';
-        font-family: 'fontawesome';
-        float: right;
-        font-size: 100%;
-        font-weight: normal;
-        transition: 0.1s;
-    }
-
-    .form-group {
-        transition: 0.1s;
-    }
-
-    &.collapsed {
-
-        legend::after {
-            transform: rotate(-90deg);
-        }
-
-        .form-group {
-            display: block;
-            height: 0;
-            overflow: hidden;
-            opacity: 0;
-            padding: 0;
-            margin: 0;
-        }
-    }
-}
-</style>

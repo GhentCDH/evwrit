@@ -81,11 +81,13 @@ import VueFormGenerator from 'vue-form-generator'
 
 import AbstractField from '../Components/FormFields/AbstractField'
 import AbstractSearch from '../Components/Search/AbstractSearch'
+import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
 
 import fieldRadio from '../Components/FormFields/fieldRadio'
 import GreekText from '../Components/Shared/GreekText'
 
 Vue.component('fieldRadio', fieldRadio);
+
 
 export default {
     components: {
@@ -94,6 +96,7 @@ export default {
     mixins: [
         AbstractField,
         AbstractSearch,
+        CollapsibleGroups('annotation-search-groups')
     ],
     props: {
     },
@@ -171,7 +174,7 @@ export default {
                         legend: 'Communicative information',
                         fields: [
                             this.createSelect('Text type', {model: 'text_type'}),
-                            this.createSelect('Text subtype', {model: 'text_subtype'}),
+                            this.createSelect('Text subtype', {model: 'text_subtype' , dependency: 'text_type' }),
                             this.createMultiSelect('Social distance', { model: 'social_distance' }),
                             this.createSelect('Generic agentive role', {model: 'generic_agentive_role'}),
                             this.createSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
@@ -198,7 +201,7 @@ export default {
                         ]
                     },
                     {
-                        styleClasses: 'collapsible',
+                        styleClasses: 'collapsible collapsed',
                         legend: 'Typography annotations',
                         fields: [
                             this.createMultiSelect('Word splitting', { model: 'typography_wordSplitting' }),
@@ -310,10 +313,7 @@ export default {
                 person: {},
             },
             defaultOrdering: 'title',
-        }
-
-        // Add view internal only fields
-        if (this.isViewInternal) {
+            groupIsOpen: []
         }
 
         return data
@@ -321,88 +321,21 @@ export default {
     computed: {
         tableColumns() {
             let columns = ['id', 'tm_id', 'title', 'annotations']
-            // if (this.commentSearch) {
-            //     columns.unshift('comment')
-            // }
-            // if (this.isViewInternal) {
-            //     columns.push('created');
-            //     columns.push('modified');
-            //     columns.push('actions');
-            //     columns.push('c')
-            // }
             return columns
         },
     },
-    watch: {},
+    watch: {
+        defaultOrdering: function(val) {
+            console.log(val)
+        },
+    },
     methods: {
         update() {
             // Don't create a new history item
             this.noHistory = true;
             this.$refs.resultTable.refresh();
         },
-        formatObjectArray(objects) {
-            if (objects == null || objects.length === 0) {
-                return null
-            }
-            return objects.map(objects => objects.name).join(', ')
-        },
-        greekSearch(searchQuery) {
-            this.schema.fields.self_designation.values = this.schema.fields.self_designation.originalValues.filter(
-                option => this.removeGreekAccents(option.name).includes(this.removeGreekAccents(searchQuery))
-            );
-        },
-        collapse(e) {
-            const group = e.target.parentElement;
-            group.classList.toggle("collapsed");
-        },
-        formatAnnotation(a) {
-            const text = a.context.text.normalize('NFC');
-            return text
-                .insertAt(a.text_selection.selection_end - a.context.start,'</span>')
-                .insertAt(a.text_selection.selection_start - a.context.start,'<span class="annotation">');
-        }
     },
-    mounted() {
-        const collapsableLegends = this.$el.querySelectorAll('.vue-form-generator .collapsible legend');
-        collapsableLegends.forEach(legend => legend.onclick = this.collapse);
-    }
-}
 
-String.prototype.insertAt = function(index, replacement) {
-    return this.substr(0, index) + replacement + this.substr(index);
 }
 </script>
-
-<style lang="sass">
-.vue-form-generator .collapsible {
-
-    legend::after {
-        content: '\f107';
-        font-family: 'fontawesome';
-        float: right;
-        font-size: 100%;
-        font-weight: normal;
-        transition: 0.3s;
-    }
-
-    .form-group {
-        transition: 0.3s;
-    }
-
-    &.collapsed {
-
-        legend::after {
-            transform: rotate(-90deg);
-        }
-
-        .form-group {
-            display: block;
-            height: 0;
-            overflow: hidden;
-            opacity: 0;
-            padding: 0;
-            margin: 0;
-        }
-    }
-}
-</style>
