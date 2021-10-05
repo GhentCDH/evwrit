@@ -165,46 +165,12 @@ export default {
                 timeoutValue = 1000
             }
 
-            // Remove column ordering if text is searched, reset when no value is provided
-            // Do not refresh twice
-            if ( this.lastChangedField == 'text' ) {
-                this.actualRequest = false
-                if (this.model[this.lastChangedField] == null || this.model[this.lastChangedField == '']) {
-                    if (this.lastOrder == null) {
-                        this.$refs.resultTable.setOrder(this.defaultOrdering, true)
-                    }
-                    else {
-                        let asc = (this.lastOrder.hasOwnProperty('ascending') && this.lastOrder['ascending'])
-                        this.$refs.resultTable.setOrder(this.lastOrder.column, asc)
-                    }
-                }
-                else {
-                    this.lastOrder = JSON.parse(JSON.stringify(this.$refs.resultTable.orderBy))
-                    this.$refs.resultTable.setOrder(null)
-                }
-            }
-
-            // Don't get new data if last changed field is text_type and text is null or empty
-            // else: remove column ordering
-            if (this.lastChangedField == 'text_type') {
-                if (this.model.text == null || this.model.text == '') {
-                    this.actualRequest = false
-                }
-                else {
-                    this.actualRequest = false
-                    this.$refs.resultTable.setOrder(null)
-                    this.actualRequest = true
-                }
-            }
-            else {
-                this.actualRequest = true
-            }
+            this.actualRequest = true
 
             // Don't get new data if history is being popped
             if (this.historyRequest) {
                 this.actualRequest = false
             }
-
 
             this.inputCancel = window.setTimeout(() => {
                 this.inputCancel = null
@@ -329,17 +295,7 @@ export default {
             if (params.hasOwnProperty('orderBy')) {
                 let asc = (params.hasOwnProperty('ascending') && params['ascending'])
                 this.$refs.resultTable.setOrder(params['orderBy'], asc)
-            }
-            else if (
-                params.hasOwnProperty('filters')
-                && (
-                    (params['filters'].hasOwnProperty('text') && params['filters']['text'] != null && params['filters']['text'] != '')
-                    || (params['filters'].hasOwnProperty('comment') && params['filters']['comment'] != null && params['filters']['comment'] != '')
-                )
-            ) {
-                this.$refs.resultTable.setOrder(null)
-            }
-            else {
+            } else {
                 this.$refs.resultTable.setOrder(this.defaultOrdering, true)
             }
         },
