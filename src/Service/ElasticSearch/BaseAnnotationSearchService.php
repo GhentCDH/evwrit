@@ -163,7 +163,7 @@ class BaseAnnotationSearchService extends AbstractSearchService
             }
         }
 
-        dump($searchFilters);
+//        dump($searchFilters);
         return $searchFilters;
     }
 
