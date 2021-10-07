@@ -24,12 +24,6 @@
             </div>
         </aside>
         <article class="col-sm-9 search-page">
-            <div
-                    v-if="countRecords"
-                    class="count-records"
-            >
-                <h6>{{ countRecords }}</h6>
-            </div>
             <v-server-table
                     ref="resultTable"
                     :columns="tableColumns"
@@ -38,6 +32,27 @@
                     @data="onData"
                     @loaded="onLoaded"
             >
+                <template slot="afterFilter">
+                    <b v-if="countRecords">{{ countRecords }}</b>
+                    <div class="form-group">
+                        <div class="checkbox checkbox-switch switch-primary">
+                            <label>
+                                <input type="checkbox" name="showAnnotationContext" v-model="config.showAnnotationContext" />
+                                <span></span>
+                                Show annotation context
+                            </label>
+                        </div>
+                        <div class="checkbox checkbox-switch switch-primary">
+                            <label>
+                                <input type="checkbox" name="showAnnotationContext" v-model="config.showAnnotationDetails" />
+                                <span></span>
+                                Show annotation details
+                            </label>
+                        </div>
+                    </div>
+                </template>
+                <template slot="beforeLimit">
+                </template>
                 <template slot="title" slot-scope="props">
                     <a :href="urls['get_single'].replace('text_id', props.row.id)">
                         {{ props.row.title }}
@@ -55,14 +70,20 @@
                 </template>
                 <template slot="annotations" slot-scope="props">
                     <template v-for="(annotations, type) in props.row.annotations">
-                        <template v-for="annotation in annotations" class="text-result">
+                        <div class="annotation-result" v-for="annotation in annotations">
                             <GreekText
+                                    v-show="config.showAnnotationContext"
                                     :text="annotation.context.text"
                                     :annotations="[ [annotation.text_selection.selection_start, annotation.text_selection.selection_end - 1, { id: annotation.id, type: annotation.type, class: 'annotation annotation-' + annotation.type }] ]"
-                                    :annotationOffset="annotation.context.start"
+                                    :annotationOffset="annotation.context.start + 1"
                                     :compact="true">
                             </GreekText>
-                        </template>
+                            <GreekText
+                                    v-show="!config.showAnnotationContext"
+                                    :text="annotation.text_selection.text">
+                            </GreekText>
+                            <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation"></AnnotationDetailsFlat>
+                        </div>
                     </template>
                 </template>
             </v-server-table>
@@ -83,15 +104,17 @@ import AbstractField from '../Components/FormFields/AbstractField'
 import AbstractSearch from '../Components/Search/AbstractSearch'
 import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
 
+import AnnotationDetailsFlat from '../Components/Annotations/AnnotationDetailsFlat'
+
 import fieldRadio from '../Components/FormFields/fieldRadio'
 import GreekText from '../Components/Shared/GreekText'
 
 Vue.component('fieldRadio', fieldRadio);
 
-
 export default {
     components: {
-        GreekText
+        GreekText,
+        AnnotationDetailsFlat
     },
     mixins: [
         AbstractField,
@@ -102,6 +125,10 @@ export default {
     },
     data() {
         let data = {
+            config: {
+                showAnnotationContext: true,
+                showAnnotationDetails: false
+            },
             model: {
                 date_search_type: 'exact',
                 lines: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
@@ -326,7 +353,6 @@ export default {
     },
     watch: {
         defaultOrdering: function(val) {
-            console.log(val)
         },
     },
     methods: {
@@ -336,6 +362,17 @@ export default {
             this.$refs.resultTable.refresh();
         },
     },
-
 }
 </script>
+
+<style lang="scss">
+.annotation-result + .annotation-result {
+  padding-top: 5px;
+  margin-top: 5px;
+  border-top: 1px solid #ccc;
+}
+
+.annotation-details {
+  margin: 10px 0
+}
+</style>
