@@ -35,5 +35,4 @@ class TextSelectionResource extends BaseResource
         return $ret;
     }
 
-
 }
