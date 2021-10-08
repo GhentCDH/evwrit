@@ -33,19 +33,30 @@ class BaseElasticAnnotationResource extends BaseResource
             'id' => $resource->getId(),
             'text_selection' => new TextSelectionResource($resource->textSelection),
             'type' => $type,
-            'properties' => [ $type => []
+            'properties' => [
             ]
         ];
 
-        foreach( $resource->getRelations() as $name => $model) {
-            $ret['properties'][$name] = new ElasticIdNameResource($model);
+        // add all properties (using relations)
+        // skip textSelection relation
+        $relations = $resource->getRelations();
+        unset($relations['textSelection']);
+
+        foreach( $relations as $name => $model) {
+            $ret['properties'][$type.'_'.$name] = new ElasticIdNameResource($model);
         }
 
+        // add context
         $ret['context'] = $this->createTextSelectionContext();
 
         return $ret;
     }
 
+    /**
+     * calculcate text selection context
+     * start/end are PHP string offsets (starting with 0)!
+     * @return array
+     */
     protected function createTextSelectionContext() {
         /** @var Text $resource */
         $resource = $this->resource;
@@ -53,9 +64,6 @@ class BaseElasticAnnotationResource extends BaseResource
         $text_selection = $resource->textSelection;
 
         $text = $resource->textSelection->sourceText->text;
-
-        // todo: nog eens goed bekijken!!
-
 
         // text end
         $t_len = mb_strlen($text);
