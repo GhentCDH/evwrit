@@ -51,9 +51,41 @@ class Analysis
                 ],
             ],
         ],
+        'analyzer' => [
+            'custom_greek_stemmer' => [
+                'tokenizer' => 'icu_tokenizer',
+                'char_filter' => [
+                    'remove_par_brackets_filter'
+                ],
+                'filter' => [
+                    'icu_folding',
+                    'lowercase',
+                    'greek_stemmer',
+                ],
+            ],
+            'custom_greek_original' => [
+                'tokenizer' => 'icu_tokenizer',
+                'char_filter' => [
+                    'remove_par_brackets_filter'
+                ],
+                'filter' => [
+                    'icu_folding',
+                    'lowercase',
+                ],
+            ],
+        ],
         'normalizer' => [
             'case_insensitive' => [
                 'filter' => [
+                    'lowercase',
+                ],
+            ],
+            'custom_greek' => [
+                'char_filter' => [
+                    'remove_quotes_filter'
+                ],
+                'filter' => [
+                    'icu_folding',
                     'lowercase',
                 ],
             ],
