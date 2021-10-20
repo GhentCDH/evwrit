@@ -110,8 +110,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $filterConfigs = $this->getSearchFilterConfig();
 
         foreach ($filterConfigs as $filterName => $filterConfig) {
-
-            $filterValue = $params[$filterName] ?? false;
+            // filterValue = fixed value || query value || default value || false
+            $filterValue = $filterConfig['value'] ?? $params[$filterName] ?? $filterConfig['defaultValue'] ?? false;
 
             switch ($filterConfig['type']) {
 
@@ -131,7 +131,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 case self::FILTER_NESTED_MULTIPLE:
                     // for each subfilter, clean value
                     foreach($filterConfig['filters'] as $subFilterName => $subFilterConfig) {
-                        $subFilterValue = $params[$subFilterName] ?? false;
+                        // filterValue = fixed value || query value || default value || false
+                        $subFilterValue = $subFilterConfig['value'] ?? $params[$subFilterName] ?? $subFilterConfig['defaultValue'] ?? false;
                         if ($subFilterValue === false) continue;
                         if (is_array($subFilterValue) || is_numeric($subFilterValue) || is_string($subFilterValue)) {
                             $filters[$subFilterName] = $subFilterValue;
@@ -256,14 +257,14 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         }
 
         // Filtering
-        $searchFilters = [];
-        if (isset($params['filters']) && is_array($params['filters'])) {
-            $searchFilters = $this->sanitizeSearchFilters($params['filters']);
-            dump($searchFilters);
+//        dump($params);
+        $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
+        if ( count($searchFilters) ) {
+//            dump($searchFilters);
             $searchQuery = $this->createSearchQuery($searchFilters);
             $query->setQuery($searchQuery);
             $query->setHighlight($this->createHighlight($searchFilters));
-            dump(json_encode($searchQuery->toArray(), JSON_PRETTY_PRINT));
+//            dump(json_encode($searchQuery->toArray(), JSON_PRETTY_PRINT));
         }
 
         // Search
@@ -343,7 +344,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
     /**
      * Return filters that are used in aggregations
-     * Todo: Now based on aggregation type or config, could be based on aggregation config check
+     * Todo: Now based on aggregation type or config (mostly nested), could be based on aggregation config check
      */
     private function getAggregationFilters(): array {
 
@@ -426,7 +427,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             // nested aggregation?
             $aggIsNested = $this->isNestedAggregation($aggName);
             if ( $aggIsNested ) {
-                // adjust field
+                // add nested path to filed
                 $aggNestedPath = $aggConfig['nested_path'] ?? $aggName;
                 $aggField = isset($aggConfig['nested_path']) ? $aggConfig['nested_path'].'.'.$aggField : $aggField;
 
@@ -435,15 +436,18 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $aggParentQuery->addAggregation($aggSubQuery);
                 $aggParentQuery = $aggSubQuery;
 
-                // filtered aggregation?
+                // prepare possible aggregation filter
+                $filterQuery = new Query\BoolQuery();
+                $filterCount = 0;
+
+                // aggregation has filter config?
                 $aggNestedFilter = $aggConfig['filter'] ?? [];
                 unset($aggNestedFilter[$aggName]); // do not filter myself
                 $aggNestedFilter = array_intersect_key($aggNestedFilter, $filterValues); // only add filters with values
 
                 if ($aggNestedFilter) {
-                    // create aggregation filter query
-                    $filterQuery = new Query\BoolQuery();
                     foreach($aggNestedFilter as $queryFilterField => $aggFilterField ) {
+                        $filterCount++;
                         if ( is_array($filterValues[$queryFilterField]) ) {
                             $filterQuery->addFilter(
                                 new Query\Terms($aggNestedPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
@@ -455,14 +459,33 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                             );
                         }
                     }
+                }
 
-                    // add aggregation filter
+                // aggregation has a limit on allowed values?
+                if ( $aggConfig['allowedValue'] ?? false ) {
+                    $filterCount++;
+                    $allowedValue = $aggConfig['allowedValue'];
+                    if ( is_array($allowedValue) ) {
+                        $filterQuery->addFilter(
+                            new Query\Terms($aggField, $allowedValue)
+                        );
+                    } else {
+                        $filterQuery->addFilter(
+                            (new Query\Term())
+                                ->setTerm($aggField, $allowedValue)
+                        );
+                    }
+                }
+
+                // filter aggregation?
+                if ( $filterCount ) {
                     $aggSubQuery = new Aggregation\Filter($aggName);
                     $aggSubQuery->setFilter($filterQuery);
 
                     $aggParentQuery->addAggregation($aggSubQuery);
                     $aggParentQuery = $aggSubQuery;
                 }
+
             }
 
             // add aggregation
@@ -614,7 +637,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 continue;
             }
 
-            $filterValue = $filters[$filterName] ?? null;
+            $filterValue = $filterConfig['value'] ?? $filters[$filterName] ?? null; // filter can have fixed value
             $filterType = $filterConfig['type'];
             $filterField = $filterConfig['field'] ?? $filterName;
 
@@ -810,7 +833,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     if (count($subFilters)) {
                         $subquery = new Query\BoolQuery();
                         foreach($subFilters as $subFilterName => $subFilterConfig) {
-                            $subFilterValue = $filters[$subFilterName] ?? null;
+                            $subFilterValue = $subFilterConfig['value'] ?? $filters[$subFilterName] ?? $subFilterConfig['defaultValue'] ?? null;
                             $subFilterField = $subFilterConfig['field'] ?? $subFilterName;
                             $subFilterField = isset($filterConfig['nested_path']) ? $filterConfig['nested_path'].'.'.$subFilterField : $subFilterField;
 
