@@ -27,20 +27,14 @@ use ReflectionException;
  * @property int $text_id
  * @property string $title
  * @property string $text
+ * @property string $text_lemmas
+ * @property string $text_scrubbed
  * @property int $year_begin
  * @property int $year_end
  * @package App\Model
  */
 class Text extends AbstractModel
 {
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['text_id','title','text'];
-
-
     /**
      * @return BelongsTo|Era
      * @throws ReflectionException
