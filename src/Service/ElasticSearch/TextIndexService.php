@@ -26,17 +26,25 @@ class TextIndexService extends AbstractIndexService
                     ],
                 ],
             ],
+            'text' => [
+                'type' => 'text',
+                'analyzer' => 'custom_greek_original',
+            ],
+            'text_lemmas' => [
+                'type' => 'text',
+                'analyzer' => 'custom_greek_original',
+            ],
             'year_begin' => ['type' => 'short'],
             'year_end' => ['type' => 'short'],
-            'archive' => ['type' => 'nested'],
-            'era' => ['type' => 'nested'],
+            'archive' => ['type' => 'object'],
+            'era' => ['type' => 'object'],
             'keyword' => ['type' => 'nested'],
             'language' => ['type' => 'nested'],
             'material' => ['type' => 'nested'],
             'project' => ['type' => 'nested'],
             'social_distance' => ['type' => 'nested'],
-            'text_type' => ['type' => 'nested'],
-            'text_subtype' => ['type' => 'nested'],
+            'text_type' => ['type' => 'object'],
+            'text_subtype' => ['type' => 'object'],
             'location_found' => ['type' => 'nested'],
             'location_written' => ['type' => 'nested'],
             'agentive_role' => ['type' => 'nested'],
@@ -47,13 +55,13 @@ class TextIndexService extends AbstractIndexService
             'text_format' => ['type' => 'nested'],
             'writing_direction' => ['type' => 'nested'],
 
-            'columns_min' => ['type' => 'short'],
-            'columns_max' => ['type' => 'short'],
-            'letters_per_line_min' => ['type' => 'short'],
-            'letters_per_line_max' => ['type' => 'short'],
+            'columns.min' => ['type' => 'short'],
+            'columns.max' => ['type' => 'short'],
+            'letters_per_line.min' => ['type' => 'short'],
+            'letters_per_line.max' => ['type' => 'short'],
 
-            'lines_min' => ['type' => 'short'],
-            'lines_max' => ['type' => 'short'],
+            'lines.min' => ['type' => 'short'],
+            'lines.max' => ['type' => 'short'],
 
             'margin_left' => ['type' => 'half_float'],
             'margin_right' => ['type' => 'half_float'],
@@ -67,16 +75,7 @@ class TextIndexService extends AbstractIndexService
             'is_verso' => ['type' => 'boolean'],
             'is_transversa_charta' => ['type' => 'boolean'],
 
-            'annotations' => [
-                'properties' => [
-                    'language' => ['type' => 'nested'],
-                    'typography' => ['type' => 'nested'],
-                    'lexis' => ['type' => 'nested'],
-                    'orthography' => ['type' => 'nested'],
-                    'morphology' => ['type' => 'nested'],
-                    'morpho_syntactical' => ['type' => 'nested'],
-                ],
-            ],
+            'annotations' => ['type' => 'nested']
         ];
     }
 
