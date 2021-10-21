@@ -16,6 +16,7 @@ class ElasticIdNameResource extends BaseResource
         if ($this->resource) {
             return [
                 'id' => $this->getId(),
+                'name' => $this->name,
                 'id_name' => $this->getId()."_".$this->name,
             ];
         }
