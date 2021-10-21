@@ -28,9 +28,10 @@ export default {
             //ret['selectionStart'] = this.annotation.text_selection.selection_start
             //ret['selectionEnd'] = this.annotation.text_selection.selection_end
 
-            for (const prop in this.annotation.properties) {
+            for (let prop in this.annotation.properties) {
                 if (this.annotation.properties.hasOwnProperty(prop)) {
                     let value = this.annotation.properties[prop]
+                    prop = prop.split('_').slice(1).join('')
                     if ( value && Array.isArray(value) && value.length ) {
                         ret[prop] = value.map( i => i.id_name.split('_').slice(1).join('_') ).join(', ')
                     } else if ( value && typeof value === 'object' && value.hasOwnProperty('id_name')) {
@@ -40,7 +41,7 @@ export default {
             }
 
             delete ret.textSelection
-            console.log(ret)
+            // console.log(ret)
             return ret
         }
     }
