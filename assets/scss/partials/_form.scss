@@ -8,6 +8,10 @@
   .hint {
     padding-top: .5em;
   }
+
+  label {
+    user-select: none;
+  }
 }
 
 .radio-list {
@@ -22,4 +26,11 @@
   }
 }
 
+
+
+//.form-group.not(.form-inline) {
+//  .checkbox {
+//
+//  }
+//}
 
