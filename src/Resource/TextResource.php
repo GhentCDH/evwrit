@@ -29,6 +29,8 @@ class TextResource extends BaseResource
             'tm_id' => $text->tm_id,
             'title' => $text->title,
             'text' => $this->convertNewlines($text->text),
+            'text_lemmas' => $this->convertNewlines($text->text_lemmas),
+
             'apparatus' => $this->convertNewlines($text->apparatus),
             'translation' => TranslationResource::collection($text->translations)->toArray(null),
 
@@ -54,6 +56,7 @@ class TextResource extends BaseResource
             'agentive_role' => ElasticAgentiveRoleResource::collection($text->textAgentiveRoles)->toArray(null),
             'communicative_goal' => ElasticCommunicativeGoalResource::collection($text->textCommunicativeGoals)->toArray(null),
 
+            /* links */
             'image' => ImageResource::collection($text->images)->toArray(null),
             'link' => LinkResource::collection($text->links)->toArray(null),
 
@@ -66,11 +69,6 @@ class TextResource extends BaseResource
             'margin_right' => $text->margin_right,
             'margin_bottom' => $text->margin_bottom,
 
-            'production_stage' => IdNameResource::collection($text->productionStages)->toArray(null),
-            'writing_direction' => IdNameResource::collection($text->writingDirections)->toArray(null),
-            'material' => IdNameResource::collection($text->materials)->toArray(null),
-            'text_format' => new IdNameResource($text->textFormat),
-
             'is_recto' => $text->is_recto,
             'is_verso' => $text->is_verso,
             'is_transversa_charta' => $text->is_transversa_charta,
@@ -78,8 +76,13 @@ class TextResource extends BaseResource
 
             'lines' => is_null($text->lines_min) ? null : [ $text->lines_min, $text->lines_max ],
             'columns' => is_null($text->columns_min) ? null : [ $text->columns_min, $text->columns_max ],
-            'letters_per_line_min' => is_null($text->letters_per_line_min) ? null : [ $text->letters_per_line_min, $text->letters_per_line_max ],
+            'letters_per_line' => is_null($text->letters_per_line_min) ? null : [ $text->letters_per_line_min, $text->letters_per_line_max ],
             'interlinear_space' => $text->interlinear_space,
+
+            'production_stage' => IdNameResource::collection($text->productionStages)->toArray(null),
+            'writing_direction' => IdNameResource::collection($text->writingDirections)->toArray(null),
+            'material' => IdNameResource::collection($text->materials)->toArray(null),
+            'text_format' => new IdNameResource($text->textFormat),
 
             /* attestation */
             'ancient_person' => AttestationResource::collection($text->attestations)->toArray(0)
