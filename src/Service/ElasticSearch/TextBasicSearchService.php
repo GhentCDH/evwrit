@@ -23,6 +23,7 @@ class TextBasicSearchService extends AbstractSearchService
             'id' => ['type' => self::FILTER_NUMERIC],
             'tm_id' => ['type' => self::FILTER_NUMERIC],
             'archive' => ['type' => self::FILTER_NESTED_ID],
+
             'agentive_role' => [
                 'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'agentive_role'
@@ -31,7 +32,7 @@ class TextBasicSearchService extends AbstractSearchService
                 'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'communicative_goal'
             ],
-            'era' => ['type' => self::FILTER_NESTED_ID],
+            'era' => ['type' => self::FILTER_OBJECT_ID],
             'generic_agentive_role' => [
                 'type' => self::FILTER_NESTED_ID,
                 'nested_path' => 'agentive_role'
@@ -46,6 +47,7 @@ class TextBasicSearchService extends AbstractSearchService
                 'ceilingField' => 'year_end',
                 'typeField' => 'date_search_type',
             ],
+
             'form' => ['type' => self::FILTER_NESTED_ID],
             'keyword' => ['type' => self::FILTER_NESTED_ID],
             'language' => ['type' => self::FILTER_NESTED_ID],
@@ -55,9 +57,42 @@ class TextBasicSearchService extends AbstractSearchService
             'project' => ['type' => self::FILTER_NESTED_ID],
             'collaborator' => ['type' => self::FILTER_OBJECT_ID],
             'social_distance' => ['type' => self::FILTER_NESTED_ID],
-            'text_type' => ['type' => self::FILTER_NESTED_ID],
-            'text_subtype' => ['type' => self::FILTER_NESTED_ID],
+            'text_type' => ['type' => self::FILTER_OBJECT_ID],
+            'text_subtype' => ['type' => self::FILTER_OBJECT_ID],
 
+            /* materiality */
+            'is_recto' => ['type' => self::FILTER_BOOLEAN],
+            'is_verso' => ['type' => self::FILTER_BOOLEAN],
+            'is_transversa_charta' => ['type' => self::FILTER_BOOLEAN],
+
+            'lines' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'floorField' => 'lines_min',
+                'ceilingField' => 'lines_max',
+                'ignore' => [-1, 10000]
+            ],
+            'columns' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'floorField' => 'columns_min',
+                'ceilingField' => 'columns_max',
+                'ignore' => [-1, 10000]
+            ],
+            'letters_per_line' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'floorField' => 'letters_per_line_min',
+                'ceilingField' => 'letters_per_line_max',
+                'ignore' => [-1, 10000]
+            ],
+            'width' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'height' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+
+            /* ancient person */
             'ap_tm_id' => [
                 'type' => self::FILTER_NUMERIC,
                 'nested_path' => 'ancient_person',
@@ -96,34 +131,36 @@ class TextBasicSearchService extends AbstractSearchService
 
         ];
 
-        // add extra filters if user role allows
-        // ...
-
         return $searchFilters;
     }
 
     protected function getAggregationConfig(): array {
         $aggregationFilters = [
+            'era' => ['type' => self::AGG_NESTED_ID_NAME],
+
+            /* role */
             'agentive_role' => [
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'agentive_role',
                 'filter' => [ 'generic_agentive_role' => 'generic_agentive_role.id' ]
             ],
+            'generic_agentive_role' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'agentive_role',
+            ],
+            /* goal */
             'communicative_goal' => [
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'communicative_goal',
                 'filter' => [ 'generic_communicative_goal' => 'generic_communicative_goal.id' ]
             ],
-            'archive' => ['type' => self::AGG_NESTED_ID_NAME],
-            'era' => ['type' => self::AGG_NESTED_ID_NAME],
-            'generic_agentive_role' => [
-                'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'agentive_role',
-            ],
             'generic_communicative_goal' => [
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'communicative_goal',
             ],
+
+            'archive' => ['type' => self::AGG_OBJECT_ID_NAME],
+
             'form'  => ['type' => self::AGG_NESTED_ID_NAME],
             'keyword' => ['type' => self::AGG_NESTED_ID_NAME],
             'language' => ['type' => self::AGG_NESTED_ID_NAME],
@@ -134,8 +171,8 @@ class TextBasicSearchService extends AbstractSearchService
             'project'  => ['type' => self::AGG_NESTED_ID_NAME],
             'script' => ['type' => self::AGG_NESTED_ID_NAME],
             'social_distance' => ['type' => self::AGG_NESTED_ID_NAME],
-            'text_type' => ['type' => self::AGG_NESTED_ID_NAME],
-            'text_subtype' => ['type' => self::AGG_NESTED_ID_NAME],
+            'text_type' => ['type' => self::AGG_OBJECT_ID_NAME],
+            'text_subtype' => ['type' => self::AGG_OBJECT_ID_NAME],
 
             'ap_name' => [
                 'type' => self::AGG_NESTED_ID_NAME,
