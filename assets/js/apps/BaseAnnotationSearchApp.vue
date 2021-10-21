@@ -24,6 +24,7 @@
             </div>
         </aside>
         <article class="col-sm-9 search-page">
+            <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
             <v-server-table
                     ref="resultTable"
                     :columns="tableColumns"
@@ -44,7 +45,7 @@
                         </div>
                         <div class="checkbox checkbox-switch switch-primary">
                             <label>
-                                <input type="checkbox" name="showAnnotationContext" v-model="config.showAnnotationDetails" />
+                                <input type="checkbox" name="showAnnotationDetails" v-model="config.showAnnotationDetails" />
                                 <span></span>
                                 Show annotation details
                             </label>
@@ -69,22 +70,20 @@
                     </a>
                 </template>
                 <template slot="annotations" slot-scope="props">
-                    <template v-for="(annotations, type) in props.row.annotations">
-                        <div class="annotation-result" v-for="annotation in annotations">
-                            <GreekText
-                                    v-show="config.showAnnotationContext"
-                                    :text="annotation.context.text"
-                                    :annotations="[ [annotation.text_selection.selection_start, annotation.text_selection.selection_end - 1, { id: annotation.id, type: annotation.type, class: 'annotation annotation-' + annotation.type }] ]"
-                                    :annotationOffset="annotation.context.start + 1"
-                                    :compact="true">
-                            </GreekText>
-                            <GreekText
-                                    v-show="!config.showAnnotationContext"
-                                    :text="annotation.text_selection.text">
-                            </GreekText>
-                            <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation"></AnnotationDetailsFlat>
-                        </div>
-                    </template>
+                    <div class="annotation-result" v-for="annotation in props.row.annotations">
+                        <GreekText
+                                v-show="config.showAnnotationContext"
+                                :text="annotation.context.text"
+                                :annotations="[ [annotation.text_selection.selection_start, annotation.text_selection.selection_end - 1, { id: annotation.id, type: annotation.type, class: 'annotation annotation-' + annotation.type }] ]"
+                                :annotationOffset="annotation.context.start + 1"
+                                :compact="true">
+                        </GreekText>
+                        <GreekText
+                                v-show="!config.showAnnotationContext"
+                                :text="annotation.text_selection.text">
+                        </GreekText>
+                        <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation"></AnnotationDetailsFlat>
+                    </div>
                 </template>
             </v-server-table>
         </article>
@@ -229,8 +228,10 @@ export default {
                     },
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Typography annotations',
+                        legend: 'Annotations',
                         fields: [
+                            this.createSelect('Type', { model: 'annotation_type' } ),
+                            // typography
                             this.createMultiSelect('Word splitting', { model: 'typography_wordSplitting' }),
                             this.createMultiSelect('Correction', { model: 'typography_correction' }),
                             this.createMultiSelect('Insertion', { model: 'typography_insertion' }),
@@ -239,12 +240,7 @@ export default {
                             this.createMultiSelect('Symbol', { model: 'typography_symbol' }),
                             this.createMultiSelect('Punctuation', { model: 'typography_punctuation' }),
                             this.createMultiSelect('Accentuation', { model: 'typography_accentuation' }),
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Lexis annotations',
-                        fields: [
+                            // lexis
                             this.createMultiSelect('Standard form', { model: 'lexis_standardForm' }),
                             this.createMultiSelect('Type', { model: 'lexis_type' }),
                             this.createMultiSelect('Subtype', { model: 'lexis_subtype' }),
@@ -253,24 +249,14 @@ export default {
                             this.createMultiSelect('Prescription', { model: 'lexis_prescription' }),
                             this.createMultiSelect('Proscription', { model: 'lexis_proscription' }),
                             this.createMultiSelect('Identifier', { model: 'lexis_identifier' }),
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Orthography annotations',
-                        fields: [
+                            // orthography
                             this.createMultiSelect('Standard form', { model: 'orthography_standardForm' }),
                             this.createMultiSelect('Type', { model: 'orthography_type' }),
                             this.createMultiSelect('Subtype', { model: 'orthography_subtype' }),
                             this.createMultiSelect('Wordclass', { model: 'orthography_wordclass' }),
                             this.createMultiSelect('Formulaicity', { model: 'orthography_formulaicity' }),
                             this.createMultiSelect('Position in word', { model: 'orthography_positionInWord' }),
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Language annotations',
-                        fields: [
+                            // language
                             this.createMultiSelect('Codeswitching', { model: 'language_codeswitchingType' }),
                             this.createMultiSelect('Codeswitching rank', { model: 'language_codeswitchingRank' }),
                             this.createMultiSelect('Codeswitching domain', { model: 'language_codeswitchingDomain' }),
@@ -279,12 +265,7 @@ export default {
                             this.createMultiSelect('Bigraphism rank', { model: 'language_bigraphismRank' }),
                             this.createMultiSelect('Bigraphism domain', { model: 'language_bigraphismDomain' }),
                             this.createMultiSelect('Bigraphism formulaicity', { model: 'language_bigraphismFormulaicity' }),
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Morpho-Syntactical annotations',
-                        fields: [
+                            // morpho-syntactical
                             this.createMultiSelect('Coherence form', { model: 'morpho_syntactical_coherenceForm' }),
                             this.createMultiSelect('Coherence content', { model: 'morpho_syntactical_coherenceContent' }),
                             this.createMultiSelect('Coherence context', { model: 'morpho_syntactical_coherenceContext' }),
@@ -340,7 +321,8 @@ export default {
                 person: {},
             },
             defaultOrdering: 'title',
-            groupIsOpen: []
+            groupIsOpen: [],
+            annotationFilter: null,
         }
 
         return data
@@ -354,8 +336,30 @@ export default {
     watch: {
         defaultOrdering: function(val) {
         },
+        model: {
+            handler: function(current) {
+                // if ( this.lastChangedField !== 'annotation_type') {
+                //     return;
+                // }
+
+                let annotation_filter = this.getAnnotationFilter();
+                //console.log(annotation_filter)
+
+                this.schema.groups[3].fields.forEach( function(field) {
+                    field.visible = ( field.model === 'annotation_type' || ( annotation_filter && field.model.startsWith(annotation_filter) ) )
+                })
+            },
+            deep: true
+        }
     },
     methods: {
+        getAnnotationFilter() {
+            if ( this.model.hasOwnProperty('annotation_type') && this.model.annotation_type ) {
+                return this.model.annotation_type.id;
+            } else {
+                return false;
+            }
+        },
         update() {
             // Don't create a new history item
             this.noHistory = true;
