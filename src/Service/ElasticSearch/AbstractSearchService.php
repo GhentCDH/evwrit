@@ -561,6 +561,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 case self::AGG_NUMERIC:
                 case self::AGG_KEYWORD:
                     foreach ($aggResults as $result) {
+                        if ( !isset($result['key']) ) continue;
                         $results[$aggName][] = [
                             'id' => $result['key'],
                             'name' => $result['key'],
@@ -571,6 +572,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 case self::AGG_OBJECT_ID_NAME:
                 case self::AGG_NESTED_ID_NAME:
                     foreach ($aggResults as $result) {
+                        if ( !isset($result['key']) ) continue;
                         $parts = explode('_',$result['key'],2);
                         $results[$aggName][] = [
                             'id' => $parts[0],
@@ -581,6 +583,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     break;
                 case self::AGG_BOOLEAN:
                     foreach ($aggResults as $result) {
+                        if ( !isset($result['key']) ) continue;
                         $results[$aggName][] = [
                             'id' => $result['key'],
                             'name' => $result['key_as_string'],
