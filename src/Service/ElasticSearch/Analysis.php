@@ -12,6 +12,10 @@ class Analysis
      */
     const ANALYSIS = [
         'filter' => [
+            'greek_stemmer' => [
+                'type' => 'stemmer',
+                'language' => 'greek',
+            ],
         ],
         'char_filter' => [
             # Add 10 leading zeros
