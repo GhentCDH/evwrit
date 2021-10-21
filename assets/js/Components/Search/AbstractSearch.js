@@ -30,6 +30,10 @@ export default {
             type: String,
             default: '',
         },
+        title: {
+            type: String,
+            default: null
+        }
     },
     data () {
         return {
