@@ -136,7 +136,7 @@ class TextBasicSearchService extends AbstractSearchService
 
     protected function getAggregationConfig(): array {
         $aggregationFilters = [
-            'era' => ['type' => self::AGG_NESTED_ID_NAME],
+            'era' => ['type' => self::AGG_OBJECT_ID_NAME],
 
             /* role */
             'agentive_role' => [
