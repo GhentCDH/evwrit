@@ -23,7 +23,7 @@ class AnnotationSearchService extends AbstractSearchService
             'id' => ['type' => self::FILTER_NUMERIC],
             'tm_id' => ['type' => self::FILTER_NUMERIC],
             'archive' => ['type' => self::FILTER_NESTED_ID],
-            'text_format' => ['type' => self::FILTER_OBJECT_ID],
+            'text_format' => ['type' => self::FILTER_NESTED_ID],
             'writing_direction' => ['type' => self::FILTER_NESTED_ID],
             'production_stage' => ['type' => self::FILTER_NESTED_ID],
 
