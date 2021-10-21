@@ -117,17 +117,12 @@
                                                     <span>Materiality</span>
                                                 </a>
                                             </li>
-                                            <li class="hidden {{ app.request.get('_route') == 'structure_search' ? 'active' }}">
-                                                <a href="">
-                                                    <span>Text structure</span>
-                                                </a>
+                                            <li class="{{ app.request.get('_route') == 'annotation_languagetypography_search' ? 'active' }}">
+                                                <a href="{{ path('annotation_languagetypography_search') }}"><span>Languages and Typography</span></a>
                                             </li>
-                                            <li class=" {{ app.request.get('_route') == 'annotation_search' ? 'active' }}">
-                                                <a href="{{ path('annotation_search') }}">
-                                                    <span>Annotations</span>
-                                                </a>
+                                            <li class="{{ app.request.get('_route') == 'annotation_linguistic_search' ? 'active' }}">
+                                                <a href="{{ path('annotation_linguistic_search') }}"><span>Linguistic annotations</span></a>
                                             </li>
-
                                         </ul>
                                     </div>
                                 </div>
@@ -181,11 +176,6 @@
                                 </h2>
                             </div>
                             <div class="col-xs-12 col-sm-4 branding-container app-logo-container">
-{#
-                                <a href="{{ path('homepage') }}">
-                                    <img class="svg app-logo" src="{{ asset('build/static/images/logo.svg') }}" alt="Logo DBBE">
-                                </a>
-#}
                             </div>
                             <div class="col-xs-12 col-sm-4">
                                 <ul class="list-inline list-unstyled pull-right">
