@@ -44,6 +44,8 @@ Encore
     })
 ;
 
+Encore.addAliases({ vue$: 'vue/dist/vue.esm.js' });
+
 // further config tweaking
 const config = Encore.getWebpackConfig();
 
