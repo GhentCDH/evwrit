@@ -82,6 +82,11 @@ abstract class AbstractIndexService extends AbstractService implements SearchSer
         $this->getIndex()->refresh();
     }
 
+    public function get(int $id) {
+        $ret = $this->getIndex()->getDocument($id)->getData();
+        return $ret;
+    }
+
     /*
     public function updateMultiple(array $data): void
     {
