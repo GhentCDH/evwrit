@@ -22,7 +22,7 @@ class TextBasicSearchService extends AbstractSearchService
             'title' => ['type' => self::FILTER_TEXT],
             'id' => ['type' => self::FILTER_NUMERIC],
             'tm_id' => ['type' => self::FILTER_NUMERIC],
-            'archive' => ['type' => self::FILTER_NESTED_ID],
+            'archive' => ['type' => self::FILTER_OBJECT_ID],
 
             'agentive_role' => [
                 'type' => self::FILTER_NESTED_ID,
