@@ -24,12 +24,7 @@
             </div>
         </aside>
         <article class="col-sm-9 search-page">
-            <div
-                    v-if="countRecords"
-                    class="count-records"
-            >
-                <h6>{{ countRecords }}</h6>
-            </div>
+            <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
             <v-server-table
                     ref="resultTable"
                     :columns="tableColumns"
@@ -38,6 +33,9 @@
                     @data="onData"
                     @loaded="onLoaded"
             >
+                <template slot="afterFilter">
+                    <b v-if="countRecords">{{ countRecords }}</b>
+                </template>
                 <template slot="title" slot-scope="props">
                     <a :href="urls['text_get_single'].replace('text_id', props.row.id)">
                         {{ props.row.title }}
@@ -116,10 +114,6 @@ export default {
                             this.createMultiSelect('Keyword',
                                 {
                                     model: 'keyword'
-                                },
-                                {
-                                    multiple: true,
-                                    closeOnSelect: false,
                                 }
                             ),
                             {
@@ -155,10 +149,6 @@ export default {
                                 {
                                     model: 'era'
                                 },
-                                {
-                                    multiple: true,
-                                    closeOnSelect: false,
-                                }
                             ),
                             this.createMultiSelect('Location found',
                                 {
@@ -174,19 +164,11 @@ export default {
                                 {
                                     model: 'language'
                                 },
-                                {
-                                    multiple: true,
-                                    closeOnSelect: false,
-                                }
                             ),
                             this.createMultiSelect('Material',
                                 {
                                     model: 'material'
                                 },
-                                {
-                                    multiple: true,
-                                    closeOnSelect: false,
-                                }
                             ),
                         ]
                     },
@@ -198,26 +180,18 @@ export default {
                                 {
                                     model: 'archive'
                                 },
-                                {
-                                    multiple: true,
-                                    closeOnSelect: false,
-                                }
                             ),
-                            this.createMultiSelect('Text type', {model: 'text_type'}),
-                            this.createMultiSelect('Text subtype', {model: 'text_subtype'}),
+                            this.createSelect('Text type', {model: 'text_type'}),
+                            this.createSelect('Text subtype', {model: 'text_subtype'}),
                             this.createMultiSelect('Social distance',
                                 {
                                     model: 'social_distance'
                                 },
-                                {
-                                    multiple: true,
-                                    closeOnSelect: false,
-                                }
                             ),
-                            this.createMultiSelect('Generic agentive role', {model: 'generic_agentive_role'}),
-                            this.createMultiSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
-                            this.createMultiSelect('Generic communicative goal', {model: 'generic_communicative_goal'}),
-                            this.createMultiSelect('Communicative goal', {model: 'communicative_goal', 'dependency': 'generic_communicative_goal'}),
+                            this.createSelect('Generic agentive role', {model: 'generic_agentive_role'}),
+                            this.createSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
+                            this.createSelect('Generic communicative goal', {model: 'generic_communicative_goal'}),
+                            this.createSelect('Communicative goal', {model: 'communicative_goal', 'dependency': 'generic_communicative_goal'}),
                         ]
                     },
                     {
@@ -247,13 +221,8 @@ export default {
                                 {
                                     model: 'project'
                                 },
-                                {
-                                    multiple: true,
-                                    closeOnSelect: false,
-                                }
                             ),
                             this.createMultiSelect('Collaborator', {model: 'collaborator'}),
-
                         ]
                     }
                 ],

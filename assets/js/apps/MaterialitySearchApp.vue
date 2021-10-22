@@ -24,12 +24,7 @@
             </div>
         </aside>
         <article class="col-sm-9 search-page">
-            <div
-                    v-if="countRecords"
-                    class="count-records"
-            >
-                <h6>{{ countRecords }}</h6>
-            </div>
+            <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
             <v-server-table
                     ref="resultTable"
                     :columns="tableColumns"
@@ -38,6 +33,9 @@
                     @data="onData"
                     @loaded="onLoaded"
             >
+                <template slot="afterFilter">
+                    <b v-if="countRecords">{{ countRecords }}</b>
+                </template>
                 <template slot="title" slot-scope="props">
                     <a :href="urls['get_single'].replace('text_id', props.row.id)">
                         {{ props.row.title }}
