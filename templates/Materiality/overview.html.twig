@@ -1,9 +1,6 @@
 {% extends 'base.html.twig' %}
 
 {% block content %}
-    <div class="col-sm-12 ">
-        <h2 class="h1">Search text</h2>
-    </div>
     <div id="materiality-search-app">
         <materiality-search-app
             :is-editor="{{ is_granted('ROLE_EDITOR_VIEW') ? 'true' : 'false' }}"
@@ -12,6 +9,7 @@
             init-data="{{ data }}"
             init-identifiers="{{ identifiers }}"
             init-managements="{{ managements }}"
+            title = "{{ title }}"
         />
     </div>
 {% endblock %}
