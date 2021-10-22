@@ -47,6 +47,7 @@ $nau-font-path: '../../fonts/new-athena-unicode';
     flex: 0 0 30px;
     border-right: 1px solid #ccc;
     color: #ccc;
+    user-select: none;
   }
 
   &__text {

@@ -3,32 +3,38 @@ $color-annotation-orange: #f58231;
 $color-annotation-green: #18aa2a;
 $color-annotation-magenta: #f032e6;
 $color-annotation-blue: #1E64C8;
+$color-annotation-brown: #5d2802;
+$opacity-annotation: 0.3;
+
+$annotations: (
+        "orthography": $color-annotation-orange,
+        "typography": $color-annotation-red,
+        "morpho_syntactical": $color-annotation-green,
+        "lexis": $color-annotation-magenta,
+        "language": $color-annotation-blue,
+        "morphology": $color-annotation-brown
+);
 
 .annotation {
-  font-weight: bold;
+  //font-weight: bold;
+  padding: 4px 0px;
 }
 
-.greek-text .annotation {
-  font-family: NewAthenaUnicodeBold, Arial, sans-serif;
-  font-weight: normal;
+@each $name, $color in $annotations {
+  .annotation-#{$name} {
+    background-color: rgba($color, $opacity-annotation);
+  }
+  .annotation-#{$name}.annotation-#{$name} {
+
+  }
 }
 
-.annotation-typography {
-  color: $color-annotation-red;
-}
-
-.annotation-ortography {
-  color: $color-annotation-orange;
-}
-
-.annotation-morpho_syntactical {
-  color: $color-annotation-green;
-}
-
-.annotation-lexis {
-  color: $color-annotation-magenta;
-}
-
-.annotation-language {
-  color: $color-annotation-blue;
+@each $name, $color in $annotations {
+  @each $name2, $color2 in $annotations {
+    @if $name != $name2 {
+      .annotation-#{$name}.annotation-#{$name2} {
+        background-color: rgba(mix($color, $color2, 50%),$opacity-annotation);
+      }
+    }
+  }
 }
