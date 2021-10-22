@@ -344,7 +344,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
     /**
      * Return filters that are used in aggregations
-     * Todo: Now based on aggregation type or config (mostly nested), could be based on aggregation config check
+     * Todo: Now based on aggregation type or config (mostly nested), should be based on aggregation config check!
      */
     private function getAggregationFilters(): array {
 
@@ -354,6 +354,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $filterType = $filterConfig['type'];
             switch($filterType) {
                 case self::FILTER_NESTED_ID:
+                case self::FILTER_OBJECT_ID:
                 case self::FILTER_NESTED_MULTIPLE:
                     if ( ($aggConfig['aggregationFilter'] ?? true) ) {
                         $aggOrFilters[$filterName] = $filterConfig;
@@ -657,15 +658,21 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     );
                     break;
                 case self::FILTER_OBJECT_ID:
+                    $filterField .= '.id';
                     // If value == -1, select all entries without a value for a specific field
-                    if ($filterValue == -1) {
+                    if ($filterValue === -1) {
                         $query->addMustNot(
                             new Query\Exists($filterField)
                         );
                     } else {
-                        $query->addMust(
-                            new Query\Match($filterField . '.id', $filterValue)
-                        );
+                        if ( is_array($filterValue) ) {
+                            $filterQuery = new Query\Terms($filterField, $filterValue);
+                            $query->addMust( $filterQuery );
+                        } else {
+                            $filterQuery = new Query\Term();
+                            $filterQuery->setTerm($filterField, $filterValue);
+                            $query->addMust( $filterQuery );
+                        }
                     }
                     break;
                 case self::FILTER_NUMERIC_RANGE_SLIDER:
