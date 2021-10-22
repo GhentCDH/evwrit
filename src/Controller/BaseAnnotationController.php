@@ -97,7 +97,7 @@ class BaseAnnotationController extends BaseController
         return $this->render(
             $this->templateFolder. '/overview.html.twig',
             [
-                'title' => 'Language and Typography annotations',
+                'title' => 'Languages and Typography',
                 'urls' => json_encode([
                     // @codingStandardsIgnoreStart Generic.Files.LineLength
                     'search_api' => $this->generateUrl('annotation_languagetypography_search_api'),
