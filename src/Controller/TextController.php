@@ -63,7 +63,8 @@ class TextController extends BaseController
                     )
                 ),
                 'identifiers' => json_encode([]),
-                'managements' => json_encode([])
+                'managements' => json_encode([]),
+                'title' => 'Texts'
             ]
         );
     }
