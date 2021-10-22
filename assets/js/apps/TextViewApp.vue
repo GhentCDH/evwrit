@@ -157,6 +157,8 @@ import Gallery from '../Components/Sidebar/Gallery'
 import CheckboxSwitch from '../Components/Shared/CheckboxSwitch'
 import AnnotationDetailsFlat from '../Components/Annotations/AnnotationDetailsFlat'
 
+import PersistentConfig from "../Components/Shared/PersistentConfig";
+
 import CoolLightBox from 'vue-cool-lightbox'
 import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 
@@ -168,6 +170,7 @@ export default {
     components: {
         Widget, LabelValue, PageMetrics, LabelObject, GreekText, CoolLightBox, LabelRange, PropertyGroup, Gallery, CheckboxSwitch, AnnotationDetailsFlat
     },
+    mixins: [PersistentConfig('TextViewConfig')],
     props: {
         initUrls: {
             type: String,
@@ -182,7 +185,7 @@ export default {
         let data = {
             urls: JSON.parse(this.initUrls),
             data: JSON.parse(this.initData),
-            config: {
+            defaultConfig: {
                 text: {
                     show: true,
                     showLemmas: true,
