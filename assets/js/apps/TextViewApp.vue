@@ -253,15 +253,18 @@ export default {
             return [
                 annotation.text_selection.selection_start,
                 annotation.text_selection.selection_end -1,
-                { data: { id: annotation.id, type: annotation.type }, class: 'annotation annotation-' + annotation.type }
+                { data: { id: annotation.id, type: annotation.type }, class: this.getAnnotationClass(annotation) }
             ]
         },
         formatAnnotationContext(annotation) {
             return [
                 annotation.text_selection.selection_start,
                 annotation.text_selection.selection_end - 1,
-                { id: annotation.id, type: annotation.type, class: 'annotation annotation-' + annotation.type }
+                { id: annotation.id, type: annotation.type, class: this.getAnnotationClass(annotation) }
             ]
+        },
+        getAnnotationClass(annotation) {
+            return ['annotation', 'annotation-' + annotation.type, 'annotation-' + annotation.type + '-' + annotation.id].join(' ');
         },
         countAnnotationType(type) {
             return this.data.text.annotations.filter( item => item.type === type ).length;
@@ -275,7 +278,12 @@ export default {
                 this.data.text = result.data;
             }
         },
-    }
+    },
+    // mounted() {
+    //     // make annotations clickable
+    //     const annotations = this.$el.querySelectorAll('.annotation');
+    //     collapsableLegends.forEach(legend => legend.onclick = this.collapseGroup);
+    // }
 }
 </script>
 
