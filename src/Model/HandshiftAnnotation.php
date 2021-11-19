@@ -32,7 +32,7 @@ use ReflectionException;
  * @property int annotation_connectivity_id
  * @property int annotation_orientation_id
  * @property int annotation_regularity_id
- * @property int annotation_lineation
+ * @property int annotation_lineation_id
  * @property int annotation_punctuation_id
  * @property int annotation_accentuation_id
  * @property int annotation_word_splitting_id
