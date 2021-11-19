@@ -100,9 +100,32 @@ class ElasticTextResource extends ElasticBaseResource
             BaseElasticAnnotationResource::collection($this->lexisAnnotations)->toArray(null),
             BaseElasticAnnotationResource::collection($this->orthographyAnnotations)->toArray(null),
             BaseElasticAnnotationResource::collection($this->morphologyAnnotations)->toArray(null),
-            BaseElasticAnnotationResource::collection($this->morphoSyntacticalAnnotations)->toArray(null)
+            BaseElasticAnnotationResource::collection($this->morphoSyntacticalAnnotations)->toArray(null),
+            $handshifts = ElasticHandshiftAnnotationResource::collection($this->handshiftAnnotations)->toArray(null)
         );
 
+        // calculate handshift intersects
+        foreach( $handshifts as $handshift ) {
+            $handshift['properties'] = array_filter($handshift['properties']);
+            $handshift['properties']['hasHandshift'] = self::boolean(1);
+            foreach($ret['annotations'] as &$annotation) {
+                if ( $annotation['type'] != 'handshift' && $this->textSelectionIntersect($handshift['text_selection'], $annotation['text_selection']) ) {
+                    $annotation['properties'] = array_merge_recursive($annotation['properties'], $handshift['properties']);
+                    dump($annotation);
+                }
+            }
+        }
+
         return $ret;
+    }
+
+    private function textSelectionIntersect($a, $b) {
+            $min = $a['selection_start'] < $b['selection_start'] ? $a : $b;
+            $max = $min['id'] == $a['id'] ? $b : $a;
+
+            //min ends before max starts -> no intersection
+            if ($min['selection_end'] < $max['selection_start']) return false; //the ranges don't intersect
+
+            return [$max['selection_start'], $min['selection_end'] < $max['selection_end'] ? $min['selection_end'] : $max['selection_end']];
     }
 }
