@@ -303,5 +303,11 @@ class Text extends AbstractModel
         return $this->hasManyThrough(MorphoSyntacticalAnnotation::class, TextSelection::class);
     }
 
-
+    /**
+     * @return HasManyThrough|HandshiftAnnotation[]
+     */
+    public function handshiftAnnotations()
+    {
+        return $this->hasManyThrough(HandshiftAnnotation::class, TextSelection::class);
+    }
 }
