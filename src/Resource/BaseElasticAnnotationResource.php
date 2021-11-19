@@ -31,7 +31,7 @@ class BaseElasticAnnotationResource extends BaseResource
         $type = $resource->getAnnotationType();
         $ret = [
             'id' => $resource->getId(),
-            'text_selection' => new TextSelectionResource($resource->textSelection),
+            'text_selection' => (new TextSelectionResource($resource->textSelection))->toArray(),
             'type' => $type,
             'properties' => [
             ]
@@ -43,7 +43,7 @@ class BaseElasticAnnotationResource extends BaseResource
         unset($relations['textSelection']);
 
         foreach( $relations as $name => $model) {
-            $ret['properties'][$type.'_'.$name] = new ElasticIdNameResource($model);
+            $ret['properties'][$type.'_'.$name] = (new ElasticIdNameResource($model))->toArray();
         }
 
         // add context
@@ -75,7 +75,7 @@ class BaseElasticAnnotationResource extends BaseResource
 
 //        echo "selection: {$s_start} - {$s_end} - {$t_len} \n";
 
-        // context start: if selelection start > 0, find first vertical tab to the left of selection_end
+        // context start: if selection start > 0, find first vertical tab to the left of selection_end
         $c_start = 0;
         if ( $s_start && ( ( $pos = mb_strrpos($text, "\v", -$t_len + $s_start)) !== false ) ) {
             $c_start = min($pos + 1, $t_end);
