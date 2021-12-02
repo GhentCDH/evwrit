@@ -12,29 +12,53 @@
                 <b-button class="btn" href="">back to search</b-button>
                 <b-button class="btn" @click="gotoPrevText()">next</b-button>
             </div>
-            <div class="form-group form-inline">
-                <CheckboxSwitch v-model="config.text.show" class="switch-primary" label="Show text"></CheckboxSwitch>
-                <CheckboxSwitch v-model="config.text.showLemmas" class="switch-primary" label="Show lemmas"></CheckboxSwitch>
-                <CheckboxSwitch v-model="config.text.showLemmasAside" v-if="config.text.showLemmas" class="switch-primary" label="Show lemmas aside"></CheckboxSwitch>
-                <CheckboxSwitch v-model="config.annotations.show" class="switch-primary" label="Show annotations"></CheckboxSwitch>
-                <CheckboxSwitch v-model="config.annotations.showContext" v-if="config.annotations.show" class="switch-primary" label="Show annotation context"></CheckboxSwitch>
-                <CheckboxSwitch v-model="config.annotations.showDetails" v-if="config.annotations.show" class="switch-primary" label="Show annotation details"></CheckboxSwitch>
-            </div>
+<!--            <div class="form-group form-inline">-->
+<!--                <CheckboxSwitch v-model="config.text.show" class="switch-primary" label="Show text"></CheckboxSwitch>-->
+<!--                <CheckboxSwitch v-model="config.text.showLemmas" class="switch-primary" label="Show lemmas"></CheckboxSwitch>-->
+<!--                <CheckboxSwitch v-model="config.text.showLemmasAside" v-if="config.text.showLemmas" class="switch-primary" label="Show lemmas aside"></CheckboxSwitch>-->
+<!--                <CheckboxSwitch v-model="config.annotations.show" class="switch-primary" label="Show annotations"></CheckboxSwitch>-->
+<!--                <CheckboxSwitch v-model="config.annotations.showContext" v-if="config.annotations.show" class="switch-primary" label="Show annotation context"></CheckboxSwitch>-->
+<!--                <CheckboxSwitch v-model="config.annotations.showDetails" v-if="config.annotations.show" class="switch-primary" label="Show annotation details"></CheckboxSwitch>-->
+<!--            </div>-->
             <div class="row">
-                <div v-if="config.text.show" :class="{ 'col-md-6': config.text.showLemmas && config.text.showLemmasAside }" class="col-xs-12">
+
+                <div v-if="config.text.show" :class="textContainerClass" class="text">
                     <GreekText :text="text.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="1"/>
                 </div>
-                <div :class="{ 'col-md-6': config.text.showLemmas && config.text.showLemmasAside }" class="col-xs-12">
+
+                <div v-if="config.genericTextStructure.show" :class="textContainerClass" class="text-structure">
+                    <template v-if="config.genericTextStructure.groupByLevel">
+                        <div class="level" v-for="level in genericTextStructureGroupedByLevel">
+                            <label><span>Level {{ level.number }} {{ level.type}}</span></label>
+                            <div class="structure" v-for="textStructure in level.children">
+                                <label><span>{{ textStructure.part.name }} {{ textStructure.part_number}}</span></label>
+                                <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                            </div>
+                        </div>
+                    </template>
+                    <template v-if="!config.genericTextStructure.groupByLevel">
+                        <div class="structure" v-for="textStructure in genericTextStructure">
+                            <label>
+                                <span v-if="textStructure.text_level">Level {{ textStructure.text_level.number }}</span>
+                                <span>{{ textStructure.part.name }} {{ textStructure.part_number}}</span>
+                            </label>
+                            <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                        </div>
+                    </template>
+                </div>
+
+                <div :class="textContainerClass" class="text-lemmas">
                     <h2 v-if="config.text.showLemmas && !config.text.showLemmasAside">Lemmas</h2>
                     <GreekText :text="text.text_lemmas" v-if="config.text.showLemmas"  />
                 </div>
+
                 <div class="col-xs-12">
-                    <h2 v-if="config.text.show || config.text.showLemmas">Annotations</h2>
+                    <h2 v-if="config.text.show || config.text.showLemmas || config.genericTextStructure.show">Annotations</h2>
                     <div class="annotation-result" v-for="annotation in visibleAnnotations">
                         <GreekText
                                 v-show="config.annotations.showContext"
                                 :text="annotation.context.text"
-                                :annotations="[ formatAnnotationContext(annotation) ]"
+                                :annotations="[ formatAnnotation(annotation) ]"
                                 :annotationOffset="annotation.context.start + 1"
                                 :compact="true">
                         </GreekText>
@@ -48,30 +72,43 @@
             </div>
         </article>
         <aside class="col-sm-3">
-            <div class="bg-tertiary padding-default">
+            <div class="padding-default">
+
+                <Widget title="Selection details" v-if="annotationId">
+                    <AnnotationDetails :annotation="annotationByTypeId[annotationId]"></AnnotationDetails>
+                </Widget>
 
                 <Widget title="Metadata">
                     <LabelValue label="ID" :value="text.id"></LabelValue>
                     <LabelValue label="Trismegistos ID" :value="text.tm_id"></LabelValue>
-                    <LabelRange label="Date" :value="[text.year_begin, text.year_end]"></LabelRange>
-                    <LabelObject label="Era" :value="text.era" :url_generator="urlSearch('text_search', 'era')"></LabelObject>
-                    <LabelObject v-if="text.keyword" label="Keywords" :value="text.keyword" :url_generator="urlSearch('text_search', 'keyword')"></LabelObject>
+                    <LabelValue label="Date" :value="{start: text.year_begin, end: text.year_end}" type="range"></LabelValue>
+                    <LabelValue label="Era" :value="text.era" type="id_name" :url_generator="urlGeneratorIdName('text_search', 'era')"></LabelValue>
+                    <LabelValue v-if="text.keyword" label="Keywords" :value="text.keyword" :url="urlGeneratorIdName('text_search', 'keyword')" type="id_name"></LabelValue>
+                </Widget>
+
+                <Widget title="Text options">
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.text.show" class="switch-primary" label="Show text"></CheckboxSwitch>
+                    </div>
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.text.showLemmas" class="switch-primary" label="Show lemmas"></CheckboxSwitch>
+                    </div>
                 </Widget>
 
                 <Widget title="Materiality" :init-open="false">
                     <PropertyGroup>
-                        <LabelObject label="Production stage" :value="text.production_stage" :url_generator="urlSearch('materiality_search','production_stage')"></LabelObject>
-                        <LabelObject label="Material" :value="text.material" :url_generator="urlSearch('materiality_search','material')"></LabelObject>
-                        <LabelObject label="Writing direction" :value="text.writing_direction" :url_generator="urlSearch('materiality_search','writing_direction')"></LabelObject>
-                        <LabelObject label="Format" :value="text.text_format" :url_generator="urlSearch('materiality_search','text_format')"></LabelObject>
+                        <LabelValue type="id_name" label="Production stage" :value="text.production_stage" :url_generator="urlGeneratorIdName('materiality_search','production_stage')"></LabelValue>
+                        <LabelValue type="id_name" label="Material" :value="text.material" :url_generator="urlGeneratorIdName('materiality_search','material')"></LabelValue>
+                        <LabelValue type="id_name" label="Writing direction" :value="text.writing_direction" :url_generator="urlGeneratorIdName('materiality_search','writing_direction')"></LabelValue>
+                        <LabelValue type="id_name" label="Format" :value="text.text_format" :url_generator="urlGeneratorIdName('materiality_search','text_format')"></LabelValue>
                     </PropertyGroup>
                     <PropertyGroup>
                         <PageMetrics v-bind="text"></PageMetrics>
                     </PropertyGroup>
                     <PropertyGroup>
-                        <LabelRange label="Lines" :value="text.lines"></LabelRange>
-                        <LabelRange label="Columns" :value="text.columns"></LabelRange>
-                        <LabelRange label="Letters per line" :value="text.letters_per_line"></LabelRange>
+                        <LabelValue label="Lines" :value="arrayToRange(text.lines)"  type="range"></LabelValue>
+                        <LabelValue label="Columns" :value="arrayToRange(text.columns)"  type="range"></LabelValue>
+                        <LabelValue label="Letters per line" :value="arrayToRange(text.letters_per_line)" type="range"></LabelValue>
                         <LabelValue label="Interlinear space" :value="text.interlinear_space" ></LabelValue>
                     </PropertyGroup>
                 </Widget>
@@ -86,7 +123,7 @@
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.annotations.showContext" class="switch-primary" label="Show annotation context"></CheckboxSwitch>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mbottom-default">
                         <CheckboxSwitch v-model="config.annotations.showDetails" class="switch-primary" label="Show annotation details"></CheckboxSwitch>
                     </div>
                     <div class="form-group">
@@ -94,7 +131,7 @@
                             <span class="count">{{ countAnnotationType('language') }}</span>
                         </CheckboxSwitch>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mbottom-default">
                         <CheckboxSwitch v-model="config.annotations.showTypography" class="switch-primary" label="Show Typography annotations">
                             <span class="count">{{ countAnnotationType('typography') }}</span>
                         </CheckboxSwitch>
@@ -139,6 +176,15 @@
                     </div>
                 </Widget>
 
+                <Widget title="Generic Text Structure" :init-open="false" :count="text.annotations.length">
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic text structure"></CheckboxSwitch>
+                    </div>
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.genericTextStructure.groupByLevel" class="switch-primary" label="Reconstruct levels"></CheckboxSwitch>
+                    </div>
+                </Widget>
+
             </div>
         </aside>
     </div>
@@ -148,14 +194,13 @@
 import Vue from 'vue'
 import Widget from '../Components/Sidebar/Widget'
 import LabelValue from '../Components/Sidebar/LabelValue'
-import LabelObject from '../Components/Sidebar/LabelObject'
-import LabelRange from '../Components/Sidebar/LabelRange'
 import PageMetrics from '../Components/Sidebar/PageMetrics'
 import GreekText from '../Components/Shared/GreekText'
 import PropertyGroup from '../Components/Sidebar/PropertyGroup'
 import Gallery from '../Components/Sidebar/Gallery'
 import CheckboxSwitch from '../Components/Shared/CheckboxSwitch'
 import AnnotationDetailsFlat from '../Components/Annotations/AnnotationDetailsFlat'
+import AnnotationDetails from '../Components/Annotations/AnnotationDetails'
 
 import PersistentConfig from "../Components/Shared/PersistentConfig";
 
@@ -168,7 +213,7 @@ import qs from 'qs'
 export default {
     name: "TextViewApp",
     components: {
-        Widget, LabelValue, PageMetrics, LabelObject, GreekText, CoolLightBox, LabelRange, PropertyGroup, Gallery, CheckboxSwitch, AnnotationDetailsFlat
+        Widget, LabelValue, PageMetrics, GreekText, CoolLightBox, PropertyGroup, Gallery, CheckboxSwitch, AnnotationDetailsFlat, AnnotationDetails
     },
     mixins: [PersistentConfig('TextViewConfig')],
     props: {
@@ -201,9 +246,14 @@ export default {
                     showMorphology: true,
                     showLexis: true,
                     showMorphoSyntactical: true
+                },
+                genericTextStructure: {
+                    show: false,
+                    groupByLevel: false
                 }
             },
-            imageIndex: null
+            imageIndex: null,
+            annotationId: null,
         }
         return data
     },
@@ -220,6 +270,12 @@ export default {
             }
             return result
         },
+        annotationByTypeId() {
+            let result = []
+            this.data.text.annotations.forEach( anno => result[anno.type+':'+anno.id] = anno )
+
+            return result;
+        },
         visibleAnnotationTypes() {
             let ret = [];
             this.config.annotations.showLanguage && ret.push('language');
@@ -228,6 +284,8 @@ export default {
             this.config.annotations.showMorphology && ret.push('morphology');
             this.config.annotations.showLexis && ret.push('lexis');
             this.config.annotations.showMorphoSyntactical && ret.push('morpho_syntactical');
+
+            this.bindEvents();
             return ret;
         },
         visibleAnnotations() {
@@ -246,6 +304,37 @@ export default {
         },
         visibleAnnotationsFormatted() {
             return this.visibleAnnotations.map( annotation => this.formatAnnotation(annotation) );
+        },
+        genericTextStructure() {
+            let ret = {}
+
+            ret = this.data.text.generic_text_structure
+                .sort( (a,b) => a.text_selection.selection_start - b.text_selection.selection_start )
+
+            return ret
+        },
+        genericTextStructureGroupedByLevel() {
+            let ret = {}
+
+            this.genericTextStructure.forEach( function(item) {
+                    let level_number =  String(item?.text_level?.number || 0);
+                    if (!(level_number in ret)) {
+                        ret[level_number] = { ...item.text_level, ...{ children: [] } }
+                    }
+                    ret[level_number].children.push(item)
+                });
+            return ret;
+        },
+        textContainersOpen() {
+            let conf = [
+                this.config.text.show ? 1 : 0,
+                this.config.text.showLemmas ? 1 : 0,
+                this.config.genericTextStructure.show ? 1 : 0
+            ]
+            return conf.reduce((partial_sum, a) => partial_sum + a, 0);
+        },
+        textContainerClass() {
+            return this.textContainersOpen > 1 ? 'col-xs-12 col-md-6' : 'col-xs-12';
         }
     },
     methods: {
@@ -253,14 +342,7 @@ export default {
             return [
                 annotation.text_selection.selection_start,
                 annotation.text_selection.selection_end -1,
-                { data: { id: annotation.id, type: annotation.type }, class: this.getAnnotationClass(annotation) }
-            ]
-        },
-        formatAnnotationContext(annotation) {
-            return [
-                annotation.text_selection.selection_start,
-                annotation.text_selection.selection_end - 1,
-                { id: annotation.id, type: annotation.type, class: this.getAnnotationClass(annotation) }
+                { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation) }
             ]
         },
         getAnnotationClass(annotation) {
@@ -269,8 +351,8 @@ export default {
         countAnnotationType(type) {
             return this.data.text.annotations.filter( item => item.type === type ).length;
         },
-        urlSearch(url, filter) {
-            return (value) => ( this.urls[url] + '?' + qs.stringify( { filters: {[filter]: value } } ) )
+        urlGeneratorIdName(url, filter) {
+            return (value) => ( this.urls[url] + '?' + qs.stringify( { filters: {[filter]: value.id } } ) )
         },
         async loadText(id) {
             const result = await axios.get(this.urls.text_get_single.replace('text_id',id))
@@ -278,19 +360,36 @@ export default {
                 this.data.text = result.data;
             }
         },
+        clickAnnotation(e) {
+            let typeId = e.target?.dataset?.id;
+            this.annotationId = typeId
+            console.log(typeId)
+            console.log(this.annotationByTypeId[typeId])
+        },
+        bindEvents() {
+            this.$nextTick(function () {
+                const annotations = this.$el.querySelectorAll('.annotation')
+                annotations.forEach(annotation => annotation.addEventListener('click', this.clickAnnotation) )
+            })
+        },
+        arrayToRange(value) {
+            if ( value ) {
+                return {start: value[0], end: value[1]}
+            }
+            return null;
+        }
     },
-    // mounted() {
-    //     // make annotations clickable
-    //     const annotations = this.$el.querySelectorAll('.annotation');
-    //     collapsableLegends.forEach(legend => legend.onclick = this.collapseGroup);
-    // }
+    mounted() {
+        // make annotations clickable
+        this.bindEvents();
+    }
 }
 </script>
 
 <style scoped lang="scss">
-.text {
-    white-space: pre-line;
-}
+//.text {
+//    white-space: pre-line;
+//}
 
 .annotation-result {
     padding: 8px 0;
@@ -316,5 +415,57 @@ export default {
   border-radius: 5px;
   font-size: 80%;
   line-height: 1;
+}
+
+.text-structure {
+
+  label {
+    position: relative;
+    left: -20px;
+    margin-bottom: 20px;
+
+    span {
+      padding: 3px 10px;
+      display: inline-block;
+      border-right: 1px solid white;
+    }
+  }
+
+  .level > label {
+    background-color: #1E64C8;
+    color: white;
+  }
+
+  .structure > label {
+    background-color: #e9f0fa
+  }
+
+
+  .level {
+    margin-bottom: 1em;
+    padding-left: 20px;
+    border-left: 2px solid #1E64C8;
+  }
+
+  .structure {
+    margin-bottom: 1em;
+    padding-left: 20px;
+    border-left: 2px solid #e9f0fa;
+  }
+
+}
+
+
+aside > div {
+  background-color: #fafafa !important;
+  border-left: 1px solid #e9ecef;
+
+  .widget {
+    border-bottom: 1px solid #e9ecef;
+  }
+}
+
+.annotation {
+  cursor: pointer;
 }
 </style>
