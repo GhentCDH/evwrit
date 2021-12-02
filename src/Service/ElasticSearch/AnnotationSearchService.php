@@ -133,8 +133,28 @@ class AnnotationSearchService extends AbstractSearchService
 
         ];
 
-        // annotation filters
-        $annotationFilters = [
+        // build annotation filters
+        // 1. add annotation type filter
+        // 2. add property filters
+
+        $searchFilters['annotations'] = [
+            'type' => self::FILTER_NESTED_MULTIPLE,
+            'nested_path' => 'annotations',
+            'filters' => [
+                'annotation_type' => [
+                    'field' => 'type.keyword'
+                ],
+                'text_level' => [
+                    'field' => 'text_level.number'
+                ],
+                'generic_text_structure_part' => [
+                    'field' => 'generic_text_structure_part.id'
+                ]
+            ],
+            'innerHits' => true
+        ];
+
+        $annotationProperties = [
             'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation'],
             'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
             'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
@@ -145,24 +165,14 @@ class AnnotationSearchService extends AbstractSearchService
                 'subordinationForm', 'subordinationContent', 'subordinationContext',
                 'relativisationForm', 'relativisationContent', 'relativisationContext',
                 'typeFormulaicity'
-            ]
-        ];
-
-        $searchFilters['annotations'] = [
-            'type' => self::FILTER_NESTED_MULTIPLE,
-            'nested_path' => 'annotations',
-            'filters' => [
-                'annotation_type' => [
-                    'field' => 'type.keyword'
-                ]
             ],
-            'innerHits' => true
+            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting'],
         ];
 
-        foreach( $annotationFilters as $type => $filters ) {
-            foreach( $filters as $filter ) {
-                $subfilter_name = "{$type}_{$filter}";
-                $subfilter_field = "{$type}_{$filter}";
+        foreach( $annotationProperties as $type => $properties ) {
+            foreach( $properties as $property ) {
+                $subfilter_name = "{$type}_{$property}";
+                $subfilter_field = "{$type}_{$property}";
                 $searchFilters['annotations']['filters'][$subfilter_name] = [
                     'field' => "properties.{$subfilter_field}.id",
                 ];
@@ -268,7 +278,7 @@ class AnnotationSearchService extends AbstractSearchService
         ];
 
         // annotation aggregations
-        $annotationFilters = [
+        $annotationProperties = [
             'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation'],
             'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
             'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
@@ -280,25 +290,26 @@ class AnnotationSearchService extends AbstractSearchService
                 'subordinationForm', 'subordinationContent', 'subordinationContext',
                 'relativisationForm', 'relativisationContent', 'relativisationContext',
                 'typeFormulaicity'
-            ]
+            ],
+            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting'],
         ];
 
         // create aggregation filter keys (typography_wordSplitting, typography_correction ...)
         $annotationFilterKeys = array_reduce(
-            array_keys($annotationFilters),
-            function($carry, $type) use ($annotationFilters) { return array_merge($carry, preg_filter('/^/', "{$type}_", $annotationFilters[$type])); },
+            array_keys($annotationProperties),
+            function($carry, $type) use ($annotationProperties) { return array_merge($carry, preg_filter('/^/', "{$type}_", $annotationProperties[$type])); },
             []
         );
         //$annotationFilterKeys[] = "annotation_type";
 
         // add annotation property filters
-        foreach( $annotationFilters as $type => $filters ) {
-            foreach( $filters as $filter ) {
-                $filter_name = "{$type}_{$filter}";
-                $property_name = "{$type}_{$filter}";
+        foreach( $annotationProperties as $type => $properties ) {
+            foreach( $properties as $property ) {
+                $filter_name = "{$type}_{$property}";
+                $field_name = "properties.{$type}_{$property}";
                 $aggregationFilters[$filter_name] = [
                     'type' => self::AGG_NESTED_ID_NAME,
-                    'field' => "properties.{$property_name}",
+                    'field' => $field_name,
                     'nested_path' => "annotations",
                     'excludeFilter' => ['annotations'], // exclude filter of same type
                     'filter' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
@@ -308,7 +319,9 @@ class AnnotationSearchService extends AbstractSearchService
                         return $carry;
                     }, [])
                 ];
-                $aggregationFilters[$filter_name]['filter']['annotation_type'] = "type";
+                $aggregationFilters[$filter_name]['filter']['annotation_type'] = "type"; // filter on type
+                $aggregationFilters[$filter_name]['filter']['generic_text_structure_part'] = "generic_text_structure_part.id"; // filter on type
+                $aggregationFilters[$filter_name]['filter']['text_level'] = "text_level.number"; // filter on type
             }
         }
 
@@ -324,6 +337,35 @@ class AnnotationSearchService extends AbstractSearchService
                 }
                 return $carry;
             }, []),
+        ];
+        $aggregationFilters['annotation_type']['filter']['generic_text_structure_part'] = "generic_text_structure_part.id"; // filter on type
+        $aggregationFilters['annotation_type']['filter']['text_level'] = "text_level.number"; // filter on type
+
+        // add annotation type filter
+        $aggregationFilters['text_level'] = [
+            'type' => self::AGG_NUMERIC,
+            'field' => 'text_level.number',
+            'nested_path' => "annotations",
+//            'excludeFilter' => ['annotations'], // exclude filter of same type
+//            'filter' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
+//                if ( $subfilter_name != $filter_name ) {
+//                    $carry[$subfilter_name] = "properties.{$subfilter_name}.id";
+//                }
+//                return $carry;
+//            }, []),
+        ];
+
+        $aggregationFilters['generic_text_structure_part'] = [
+            'type' => self::AGG_NESTED_ID_NAME,
+            'field' => 'generic_text_structure_part',
+            'nested_path' => "annotations",
+//            'excludeFilter' => ['annotations'], // exclude filter of same type
+//            'filter' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
+//                if ( $subfilter_name != $filter_name ) {
+//                    $carry[$subfilter_name] = "properties.{$subfilter_name}.id";
+//                }
+//                return $carry;
+//            }, []),
         ];
 
         return $aggregationFilters;
