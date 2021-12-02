@@ -42,11 +42,16 @@ class TextRepository extends AbstractRepository
         'attestations.honorificEpithets',
         'attestations.occupations',
         'translations',
-        'textAgentiveRoles.agentiveRole',
-        'textAgentiveRoles.genericAgentiveRole',
-        'textCommunicativeGoals.communicativeGoal',
-        'textCommunicativeGoals.genericCommunicativeGoal',
-        'typographyAnnotations'
+        'agentiveRoles.agentiveRole',
+        'agentiveRoles.genericAgentiveRole',
+        'communicativeGoals.communicativeGoal',
+        'communicativeGoals.genericCommunicativeGoal',
+        'typographyAnnotations',
+        'morphologyAnnotations',
+        'lexisAnnotations',
+        'orthographyAnnotations',
+        'handshiftAnnotations',
+        'languageAnnotations'
     ];
     protected $model = Text::class;
 
@@ -60,6 +65,5 @@ class TextRepository extends AbstractRepository
             $query->where('project.project_id','=', $project_id);
         });
     }
-
 
 }
