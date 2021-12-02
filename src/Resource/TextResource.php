@@ -53,8 +53,8 @@ class TextResource extends BaseResource
             'location_found' => IdNameResource::collection($text->locationsFound)->toArray(null),
             'location_written' => IdNameResource::collection($text->locationsWritten)->toArray(null),
 
-            'agentive_role' => ElasticAgentiveRoleResource::collection($text->textAgentiveRoles)->toArray(null),
-            'communicative_goal' => ElasticCommunicativeGoalResource::collection($text->textCommunicativeGoals)->toArray(null),
+            'agentive_role' => ElasticAgentiveRoleResource::collection($text->agentiveRoles)->toArray(null),
+            'communicative_goal' => ElasticCommunicativeGoalResource::collection($text->communicativeGoals)->toArray(null),
 
             /* links */
             'image' => ImageResource::collection($text->images)->toArray(null),

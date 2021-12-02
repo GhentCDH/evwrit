@@ -55,8 +55,8 @@ class ElasticTextResource extends ElasticBaseResource
             'location_found' => ElasticIdNameResource::collection($this->locationsFound)->toArray(null),
             'location_written' => ElasticIdNameResource::collection($this->locationsWritten)->toArray(null),
 
-            'agentive_role' => ElasticAgentiveRoleResource::collection($this->textAgentiveRoles)->toArray(null),
-            'communicative_goal' => ElasticCommunicativeGoalResource::collection($this->textCommunicativeGoals)->toArray(null),
+            'agentive_role' => ElasticAgentiveRoleResource::collection($this->agentiveRoles)->toArray(null),
+            'communicative_goal' => ElasticCommunicativeGoalResource::collection($this->communicativeGoals)->toArray(null),
 
             /* links */
             'image' => ImageResource::collection($text->images)->toArray(null),
@@ -93,25 +93,59 @@ class ElasticTextResource extends ElasticBaseResource
             'annotations' => []
         ];
 
-        // add annotations
+        // text structure
+        $ret['generic_text_structure'] = ElasticGenericTextStructureResource::collection($this->genericTextStructure)->toArray();
+//        dump($ret['generic_text_structure']);
+//        $ret['layout_text_structure'] = ElasticLayoutTextStructure::collection($this->genericTextStructure);
+        $ret['text_level'] = BaseResource::collection($this->textLevels)->toArray();
+
+        // annotations
         $ret['annotations'] = array_merge(
-            BaseElasticAnnotationResource::collection($this->languageAnnotations)->toArray(null),
-            BaseElasticAnnotationResource::collection($this->typographyAnnotations)->toArray(null),
-            BaseElasticAnnotationResource::collection($this->lexisAnnotations)->toArray(null),
-            BaseElasticAnnotationResource::collection($this->orthographyAnnotations)->toArray(null),
-            BaseElasticAnnotationResource::collection($this->morphologyAnnotations)->toArray(null),
-            BaseElasticAnnotationResource::collection($this->morphoSyntacticalAnnotations)->toArray(null),
-            $handshifts = ElasticHandshiftAnnotationResource::collection($this->handshiftAnnotations)->toArray(null)
+            BaseElasticAnnotationResource::collection($this->languageAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection($this->typographyAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection($this->lexisAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection($this->orthographyAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection($this->morphologyAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection($this->morphoSyntacticalAnnotations)->toArray(),
+            $handshifts = ElasticHandshiftAnnotationResource::collection($this->handshiftAnnotations)->toArray()
         );
 
-        // calculate handshift intersects
-        foreach( $handshifts as $handshift ) {
+        // calculate base annotations / handshift intersects, add handshift properties
+        foreach ( $handshifts as $handshift ) {
             $handshift['properties'] = array_filter($handshift['properties']);
-            $handshift['properties']['hasHandshift'] = self::boolean(1);
+            $handshift['properties']['has_handshift'] = self::boolean(1);
             foreach($ret['annotations'] as &$annotation) {
                 if ( $annotation['type'] != 'handshift' && $this->textSelectionIntersect($handshift['text_selection'], $annotation['text_selection']) ) {
                     $annotation['properties'] = array_merge_recursive($annotation['properties'], $handshift['properties']);
-                    dump($annotation);
+                }
+            }
+        }
+
+        // calculate base annotations / text_structure intersects, add text_structure properties
+        foreach($ret['annotations'] as &$annotation) {
+            $annotation['text_level'] = [];
+            $annotation['generic_text_structure_part'] = [];
+            foreach ($ret['generic_text_structure'] ?? [] as $structure ) {
+                if ( $this->textSelectionIntersect($structure['text_selection'], $annotation['text_selection']) ) {
+                    if ( $text_level = $structure['text_level'] ) {
+                        $annotation['text_level'][ $text_level['number'] ] = $text_level; // prevent doubles using string key
+                    }
+                    if ( $part = $structure['part'] ) {
+                        $annotation['generic_text_structure_part'][ $part['id'] ] = $part; // prevent doubles using string key
+                    }
+                }
+            }
+            // delete string keys
+            $annotation['text_level'] = array_values($annotation['text_level']);
+            $annotation['generic_text_structure_part'] = array_values($annotation['generic_text_structure_part']);
+        }
+
+        foreach($ret['annotations'] as &$annotation) {
+            $annotation['layout_text_structure_part'] = [];
+            foreach ( $ret['layout_text_structure'] ?? [] as $structure ) {
+                if ( $this->textSelectionIntersect($structure['text_selection'], $annotation['text_selection']) ) {
+                    $annotation['layout_text_structure_part'][] = $structure['part'];
+//                    dump($annotation);
                 }
             }
         }
