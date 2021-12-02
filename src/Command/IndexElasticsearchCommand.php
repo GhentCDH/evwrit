@@ -51,7 +51,7 @@ class IndexElasticsearchCommand extends Command
                     $service->setup();
 
                     $repository->findByProjectId(3)->chunk(100,
-                        function($res) use ($service,$count) {
+                        function($res) use ($service, &$count) {
                             foreach ($res as $text) {
                                 $res = new ElasticTextResource($text);
                                 $service->add($res);
