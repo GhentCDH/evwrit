@@ -8,7 +8,7 @@ use App\Model\Text;
 use Illuminate\Database\Eloquent\Builder;
 
 
-class TextRepository extends AbastractRepository
+class TextRepository extends AbstractRepository
 {
     protected $relations = [
         'scripts',
