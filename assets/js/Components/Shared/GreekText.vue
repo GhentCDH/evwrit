@@ -119,14 +119,14 @@ export default {
                         [line_start, line_end - 1]
                     ))
                 ) {
+                    let props = Object.entries(annotation[2].reduce( (prev, current) => ({...prev, ...current.data}) , {} )).map( i => `data-${i[0]}="${i[1]}"` ).join(' ')
+
                     line = this.insertBefore(line, i[1] - line_start + 1, "</span>");
                     line = this.insertBefore(
                         line,
                         i[0] - line_start,
-                        '<span class="' + annotation[2].map( (i) => (i.class) ).join(" ") + '">'
+                        '<span class="' + annotation[2].map( (i) => (i.class) ).join(" ") + '" ' + props + '>'
                     );
-                    // console.log('annotateLine');
-                    // console.log(annotation);
                 }
             }
 
