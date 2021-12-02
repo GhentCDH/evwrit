@@ -6,7 +6,7 @@
                     <i class="fa fa-angle-down" aria-hidden="true"></i>
                 </span>
                 <span>{{ title }}
-                    <span v-if="count"> ({{ count}})</span>
+                    <span class="count" v-if="count >= 0">{{ count }}</span>
                 </span>
             </div>
         </div>
@@ -89,6 +89,17 @@ export default {
 
     .toggle-open {
       float: right;
+    }
+
+    .count {
+      border: 1px solid #aaa;
+      padding: 3px 5px;
+      border-radius: 5px;
+      font-size: 80%;
+      color: #aaa;
+      position: relative;
+      top: -2px;
+      margin-right: 0.5em;
     }
   }
 
