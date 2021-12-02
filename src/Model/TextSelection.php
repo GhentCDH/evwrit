@@ -18,6 +18,7 @@ use ReflectionException;
  * @property int $selection_start
  * @property int $selection_end
  * @property int $selection_length
+ * @property Text $sourceText
  * @package App\Model
  */
 class TextSelection extends AbstractModel
