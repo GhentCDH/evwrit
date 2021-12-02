@@ -280,6 +280,40 @@ export default {
                             this.createMultiSelect('Relativisation context', { model: 'morpho_syntactical_relativisationContext' }),
                         ]
                     },
+                    // Generic text structure
+                    {
+                        styleClasses: 'collapsible collapsed',
+                        legend: 'Generic text structure',
+                        fields: [
+                            // level
+                            this.createMultiSelect('Level', { model: 'text_level' }),
+
+                            // generic text structure part
+                            this.createMultiSelect('Part', { model: 'generic_text_structure_part' }),
+                        ]
+                    },
+                    // Handshift
+                    {
+                        styleClasses: 'collapsible collapsed',
+                        legend: 'Handshift',
+                        fields: [
+                            // handshift
+                            this.createMultiSelect('Abbreviation', { model: 'handshift_abbreviation' }),
+                            this.createMultiSelect('Accentuation', { model: 'handshift_accentuation' }),
+                            this.createMultiSelect('Connectivity', { model: 'handshift_connectivity' }),
+                            this.createMultiSelect('Correction', { model: 'handshift_correction' }),
+                            this.createMultiSelect('Curvature', { model: 'handshift_curvature' }),
+                            this.createMultiSelect('Degree of Formality', { model: 'handshift_degreeOfFormality' }),
+                            this.createMultiSelect('Expansion', { model: 'handshift_expansion' }),
+                            this.createMultiSelect('Lineation', { model: 'handshift_lineation' }),
+                            this.createMultiSelect('Orientation', { model: 'handshift_orientation' }),
+                            this.createMultiSelect('Punctuation', { model: 'handshift_punctuation' }),
+                            this.createMultiSelect('Regularity', { model: 'handshift_regularity' }),
+                            this.createMultiSelect('Script Type', { model: 'handshift_scriptType' }),
+                            this.createMultiSelect('Slope', { model: 'handshift_slope' }),
+                            this.createMultiSelect('Word splitting', { model: 'handshift_wordSplitting' }),
+                        ]
+                    },
                     {
                         styleClasses: 'collapsible collapsed',
                         legend: 'Administrative information',
