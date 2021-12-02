@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Kirschbaum\PowerJoins\PowerJoins;
 use ReflectionException;
 
 /**
@@ -31,10 +32,48 @@ use ReflectionException;
  * @property string $text_scrubbed
  * @property int $year_begin
  * @property int $year_end
+ *
+ * @property Script[] scripts
+ * @property Form[] forms
+ * @property Language[] languages
+ * @property Material[] materials
+ * @property SocialDistance[] socialDistances
+ * @property ProductionStage[] productionStages
+ * @property Project[] projects
+ * @property Keyword[] keywords
+ * @property Archive[] archive
+ * @property TextType[] textType
+ * @property TextSubtype[] textSubtype
+ * @property TextFormat[] textFormat
+ * @property Collaborator[] collaborators
+ * @property Location[] locations
+ * @property Url[] links
+ * @property Image[] images
+ * @property WritingDirection[] writingDirections
+ * @property Attestation[] attestations
+ * @property TextTranslation[] translations
+ * @property Location[] locationsFound
+ * @property Location[] locationsWritten
+ * @property Text_AgentiveRole[] agentiveRoles
+ * @property Text_CommunicativeGoal[] communicativeGoals
+ * @property LexisAnnotation[] lexisAnnotations
+ * @property LanguageAnnotation[] languageAnnotations
+ * @property TypographyAnnotation[] typographyAnnotations
+ * @property OrthographyAnnotation[] orthographyAnnotations
+ * @property MorphologyAnnotation[] morphologyAnnotations
+ * @property MorphoSyntacticalAnnotation[] morphoSyntacticalAnnotations
+ * @property HandshiftAnnotation[] handshiftAnnotations
+ *
+ * @property GenericTextStructure[] genericTextStructure
+ * @property LayoutTextStructure[] layoutTextStructure
+ * @property TextLevel[] textLevels
+ *
  * @package App\Model
  */
 class Text extends AbstractModel
 {
+    use PowerJoins;
+
     /**
      * @return BelongsTo|Era
      * @throws ReflectionException
@@ -235,7 +274,7 @@ class Text extends AbstractModel
     /**
      * @return HasMany
      */
-    public function textAgentiveRoles(): HasMany
+    public function agentiveRoles(): HasMany
     {
         return $this->hasMany(Text_AgentiveRole::class);
     }
@@ -243,7 +282,7 @@ class Text extends AbstractModel
     /**
      * @return HasMany
      */
-    public function textCommunicativeGoals(): HasMany
+    public function communicativeGoals(): HasMany
     {
         return $this->hasMany(Text_CommunicativeGoal::class);
     }
@@ -310,4 +349,29 @@ class Text extends AbstractModel
     {
         return $this->hasManyThrough(HandshiftAnnotation::class, TextSelection::class);
     }
+
+    /**
+     * @return HasManyThrough|GenericTextStructure[]
+     */
+    public function genericTextStructure()
+    {
+        return $this->hasManyThrough(GenericTextStructure::class, TextSelection::class);
+    }
+
+    /**
+     * @return HasManyThrough|LayoutTextStructure[]
+     */
+    public function layoutTextStructure()
+    {
+        return $this->hasManyThrough(LayoutTextStructure::class, TextSelection::class);
+    }
+
+    /**
+     * @return HasMany|TextLevel[]
+     */
+    public function textLevels()
+    {
+        return $this->hasMany(TextLevel::class);
+    }
+
 }
