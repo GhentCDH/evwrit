@@ -39,4 +39,19 @@ class BaseResource extends AbstractResource
         return str_replace("\v", "\n", $text);
     }
 
+    /**
+     * Create a new anonymous resource collection.
+     *
+     * @param  mixed  $resource
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public static function collection($resource)
+    {
+        return tap(new BaseResourceCollection($resource, static::class), function ($collection) {
+            if (property_exists(static::class, 'preserveKeys')) {
+                $collection->preserveKeys = (new static([]))->preserveKeys === true;
+            }
+        });
+    }
+
 }
