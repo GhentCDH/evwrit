@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Kirschbaum\PowerJoins\PowerJoins;
 use ReflectionException;
 
 /**
@@ -72,8 +71,6 @@ use ReflectionException;
  */
 class Text extends AbstractModel
 {
-    use PowerJoins;
-
     /**
      * @return BelongsTo|Era
      * @throws ReflectionException
