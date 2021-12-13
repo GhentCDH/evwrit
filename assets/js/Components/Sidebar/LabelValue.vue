@@ -4,8 +4,10 @@
             {{ label }}
         </div>
         <div :class="outputValueClass">
-            <FormatValue v-if="value && Array.isArray(value,) && value.length" v-for="(item, index) in value" :key="index" :type="type" :value="item" :url="isCallable(url) ? url(value) : url" />
-            <FormatValue v-if="value && !Array.isArray(value,)" :value="value" :type="type" :url="isCallable(url) ? url(value) : url"/>
+            <template v-if="value != null">
+                <FormatValue v-if="Array.isArray(value) && value.length" v-for="(item, index) in value" :key="index" :type="type" :value="item" :url="isCallable(url) ? url(value) : url" />
+                <FormatValue v-if="!Array.isArray(value)" :value="value" :type="type" :url="isCallable(url) ? url(value) : url"/>
+            </template>
             <span v-else>{{ unknown }}</span>
         </div>
     </div>
@@ -28,7 +30,7 @@ export default {
         },
         unknown: {
             type: String,
-            default: 'unknown'
+            default: 'Unknown'
         },
         inline: {
             type: Boolean,
