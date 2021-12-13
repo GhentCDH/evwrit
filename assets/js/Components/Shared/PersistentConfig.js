@@ -13,7 +13,10 @@ export default function(cookieName) {
         },
         watch: {
             config: {
-                handler: function (val, oldVal) { this.setCookie(this.configCookieName, val) },
+                handler: function (val, oldVal) {
+                    this.setCookie(this.configCookieName, val)
+                    this.$emit('config-changed')
+                },
                 deep: true
             },
         },
