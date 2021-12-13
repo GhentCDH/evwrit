@@ -372,6 +372,8 @@ export default {
             }
         },
         clickAnnotation(e) {
+            e.stopPropagation()
+
             let typeId = e.target?.dataset?.id;
             this.annotationId = typeId
             console.log(typeId)
@@ -393,6 +395,11 @@ export default {
     mounted() {
         // make annotations clickable
         this.bindEvents();
+
+        // update annotation events on config change
+        this.$on('config-changed', function(config) {
+            this.bindEvents();
+        })
     }
 }
 </script>
