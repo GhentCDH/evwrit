@@ -86,6 +86,13 @@
                     <LabelValue v-if="text.keyword" label="Keywords" :value="text.keyword" :url="urlGeneratorIdName('text_search', 'keyword')" type="id_name"></LabelValue>
                 </Widget>
 
+                <Widget title="Translations" :count="text.translation.length" :init-open="false">
+                    <div v-for="translation in text.translation">
+                        <em>{{ translation.language.name}}</em>
+                        <span>{{translation.text}}</span>
+                    </div>
+                </Widget>
+
                 <Widget title="Text options">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.text.show" class="switch-primary" label="Show text"></CheckboxSwitch>
@@ -113,7 +120,18 @@
                     </PropertyGroup>
                 </Widget>
 
-                <Widget title="Attestation" :init-open="false">
+                <Widget title="Attestation" :init-open="false" :count="text.ancient_person.length">
+                    <template v-for="person in text.ancient_person">
+                        <h3>{{ person.name }}</h3>
+                        <LabelValue label="Role" :value="person.role"  type="id_name"></LabelValue>
+                        <LabelValue label="Age" :value="person.age"  type="id_name"></LabelValue>
+                        <LabelValue label="Gender" :value="person.gender"  type="id_name"></LabelValue>
+                        <LabelValue label="Education" :value="person.education"  type="id_name"></LabelValue>
+                        <LabelValue label="Occupation" :value="person.occupation"  type="id_name"></LabelValue>
+                        <LabelValue label="Social Rank" :value="person.social_rank"  type="id_name"></LabelValue>
+                        <LabelValue label="Graph Type" :value="person.graph_type"  type="id_name"></LabelValue>
+                        <LabelValue label="Honorific Epithet" :value="person.honorific_epithet"  type="id_name"></LabelValue>
+                    </template>
                 </Widget>
 
                 <Widget title="Annotations" :init-open="false" :count="text.annotations.length">
@@ -159,6 +177,15 @@
 
                 </Widget>
 
+                <Widget title="Generic Text Structure" :init-open="false" :count="text.annotations.length">
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic text structure"></CheckboxSwitch>
+                    </div>
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.genericTextStructure.groupByLevel" class="switch-primary" label="Reconstruct levels"></CheckboxSwitch>
+                    </div>
+                </Widget>
+
                 <Widget title="Images" :count="text.image.length" :init-open="false">
                     <Gallery :images="images" :onClick="(index,url) => (imageIndex = index)" />
                 </Widget>
@@ -166,22 +193,6 @@
                 <Widget title="Links" :count="text.link.length" :init-open="false">
                     <div v-for="link in text.link">
                         <a :href="link.url">{{ link.title }}</a>
-                    </div>
-                </Widget>
-
-                <Widget title="Translations" :count="text.translation.length" :init-open="false">
-                    <div v-for="translation in text.translation">
-                        <em>{{ translation.language.name}}</em>
-                        <span>{{translation.text}}</span>
-                    </div>
-                </Widget>
-
-                <Widget title="Generic Text Structure" :init-open="false" :count="text.annotations.length">
-                    <div class="form-group">
-                        <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic text structure"></CheckboxSwitch>
-                    </div>
-                    <div class="form-group">
-                        <CheckboxSwitch v-model="config.genericTextStructure.groupByLevel" class="switch-primary" label="Reconstruct levels"></CheckboxSwitch>
                     </div>
                 </Widget>
 
