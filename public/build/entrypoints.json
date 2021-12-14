@@ -13,7 +13,7 @@
         "/build/text-search.780eb3da.css"
       ],
       "js": [
-        "/build/text-search.d3d5bedc.js"
+        "/build/text-search.40d48743.js"
       ]
     },
     "materiality-search": {
@@ -21,7 +21,7 @@
         "/build/materiality-search.49a39f54.css"
       ],
       "js": [
-        "/build/materiality-search.6dae38d2.js"
+        "/build/materiality-search.1968571e.js"
       ]
     },
     "base-annotation-search": {
@@ -29,7 +29,7 @@
         "/build/base-annotation-search.97c19175.css"
       ],
       "js": [
-        "/build/base-annotation-search.2058ecd7.js"
+        "/build/base-annotation-search.9486bb28.js"
       ]
     },
     "text-view": {
@@ -37,7 +37,7 @@
         "/build/text-view.2a830768.css"
       ],
       "js": [
-        "/build/text-view.d6ffb5d8.js"
+        "/build/text-view.d97f4f32.js"
       ]
     }
   }
