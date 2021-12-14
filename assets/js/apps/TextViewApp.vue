@@ -312,7 +312,10 @@ export default {
             let result = []
             if ( this.data.text.hasOwnProperty('image') && this.data.text.image.length ) {
                 this.data.text.image.forEach( function(image,index) {
-                    result.push('https://media.evwrit.ugent.be/image.php?secret=RHRVvbV4ScZITUVjfbab85DCteR9dsPgw2s5G2aD&filename=' + image.filename)
+                    result.push({
+                        description: image.copyright ? 'Copyright: ' + image.copyright : null,
+                        src: 'https://media.evwrit.ugent.be/image.php?secret=RHRVvbV4ScZITUVjfbab85DCteR9dsPgw2s5G2aD&filename=' +image.filename
+                    })
                 })
             }
             return result

@@ -1,7 +1,7 @@
 <template>
     <div class="gallery">
-        <div class="thumb" v-for="(url,index) in images" :key="index">
-            <img :src="url" style="width: 100%; cursor: pointer" @click="onClick(index,url)">
+        <div class="thumb" v-for="(image,index) in images" :key="index">
+            <img :src="image.src" style="width: 100%; cursor: pointer" @click="onClick(index,url)">
         </div>
     </div>
 </template>
