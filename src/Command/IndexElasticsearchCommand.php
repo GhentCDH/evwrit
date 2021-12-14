@@ -50,7 +50,7 @@ class IndexElasticsearchCommand extends Command
                     $service = $this->container->get('text_index_service');
                     $service->setup();
 
-                    $repository->findByProjectId(3)->chunk(100,
+                    $repository->findByProjectNames(['ERC (main corpus)', 'Post-doc Bentein', 'Serena', 'Emmanuel'])->chunk(100,
                         function($res) use ($service, &$count) {
                             foreach ($res as $text) {
                                 $res = new ElasticTextResource($text);
