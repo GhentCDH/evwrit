@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "etali": "^1.2.3",
+    "lodash.merge": "^4.6.2",
     "regenerator-runtime": "^0.13.7"
   },
   "devDependencies": {
