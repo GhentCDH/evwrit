@@ -31,6 +31,11 @@ export default {
 
             for (let prop in this.annotation.properties) {
                 if (this.annotation.properties.hasOwnProperty(prop)) {
+                    // remove boolean property
+                    if (prop == 'has_handshift') {
+                        continue;
+                    }
+
                     let value = this.annotation.properties[prop]
                     let label = prop.split('_').slice(1).join('')
                     label = label.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase() )
