@@ -188,8 +188,12 @@ export default {
             }, timeoutValue)
         },
         sortByName(a, b) {
-            let a_name = a.name.toLowerCase()
-            let b_name = b.name.toLowerCase()
+            // console.log(a)
+            let a_name = a.name.toString()
+            let b_name = b.name.toString()
+
+            let a_name_lower = a_name.toLowerCase()
+            let b_name_lower = b_name.toLowerCase()
 
             // Place 'any', 'none' filters above
             if((a_name === 'none' || a_name === 'all') && (b_name !== 'all' && b_name !== 'none')) {
@@ -208,7 +212,7 @@ export default {
             }
 
             // Default
-            return a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })
+            return a_name.localeCompare(b_name, 'en', { sensitivity: 'base' })
         },
         resetAllFilters() {
             this.model = JSON.parse(JSON.stringify(this.originalModel))
