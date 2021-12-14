@@ -56,13 +56,24 @@ class TextRepository extends AbstractRepository
     protected $model = Text::class;
 
     /**
-     * @param int $project_id
+     * @param array $project_ids
      * @return Builder
      */
-    public function findByProjectId(int $project_id): Builder
+    public function findByProjectIds(array $project_ids): Builder
     {
-        return $this->indexQuery()->whereHas('projects', function(Builder $query) use ($project_id) {
-            $query->where('project.project_id','=', $project_id);
+        return $this->indexQuery()->whereHas('projects', function(Builder $query) use ($project_ids) {
+            $query->whereIn('project.project_id', $project_ids);
+        });
+    }
+
+    /**
+     * @param array $project_ids
+     * @return Builder
+     */
+    public function findByProjectNames(array $project_names): Builder
+    {
+        return $this->indexQuery()->whereHas('projects', function(Builder $query) use ($project_names) {
+            $query->whereIn('project.name', $project_names);
         });
     }
 
