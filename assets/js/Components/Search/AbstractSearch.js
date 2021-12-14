@@ -188,29 +188,27 @@ export default {
             }, timeoutValue)
         },
         sortByName(a, b) {
-            // Place 'any' and 'none' filters above
-            if((a.name === 'none' || a.name === 'all') && (b.name != 'all' && b.name != 'none')) {
+            let a_name = a.name.toLowerCase()
+            let b_name = b.name.toLowerCase()
+
+            // Place 'any', 'none' filters above
+            if((a_name === 'none' || a_name === 'all') && (b_name !== 'all' && b_name !== 'none')) {
                 return -1
             }
-            if((a.name != 'all' && a.name != 'none') && (b.name === 'all' || b.name === 'none')) {
+            if((a_name !== 'all' && a_name !== 'none') && (b_name === 'all' || b_name === 'none')) {
                 return 1
             }
 
             // Place true before false
-            if (a.name === 'false' && b.name === 'true') {
+            if (a_name === 'false' && b_name === 'true') {
                 return 1
             }
-            if (a.name === 'true' && b.name === 'false') {
+            if (a_name === 'true' && b_name === 'false') {
                 return -1
             }
+
             // Default
-            if (a.name < b.name) {
-                return -1
-            }
-            if (a.name > b.name) {
-                return 1
-            }
-            return 0
+            return a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })
         },
         resetAllFilters() {
             this.model = JSON.parse(JSON.stringify(this.originalModel))
