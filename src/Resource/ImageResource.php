@@ -2,7 +2,11 @@
 
 namespace App\Resource;
 
+use App\Model\Image;
 
+/**
+ * @mixin Image
+ */
 class ImageResource extends BaseResource
 {
     /**
@@ -15,7 +19,9 @@ class ImageResource extends BaseResource
     {
         return [
             'id' => $this->image_id,
-            'filename' => $this->filename
+            'filename' => $this->filename,
+            'copyright' => $this->copyright,
+            'source' => $this->source
         ];
     }
 }
