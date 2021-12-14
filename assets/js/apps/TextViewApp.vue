@@ -7,26 +7,45 @@
         </CoolLightBox>
         <article class="col-sm-9">
             <h1>{{ text.title }}</h1>
-            <div class="hidden">
-                <b-button class="btn" @click="gotoNextText()">prev</b-button>
-                <b-button class="btn" href="">back to search</b-button>
-                <b-button class="btn" @click="gotoPrevText()">next</b-button>
-            </div>
-<!--            <div class="form-group form-inline">-->
-<!--                <CheckboxSwitch v-model="config.text.show" class="switch-primary" label="Show text"></CheckboxSwitch>-->
-<!--                <CheckboxSwitch v-model="config.text.showLemmas" class="switch-primary" label="Show lemmas"></CheckboxSwitch>-->
-<!--                <CheckboxSwitch v-model="config.text.showLemmasAside" v-if="config.text.showLemmas" class="switch-primary" label="Show lemmas aside"></CheckboxSwitch>-->
-<!--                <CheckboxSwitch v-model="config.annotations.show" class="switch-primary" label="Show annotations"></CheckboxSwitch>-->
-<!--                <CheckboxSwitch v-model="config.annotations.showContext" v-if="config.annotations.show" class="switch-primary" label="Show annotation context"></CheckboxSwitch>-->
-<!--                <CheckboxSwitch v-model="config.annotations.showDetails" v-if="config.annotations.show" class="switch-primary" label="Show annotation details"></CheckboxSwitch>-->
-<!--            </div>-->
-            <div class="row">
 
+            <!-- result navigation -->
+<!--            <div class="hidden">-->
+<!--                <b-button class="btn" @click="gotoNextText()">prev</b-button>-->
+<!--                <b-button class="btn" href="">back to search</b-button>-->
+<!--                <b-button class="btn" @click="gotoPrevText()">next</b-button>-->
+<!--            </div>-->
+
+            <div class="row mbottom-large">
+
+                <!-- Text -->
                 <div v-if="config.text.show" :class="textContainerClass" class="text">
+                    <h2>Text</h2>
                     <GreekText :text="text.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="1"/>
                 </div>
 
+                <!-- Lemmas -->
+                <div v-if="config.text.showLemmas" :class="textContainerClass" class="text-lemmas">
+                    <h2>Lemmas</h2>
+                    <GreekText :text="text.text_lemmas"   />
+                </div>
+
+                <!-- Lemmas -->
+                <div v-if="config.text.showApparatus" :class="textContainerClass" class="text-lemmas">
+                    <h2>Apparatus</h2>
+                    <GreekText :text="text.apparatus"   />
+                </div>
+
+                <!-- Translations -->
+                <div v-if="config.translation.show" :class="textContainerClass" class="text-translations">
+                    <div v-for="translation in text.translation" class="greek">
+                        <h2>{{ translation.language.name}} Translation</h2>
+                        <GreekText :text="translation.text"></GreekText>
+                    </div>
+                </div>
+
+                <!-- Generic Text Structure -->
                 <div v-if="config.genericTextStructure.show" :class="textContainerClass" class="text-structure">
+                    <h2>Generic text structure</h2>
                     <template v-if="config.genericTextStructure.groupByLevel">
                         <div class="level" v-for="level in genericTextStructureGroupedByLevel">
                             <label><span>Level {{ level.number }} {{ level.type}}</span></label>
@@ -47,11 +66,11 @@
                     </template>
                 </div>
 
-                <div :class="textContainerClass" class="text-lemmas">
-                    <h2 v-if="config.text.showLemmas && !config.text.showLemmasAside">Lemmas</h2>
-                    <GreekText :text="text.text_lemmas" v-if="config.text.showLemmas"  />
-                </div>
+            </div>
 
+            <div class="row mbottom-large">
+
+                <!-- Annotations -->
                 <div class="col-xs-12">
                     <h2 v-if="config.text.show || config.text.showLemmas || config.genericTextStructure.show">Annotations</h2>
                     <div class="annotation-result" v-for="annotation in visibleAnnotations">
@@ -80,34 +99,48 @@
 
                 <Widget title="Metadata">
                     <LabelValue label="ID" :value="text.id"></LabelValue>
-                    <LabelValue label="Trismegistos ID" :value="text.tm_id"></LabelValue>
-                    <LabelValue label="Date" :value="{start: text.year_begin, end: text.year_end}" type="range"></LabelValue>
-                    <LabelValue label="Era" :value="text.era" type="id_name" :url_generator="urlGeneratorIdName('text_search', 'era')"></LabelValue>
+                    <LabelValue label="Trismegistos ID" :value="text.tm_id" :url="urlTmId"></LabelValue>
+
+                    <PropertyGroup>
+                        <LabelValue label="Type" :value="text.text_type" type="id_name"></LabelValue>
+                        <LabelValue label="Subtype" :value="text.text_subtype" type="id_name"></LabelValue>
+                    </PropertyGroup>
+
+                    <PropertyGroup>
+                        <LabelValue label="Date" :value="{start: text.year_begin, end: text.year_end}" type="range"></LabelValue>
+                        <LabelValue label="Era" :value="text.era" type="id_name" :url="urlGeneratorIdName('text_search', 'era')"></LabelValue>
+                    </PropertyGroup>
+
+
                     <LabelValue v-if="text.keyword" label="Keywords" :value="text.keyword" :url="urlGeneratorIdName('text_search', 'keyword')" type="id_name"></LabelValue>
+
+
                 </Widget>
 
                 <Widget title="Translations" :count="text.translation.length" :init-open="false">
-                    <div v-for="translation in text.translation">
-                        <em>{{ translation.language.name}}</em>
-                        <span>{{translation.text}}</span>
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.translation.show" class="switch-primary" label="Show translation(s)"></CheckboxSwitch>
                     </div>
                 </Widget>
 
                 <Widget title="Text options">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.text.show" class="switch-primary" label="Show text"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.text.show" class="switch-primary" label="Show Text"></CheckboxSwitch>
                     </div>
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.text.showLemmas" class="switch-primary" label="Show lemmas"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.text.showLemmas" class="switch-primary" label="Show Lemmas"></CheckboxSwitch>
+                    </div>
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.text.showApparatus" class="switch-primary" label="Show Apparatus"></CheckboxSwitch>
                     </div>
                 </Widget>
 
                 <Widget title="Materiality" :init-open="false">
                     <PropertyGroup>
-                        <LabelValue type="id_name" label="Production stage" :value="text.production_stage" :url_generator="urlGeneratorIdName('materiality_search','production_stage')"></LabelValue>
-                        <LabelValue type="id_name" label="Material" :value="text.material" :url_generator="urlGeneratorIdName('materiality_search','material')"></LabelValue>
-                        <LabelValue type="id_name" label="Writing direction" :value="text.writing_direction" :url_generator="urlGeneratorIdName('materiality_search','writing_direction')"></LabelValue>
-                        <LabelValue type="id_name" label="Format" :value="text.text_format" :url_generator="urlGeneratorIdName('materiality_search','text_format')"></LabelValue>
+                        <LabelValue type="id_name" label="Production stage" :value="text.production_stage" :url="urlGeneratorIdName('materiality_search','production_stage')"></LabelValue>
+                        <LabelValue type="id_name" label="Material" :value="text.material" :url="urlGeneratorIdName('materiality_search','material')"></LabelValue>
+                        <LabelValue type="id_name" label="Writing direction" :value="text.writing_direction" :url="urlGeneratorIdName('materiality_search','writing_direction')"></LabelValue>
+                        <LabelValue type="id_name" label="Format" :value="text.text_format" :url="urlGeneratorIdName('materiality_search','text_format')"></LabelValue>
                     </PropertyGroup>
                     <PropertyGroup>
                         <PageMetrics v-bind="text"></PageMetrics>
@@ -244,8 +277,11 @@ export default {
             defaultConfig: {
                 text: {
                     show: true,
-                    showLemmas: true,
-                    showLemmasAside: true
+                    showLemmas: false,
+                    showApparatus: false,
+                },
+                translation: {
+                    show: true,
                 },
                 annotations: {
                     show: true,
@@ -340,6 +376,8 @@ export default {
             let conf = [
                 this.config.text.show ? 1 : 0,
                 this.config.text.showLemmas ? 1 : 0,
+                this.config.text.showApparatus ? 1 : 0,
+                this.config.translation.show ? 1 : 0,
                 this.config.genericTextStructure.show ? 1 : 0
             ]
             return conf.reduce((partial_sum, a) => partial_sum + a, 0);
@@ -364,6 +402,9 @@ export default {
         },
         urlGeneratorIdName(url, filter) {
             return (value) => ( this.urls[url] + '?' + qs.stringify( { filters: {[filter]: value.id } } ) )
+        },
+        urlTmId(value) {
+            return 'https://www.trismegistos.org/text/' + value
         },
         async loadText(id) {
             const result = await axios.get(this.urls.text_get_single.replace('text_id',id))
