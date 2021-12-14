@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import VueCookies from 'vue-cookies'
 
+var _merge = require('lodash.merge');
+
 Vue.use(VueCookies)
 
 export default function(cookieName) {
@@ -29,6 +31,7 @@ export default function(cookieName) {
                     let ret
                     ret = this.$cookies.get(name)
                     if (ret) {
+                        _merge(ret, defaultValue)
                         return ret
                     }
                 } catch(error) {
