@@ -30,7 +30,11 @@ export default {
     computed: {
         filteredAnnotations: function() {
             // increase end position by one (needed for FlattenRanges) and correct by offset
-            let annos = this.annotations.map((i) => [i[0] - this.annotationOffset, i[1] + 1 - this.annotationOffset, i[2]])
+            // todo: check why max is needed
+            let annos = this.annotations.map((i) => [
+                Math.max(0, i[0] - this.annotationOffset),
+                i[1] + 1 - this.annotationOffset, i[2]
+            ])
 
             annos = annos.concat(this.getLineNumberAnnotations(this.text))
 
