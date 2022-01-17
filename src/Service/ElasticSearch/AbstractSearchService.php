@@ -13,6 +13,22 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     const MAX_AGG = 2147483647;
     const MAX_SEARCH = 10000;
 
+    protected const FILTER_NUMERIC = "numeric"; // numeric term filter
+    protected const FILTER_BOOLEAN = "boolean"; // boolean term filter
+    protected const FILTER_KEYWORD = "keyword"; // term filter
+    protected const FILTER_WILDCARD = "wildcard"; // wildcard term filter
+
+    protected const FILTER_TEXT = "text";
+    protected const FILTER_TEXT_MULTIPLE = "text_multiple";
+
+    protected const FILTER_OBJECT_ID = "object_id";
+    protected const FILTER_NESTED_ID = "nested_id";
+    protected const FILTER_NESTED_TOGGLE = "nested_toggle";
+    protected const FILTER_NESTED_MULTIPLE = "nested_multiple";
+    protected const FILTER_MULTIPLE_FIELDS_OBJECT = "multiple_fields_object";
+    protected const FILTER_DATE_RANGE = "date_range";
+    protected const FILTER_NUMERIC_RANGE_SLIDER = "numeric_range";
+
     protected const AGG_NUMERIC = "numeric";
     protected const AGG_KEYWORD = "exact_text";
     protected const AGG_NESTED = "nested";
@@ -22,21 +38,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
     protected const AGG_NESTED_ID_NAME = "nested_id_name";
     protected const AGG_OBJECT_ID_NAME = "object_id_name";
-
-    protected const FILTER_NUMERIC = "numeric";
-    protected const FILTER_OBJECT_ID = "object_id";
-    protected const FILTER_NESTED_ID = "nested_id";
-    protected const FILTER_NESTED_TOGGLE = "nested_toggle";
-    protected const FILTER_NESTED_MULTIPLE = "nested_multiple";
-    protected const FILTER_TEXT = "text";
-    protected const FILTER_TEXT_EXACT = "text_exact";
-    protected const FILTER_TEXT_MULTIPLE = "text_multiple";
-    protected const FILTER_BOOLEAN = "boolean";
-    protected const FILTER_MULTIPLE_FIELDS_OBJECT = "multiple_fields_object";
-    protected const FILTER_DATE_RANGE = "date_range";
-    protected const FILTER_NUMERIC_RANGE_SLIDER = "numeric_range";
-
-    public const ENABLE_CACHE = 1;
 
     /**
      * Add aggregation details to search service
@@ -471,7 +472,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $aggFilterConfigs = $this->getAggregationFilters($filterValues);
 
         // create global search query
-        // exclude aggregation filters, will be added to aggregations
+        // exclude filters used in multiselect aggregations, will be added as aggregation filters
         $query = (new Query())
             ->setQuery($this->createSearchQuery($filterValues, array_keys($aggFilterConfigs)))
             ->setSize(0); // Only aggregation will be used
@@ -689,29 +690,12 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $results;
     }
 
-    public function searchAndAggregate(array $params, $cache = null): array
+    public function searchAndAggregate(array $params): array
     {
-        // cache? add elasticsearch cache header
-        if ( $cache === self::ENABLE_CACHE) {
-            $cache_params = $this->sanitizeSearchParameters($params);
-            if ( isset($params['filters']) ) {
-                $cache_params['filters'] = $this->sanitizeSearchFilters($params['filters']);
-            }
-
-            $cache_key = md5(json_encode($cache_params));
-            $this->getClient()->addHeader('elasticsearch-cache-key', $cache_key);
-        }
-
         // search
-        if ( $cache ) {
-            $this->getClient()->getConnection()->addConfig('headers', ['elasticsearch-cache-key' => "search-".$cache_key]);
-        }
         $result = $this->search($params);
 
         // aggregate
-        if ( $cache ) {
-            $this->getClient()->getConnection()->addConfig('headers', ['elasticsearch-cache-key' => "aqg-".$cache_key]);
-        }
         $result['aggregation'] = $this->aggregate($params['filters'] ?? []);
 
         return $result;
@@ -744,9 +728,37 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             // type
             switch ($filterType) {
                 case self::FILTER_NUMERIC:
-                    $query->addMust(
-                        new Query\Match($filterField, $filterValue)
-                    );
+                case self::FILTER_BOOLEAN:
+                    $filterQuery = new Query\Term();
+                    $filterQuery->setTerm($filterField, $filterValue);
+
+                    $query->addMust( $filterQuery );
+                    break;
+                case self::FILTER_KEYWORD:
+                    if ($filterValue == -1) {
+                        $query->addMustNot(
+                            new Query\Exists($filterField)
+                        );
+                    } else {
+                        $filterQuery = new Query\Term();
+                        $filterQuery->setTerm($filterField, $filterValue);
+
+                        $query->addMust( $filterQuery );
+                    }
+                    break;
+                case self::FILTER_WILDCARD:
+                    $filterQuery = new Query\Wildcard($filterField, $filterValue);
+                    $query->addMust( $filterQuery );
+                    break;
+                case self::FILTER_TEXT:
+                    $query->addMust(self::constructTextQuery($filterField, $filterValue));
+                    break;
+                case self::FILTER_TEXT_MULTIPLE:
+                    $subQuery = new Query\BoolQuery();
+                    foreach ($filterValue as $field => $filterValue) {
+                        $subQuery->addShould(self::constructTextQuery($field, $filterValue));
+                    }
+                    $query->addMust($subQuery);
                     break;
                 case self::FILTER_OBJECT_ID:
                     $filterField .= '.id';
@@ -1004,32 +1016,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                             );
                         }
                     }
-                    break;
-                case self::FILTER_TEXT:
-                    $query->addMust(self::constructTextQuery($filterName, $filterValue));
-                    break;
-                case self::FILTER_TEXT_MULTIPLE:
-                    $subQuery = new Query\BoolQuery();
-                    foreach ($filterValue as $field => $filterValue) {
-                        $subQuery->addShould(self::constructTextQuery($field, $filterValue));
-                    }
-                    $query->addMust($subQuery);
-                    break;
-                case self::FILTER_TEXT_EXACT:
-                    if ($filterValue == -1) {
-                        $query->addMustNot(
-                            new Query\Exists($filterName)
-                        );
-                    } else {
-                        $query->addMust(
-                            (new Query\Match($filterName . '.keyword', $filterValue))
-                        );
-                    }
-                    break;
-                case self::FILTER_BOOLEAN:
-                    $query->addMust(
-                        (new Query\Match($filterName, $filterValue))
-                    );
                     break;
                 case self::FILTER_MULTIPLE_FIELDS_OBJECT:
                     // options = [[keys], value]
