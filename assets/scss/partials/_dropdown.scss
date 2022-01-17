@@ -1,6 +1,13 @@
-.dropdown-menu > li {
-  &::before {
-    content: '';
+.dropdown-menu {
+  padding: 10px;
+  font-size: 16px;
+
+  & > li {
+    margin: 0;
+
+    &::before {
+      content: '';
+    }
   }
 
   a {
@@ -9,6 +16,15 @@
     &.selected {
       background-color: $dropdown-link-hover-bg;
       color: $dropdown-link-hover-color;
+    }
+  }
+
+
+  .form-group {
+    padding: 3px 0;
+
+    .checkbox-switch label {
+      white-space: nowrap;
     }
   }
 }
