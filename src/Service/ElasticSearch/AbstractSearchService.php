@@ -223,6 +223,95 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $result;
     }
 
+    public function searchRaw(array $params = null, array $fields = null): array
+    {
+        // Construct query
+        $query = new Query();
+
+        // Set size
+        $query->setSize(500);
+
+        // Set result fields
+        // todo: beter use fields option?
+        if ( $fields ) {
+            $query->setSource($fields);
+        }
+
+        // Filtering
+        $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
+        if ( count($searchFilters) ) {
+            $searchQuery = $this->createSearchQuery($searchFilters);
+            $query->setQuery($searchQuery);
+        }
+
+        // Search
+        $data = $this->getIndex()->search($query)->getResponse()->getData();
+
+        // Format response
+        $response = [
+            'count' => $data['hits']['total']['value'] ?? 0,
+            'data' => [],
+        ];
+
+        // Build array to remove _stemmer or _original blow
+        $rename = [];
+        $filterConfigs = $this->getSearchFilterConfig();
+        foreach ($filterConfigs as $filterName => $filterConfig)
+        {
+            switch ($filterConfig['type'] ?? null) {
+                case self::FILTER_TEXT:
+                    $filterValue = $filterValues[$filterName] ?? null;
+                    if (isset($filterValue['field'])) {
+                        $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
+                    }
+                    break;
+                case self::FILTER_TEXT_MULTIPLE:
+                    $filterValues = $filterValues[$filterName] ?? null;
+                    if ( is_array($filterValues) ) {
+                        foreach($filterValues as $filterValue) {
+                            if (isset($filterValue['field'])) {
+                                $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+        foreach ( ($data['hits']['hits'] ?? []) as $result) {
+            $part = $result['_source'];
+            // Remove _stemmer or _original
+            foreach ($rename as $key => $value) {
+                if (isset($part[$key])) {
+                    $part[$value] = $part[$key];
+                    unset($part[$key]);
+                }
+                if (isset($part['original_' . $key])) {
+                    $part['original_' . $value] = $part['original_' . $key];
+                    unset($part['original_' . $key]);
+                }
+            }
+
+            // add inner_hits
+            if ( isset($result['inner_hits']) ) {
+                $part['inner_hits'] = [];
+                foreach( $result['inner_hits'] as $field_name => $inner_hit ) {
+                    $values = [];
+                    foreach($inner_hit['hits']['hits'] as $hit) {
+                        $values[] = $hit['_source'];
+                    }
+                    $part['inner_hits'][$field_name] = $values;
+                }
+            }
+
+            // sanitize result
+            $response['data'][] = $part;
+        }
+
+        unset($data);
+
+        return $response;
+    }
+
     protected function search(array $params = null): array
     {
         // sanitize search parameters
