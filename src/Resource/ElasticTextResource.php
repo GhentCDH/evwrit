@@ -110,14 +110,28 @@ class ElasticTextResource extends ElasticBaseResource
             $handshifts = ElasticHandshiftAnnotationResource::collection($this->handshiftAnnotations)->toArray()
         );
 
-        // calculate base annotations / handshift intersects, add handshift properties
-        foreach ( $handshifts as $handshift ) {
-            $handshift['properties'] = array_filter($handshift['properties']);
-            $handshift['properties']['has_handshift'] = self::boolean(1);
-            foreach($ret['annotations'] as &$annotation) {
-                if ( $annotation['type'] != 'handshift' && $this->textSelectionIntersect($handshift['text_selection'], $annotation['text_selection']) ) {
-                    $annotation['properties'] = array_merge_recursive($annotation['properties'], $handshift['properties']);
+        // calculate base annotations / handshift intersects, add handshift properties to annotation properties
+        foreach($ret['annotations'] as &$annotation) {
+            // collect handshift properties, avoid duplicates by checking id key
+            $annotation_handshift = [];
+            foreach ($handshifts as $handshift) {
+                if ($annotation['type'] != 'handshift' && $this->textSelectionIntersect($handshift['text_selection'], $annotation['text_selection'])) {
+                    foreach (array_filter($handshift['properties']) as $h_key => $h_value) {
+                        if (!isset($annotation_handshift[$h_key])) {
+                            $annotation_handshift[$h_key] = [];
+                        }
+                        $annotation_handshift[$h_key][$h_value['id']] = $h_value;
+                    }
                 }
+            }
+            // remove handshift value keys
+            foreach ($annotation_handshift as $h_key => $h_value) {
+                $annotation_handshift[$h_key] = array_values($h_value);
+            }
+            // merge handshift properties with annotation properties
+            $annotation['properties'] += $annotation_handshift;
+            if (count($annotation_handshift)) {
+                $annotation['has_handshift'] = self::boolean(1); // reduce values to 1
             }
         }
 
