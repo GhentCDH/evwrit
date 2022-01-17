@@ -389,6 +389,7 @@ class AnnotationSearchService extends AbstractSearchService
         if ( isset($result['inner_hits']['annotations']) ) {
             $result['annotations'] = $result['inner_hits']['annotations'];
         }
+        unset($result['inner_hits']);
 
         return $result;
     }
