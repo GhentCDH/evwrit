@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Helper\StreamedCsvResponse;
 use App\Model\Text;
 use App\Repository\LanguageAnnotationRepository;
 use App\Resource\BaseAnnotationResource;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 use App\Repository\TextRepository;
+use Symfony\Component\Serializer\Encoder\CsvEncoder;
 
 class TextController extends BaseController
 {
@@ -48,6 +50,12 @@ class TextController extends BaseController
         Request $request,
         TextBasicSearchService $elasticService
     ) {
+        $data = $elasticService->searchAndAggregate(
+            $this->sanitize($request->query->all())
+        );
+
+        dump($data['data'][0]);
+
         return $this->render(
             $this->templateFolder. '/overview.html.twig',
             [
@@ -55,13 +63,10 @@ class TextController extends BaseController
                     // @codingStandardsIgnoreStart Generic.Files.LineLength
                     'text_search_api' => $this->generateUrl('text_search_api'),
                     'text_get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
+                    'text_export_csv' => $this->generateUrl('text_export_csv'),
                     // @codingStandardsIgnoreEnd
                 ]),
-                'data' => json_encode(
-                    $elasticService->searchAndAggregate(
-                        $this->sanitize($request->query->all()), AbstractSearchService::ENABLE_CACHE
-                    )
-                ),
+                'data' => json_encode($data),
                 'identifiers' => json_encode([]),
                 'managements' => json_encode([]),
                 'title' => 'Texts'
@@ -79,12 +84,53 @@ class TextController extends BaseController
         Request $request,
         TextBasicSearchService $elasticService
     ) {
-        $result = $elasticService->searchAndAggregate(
-            $this->sanitize($request->query->all()), AbstractSearchService::ENABLE_CACHE
+        $data = $elasticService->searchAndAggregate(
+            $this->sanitize($request->query->all())
         );
 
-        return new JsonResponse($result);
+        return new JsonResponse($data);
     }
+
+    /**
+     * @Route("/text/export/csv", name="text_export_csv", methods={"GET"})
+     * @param Request $request
+     * @param TextBasicSearchService $elasticService
+     * @return StreamedCsvResponse
+     */
+    public function exportCSV(
+        Request $request,
+        TextBasicSearchService $elasticService
+    ) {
+        $header = [];
+
+        // search
+        $data = $elasticService->searchRAW(
+            $this->sanitize($request->query->all())
+        );
+
+        // header
+        $csvHeader = ['id', 'tm_id', 'year_begin', 'year_end', 'text'];
+
+        // data
+        $csvData = [];
+        $csvData[] = $csvHeader;
+        foreach ($data['data'] as $row) {
+            $csvRow = [];
+
+            $csvRow[] = $row['id'];
+            $csvRow[] = $row['tm_id'];
+            $csvRow[] = $row['year_begin'];
+            $csvRow[] = $row['year_end'];
+            $csvRow[] = $row['text'];
+
+            $csvData[] = $csvRow;
+        }
+
+        // csv response
+        $response = new StreamedCsvResponse($csvData, 'texts.csv');
+        return $response;
+    }
+
 
     /**
      * @Route("/text/{id}", name="text_get_single", methods={"GET"})
