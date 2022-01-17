@@ -658,6 +658,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                             'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
                         ];
                     }
+//                    $this->sortAggregationResult($results[$aggName]);
                     break;
                 case self::AGG_OBJECT_ID_NAME:
                 case self::AGG_NESTED_ID_NAME:
@@ -670,6 +671,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                             'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
                         ];
                     }
+//                    $this->sortAggregationResult($results[$aggName]);
                     break;
                 case self::AGG_BOOLEAN:
                     foreach ($aggResults as $result) {
@@ -1187,6 +1189,15 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     protected function isNestedAggregation($config_name) {
         $config = $this->getAggregationConfig()[$config_name];
         return ( in_array($config['type'], [self::AGG_NESTED, self::AGG_NESTED_ID_NAME, self::AGG_NESTED_KEYWORD],true) || ($config['nested_path'] ?? false) );
+    }
+
+    protected function sortAggregationResult(?array &$agg_result) {
+        if( !$agg_result ) {
+            return;
+        }
+        usort($agg_result, function($a, $b) {
+            return strnatcasecmp($a['name'], $b['name']);
+        });
     }
 
 }
