@@ -263,6 +263,7 @@ import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 
 import axios from 'axios'
 import qs from 'qs'
+import _merge from "lodash.merge";
 
 export default {
     name: "TextViewApp",
@@ -285,6 +286,9 @@ export default {
             urls: JSON.parse(this.initUrls),
             data: JSON.parse(this.initData),
             defaultConfig: {
+                search: {
+                    useContext: true,
+                },
                 text: {
                     show: true,
                     showLemmas: false,
@@ -310,6 +314,13 @@ export default {
                     show: false,
                     groupByLevel: false
                 }
+            },
+            context: {},
+            defaultContext: {
+                search: {},
+                index: 1,
+                count: 1,
+                filters: {}
             },
             imageIndex: null,
             annotationId: null,
@@ -350,19 +361,29 @@ export default {
             this.bindEvents();
             return ret;
         },
-        visibleAnnotations() {
-            let that = this;
+        visibleAnnotationsByContext() {
+            let annotations = this.text.annotations
 
+            // filter by search context?
+            if ( this.config.annotations.showOnlyInSearchContext && (this.context.filters ?? false) ) {
+                annotations = this.annotationsFilterbyContext(annotations, this.context.filters ?? {})
+            }
+
+            return annotations
+        },
+        visibleAnnotations() {
             if ( !this.config.annotations.show )
                 return [];
 
-            let ret = this.text.annotations
-                .filter( function(annotation) {
-                    return that.visibleAnnotationTypes.includes(annotation.type)
-                }).sort( function(annotation_1, annotation_2) {
+            let annotations = this.visibleAnnotationsByContext
+
+            // filter by config
+            annotations = this.annotationsFilterByConfig(annotations)
+
+            // sort & return
+            return annotations.sort( function(annotation_1, annotation_2) {
                     return annotation_1.text_selection.selection_start - annotation_2.text_selection.selection_start
                 });
-            return ret;
         },
         visibleAnnotationsFormatted() {
             return this.visibleAnnotations.map( annotation => this.formatAnnotation(annotation) );
@@ -408,6 +429,42 @@ export default {
         }
     },
     methods: {
+        annotationsFilterByConfig(annotations) {
+            let that = this
+            return annotations.filter( function(annotation) {
+                return that.visibleAnnotationTypes.includes(annotation.type)
+            } )
+        },
+        annotationsFilterbyContext(annotations, filters) {
+            return annotations.filter( function(annotation) {
+                // filter by type
+                if ( (filters.annotation_type ?? false) && filters.annotation_type !== annotation.type ) {
+                    return false
+                }
+
+                // filter by property
+                let types = ['language', 'typography', 'orthography', 'lexis', 'morpho_syntactical','handshift']
+                console.log(filters)
+                for ( const [key, value] of Object.entries(filters) ) {
+                    let filterValues = Array.isArray(value) ? value : [ value ]
+                    if ( types.includes(key.split('_')[0]) ) {
+                        // check key
+                        if ( !annotation.properties.hasOwnProperty(key) ) {
+                            return false;
+                        }
+
+                        // check if values match
+                        let propertieValues = Array.isArray(annotation.properties[key]) ? annotation.properties[key] : [ annotation.properties[key] ];
+                        let valuesMatched = propertieValues.filter( function(item) {
+                            return filterValues.includes(item.id)
+                        })
+                        return valuesMatched.length >= 1
+                    }
+                }
+
+                return true
+            } )
+        },
         formatAnnotation(annotation) {
             return [
                 annotation.text_selection.selection_start,
@@ -419,7 +476,7 @@ export default {
             return ['annotation', 'annotation-' + annotation.type, 'annotation-' + annotation.type + '-' + annotation.id].join(' ');
         },
         countAnnotationType(type) {
-            return this.data.text.annotations.filter( item => item.type === type ).length;
+            return this.visibleAnnotationsByContext.filter( item => item.type === type ).length;
         },
         urlGeneratorIdName(url, filter) {
             return (value) => ( this.urls[url] + '?' + qs.stringify( { filters: {[filter]: value.id } } ) )
@@ -462,6 +519,17 @@ export default {
         this.$on('config-changed', function(config) {
             this.bindEvents();
         })
+
+        // update context
+        let context = {}
+        try {
+            let searchParams = new URLSearchParams(window.location.search);
+            if ( searchParams.has('context') ) {
+                context = JSON.parse(window.atob(searchParams.get('context')))
+            }
+        } catch (e) {
+        }
+        this.context = _merge(this.defaultContext, context)
     }
 }
 </script>
