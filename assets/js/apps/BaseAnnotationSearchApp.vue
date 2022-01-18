@@ -32,40 +32,58 @@
                     :url="urls['search_api']"
                     @data="onData"
                     @loaded="onLoaded"
+                    class="form-group-sm"
             >
                 <template slot="afterFilter">
                     <b v-if="countRecords">{{ countRecords }}</b>
-                    <div class="form-group">
-                        <div class="checkbox checkbox-switch switch-primary">
-                            <label>
-                                <input type="checkbox" name="showAnnotationContext" v-model="config.showAnnotationContext" />
-                                <span></span>
-                                Show annotation context
-                            </label>
-                        </div>
-                        <div class="checkbox checkbox-switch switch-primary">
-                            <label>
-                                <input type="checkbox" name="showAnnotationDetails" v-model="config.showAnnotationDetails" />
-                                <span></span>
-                                Show annotation details
-                            </label>
-                        </div>
-                    </div>
                 </template>
                 <template slot="beforeLimit">
                 </template>
+                <template slot="afterLimit">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-cog"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right" onclick="event.stopPropagation()">
+                            <li>
+                                <div class="form-group">
+                                    <CheckboxSwitch v-model="config.showAnnotationContext" class="switch-primary" label="Show annotation context"></CheckboxSwitch>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="form-group">
+                                    <CheckboxSwitch v-model="config.showAnnotationDetails" class="switch-primary" label="Show annotation details"></CheckboxSwitch>
+                                </div>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <div class="form-group">
+                                    <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Expert mode"></CheckboxSwitch>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-download"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a :href="urls.export_csv + '?' + querystring">Export as CSV</a></li>
+                        </ul>
+                    </div>
+                </template>
                 <template slot="title" slot-scope="props">
-                    <a :href="urls['get_single'].replace('text_id', props.row.id)">
+                    <a :href="textUrl(props.row.id, props.index)">
                         {{ props.row.title }}
                     </a>
                 </template>
                 <template slot="id" slot-scope="props">
-                    <a :href="urls['get_single'].replace('text_id', props.row.id)">
+                    <a :href="textUrl(props.row.id, props.index)">
                         {{ props.row.id }}
                     </a>
                 </template>
                 <template slot="tm_id" slot-scope="props">
-                    <a :href="urls['get_single'].replace('text_id', props.row.id)">
+                    <a :href="textUrl(props.row.id, props.index)">
                         {{ props.row.tm_id }}
                     </a>
                 </template>
@@ -101,30 +119,37 @@ import VueFormGenerator from 'vue-form-generator'
 
 import AbstractField from '../Components/FormFields/AbstractField'
 import AbstractSearch from '../Components/Search/AbstractSearch'
-import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
+import CheckboxSwitch from '../Components/Shared/CheckboxSwitch'
+
 
 import AnnotationDetailsFlat from '../Components/Annotations/AnnotationDetailsFlat'
 
 import fieldRadio from '../Components/FormFields/fieldRadio'
 import GreekText from '../Components/Shared/GreekText'
 
+import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
+import PersistentConfig from "../Components/Shared/PersistentConfig";
+
 Vue.component('fieldRadio', fieldRadio);
 
 export default {
     components: {
         GreekText,
-        AnnotationDetailsFlat
+        AnnotationDetailsFlat,
+        CheckboxSwitch
     },
     mixins: [
         AbstractField,
         AbstractSearch,
-        CollapsibleGroups('annotation-search-groups')
+        PersistentConfig('BaseAnnotationSearchConfig'),
+        CollapsibleGroups(),
     ],
     props: {
     },
     data() {
         let data = {
-            config: {
+            defaultConfig: {
+                expertMode: false,
                 showAnnotationContext: true,
                 showAnnotationDetails: false
             },
@@ -136,98 +161,11 @@ export default {
                 width: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
                 height: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
             },
-            persons: null,
             schema: {
                 groups: [
+                    // annotations
                     {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Physical information',
-                        fields: [
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                label: 'Title',
-                                model: 'title',
-                            },
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                label: 'Text ID',
-                                model: 'id',
-                            },
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                label: 'Trismegistos ID',
-                                model: 'tm_id',
-                            },
-                            this.createMultiSelect('Keyword', { model: 'keyword'}),
-                            {
-                                type: 'input',
-                                inputType: 'number',
-                                label: 'Year from',
-                                model: 'year_begin',
-                                min: AbstractSearch.YEAR_MIN,
-                                max: AbstractSearch.YEAR_MAX,
-                                validator: VueFormGenerator.validators.number,
-                            },
-                            {
-                                type: 'input',
-                                inputType: 'number',
-                                label: 'Year to',
-                                model: 'year_end',
-                                min: AbstractSearch.YEAR_MIN,
-                                max: AbstractSearch.YEAR_MAX,
-                                validator: VueFormGenerator.validators.number,
-                            },
-                            {
-                                type: 'radio',
-                                label: 'The text date interval must ... the search date interval:',
-                                labelClasses: 'control-label',
-                                model: 'date_search_type',
-                                values: [
-                                    {value: 'exact', name: 'exactly match'},
-                                    {value: 'included', name: 'be included in'},
-                                    {value: 'overlap', name: 'overlap with'},
-                                ],
-                            },
-                            this.createMultiSelect('Era',{ model: 'era' } ),
-                            this.createMultiSelect('Language', { model: 'language' } ),
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Communicative information',
-                        fields: [
-                            this.createSelect('Text type', {model: 'text_type'}),
-                            this.createSelect('Text subtype', {model: 'text_subtype' , dependency: 'text_type' }),
-                            this.createMultiSelect('Social distance', { model: 'social_distance' }),
-                            this.createSelect('Generic agentive role', {model: 'generic_agentive_role'}),
-                            this.createSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
-                            this.createSelect('Generic communicative goal', {model: 'generic_communicative_goal'}),
-                            this.createSelect('Communicative goal', {model: 'communicative_goal', 'dependency': 'generic_communicative_goal'}),
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Materiality',
-                        fields: [
-                            this.createMultiSelect('Production stage', { model: 'production_stage' }),
-                            this.createMultiSelect('Material',{ model: 'material' }),
-                            this.createMultiSelect('Format', { model: 'text_format'}),
-                            this.createMultiSelect('Writing direction', { model: 'writing_direction' }),
-                            this.createSelect('Recto', { model: 'is_recto' } ),
-                            this.createSelect('Verso', { model: 'is_verso' } ),
-                            this.createSelect('Transversa charta', { model: 'is_transversa_charta' } ),
-                            this.createRangeSlider('lines','Text lines',0,160,5),
-                            this.createRangeSlider('columns','Text columns',0,10,1),
-                            this.createRangeSlider('letters_per_line','Letters per line',0,220,5),
-                            this.createRangeSlider('width','Width',0,320,5),
-                            this.createRangeSlider('height','Height',0,300,5),
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
+                        styleClasses: 'collapsible collapsed bg-tertiary',
                         legend: 'Annotations',
                         fields: [
                             this.createSelect('Type', { model: 'annotation_type' } ),
@@ -314,9 +252,104 @@ export default {
                             this.createMultiSelect('Word splitting', { model: 'handshift_wordSplitting' }),
                         ]
                     },
+
+                    // physical
+                    {
+                        styleClasses: 'collapsible collapsed',
+                        legend: 'Physical information',
+                        fields: [
+                            {
+                                type: 'input',
+                                inputType: 'text',
+                                label: 'Title',
+                                model: 'title',
+                            },
+                            {
+                                type: 'input',
+                                inputType: 'text',
+                                label: 'Text ID',
+                                model: 'id',
+                            },
+                            {
+                                type: 'input',
+                                inputType: 'text',
+                                label: 'Trismegistos ID',
+                                model: 'tm_id',
+                            },
+                            this.createMultiSelect('Keyword', { model: 'keyword'}),
+                            {
+                                type: 'input',
+                                inputType: 'number',
+                                label: 'Year from',
+                                model: 'year_begin',
+                                min: AbstractSearch.YEAR_MIN,
+                                max: AbstractSearch.YEAR_MAX,
+                                validator: VueFormGenerator.validators.number,
+                            },
+                            {
+                                type: 'input',
+                                inputType: 'number',
+                                label: 'Year to',
+                                model: 'year_end',
+                                min: AbstractSearch.YEAR_MIN,
+                                max: AbstractSearch.YEAR_MAX,
+                                validator: VueFormGenerator.validators.number,
+                            },
+                            {
+                                type: 'radio',
+                                label: 'The text date interval must ... the search date interval:',
+                                labelClasses: 'control-label',
+                                model: 'date_search_type',
+                                values: [
+                                    {value: 'exact', name: 'exactly match'},
+                                    {value: 'included', name: 'be included in'},
+                                    {value: 'overlap', name: 'overlap with'},
+                                ],
+                            },
+                            this.createMultiSelect('Era',{ model: 'era' } ),
+                            this.createMultiSelect('Language', { model: 'language' } ),
+                        ]
+                    },
+                    // communicative
+                    {
+                        styleClasses: 'collapsible collapsed',
+                        legend: 'Communicative information',
+                        expertOnly: true,
+                        fields: [
+                            this.createSelect('Text type', {model: 'text_type'}),
+                            this.createSelect('Text subtype', {model: 'text_subtype' , dependency: 'text_type' }),
+                            this.createMultiSelect('Social distance', { model: 'social_distance' }),
+                            this.createSelect('Generic agentive role', {model: 'generic_agentive_role'}),
+                            this.createSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
+                            this.createSelect('Generic communicative goal', {model: 'generic_communicative_goal'}),
+                            this.createSelect('Communicative goal', {model: 'communicative_goal', 'dependency': 'generic_communicative_goal'}),
+                        ]
+                    },
+                    // materiality
+                    {
+                        styleClasses: 'collapsible collapsed',
+                        legend: 'Materiality',
+                        expertOnly: true,
+                        fields: [
+                            this.createMultiSelect('Production stage', { model: 'production_stage' }),
+                            this.createMultiSelect('Material',{ model: 'material' }),
+                            this.createMultiSelect('Format', { model: 'text_format'}),
+                            this.createMultiSelect('Writing direction', { model: 'writing_direction' }),
+                            this.createSelect('Recto', { model: 'is_recto', expertOnly: true } ),
+                            this.createSelect('Verso', { model: 'is_verso' } ),
+                            this.createSelect('Transversa charta', { model: 'is_transversa_charta' } ),
+                            this.createRangeSlider('lines','Text lines',0,160,5),
+                            this.createRangeSlider('columns','Text columns',0,10,1),
+                            this.createRangeSlider('letters_per_line','Letters per line',0,220,5),
+                            this.createRangeSlider('width','Width',0,320,5),
+                            this.createRangeSlider('height','Height',0,300,5),
+                        ]
+                    },
+                    // administrative
                     {
                         styleClasses: 'collapsible collapsed',
                         legend: 'Administrative information',
+                        expertOnly: true,
                         fields: [
                             this.createSelect('Project', {model: 'project'}),
                             this.createSelect('Collaborator', {model: 'collaborator'}),
@@ -370,21 +403,13 @@ export default {
     watch: {
         defaultOrdering: function(val) {
         },
+        // watch model changes
         model: {
             handler: function(current) {
-                // if ( this.lastChangedField !== 'annotation_type') {
-                //     return;
-                // }
-
-                let annotation_filter = this.getAnnotationFilter();
-                //console.log(annotation_filter)
-
-                this.schema.groups[3].fields.forEach( function(field) {
-                    field.visible = ( field.model === 'annotation_type' || ( annotation_filter && field.model.startsWith(annotation_filter) ) )
-                })
+                this.updateFieldVisibility();
             },
             deep: true
-        }
+        },
     },
     methods: {
         getAnnotationFilter() {
@@ -399,7 +424,55 @@ export default {
             this.noHistory = true;
             this.$refs.resultTable.refresh();
         },
+        onData(data) {
+            this.aggregation = data.aggregation
+            // todo: ditch .data?
+            this.data.search = data.search
+            this.data.filters = data.filters
+
+            console.log('iere')
+        },
+        // update group & field visibility
+        updateFieldVisibility() {
+            let annotation_filter = this.getAnnotationFilter();
+            let config = this.config;
+
+            this.schema.groups.forEach(function (group, groupIndex) {
+                // groups: update classes
+                group.styleClasses = group.styleClasses.replace(/\s?hidden/i,'') + ((!config.expertMode && group.hasOwnProperty('expertOnly') && group.expertOnly) ? ' hidden' : '')
+                // fields: update 'visible' property
+                group.fields.forEach(function(field, fieldIndex) {
+                    let fieldVisible = !(!config.expertMode && field.hasOwnProperty('expertOnly') && field.expertOnly);
+                    if ( groupIndex === 0 ) {
+                        fieldVisible = fieldVisible && (field.model === 'annotation_type' || (annotation_filter && field.model.startsWith(annotation_filter)));
+                    }
+                    field.visible = fieldVisible
+                })
+            })
+        },
+        searchContextHash(index) {
+            return window.btoa(JSON.stringify(
+                {
+                    search: this.data.search,
+                    filters: this.data.filters,
+                    index: (this.data.search.page - 1) * this.data.search.limit + index,
+                    count: this.data.count
+                }
+            ))
+        },
+        textUrl(id, index) {
+            return this.urls['get_single'].replace('text_id', id) + '?context=' + this.searchContextHash(index)
+        }
+
     },
+    mounted() {
+        // update group visibility on config change
+        this.$on('config-changed', function(config) {
+            if (config) {
+                this.updateFieldVisibility()
+            }
+        })
+    }
 }
 </script>
 
