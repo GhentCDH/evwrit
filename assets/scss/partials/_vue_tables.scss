@@ -1,0 +1,18 @@
+.VueTables .form-inline {
+  display: flex;
+  justify-items: center;
+  align-content: center;
+
+  & > div {
+    margin-right: 10px;
+  }
+
+  &.pull-right > div {
+    margin-left: 10px;
+    margin-right: 0;
+  }
+
+  label {
+    margin-right: 0.3em;
+  }
+}

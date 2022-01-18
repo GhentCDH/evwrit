@@ -32,9 +32,14 @@
   }
 }
 
-//.form-group.not(.form-inline) {
-//  .checkbox {
-//
-//  }
-//}
-
+.checkbox-switch .count {
+  background-color: white;
+  color: black;
+  display: inline-block;
+  border: 1px solid #d1d1d1;
+  padding: 3px 8px;
+  margin-left: 0.5em;
+  border-radius: 5px;
+  font-size: 80%;
+  line-height: 1;
+}

@@ -3,7 +3,7 @@
 @import '~huisstijl2016/sass/bootstrap-custom';
 @import '~bootstrap-sass/assets/stylesheets/bootstrap/panels';
 
-@import 'partials/settings';
+@import 'partials/variables';
 
 // external
 //@import '~huisstijl2016/node_modules/ekko-lightbox/dist/ekko-lightbox';
@@ -70,8 +70,11 @@
 @import '~huisstijl2016/sass/partials/print-overwrites';
 @import '~huisstijl2016/sass/partials/tooltip';
 
+// Externals
+
+@import 'external/css_checkbox_switch';
+
 // Extra
-// @import 'partials/checkbox';
 @import 'partials/collapse';
 @import 'partials/date';
 @import 'partials/draggable';
@@ -87,6 +90,7 @@
 @import 'partials/line-numbers';
 @import 'partials/loading';
 @import 'partials/pageheader';
+@import 'partials/pager';
 @import 'partials/multiselect';
 // @import 'partials/radio';
 @import 'partials/required';
@@ -97,4 +101,4 @@
 @import 'partials/annotations';
 @import 'partials/vue_form_generator';
 @import 'partials/vue_tables';
-@import 'partials/css_checkbox_switch';
+@import 'partials/text_structure';
