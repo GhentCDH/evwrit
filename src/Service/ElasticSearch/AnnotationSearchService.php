@@ -145,10 +145,12 @@ class AnnotationSearchService extends AbstractSearchService
                     'field' => 'type.keyword'
                 ],
                 'text_level' => [
-                    'field' => 'text_level.number'
+                    'field' => 'text_level.number',
+                    'type' => self::FILTER_NUMERIC
                 ],
                 'generic_text_structure_part' => [
-                    'field' => 'generic_text_structure_part.id'
+                    'field' => 'generic_text_structure_part.id',
+                    'type' => self::FILTER_OBJECT_ID
                 ]
             ],
             'innerHits' => true
@@ -175,6 +177,7 @@ class AnnotationSearchService extends AbstractSearchService
                 $subfilter_field = "{$type}_{$property}";
                 $searchFilters['annotations']['filters'][$subfilter_name] = [
                     'field' => "properties.{$subfilter_field}.id",
+                    'type' => self::FILTER_OBJECT_ID
                 ];
             }
         }
