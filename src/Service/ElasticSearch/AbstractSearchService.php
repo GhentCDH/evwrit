@@ -2,6 +2,7 @@
 
 namespace App\Service\ElasticSearch;
 
+use Container9YN390k\getElasticSearchClientService;
 use Elastica\Aggregation;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
@@ -101,6 +102,105 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $result;
     }
 
+    protected function sanitizeSearchFilter($filterValue, $filterConfig, $filterName, $params) {
+        $ret = null;
+
+        switch ($filterConfig['type'] ?? false) {
+            case self::FILTER_NUMERIC:
+                if ($filterValue === false) break;
+                if (is_numeric($filterValue)) {
+                    $ret = (int) $filterValue;
+                }
+                break;
+            case self::FILTER_OBJECT_ID:
+            case self::FILTER_NESTED_ID:
+                if ($filterValue === false) break;
+                if (is_array($filterValue)) {
+                    $ret = array_map( fn($value) => (int) $value , $filterValue);
+                }
+                if (is_numeric($filterValue)) {
+                    $ret = (int) $filterValue;
+                }
+                break;
+            case self::FILTER_BOOLEAN:
+                if ($filterValue === false) break;
+                $ret = ($filterValue === '1');
+                break;
+            case self::FILTER_DATE_RANGE:
+                $rangeFilter = [];
+
+                $valueField = $filterConfig['floorField'];
+                if (isset($params[$valueField]) && is_numeric($params[$valueField])) {
+                    $rangeFilter['floor'] = $params[$valueField];
+                }
+
+                $valueField = $filterConfig['ceilingField'];
+                if (isset($params[$valueField]) && is_numeric($params[$valueField])) {
+                    $rangeFilter['ceiling'] = $params[$valueField];
+                }
+
+                $valueField = $filterConfig['typeField'];
+                if (isset($params[$valueField]) && in_array($params[$valueField], ['exact','included','include','overlap'], true)) {
+                    $rangeFilter['type'] = $params[$valueField];
+                }
+
+                if ($rangeFilter) {
+                    $ret = $rangeFilter;
+                }
+
+                break;
+            case self::FILTER_NUMERIC_RANGE_SLIDER:
+                $rangeFilter = [];
+                $ignore = $filterConfig['ignore'] ?? [];
+                $ignore = is_array($ignore) ? $ignore : [ $ignore ];
+
+                $value = $filterValue[0] ?? null;
+                if ( is_numeric($value) && !in_array(floatval($value), $ignore)) {
+                    $rangeFilter['floor'] = floatval($value);
+                }
+
+                $value = $filterValue[1] ?? null;
+                if ( is_numeric($value) && !in_array(floatval($value), $ignore)) {
+                    $rangeFilter['ceiling'] = floatval($value);
+                }
+
+                if ($rangeFilter) {
+                    $ret = $rangeFilter;
+                }
+
+                break;
+            case self::FILTER_TEXT_MULTIPLE:
+                if ($filterValue === false) break;
+                if (is_array($filterValue)) {
+                    $ret = $filterValue;
+                }
+                break;
+            case self::FILTER_TEXT:
+                if ($filterValue === false) break;
+                if (is_array($filterValue)) {
+                    $ret = $filterValue;
+                }
+                if (is_string($filterValue)) {
+                    $combination = $params[$filterName . '_combination'] ?? 'any';
+                    $combination = in_array($combination, ['any', 'all', 'phrase'], true) ? $combination : 'any';
+
+                    $ret = [
+                        'text' => $filterValue,
+                        'combination' => $combination
+                    ];
+                }
+                break;
+            default:
+                if ($filterValue === false) break;
+                if (is_string($filterValue)) {
+                    $ret = $filterValue;
+                }
+                break;
+        }
+
+        return $ret;
+    }
+
     protected function sanitizeSearchFilters(array $params): array
     {
         // Init Filters
@@ -114,106 +214,24 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             // filterValue = fixed value || query value || default value || false
             $filterValue = $filterConfig['value'] ?? $params[$filterName] ?? $filterConfig['defaultValue'] ?? false;
 
-            switch ($filterConfig['type']) {
-
-                case self::FILTER_NUMERIC:
-                    if ($filterValue === false) continue;
-                    if (is_numeric($filterValue)) {
-                        $filters[$filterName] = $filterValue;
+            // filter has subfilters?
+            if ($filterConfig['filters'] ?? false) {
+                foreach ($filterConfig['filters'] as $subFilterName => $subFilterConfig) {
+                    // filterValue = fixed value || query value || default value || false
+                    $subFilterValue = $subFilterConfig['value'] ?? $params[$subFilterName] ?? $subFilterConfig['defaultValue'] ?? false;
+                    if ($subFilterValue === false) continue;
+                    if ($subFilterConfig)
+                        $ret = $this->sanitizeSearchFilter($subFilterValue, $subFilterConfig, $subFilterName, $params);
+                    if (!is_null($ret)) {
+                        $filters[$subFilterName] = $ret;
                     }
-                    break;
-                case self::FILTER_OBJECT_ID:
-                case self::FILTER_NESTED_ID:
-                    if ($filterValue === false) continue;
-                    if (is_array($filterValue) || is_numeric($filterValue)) {
-                        $filters[$filterName] = $filterValue;
-                    }
-                    break;
-                case self::FILTER_NESTED_MULTIPLE:
-                    // for each subfilter, clean value
-                    foreach($filterConfig['filters'] as $subFilterName => $subFilterConfig) {
-                        // filterValue = fixed value || query value || default value || false
-                        $subFilterValue = $subFilterConfig['value'] ?? $params[$subFilterName] ?? $subFilterConfig['defaultValue'] ?? false;
-                        if ($subFilterValue === false) continue;
-                        if (is_array($subFilterValue) || is_numeric($subFilterValue) || is_string($subFilterValue)) {
-                            $filters[$subFilterName] = $subFilterValue;
-                        }
-                    }
-                    break;
-                case self::FILTER_BOOLEAN:
-                    if ($filterValue === false) continue;
-                        $filters[$filterName] = ($filterValue === '1');
-                    break;
-                case self::FILTER_DATE_RANGE:
-                    $rangeFilter = [];
-
-                    $valueField = $filterConfig['floorField'];
-                    if (isset($params[$valueField]) && is_numeric($params[$valueField])) {
-                        $rangeFilter['floor'] = $params[$valueField];
-                    }
-
-                    $valueField = $filterConfig['ceilingField'];
-                    if (isset($params[$valueField]) && is_numeric($params[$valueField])) {
-                        $rangeFilter['ceiling'] = $params[$valueField];
-                    }
-
-                    $valueField = $filterConfig['typeField'];
-                    if (isset($params[$valueField]) && in_array($params[$valueField], ['exact','included','include','overlap'], true)) {
-                        $rangeFilter['type'] = $params[$valueField];
-                    }
-
-                    if ( $rangeFilter) {
-                        $filters[$filterName] = $rangeFilter;
-                    }
-
-                    break;
-                case self::FILTER_NUMERIC_RANGE_SLIDER:
-                    $rangeFilter = [];
-                    $ignore = $filterConfig['ignore'] ?? [];
-                    $ignore = is_array($ignore) ? $ignore : [ $ignore ];
-
-                    $value = $filterValue[0] ?? null;
-                    if ( is_numeric($value) && !in_array(floatval($value), $ignore)) {
-                        $rangeFilter['floor'] = floatval($value);
-                    }
-
-                    $value = $filterValue[1] ?? null;
-                    if ( is_numeric($value) && !in_array(floatval($value), $ignore)) {
-                        $rangeFilter['ceiling'] = floatval($value);
-                    }
-
-                    if ( $rangeFilter) {
-                        $filters[$filterName] = $rangeFilter;
-                    }
-
-                    break;
-                case self::FILTER_TEXT_MULTIPLE:
-                    if ($filterValue === false) continue;
-                    if (is_array($filterValue)) {
-                        $filters[$filterName] = $filterValue;
-                    }
-                    break;
-                case self::FILTER_TEXT:
-                    if ($filterValue === false) continue;
-                    if (is_array($filterValue)) {
-                        $filters[$filterName] = $filterValue;
-                    }
-                    if (is_string($filterValue)) {
-                        $combination = $params[$filterName . '_combination'] ?? 'any';
-                        $combination = in_array($combination, ['any', 'all', 'phrase'], true) ? $combination : 'any';
-
-                        $filters[$filterName] = [
-                            'text' => $filterValue,
-                            'combination' => $combination
-                        ];
-                    }
-                    break;
-                default:
-                    if ($filterValue === false) continue;
-                    if (is_string($filterValue)) {
-                        $filters[$filterName] = $filterValue;
-                    }
-                    break;
+                }
+            } else {
+                // no subfilters
+                $filterValue = $this->sanitizeSearchFilter($filterValue, $filterConfig, $filterName, $params);
+                if ( !is_null($filterValue) ) {
+                    $filters[$filterName] = $filterValue;
+                }
             }
         }
 
@@ -365,7 +383,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             'count' => $data['hits']['total']['value'] ?? 0,
             'data' => [],
             'search' => $searchParams,
-            'filters' => ( isset($params['filters']) && is_array($params['filters']) ? $params['filters'] : [])
+            'filters' => $searchFilters
         ];
 
         // Build array to remove _stemmer or _original blow
@@ -755,8 +773,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     break;
                 case self::FILTER_TEXT_MULTIPLE:
                     $subQuery = new Query\BoolQuery();
-                    foreach ($filterValue as $field => $filterValue) {
-                        $subQuery->addShould(self::constructTextQuery($field, $filterValue));
+                    foreach ($filterValue as $field => $value) {
+                        $subQuery->addShould(self::constructTextQuery($field, $value));
                     }
                     $query->addMust($subQuery);
                     break;
