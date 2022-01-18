@@ -47,10 +47,6 @@ class BaseAnnotationController extends BaseController
             $this->sanitizeSearchRequest($request->query->all())
         );
 
-        dump($data['data'][0]);
-        $csvData = $this->renderCsvData($data);
-        dump($csvData);
-
         return $this->render(
             $this->templateFolder. '/overview.html.twig',
             [
@@ -79,8 +75,6 @@ class BaseAnnotationController extends BaseController
         Request $request,
         LinguisticAnnotationSearchService $elasticService
     ) {
-        // update elastic service config
-
         // search & aggregate
         $result = $elasticService->searchAndAggregate(
             $this->sanitizeSearchRequest($request->query->all())
@@ -99,8 +93,9 @@ class BaseAnnotationController extends BaseController
         Request $request,
         LanguageTypographyAnnotationSearchService $elasticService
     ) {
-        // update elastic service config
-
+        $data = $elasticService->searchAndAggregate(
+            $this->sanitizeSearchRequest($request->query->all())
+        );
 
         return $this->render(
             $this->templateFolder. '/overview.html.twig',
@@ -113,11 +108,7 @@ class BaseAnnotationController extends BaseController
                     'export_csv' => $this->generateUrl('annotation_languagetypography_export_csv'),
                     // @codingStandardsIgnoreEnd
                 ]),
-                'data' => json_encode(
-                    $elasticService->searchAndAggregate(
-                        $this->sanitizeSearchRequest($request->query->all())
-                    )
-                ),
+                'data' => json_encode($data),
                 'identifiers' => json_encode([]),
                 'managements' => json_encode([])
             ]
