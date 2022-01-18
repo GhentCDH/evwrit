@@ -71,7 +71,7 @@
             <div class="row mbottom-large">
 
                 <!-- Annotations -->
-                <div class="col-xs-12">
+                <div v-if="config.annotations.showList" class="col-xs-12">
                     <h2 v-if="config.text.show || config.text.showLemmas || config.genericTextStructure.show">Annotations</h2>
                     <div class="annotation-result" v-for="annotation in visibleAnnotations">
                         <GreekText
@@ -167,44 +167,54 @@
                     </template>
                 </Widget>
 
-                <Widget title="Annotations" :init-open="false" :count="text.annotations.length">
+                <Widget title="Annotations" :init-open="false" :count="visibleAnnotationsByContext.length">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.show" class="switch-primary" label="Show annotations"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.annotations.show" class="switch-primary" label="Show annotations in text"></CheckboxSwitch>
                     </div>
-                    <div class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showContext" class="switch-primary" label="Show annotation context"></CheckboxSwitch>
+
+                    <div v-if="showAnnotationOptions && hasSearchContext" class="form-group">
+                        <CheckboxSwitch v-model="config.annotations.showOnlyInSearchContext" class="switch-primary" label="Limit annotations to search context"></CheckboxSwitch>
                     </div>
-                    <div class="form-group mbottom-default">
+
+                    <div class="form-group mtop-default">
+                        <CheckboxSwitch v-model="config.annotations.showList" class="switch-primary" label="Show annotation list below text"></CheckboxSwitch>
+                    </div>
+                    <div v-if="config.annotations.showList" class="form-group">
+                        <CheckboxSwitch v-model="config.annotations.showContext" class="switch-primary" label="Show annotation in context"></CheckboxSwitch>
+                    </div>
+                    <div v-if="config.annotations.showList" class="form-group">
                         <CheckboxSwitch v-model="config.annotations.showDetails" class="switch-primary" label="Show annotation details"></CheckboxSwitch>
                     </div>
-                    <div class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showLanguage" class="switch-primary" label="Show Language annotations">
-                            <span class="count">{{ countAnnotationType('language') }}</span>
+
+                    <div v-if="showAnnotationOptions" class="form-group mtop-default">
+                        <CheckboxSwitch v-model="config.annotations.showLanguage" class="switch-primary" label="Language annotations">
+                            <span class="count pull-right annotation-language">{{ countAnnotationType('language') }}</span>
                         </CheckboxSwitch>
                     </div>
-                    <div class="form-group mbottom-default">
-                        <CheckboxSwitch v-model="config.annotations.showTypography" class="switch-primary" label="Show Typography annotations">
-                            <span class="count">{{ countAnnotationType('typography') }}</span>
+                    <div v-if="showAnnotationOptions" class="form-group mbottom-default">
+                        <CheckboxSwitch v-model="config.annotations.showTypography" class="switch-primary" label="Typography annotations">
+                            <span class="count pull-right annotation-typography">{{ countAnnotationType('typography') }}</span>
                         </CheckboxSwitch>
                     </div>
-                    <div class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showMorphoSyntactical" class="switch-primary" label="Show Morpho-Syntactical annotations">
-                            <span class="count">{{ countAnnotationType('morpho_syntactical') }}</span>
+
+                    <div v-if="showAnnotationOptions" class="form-group">
+                        <CheckboxSwitch v-model="config.annotations.showMorphoSyntactical" class="switch-primary" label="Morpho-Syntactical annotations">
+                            <span class="count pull-right annotation-morpho_syntactical">{{ countAnnotationType('morpho_syntactical') }}</span>
                         </CheckboxSwitch>
                     </div>
-                    <div class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showOrthography" class="switch-primary" label="Show Orthography annotations">
-                            <span class="count">{{ countAnnotationType('orthography') }}</span>
+                    <div v-if="showAnnotationOptions"  class="form-group">
+                        <CheckboxSwitch v-model="config.annotations.showOrthography" class="switch-primary" label="Orthography annotations">
+                            <span class="count pull-right annotation-orthography">{{ countAnnotationType('orthography') }}</span>
                         </CheckboxSwitch>
                     </div>
-                    <div class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showLexis" class="switch-primary" label="Show Lexis annotations">
-                            <span class="count">{{ countAnnotationType('lexis') }}</span>
+                    <div v-if="showAnnotationOptions" class="form-group">
+                        <CheckboxSwitch v-model="config.annotations.showLexis" class="switch-primary" label="Lexis annotations">
+                            <span class="count pull-right annotation-lexis">{{ countAnnotationType('lexis') }}</span>
                         </CheckboxSwitch>
                     </div>
-                    <div class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showMorphology" class="switch-primary" label="Show Morphology annotations">
-                            <span class="count">{{ countAnnotationType('morphology') }}</span>
+                    <div v-if="showAnnotationOptions" class="form-group mbottom-default">
+                        <CheckboxSwitch v-model="config.annotations.showMorphology" class="switch-primary" label="Morphology annotations">
+                            <span class="count pull-right annotation-morphology">{{ countAnnotationType('morphology') }}</span>
                         </CheckboxSwitch>
                     </div>
 
@@ -285,6 +295,8 @@ export default {
                 },
                 annotations: {
                     show: true,
+                    showList: false,
+                    showOnlyInSearchContext: true,
                     showDetails: true,
                     showContext: true,
                     showTypography: true,
@@ -354,6 +366,12 @@ export default {
         },
         visibleAnnotationsFormatted() {
             return this.visibleAnnotations.map( annotation => this.formatAnnotation(annotation) );
+        },
+        showAnnotationOptions() {
+            return this.config.annotations.show || this.config.annotations.showList
+        },
+        hasSearchContext() {
+           return Object.keys(this.context.hasOwnProperty('filters') ? this.context.filters : {} ).length > 0
         },
         genericTextStructure() {
             let ret = {}
