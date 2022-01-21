@@ -168,7 +168,10 @@ class TextBasicSearchService extends AbstractSearchService
             'location_found' => ['type' => self::AGG_NESTED_ID_NAME],
             'material'  => ['type' => self::AGG_NESTED_ID_NAME],
             'collaborator'  => ['type' => self::AGG_OBJECT_ID_NAME],
-            'project'  => ['type' => self::AGG_NESTED_ID_NAME],
+            'project'  => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'limitValue' => [1,4,7]
+            ],
             'script' => ['type' => self::AGG_NESTED_ID_NAME],
             'social_distance' => ['type' => self::AGG_NESTED_ID_NAME],
             'text_type' => ['type' => self::AGG_OBJECT_ID_NAME],

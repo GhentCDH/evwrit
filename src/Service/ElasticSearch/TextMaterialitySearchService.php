@@ -127,7 +127,10 @@ class TextMaterialitySearchService extends AbstractSearchService
             'keyword' => ['type' => self::AGG_NESTED_ID_NAME],
             'language' => ['type' => self::AGG_NESTED_ID_NAME],
             'collaborator'  => ['type' => self::AGG_OBJECT_ID_NAME],
-            'project'  => ['type' => self::AGG_NESTED_ID_NAME],
+            'project'  => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'limitValue' => [1,4,7]
+            ],
             'social_distance' => ['type' => self::AGG_NESTED_ID_NAME],
             'text_type' => ['type' => self::AGG_OBJECT_ID_NAME],
             'text_subtype' => ['type' => self::AGG_OBJECT_ID_NAME],
