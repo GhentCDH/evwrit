@@ -94,11 +94,11 @@
             <div class="padding-default">
 
                 <div :if="context.count > 1">
-                    <ul class="pager">
-                        <li class="previous" :class="{ disabled: context.index === 1}"><a @click="loadPrevText()"><span aria-hidden="true">&larr;</span> Previous</a></li>
-                        <li class=""><span>Result {{ context.index }} of {{ context.count }}</span></li>
-                        <li class="next" :class="{ disabled: context.index === context.count}"><a @click="loadNextText()">Next <span aria-hidden="true">&rarr;</span></a></li>
-                    </ul>
+                    <div class="row">
+                        <div class="col col-xs-2" :class="{ disabled: context.index === 1}"><span class="btn btn-sm btn-primary" @click="loadPrevText()">&larr;</span></div>
+                        <div class="col col-xs-8 text-center"><span>Result {{ context.index }} of {{ context.count }}</span></div>
+                        <div class="col col-xs-2 text-right" :class="{ disabled: context.index === context.count}"><span class="btn btn-sm btn-primary" @click="loadNextText()">&rarr;</span></div>
+                    </div>
                 </div>
 
                 <Widget title="Selection details" v-if="annotationId">
@@ -228,7 +228,7 @@
 
                 </Widget>
 
-                <Widget title="Generic Text Structure" :init-open="false" :count="text.annotations.length">
+                <Widget title="Generic Text Structure" :init-open="false" :count="text.generic_text_structure.length">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic text structure"></CheckboxSwitch>
                     </div>
