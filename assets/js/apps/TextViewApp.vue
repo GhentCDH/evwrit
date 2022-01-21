@@ -93,6 +93,14 @@
         <aside class="col-sm-3">
             <div class="padding-default">
 
+                <div :if="context.count > 1">
+                    <ul class="pager">
+                        <li class="previous" :class="{ disabled: context.index === 1}"><a @click="loadPrevText()"><span aria-hidden="true">&larr;</span> Previous</a></li>
+                        <li class=""><span>Result {{ context.index }} of {{ context.count }}</span></li>
+                        <li class="next" :class="{ disabled: context.index === context.count}"><a @click="loadNextText()">Next <span aria-hidden="true">&rarr;</span></a></li>
+                    </ul>
+                </div>
+
                 <Widget title="Selection details" v-if="annotationId">
                     <AnnotationDetails :annotation="annotationByTypeId[annotationId]"></AnnotationDetails>
                 </Widget>
@@ -316,8 +324,12 @@ export default {
                 }
             },
             context: {},
+            resultSet: {
+                params: {},
+                ids: []
+            },
             defaultContext: {
-                search: {},
+                urls: {},
                 index: 1,
                 count: 1,
                 filters: {}
@@ -366,7 +378,7 @@ export default {
 
             // filter by search context?
             if ( this.config.annotations.showOnlyInSearchContext && (this.context.filters ?? false) ) {
-                annotations = this.annotationsFilterbyContext(annotations, this.context.filters ?? {})
+                annotations = this.annotationsFilterbyContext(annotations, this.context.params?.filters ?? {})
             }
 
             return annotations
@@ -392,7 +404,7 @@ export default {
             return this.config.annotations.show || this.config.annotations.showList
         },
         hasSearchContext() {
-           return Object.keys(this.context.hasOwnProperty('filters') ? this.context.filters : {} ).length > 0
+           return Object.keys(this.context.params?.filters ?? {} ).length > 0
         },
         genericTextStructure() {
             let ret = {}
@@ -444,7 +456,7 @@ export default {
 
                 // filter by property
                 let types = ['language', 'typography', 'orthography', 'lexis', 'morpho_syntactical','handshift']
-                console.log(filters)
+                // console.log(filters)
                 for ( const [key, value] of Object.entries(filters) ) {
                     let filterValues = Array.isArray(value) ? value : [ value ]
                     if ( types.includes(key.split('_')[0]) ) {
@@ -484,19 +496,18 @@ export default {
         urlTmId(value) {
             return 'https://www.trismegistos.org/text/' + value
         },
-        async loadText(id) {
-            const result = await axios.get(this.urls.text_get_single.replace('text_id',id))
-            if (result.data) {
-                this.data.text = result.data;
-            }
+        loadText(id) {
+            axios.get(this.urls.text_get_single.replace('text_id',id)).then( (response) => {
+                if (response.data) {
+                    this.data.text = response.data;
+                }
+            })
         },
         clickAnnotation(e) {
             e.stopPropagation()
 
             let typeId = e.target?.dataset?.id;
             this.annotationId = typeId
-            console.log(typeId)
-            console.log(this.annotationByTypeId[typeId])
         },
         bindEvents() {
             this.$nextTick(function () {
@@ -509,6 +520,22 @@ export default {
                 return {start: value[0], end: value[1]}
             }
             return null;
+        },
+        async updatePaginationIndex() {
+            const { data } = await axios.get(this.context.urls.paginate + '?' + qs.stringify(this.resultSet.params) );
+            this.resultSet.ids = data;
+        },
+        loadNextText() {
+            let realNowIndex = (this.context.index - 1) - (Number.parseInt(this.resultSet.params.page) - 1)*Number.parseInt(this.resultSet.params.limit);
+            let id = this.resultSet.ids[realNowIndex + 1]
+            this.context.index += 1
+            this.loadText(id)
+        },
+        loadPrevText() {
+            let realNowIndex = (this.context.index - 1) - (Number.parseInt(this.resultSet.params.page) - 1)*Number.parseInt(this.resultSet.params.limit);
+            let id = this.resultSet.ids[realNowIndex - 1]
+            this.context.index -= 1
+            this.loadText(id)
         }
     },
     mounted() {
@@ -530,6 +557,15 @@ export default {
         } catch (e) {
         }
         this.context = _merge(this.defaultContext, context)
+
+        // update pagination
+        this.resultSet.params = this.context.params
+
+        // api calls better in created
+        this.updatePaginationIndex()
+    },
+    created() {
+
     }
 }
 </script>
@@ -545,7 +581,4 @@ aside > div {
   }
 }
 
-.annotation {
-  cursor: pointer;
-}
 </style>
