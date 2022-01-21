@@ -54,7 +54,7 @@ class TextController extends BaseController
             $this->sanitize($request->query->all())
         );
 
-        dump($data['data'][0]);
+//        dump($data['data'][0]);
 
         return $this->render(
             $this->templateFolder. '/overview.html.twig',
@@ -63,7 +63,7 @@ class TextController extends BaseController
                     // @codingStandardsIgnoreStart Generic.Files.LineLength
                     'text_search_api' => $this->generateUrl('text_search_api'),
                     'text_get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
-                    'text_export_csv' => $this->generateUrl('text_export_csv'),
+                    'export_csv' => $this->generateUrl('text_export_csv'),
                     // @codingStandardsIgnoreEnd
                 ]),
                 'data' => json_encode($data),
@@ -127,7 +127,7 @@ class TextController extends BaseController
         }
 
         // csv response
-        $response = new StreamedCsvResponse($csvData, 'texts.csv');
+        $response = new StreamedCsvResponse($csvData, $csvData[0], 'texts.csv');
         return $response;
     }
 

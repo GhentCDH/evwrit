@@ -56,7 +56,7 @@ class BaseAnnotationController extends BaseController
                     'search' => $this->generateUrl('annotation_linguistic_search'),
                     'search_api' => $this->generateUrl('annotation_linguistic_search_api'),
                     'paginate' => $this->generateUrl('annotation_linguistic_paginate'),
-                    'get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
+                    'text_get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
                     'export_csv' => $this->generateUrl('annotation_linguistic_export_csv'),
                     // @codingStandardsIgnoreEnd
                 ]),
@@ -108,7 +108,7 @@ class BaseAnnotationController extends BaseController
                     'search' => $this->generateUrl('annotation_languagetypography_search'),
                     'search_api' => $this->generateUrl('annotation_linguistic_search_api'),
                     'paginate' => $this->generateUrl('annotation_languagetypography_paginate'),
-                    'get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
+                    'text_get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
                     'export_csv' => $this->generateUrl('annotation_languagetypography_export_csv'),
                     // @codingStandardsIgnoreEnd
                 ]),

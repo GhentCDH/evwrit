@@ -60,17 +60,17 @@
                     </div>
                 </template>
                 <template slot="title" slot-scope="props">
-                    <a :href="urls['get_single'].replace('text_id', props.row.id)">
+                    <a :href="urls['text_get_single'].replace('text_id', props.row.id)">
                         {{ props.row.title }}
                     </a>
                 </template>
                 <template slot="id" slot-scope="props">
-                    <a :href="urls['get_single'].replace('text_id', props.row.id)">
+                    <a :href="urls['text_get_single'].replace('text_id', props.row.id)">
                         {{ props.row.id }}
                     </a>
                 </template>
                 <template slot="tm_id" slot-scope="props">
-                    <a :href="urls['get_single'].replace('text_id', props.row.id)">
+                    <a :href="urls['text_get_single'].replace('text_id', props.row.id)">
                         {{ props.row.tm_id }}
                     </a>
                 </template>

@@ -446,7 +446,7 @@ export default {
             ))
         },
         textUrl(id, index) {
-            return this.urls['get_single'].replace('text_id', id) + '?context=' + this.searchContextHash(index)
+            return this.urls['text_get_single'].replace('text_id', id) + '?context=' + this.searchContextHash(index)
         }
 
     },

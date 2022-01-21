@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Helper\StreamedCsvResponse;
+use App\Service\ElasticSearch\TextBasicSearchService;
 use App\Service\ElasticSearch\TextMaterialitySearchService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -42,7 +44,7 @@ class MaterialityController extends BaseController
                 'urls' => json_encode([
                     // @codingStandardsIgnoreStart Generic.Files.LineLength
                     'search_api' => $this->generateUrl('materiality_search_api'),
-                    'get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
+                    'text_get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
                     // @codingStandardsIgnoreEnd
                 ]),
                 'data' => json_encode(
@@ -56,6 +58,8 @@ class MaterialityController extends BaseController
             ]
         );
     }
+
+
 
     /**
      * @Route("/materiality/search_api", name="materiality_search_api", methods={"GET"})
@@ -72,6 +76,44 @@ class MaterialityController extends BaseController
         );
 
         return new JsonResponse($result);
+    }
+
+    /**
+     * @Route("/materiality/export/csv", name="text_export_csv", methods={"GET"})
+     * @param Request $request
+     * @param TextMaterialitySearchService $elasticService
+     * @return StreamedCsvResponse
+     */
+    public function exportCSV(
+        Request $request,
+        TextMaterialitySearchService $elasticService
+    ) {
+        // search
+        $data = $elasticService->searchRAW(
+            $this->sanitize($request->query->all())
+        );
+
+        // header
+        $csvHeader = ['id', 'tm_id', 'year_begin', 'year_end', 'text'];
+
+        // data
+        $csvData = [];
+        $csvData[] = $csvHeader;
+        foreach ($data['data'] as $row) {
+            $csvRow = [];
+
+            $csvRow[] = $row['id'];
+            $csvRow[] = $row['tm_id'];
+            $csvRow[] = $row['year_begin'];
+            $csvRow[] = $row['year_end'];
+            $csvRow[] = $row['text'];
+
+            $csvData[] = $csvRow;
+        }
+
+        // csv response
+        $response = new StreamedCsvResponse($csvData, $csvData[0], 'materiality.csv');
+        return $response;
     }
 
     /**
