@@ -247,11 +247,34 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         // Construct query
         $query = new Query();
 
-        // Set size
-        $query->setSize(500);
+        // Number of results
+        if (isset($searchParams['limit']) && is_numeric($searchParams['limit'])) {
+            $query->setSize($searchParams['limit']);
+        }
+
+        // Pagination
+        if (isset($searchParams['page']) && is_numeric($searchParams['page']) &&
+            isset($searchParams['limit']) && is_numeric($searchParams['limit'])
+        ) {
+            $query->setFrom(($searchParams['page'] - 1) * $searchParams['limit']);
+        }
+
+        // Sorting
+        if (isset($searchParams['orderBy'])) {
+            if (isset($searchParams['ascending']) && $searchParams['ascending'] == 0) {
+                $order = 'desc';
+            } else {
+                $order = 'asc';
+            }
+            $sort = [];
+            foreach ($searchParams['orderBy'] as $field) {
+                $sort[] = [$field => $order];
+            }
+            $query->setSort($sort);
+        }
 
         // Set result fields
-        // todo: beter use fields option?
+        // todo: better use fields option?
         if ( $fields ) {
             $query->setSource($fields);
         }
@@ -671,6 +694,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 case self::AGG_KEYWORD:
                     foreach ($aggResults as $result) {
                         if ( !isset($result['key']) ) continue;
+                        if ( count($aggConfig['limitValue'] ?? []) && !in_array($result['key'], $aggConfig['limitValue'], true) ) {
+                            continue;
+                        }
                         $results[$aggName][] = [
                             'id' => $result['key'],
                             'name' => $result['key'],
@@ -684,8 +710,12 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     foreach ($aggResults as $result) {
                         if ( !isset($result['key']) ) continue;
                         $parts = explode('_',$result['key'],2);
+                        // limitValue?
+                        if ( count($aggConfig['limitValue'] ?? []) && !in_array((int) $parts[0], $aggConfig['limitValue'], true) ) {
+                            continue;
+                        }
                         $results[$aggName][] = [
-                            'id' => $parts[0],
+                            'id' => (int) $parts[0],
                             'name' => $parts[1],
                             'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
                         ];
