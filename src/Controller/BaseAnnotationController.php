@@ -53,7 +53,9 @@ class BaseAnnotationController extends BaseController
                 'title' => 'Linguistic annotations',
                 'urls' => json_encode([
                     // @codingStandardsIgnoreStart Generic.Files.LineLength
+                    'search' => $this->generateUrl('annotation_linguistic_search'),
                     'search_api' => $this->generateUrl('annotation_linguistic_search_api'),
+                    'paginate' => $this->generateUrl('annotation_linguistic_paginate'),
                     'get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
                     'export_csv' => $this->generateUrl('annotation_linguistic_export_csv'),
                     // @codingStandardsIgnoreEnd
@@ -103,7 +105,9 @@ class BaseAnnotationController extends BaseController
                 'title' => 'Languages and Typography',
                 'urls' => json_encode([
                     // @codingStandardsIgnoreStart Generic.Files.LineLength
-                    'search_api' => $this->generateUrl('annotation_languagetypography_search_api'),
+                    'search' => $this->generateUrl('annotation_languagetypography_search'),
+                    'search_api' => $this->generateUrl('annotation_linguistic_search_api'),
+                    'paginate' => $this->generateUrl('annotation_languagetypography_paginate'),
                     'get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
                     'export_csv' => $this->generateUrl('annotation_languagetypography_export_csv'),
                     // @codingStandardsIgnoreEnd
@@ -136,10 +140,10 @@ class BaseAnnotationController extends BaseController
     }
 
     /**
-     * @Route("/annotation/languagetypography/export/csv", name="annotation_languagetypography_export_csv", methods={"GET"})
+     * @Route("/annotation/languagetypography/paginate", name="annotation_languagetypography_paginate", methods={"GET"})
      * @param Request $request
      * @param LanguageTypographyAnnotationSearchService $elasticService
-     * @return StreamedCsvResponse
+     * @return JsonResponse
      */
     public function languageTypographyExportCSV(
         Request $request,
@@ -148,25 +152,46 @@ class BaseAnnotationController extends BaseController
         // search
         $data = $elasticService->searchRAW(
             $this->sanitizeSearchRequest($request->query->all()),
-            ['id', 'tm_id', 'annotations']
+            ['id']
         );
 
-        $csvData = $this->renderCsvData($data);
+        return new JsonResponse($data);
+    }
 
-        // csv response
-        $response = new StreamedCsvResponse($csvData, $csvData[0], 'languagetypography-annotations.csv');
-        return $response;
+    /**
+     * @Route("/annotation/languagetypography/export/csv", name="annotation_languagetypography_export_csv", methods={"GET"})
+     * @param Request $request
+     * @param LanguageTypographyAnnotationSearchService $elasticService
+     * @return StreamedCsvResponse
+     */
+    public function languageTypographyPaginate(
+        Request $request,
+        LanguageTypographyAnnotationSearchService $elasticService
+    ) {
+        // search
+        $data = $elasticService->searchRAW(
+            $this->sanitizeSearchRequest($request->query->all()),
+            ['id']
+        );
+
+        // return array of id's
+        $result = [];
+        foreach($data['data'] as $item) {
+            $result[] = $item['id'];
+        }
+
+        return new JsonResponse($result);
     }
 
     /**
      * @Route("/annotation/linguistic/export/csv", name="annotation_linguistic_export_csv", methods={"GET"})
      * @param Request $request
-     * @param LanguageTypographyAnnotationSearchService $elasticService
+     * @param LinguisticAnnotationSearchService $elasticService
      * @return StreamedCsvResponse
      */
     public function linguisticExportCSV(
         Request $request,
-        LanguageTypographyAnnotationSearchService $elasticService
+        LinguisticAnnotationSearchService $elasticService
     ) {
         // search
         $data = $elasticService->searchRAW(
@@ -179,6 +204,31 @@ class BaseAnnotationController extends BaseController
         // csv response
         $response = new StreamedCsvResponse($csvData, $csvData[0], 'linguistic-annotations.csv');
         return $response;
+    }
+
+    /**
+     * @Route("/annotation/linguistic/paginate", name="annotation_linguistic_paginate", methods={"GET"})
+     * @param Request $request
+     * @param LinguisticAnnotationSearchService $elasticService
+     * @return JsonResponse
+     */
+    public function linguisticPaginate(
+        Request $request,
+        LanguageTypographyAnnotationSearchService $elasticService
+    ) {
+        // search
+        $data = $elasticService->searchRAW(
+            $this->sanitizeSearchRequest($request->query->all()),
+            ['id']
+        );
+
+        // return array of id's
+        $result = [];
+        foreach($data['data'] as $item) {
+            $result[] = $item['id'];
+        }
+
+        return new JsonResponse($result);
     }
 
     /**
