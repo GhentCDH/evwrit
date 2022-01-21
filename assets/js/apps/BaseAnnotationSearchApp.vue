@@ -128,7 +128,9 @@ import fieldRadio from '../Components/FormFields/fieldRadio'
 import GreekText from '../Components/Shared/GreekText'
 
 import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
+import ExpertGroups from '../Components/Search/ExpertGroupsAnnotations'
 import PersistentConfig from "../Components/Shared/PersistentConfig";
+import qs from "qs";
 
 Vue.component('fieldRadio', fieldRadio);
 
@@ -143,13 +145,13 @@ export default {
         AbstractSearch,
         PersistentConfig('BaseAnnotationSearchConfig'),
         CollapsibleGroups(),
+        ExpertGroups(),
     ],
     props: {
     },
     data() {
         let data = {
             defaultConfig: {
-                expertMode: false,
                 showAnnotationContext: true,
                 showAnnotationDetails: false
             },
@@ -388,7 +390,6 @@ export default {
                 person: {},
             },
             defaultOrdering: 'title',
-            groupIsOpen: [],
             annotationFilter: null,
         }
 
@@ -429,32 +430,16 @@ export default {
             // todo: ditch .data?
             this.data.search = data.search
             this.data.filters = data.filters
-
-            console.log('iere')
-        },
-        // update group & field visibility
-        updateFieldVisibility() {
-            let annotation_filter = this.getAnnotationFilter();
-            let config = this.config;
-
-            this.schema.groups.forEach(function (group, groupIndex) {
-                // groups: update classes
-                group.styleClasses = group.styleClasses.replace(/\s?hidden/i,'') + ((!config.expertMode && group.hasOwnProperty('expertOnly') && group.expertOnly) ? ' hidden' : '')
-                // fields: update 'visible' property
-                group.fields.forEach(function(field, fieldIndex) {
-                    let fieldVisible = !(!config.expertMode && field.hasOwnProperty('expertOnly') && field.expertOnly);
-                    if ( groupIndex === 0 ) {
-                        fieldVisible = fieldVisible && (field.model === 'annotation_type' || (annotation_filter && field.model.startsWith(annotation_filter)));
-                    }
-                    field.visible = fieldVisible
-                })
-            })
         },
         searchContextHash(index) {
             return window.btoa(JSON.stringify(
                 {
-                    search: this.data.search,
-                    filters: this.data.filters,
+                    urls: {
+                        search: this.urls.search,
+                        search_api: this.urls.search_api,
+                        paginate: this.urls.paginate,
+                    },
+                    params: qs.parse(window.location.href.split('?',2)[1]) ?? [],
                     index: (this.data.search.page - 1) * this.data.search.limit + index,
                     count: this.data.count
                 }
@@ -465,14 +450,6 @@ export default {
         }
 
     },
-    mounted() {
-        // update group visibility on config change
-        this.$on('config-changed', function(config) {
-            if (config) {
-                this.updateFieldVisibility()
-            }
-        })
-    }
 }
 </script>
 
