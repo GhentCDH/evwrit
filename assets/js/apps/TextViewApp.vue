@@ -455,20 +455,24 @@ export default {
                 }
 
                 // filter by property
-                let types = ['language', 'typography', 'orthography', 'lexis', 'morpho_syntactical','handshift']
+                let propertyPrefixes = ['language', 'typography', 'orthography', 'lexis', 'morpho_syntactical','handshift']
                 // console.log(filters)
                 for ( const [key, value] of Object.entries(filters) ) {
+                    // make sure filter values is array of integers
                     let filterValues = Array.isArray(value) ? value : [ value ]
-                    if ( types.includes(key.split('_')[0]) ) {
-                        // check key
+                    filterValues = filterValues.map(i=>Number(i))
+
+                    // check if property key has correct prefix
+                    if ( propertyPrefixes.includes(key.split('_')[0]) ) {
+                        // check if annotation as this property
                         if ( !annotation.properties.hasOwnProperty(key) ) {
                             return false;
                         }
 
-                        // check if values match
+                        // check if property matches includes at least one of the filter values
                         let propertieValues = Array.isArray(annotation.properties[key]) ? annotation.properties[key] : [ annotation.properties[key] ];
-                        let valuesMatched = propertieValues.filter( function(item) {
-                            return filterValues.includes(item.id)
+                        let valuesMatched = propertieValues.filter( function(propertyValue) {
+                            return filterValues.includes(propertyValue.id)
                         })
                         return valuesMatched.length >= 1
                     }
