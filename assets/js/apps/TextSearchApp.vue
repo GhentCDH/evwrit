@@ -32,9 +32,32 @@
                     :url="urls['text_search_api']"
                     @data="onData"
                     @loaded="onLoaded"
+                    class="form-group-sm"
             >
                 <template slot="afterFilter">
                     <b v-if="countRecords">{{ countRecords }}</b>
+                </template>
+                <template slot="afterLimit">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-cog"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right" onclick="event.stopPropagation()">
+                            <li>
+                                <div class="form-group">
+                                    <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Expert mode"></CheckboxSwitch>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-download"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a :href="urls.export_csv + '?' + querystring">Export as CSV</a></li>
+                        </ul>
+                    </div>
                 </template>
                 <template slot="title" slot-scope="props">
                     <a :href="urls['text_get_single'].replace('text_id', props.row.id)">
@@ -67,17 +90,28 @@ import VueFormGenerator from 'vue-form-generator'
 
 import AbstractField from '../Components/FormFields/AbstractField'
 import AbstractSearch from '../Components/Search/AbstractSearch'
-import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
+import CheckboxSwitch from '../Components/Shared/CheckboxSwitch'
 
 import fieldRadio from '../Components/FormFields/fieldRadio'
+
+import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
+import ExpertGroups from '../Components/Search/ExpertGroups'
+import PersistentConfig from "../Components/Shared/PersistentConfig";
+import GreekText from "../Components/Shared/GreekText";
+import AnnotationDetailsFlat from "../Components/Annotations/AnnotationDetailsFlat";
 
 Vue.component('fieldRadio', fieldRadio);
 
 export default {
+    components: {
+        CheckboxSwitch
+    },
     mixins: [
         AbstractField,
         AbstractSearch,
-        CollapsibleGroups('search-text-groups')
+        PersistentConfig('TextSearchConfig'),
+        CollapsibleGroups(),
+        ExpertGroups(),
     ],
     props: {
     },
@@ -214,6 +248,7 @@ export default {
                         ]
                     },
                     {
+                        expertOnly: true,
                         styleClasses: 'collapsible collapsed',
                         legend: 'Administrative information',
                         fields: [
