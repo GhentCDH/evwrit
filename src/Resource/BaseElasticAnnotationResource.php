@@ -73,21 +73,20 @@ class BaseElasticAnnotationResource extends BaseResource
         $s_start = min(max(0, $text_selection->selection_start), $t_end); // fix incorrect selection start
         $s_end = min($text_selection->selection_end, $t_end); // fix incorrect selection end
 
-//        echo "selection: {$s_start} - {$s_end} - {$t_len} \n";
-
-        // context start: if selection start > 0, find first vertical tab to the left of selection_end
+        // context start: if selection start > 0, find last vertical tab in string before selection start
         $c_start = 0;
-        if ( $s_start && ( ( $pos = mb_strrpos($text, "\v", -$t_len + $s_start)) !== false ) ) {
-            $c_start = min($pos + 1, $t_end);
+        if ($s_start) {
+            $selection_prefix = mb_substr($text, 0, $s_start);
+            $c_start = mb_strrpos($selection_prefix, "\v");
+            $c_start = $c_start !== false ? min($t_end, $c_start + 1) : $t_end;
         }
 
         // context end: find first vertical tab to the right of selection_end
         $c_end = $t_end;
         if ( $s_end < $t_end ) {
-            $c_end = mb_strpos($text, "\v", $s_end) ?: $t_end;
+            $c_end = mb_strpos($text, "\v", $s_end);
+            $c_end = $c_end !== false ? max(0, $c_end - 1) : $t_end;
         }
-
-//        echo "context: {$c_start} - {$c_end}\n";
 
         // left pos
         $context = [
@@ -95,6 +94,18 @@ class BaseElasticAnnotationResource extends BaseResource
             'start' => $c_start,
             'end' => $c_end
         ];
+
+//        print_r($E);
+//        print_r($text_selection);
+//        echo "t_len: {$t_len}".PHP_EOL;
+//        echo "t_end: {$t_len}".PHP_EOL;
+//        echo "s_start: {$s_start}".PHP_EOL;
+//        echo "s_end: {$s_end}".PHP_EOL;
+//        echo "c_start: {$c_start}".PHP_EOL;
+//        echo "c_end: {$c_end}".PHP_EOL;
+//
+//        echo "max(-t_len + s_start, t_end) ".max(-$t_len + $s_start, $t_end).PHP_EOL;
+//        die();
 
         $context['text'] = $this->convertNewlines($context['text']);
 
