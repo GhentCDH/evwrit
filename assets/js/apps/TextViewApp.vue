@@ -530,13 +530,15 @@ export default {
             this.resultSet.ids = data;
         },
         loadNextText() {
-            let realNowIndex = (this.context.index - 1) - (Number.parseInt(this.resultSet.params.page) - 1)*Number.parseInt(this.resultSet.params.limit);
+            // todo: property checks should be done before this
+            let realNowIndex = (this.context.index - 1) - (Number.parseInt(this.resultSet.params.page ?? '1') - 1)*Number.parseInt(this.resultSet.params.limit ?? '25');
             let id = this.resultSet.ids[realNowIndex + 1]
             this.context.index += 1
             this.loadText(id)
         },
         loadPrevText() {
-            let realNowIndex = (this.context.index - 1) - (Number.parseInt(this.resultSet.params.page) - 1)*Number.parseInt(this.resultSet.params.limit);
+            // todo: property checks should be done before this
+            let realNowIndex = (this.context.index - 1) - (Number.parseInt(this.resultSet.params.page ?? '1') - 1)*Number.parseInt(this.resultSet.params.limit ?? '25');
             let id = this.resultSet.ids[realNowIndex - 1]
             this.context.index -= 1
             this.loadText(id)
@@ -563,6 +565,7 @@ export default {
         this.context = _merge(this.defaultContext, context)
 
         // update pagination
+        // todo: check params, merge with defaults?
         this.resultSet.params = this.context.params
 
         // api calls better in created
