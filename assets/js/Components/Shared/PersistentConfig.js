@@ -44,9 +44,6 @@ export default function(cookieName) {
         },
         created() {
             this.config = this.defaultConfig;
-
-            console.log(this.$cookies.keys())
-
             if ( !this.$cookies.isKey(this.configCookieName) )
                 this.setCookie(this.configCookieName, this.config)
             else {
