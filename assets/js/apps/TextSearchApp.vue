@@ -29,7 +29,7 @@
                     ref="resultTable"
                     :columns="tableColumns"
                     :options="tableOptions"
-                    :url="urls['text_search_api']"
+                    :url="getUrl('search_api')"
                     @data="onData"
                     @loaded="onLoaded"
                     class="form-group-sm"
@@ -55,22 +55,22 @@
                             <i class="fa fa-download"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
-                            <li><a :href="urls.export_csv + '?' + querystring">Export as CSV</a></li>
+                            <li><a :href="getUrl('export_csv') + '?' + querystring">Export as CSV</a></li>
                         </ul>
                     </div>
                 </template>
                 <template slot="title" slot-scope="props">
-                    <a :href="urls['text_get_single'].replace('text_id', props.row.id)">
+                    <a :href="getTextUrl(props.row.id, props.index)">
                         {{ props.row.title }}
                     </a>
                 </template>
                 <template slot="id" slot-scope="props">
-                    <a :href="urls['text_get_single'].replace('text_id', props.row.id)">
+                    <a :href="getTextUrl(props.row.id, props.index)">
                         {{ props.row.id }}
                     </a>
                 </template>
                 <template slot="tm_id" slot-scope="props">
-                    <a :href="urls['text_get_single'].replace('text_id', props.row.id)">
+                    <a :href="getTextUrl(props.row.id, props.index)">
                         {{ props.row.tm_id }}
                     </a>
                 </template>
@@ -96,9 +96,8 @@ import fieldRadio from '../Components/FormFields/fieldRadio'
 
 import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
 import ExpertGroups from '../Components/Search/ExpertGroups'
+import SharedSearch from "../Components/Search/SharedSearch";
 import PersistentConfig from "../Components/Shared/PersistentConfig";
-import GreekText from "../Components/Shared/GreekText";
-import AnnotationDetailsFlat from "../Components/Annotations/AnnotationDetailsFlat";
 
 Vue.component('fieldRadio', fieldRadio);
 
@@ -110,6 +109,7 @@ export default {
         AbstractField,
         AbstractSearch,
         PersistentConfig('TextSearchConfig'),
+        SharedSearch,
         CollapsibleGroups(),
         ExpertGroups(),
     ],
@@ -274,7 +274,7 @@ export default {
                 },
                 'perPage': 25,
                 'perPageValues': [25, 50, 100],
-                'sortable': ['title', 'year_begin', 'year_end'],
+                'sortable': ['id', 'tm_id','title', 'year_begin', 'year_end'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {

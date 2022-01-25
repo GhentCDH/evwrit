@@ -29,7 +29,7 @@
                     ref="resultTable"
                     :columns="tableColumns"
                     :options="tableOptions"
-                    :url="urls['search_api']"
+                    :url="getUrl('search_api')"
                     @data="onData"
                     @loaded="onLoaded"
                     class="form-group-sm"
@@ -73,17 +73,17 @@
                     </div>
                 </template>
                 <template slot="title" slot-scope="props">
-                    <a :href="textUrl(props.row.id, props.index)">
+                    <a :href="getTextUrl(props.row.id, props.index)">
                         {{ props.row.title }}
                     </a>
                 </template>
                 <template slot="id" slot-scope="props">
-                    <a :href="textUrl(props.row.id, props.index)">
+                    <a :href="getTextUrl(props.row.id, props.index)">
                         {{ props.row.id }}
                     </a>
                 </template>
                 <template slot="tm_id" slot-scope="props">
-                    <a :href="textUrl(props.row.id, props.index)">
+                    <a :href="getTextUrl(props.row.id, props.index)">
                         {{ props.row.tm_id }}
                     </a>
                 </template>
@@ -130,6 +130,8 @@ import GreekText from '../Components/Shared/GreekText'
 import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
 import ExpertGroups from '../Components/Search/ExpertGroupsAnnotations'
 import PersistentConfig from "../Components/Shared/PersistentConfig";
+import SharedSearch from "../Components/Search/SharedSearch";
+
 import qs from "qs";
 
 Vue.component('fieldRadio', fieldRadio);
@@ -144,6 +146,7 @@ export default {
         AbstractField,
         AbstractSearch,
         PersistentConfig('BaseAnnotationSearchConfig'),
+        SharedSearch,
         CollapsibleGroups(),
         ExpertGroups(),
     ],
@@ -400,6 +403,9 @@ export default {
             let columns = ['id', 'tm_id', 'title', 'annotations']
             return columns
         },
+        defaultContext() {
+
+        }
     },
     watch: {
         defaultOrdering: function(val) {
@@ -425,30 +431,6 @@ export default {
             this.noHistory = true;
             this.$refs.resultTable.refresh();
         },
-        onData(data) {
-            this.aggregation = data.aggregation
-            // todo: ditch .data?
-            this.data.search = data.search
-            this.data.filters = data.filters
-        },
-        searchContextHash(index) {
-            return window.btoa(JSON.stringify(
-                {
-                    urls: {
-                        search: this.urls.search,
-                        search_api: this.urls.search_api,
-                        paginate: this.urls.paginate,
-                    },
-                    params: qs.parse(window.location.href.split('?',2)[1]) ?? [],
-                    index: (this.data.search.page - 1) * this.data.search.limit + index,
-                    count: this.data.count
-                }
-            ))
-        },
-        textUrl(id, index) {
-            return this.urls['text_get_single'].replace('text_id', id) + '?context=' + this.searchContextHash(index)
-        }
-
     },
 }
 </script>
