@@ -13,6 +13,7 @@ use App\Resource\ElasticTypographyAnnotationResource;
 use App\Resource\TextResource;
 use App\Service\ElasticSearch\AbstractSearchService;
 use App\Service\ElasticSearch\TextBasicSearchService;
+use App\Service\ElasticSearch\TextIndexService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,6 +30,8 @@ class TextController extends BaseController
 {
     protected $templateFolder = 'Text';
 
+    protected const searchServiceName = "text_basic_search_service";
+    protected const indexServiceName = "text_index_service";
 
     /**
      * @Route("/text", name="text", methods={"GET"})
@@ -43,33 +46,20 @@ class TextController extends BaseController
     /**
      * @Route("/text/search", name="text_search", methods={"GET"})
      * @param Request $request
-     * @param TextBasicSearchService $elasticservice
      * @return Response
      */
     public function search(
-        Request $request,
-        TextBasicSearchService $elasticService
+        Request $request
     ) {
-        $data = $elasticService->searchAndAggregate(
-            $this->sanitize($request->query->all())
-        );
-
-//        dump($data['data'][0]);
-
-        return $this->render(
-            $this->templateFolder. '/overview.html.twig',
+        return $this->_search(
+            $request,
             [
-                'urls' => json_encode([
-                    // @codingStandardsIgnoreStart Generic.Files.LineLength
-                    'text_search_api' => $this->generateUrl('text_search_api'),
-                    'text_get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
-                    'export_csv' => $this->generateUrl('text_export_csv'),
-                    // @codingStandardsIgnoreEnd
-                ]),
-                'data' => json_encode($data),
-                'identifiers' => json_encode([]),
-                'managements' => json_encode([]),
                 'title' => 'Texts'
+            ],
+            [
+                'search_api' => 'text_search_api',
+                'paginate' => 'text_paginate',
+                'export_csv' => 'text_export_csv'
             ]
         );
     }
@@ -77,35 +67,40 @@ class TextController extends BaseController
     /**
      * @Route("/text/search_api", name="text_search_api", methods={"GET"})
      * @param Request $request
-     * @param TextBasicSearchService $elasticService
      * @return JsonResponse
      */
-    public function searchAPI(
-        Request $request,
-        TextBasicSearchService $elasticService
+    public function search_api(
+        Request $request
     ) {
-        $data = $elasticService->searchAndAggregate(
-            $this->sanitize($request->query->all())
-        );
+        return $this->_search_api($request);
+    }
 
-        return new JsonResponse($data);
+    /**
+     * @Route("/text/paginate", name="text_paginate", methods={"GET"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function paginate(
+        Request $request
+    ) {
+        return $this->_paginate($request);
     }
 
     /**
      * @Route("/text/export/csv", name="text_export_csv", methods={"GET"})
      * @param Request $request
-     * @param TextBasicSearchService $elasticService
      * @return StreamedCsvResponse
      */
     public function exportCSV(
-        Request $request,
-        TextBasicSearchService $elasticService
+        Request $request
     ) {
+        $elasticService = $this->getContainer()->get(static::searchServiceName);
+
         $header = [];
 
         // search
         $data = $elasticService->searchRAW(
-            $this->sanitize($request->query->all())
+            $this->sanitizeSearchRequest($request->query->all())
         );
 
         // header
@@ -136,16 +131,16 @@ class TextController extends BaseController
      * @Route("/text/{id}", name="text_get_single", methods={"GET"})
      * @param int $id
      * @param Request $request
-     * @param ContainerInterface $container
      * @return JsonResponse|Response
      */
-    public function getSingle(int $id, Request $request, ContainerInterface $container)
+    public function getSingle(int $id, Request $request)
     {
+        $elasticService = $this->getContainer()->get(self::indexServiceName);
+
         if (in_array('application/json', $request->getAcceptableContentTypes())) {
             //$this->denyAccessUnlessGranted('ROLE_EDITOR_VIEW');
             try {
-                $service = $container->get('text_index_service');
-                $resource = $service->get($id);
+                $resource = $elasticService->get($id);
             } catch (NotFoundHttpException $e) {
                 return new JsonResponse(
                     ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
@@ -155,36 +150,18 @@ class TextController extends BaseController
             return new JsonResponse($resource);
         } else {
             // Let the 404 page handle the not found exception
-            $service = $container->get('text_index_service');
-            $resource = $service->get($id);
+            $resource = $elasticService->get($id);
 
             return $this->render(
                 $this->templateFolder. '/detail.html.twig',
                 [
-                    'urls' => json_encode([
-                        // @codingStandardsIgnoreStart Generic.Files.LineLength
-                        'text_search' => $this->generateUrl('text_search'),
-                        'materiality_search' => $this->generateUrl('materiality_search'),
-                        'text_search_api' => $this->generateUrl('text_search_api'),
-                        'text_get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
-                        // @codingStandardsIgnoreEnd
-                    ]),
+                    'urls' => json_encode($this->getSharedAppUrls()),
                     'data' => json_encode([
                         'text' => $resource
                     ])
                 ]
             );
         }
-    }
-
-    /**
-     * Sanitize data from request string
-     * @param array $params
-     * @return array
-     */
-    private function sanitize(array $params): array
-    {
-        return $params;
     }
 
 }

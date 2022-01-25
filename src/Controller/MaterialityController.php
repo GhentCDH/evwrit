@@ -17,6 +17,8 @@ class MaterialityController extends BaseController
 {
     protected $templateFolder = 'Materiality';
 
+    protected const searchServiceName = "text_materiality_search_service";
+    protected const indexServiceName = "text_index_service";
 
     /**
      * @Route("/materiality", name="materiality", methods={"GET"})
@@ -31,55 +33,48 @@ class MaterialityController extends BaseController
     /**
      * @Route("/materiality/search", name="materiality_search", methods={"GET"})
      * @param Request $request
-     * @param TextMaterialitySearchService $elasticservice
      * @return Response
      */
     public function search(
-        Request $request,
-        TextMaterialitySearchService $elasticService
+        Request $request
     ) {
-        return $this->render(
-            $this->templateFolder. '/overview.html.twig',
+        return $this->_search(
+            $request,
             [
-                'urls' => json_encode([
-                    // @codingStandardsIgnoreStart Generic.Files.LineLength
-                    'search_api' => $this->generateUrl('materiality_search_api'),
-                    'text_get_single' => $this->generateUrl('text_get_single', ['id' => 'text_id']),
-                    // @codingStandardsIgnoreEnd
-                ]),
-                'data' => json_encode(
-                    $elasticService->searchAndAggregate(
-                        $this->sanitize($request->query->all())
-                    )
-                ),
-                'identifiers' => json_encode([]),
-                'managements' => json_encode([]),
                 'title' => 'Materiality'
+            ],
+            [
+                'search_api' => 'materiality_search_api',
+                'paginate' => 'materiality_paginate',
+                'export_csv' => 'materiality_export_csv'
             ]
         );
     }
 
-
-
     /**
      * @Route("/materiality/search_api", name="materiality_search_api", methods={"GET"})
      * @param Request $request
-     * @param TextMaterialitySearchService $elasticService
      * @return JsonResponse
      */
-    public function searchAPI(
-        Request $request,
-        TextMaterialitySearchService $elasticService
+    public function search_api(
+        Request $request
     ) {
-        $result = $elasticService->searchAndAggregate(
-            $this->sanitize($request->query->all())
-        );
-
-        return new JsonResponse($result);
+        return $this->_search_api($request);
     }
 
     /**
-     * @Route("/materiality/export/csv", name="text_export_csv", methods={"GET"})
+     * @Route("/materiality/paginate", name="materiality_paginate", methods={"GET"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function paginate(
+        Request $request
+    ) {
+        return $this->_paginate($request);
+    }
+
+    /**
+     * @Route("/materiality/export/csv", name="materiality_export_csv", methods={"GET"})
      * @param Request $request
      * @param TextMaterialitySearchService $elasticService
      * @return StreamedCsvResponse
@@ -88,9 +83,11 @@ class MaterialityController extends BaseController
         Request $request,
         TextMaterialitySearchService $elasticService
     ) {
+        $elasticService = $this->getContainer()->get(static::searchServiceName);
+
         // search
         $data = $elasticService->searchRAW(
-            $this->sanitize($request->query->all())
+            $this->sanitizeSearchRequest($request->query->all())
         );
 
         // header
@@ -116,13 +113,5 @@ class MaterialityController extends BaseController
         return $response;
     }
 
-    /**
-     * Sanitize data from request string
-     * @param array $params
-     * @return array
-     */
-    private function sanitize(array $params): array
-    {
-        return $params;
-    }
+
 }
