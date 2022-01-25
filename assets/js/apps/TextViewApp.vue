@@ -93,11 +93,17 @@
         <aside class="col-sm-3">
             <div class="padding-default">
 
-                <div :if="context.count > 1">
+                <div v-if="context.count > 1">
                     <div class="row">
-                        <div class="col col-xs-2" :class="{ disabled: context.index === 1}"><span class="btn btn-sm btn-primary" @click="loadPrevText()">&larr;</span></div>
-                        <div class="col col-xs-8 text-center"><span>Result {{ context.index }} of {{ context.count }}</span></div>
-                        <div class="col col-xs-2 text-right" :class="{ disabled: context.index === context.count}"><span class="btn btn-sm btn-primary" @click="loadNextText()">&rarr;</span></div>
+                        <div class="col col-xs-3" :class="{ disabled: context.index === 1}">
+                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
+                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.index - 1)">&lt;</span>
+                        </div>
+                        <div class="col col-xs-6 text-center"><span>Result {{ context.index }} of {{ context.count }}</span></div>
+                        <div class="col col-xs-3 text-right" :class="{ disabled: context.index === context.count}">
+                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.index + 1)">&gt;</span>
+                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex( context.count )">&raquo;</span>
+                        </div>
                     </div>
                 </div>
 
@@ -119,9 +125,7 @@
                         <LabelValue label="Era" :value="text.era" type="id_name" :url="urlGeneratorIdName('text_search', 'era')"></LabelValue>
                     </PropertyGroup>
 
-
                     <LabelValue v-if="text.keyword" label="Keywords" :value="text.keyword" :url="urlGeneratorIdName('text_search', 'keyword')" type="id_name"></LabelValue>
-
 
                 </Widget>
 
@@ -249,6 +253,12 @@
 
             </div>
         </aside>
+        <div
+                v-if="openRequests"
+                class="loading-overlay"
+        >
+            <div class="spinner"/>
+        </div>
     </div>
 </template>
 
@@ -265,6 +275,7 @@ import AnnotationDetailsFlat from '../Components/Annotations/AnnotationDetailsFl
 import AnnotationDetails from '../Components/Annotations/AnnotationDetails'
 
 import PersistentConfig from "../Components/Shared/PersistentConfig";
+import ResultSet from "../Components/Text/ResultSet";
 
 import CoolLightBox from 'vue-cool-lightbox'
 import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
@@ -278,7 +289,10 @@ export default {
     components: {
         Widget, LabelValue, PageMetrics, GreekText, CoolLightBox, PropertyGroup, Gallery, CheckboxSwitch, AnnotationDetailsFlat, AnnotationDetails
     },
-    mixins: [PersistentConfig('TextViewConfig')],
+    mixins: [
+        PersistentConfig('TextViewConfig'),
+        ResultSet,
+    ],
     props: {
         initUrls: {
             type: String,
@@ -324,18 +338,18 @@ export default {
                 }
             },
             context: {},
-            resultSet: {
-                params: {},
-                ids: []
-            },
             defaultContext: {
                 urls: {},
-                index: 1,
-                count: 1,
-                filters: {}
+                index: null,
+                count: null,
+                params: {
+                    page: 1,
+                    limit: 25
+                }
             },
             imageIndex: null,
             annotationId: null,
+            openRequests: false,
         }
         return data
     },
@@ -495,16 +509,21 @@ export default {
             return this.visibleAnnotationsByContext.filter( item => item.type === type ).length;
         },
         urlGeneratorIdName(url, filter) {
-            return (value) => ( this.urls[url] + '?' + qs.stringify( { filters: {[filter]: value.id } } ) )
+            return (value) => ( this.getUrl(url) + '?' + qs.stringify( { filters: {[filter]: value.id } } ) )
+        },
+        getUrl(route) {
+            return this.urls[route] ?? ''
         },
         urlTmId(value) {
             return 'https://www.trismegistos.org/text/' + value
         },
         loadText(id) {
-            axios.get(this.urls.text_get_single.replace('text_id',id)).then( (response) => {
+            this.openRequests = true
+            axios.get(this.getUrl('text_get_single').replace('text_id',id)).then( (response) => {
                 if (response.data) {
                     this.data.text = response.data;
                 }
+                this.openRequests = false
             })
         },
         clickAnnotation(e) {
@@ -525,26 +544,32 @@ export default {
             }
             return null;
         },
-        async updatePaginationIndex() {
-            const { data } = await axios.get(this.context.urls.paginate + '?' + qs.stringify(this.resultSet.params) );
-            this.resultSet.ids = data;
+
+        loadTextByIndex(index) {
+            let self = this;
+
+            if ( !this.context.index ) return;
+
+            this.context.index = Math.max(1, Math.min(index, this.context.count))
+
+            this.getResultSetIdByIndex(this.context.index).then( function(id) {
+                self.loadText(id);
+            })
         },
-        loadNextText() {
-            // todo: property checks should be done before this
-            let realNowIndex = (this.context.index - 1) - (Number.parseInt(this.resultSet.params.page ?? '1') - 1)*Number.parseInt(this.resultSet.params.limit ?? '25');
-            let id = this.resultSet.ids[realNowIndex + 1]
-            this.context.index += 1
-            this.loadText(id)
+        initContext() {
+            let context = {}
+            try {
+                let searchParams = new URLSearchParams(window.location.search);
+                if ( searchParams.has('context') ) {
+                    context = JSON.parse(window.atob(searchParams.get('context')))
+                }
+            } catch (e) {
+            }
+            this.context = _merge(this.defaultContext, context)
         },
-        loadPrevText() {
-            // todo: property checks should be done before this
-            let realNowIndex = (this.context.index - 1) - (Number.parseInt(this.resultSet.params.page ?? '1') - 1)*Number.parseInt(this.resultSet.params.limit ?? '25');
-            let id = this.resultSet.ids[realNowIndex - 1]
-            this.context.index -= 1
-            this.loadText(id)
-        }
+
     },
-    mounted() {
+    created() {
         // make annotations clickable
         this.bindEvents();
 
@@ -553,27 +578,14 @@ export default {
             this.bindEvents();
         })
 
-        // update context
-        let context = {}
-        try {
-            let searchParams = new URLSearchParams(window.location.search);
-            if ( searchParams.has('context') ) {
-                context = JSON.parse(window.atob(searchParams.get('context')))
-            }
-        } catch (e) {
+        // init context
+        this.initContext()
+
+        // init ResultSet
+        if ( this.context ) {
+            this.initResultSet(this.context.urls.paginate, this.context.params, this.context.count)
         }
-        this.context = _merge(this.defaultContext, context)
-
-        // update pagination
-        // todo: check params, merge with defaults?
-        this.resultSet.params = this.context.params
-
-        // api calls better in created
-        this.updatePaginationIndex()
     },
-    created() {
-
-    }
 }
 </script>
 
