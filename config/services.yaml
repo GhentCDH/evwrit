@@ -47,6 +47,18 @@ services:
         public: true
     App\Service\ElasticSearch\TextMaterialitySearchService: '@text_materiality_search_service'
 
+    linguistic_annotation_search_service:
+        class: App\Service\ElasticSearch\LinguisticAnnotationSearchService
+        arguments: ['@elastic_search_client']
+        public: true
+    App\Service\ElasticSearch\LinguisticAnnotationSearchService: '@linguistic_annotation_search_service'
+
+    language_typography_annotation_search_service:
+        class: App\Service\ElasticSearch\LanguageTypographyAnnotationSearchService
+        arguments: ['@elastic_search_client']
+        public: true
+    App\Service\ElasticSearch\LanguageTypographyAnnotationSearchService: '@language_typography_annotation_search_service'
+
     text_index_service:
         class: App\Service\ElasticSearch\TextIndexService
         arguments: ['@elastic_search_client']

@@ -249,7 +249,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // Number of results
         if (isset($searchParams['limit']) && is_numeric($searchParams['limit'])) {
-            $query->setSize($searchParams['limit']);
+            $query->setSize(max($searchParams['limit'], 500)); //todo; fix this!
         }
 
         // Pagination
