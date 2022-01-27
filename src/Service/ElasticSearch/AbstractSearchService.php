@@ -2,7 +2,6 @@
 
 namespace App\Service\ElasticSearch;
 
-use Container9YN390k\getElasticSearchClientService;
 use Elastica\Aggregation;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
@@ -13,6 +12,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 {
     const MAX_AGG = 2147483647;
     const MAX_SEARCH = 10000;
+    const SEARCH_RAW_MAX_RESULTS = 500;
 
     protected const FILTER_NUMERIC = "numeric"; // numeric term filter
     protected const FILTER_BOOLEAN = "boolean"; // boolean term filter
@@ -244,12 +244,15 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
     public function searchRaw(array $params = null, array $fields = null): array
     {
+        // sanitize search parameters
+        $searchParams = $this->sanitizeSearchParameters($params);
+
         // Construct query
         $query = new Query();
 
         // Number of results
         if (isset($searchParams['limit']) && is_numeric($searchParams['limit'])) {
-            $query->setSize(max($searchParams['limit'], 500)); //todo; fix this!
+            $query->setSize(min($searchParams['limit'], static::SEARCH_RAW_MAX_RESULTS)); //todo; fix this!
         }
 
         // Pagination
