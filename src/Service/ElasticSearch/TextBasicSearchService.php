@@ -238,7 +238,7 @@ class TextBasicSearchService extends AbstractSearchService
         return $result;
     }
 
-    protected function sanitizeSearchParameters(array $params): array
+    protected function sanitizeSearchParameters(array $params, $merge_defaults = true): array
     {
         if (isset($params['orderBy'])) {
             switch ($params['orderBy']) {
@@ -259,7 +259,7 @@ class TextBasicSearchService extends AbstractSearchService
             }
         }
 
-        return parent::sanitizeSearchParameters($params);
+        return parent::sanitizeSearchParameters($params, $merge_defaults);
     }
 
 }

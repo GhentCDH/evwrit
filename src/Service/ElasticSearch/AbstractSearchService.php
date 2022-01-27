@@ -68,11 +68,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return [];
     }
 
-    protected function sanitizeSearchParameters(array $params): array
+    protected function sanitizeSearchParameters(array $params, $merge_defaults = true): array
     {
         // Set default parameters
-        $defaults = $this->getDefaultSearchParameters();
-
+        $defaults = $merge_defaults ? $this->getDefaultSearchParameters() : [];
         $result = array_intersect_key(
             $defaults,
             array_flip([
@@ -245,7 +244,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     public function searchRaw(array $params = null, array $fields = null): array
     {
         // sanitize search parameters
-        $searchParams = $this->sanitizeSearchParameters($params);
+        $searchParams = $this->sanitizeSearchParameters($params, false);
 
         // Construct query
         $query = new Query();
@@ -253,6 +252,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         // Number of results
         if (isset($searchParams['limit']) && is_numeric($searchParams['limit'])) {
             $query->setSize(min($searchParams['limit'], static::SEARCH_RAW_MAX_RESULTS)); //todo; fix this!
+        } else {
+            $query->setSize(static::SEARCH_RAW_MAX_RESULTS);
         }
 
         // Pagination
