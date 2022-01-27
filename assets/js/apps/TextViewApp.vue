@@ -93,16 +93,16 @@
         <aside class="col-sm-3">
             <div class="padding-default">
 
-                <div v-if="context.count > 1">
+                <div v-if="isValidResultSet()">
                     <div class="row">
-                        <div class="col col-xs-3" :class="{ disabled: context.index === 1}">
+                        <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.index - 1)">&lt;</span>
+                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex - 1)">&lt;</span>
                         </div>
-                        <div class="col col-xs-6 text-center"><span>Result {{ context.index }} of {{ context.count }}</span></div>
-                        <div class="col col-xs-3 text-right" :class="{ disabled: context.index === context.count}">
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.index + 1)">&gt;</span>
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex( context.count )">&raquo;</span>
+                        <div class="col col-xs-6 text-center"><span>Result {{ context.searchIndex }} of {{ resultSet.count }}</span></div>
+                        <div class="col col-xs-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
+                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex + 1)">&gt;</span>
+                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex( resultSet.count )">&raquo;</span>
                         </div>
                     </div>
                 </div>
@@ -276,13 +276,14 @@ import AnnotationDetails from '../Components/Annotations/AnnotationDetails'
 
 import PersistentConfig from "../Components/Shared/PersistentConfig";
 import ResultSet from "../Components/Text/ResultSet";
+import SearchSession from "../Components/Search/SearchSession";
+import SearchContext from "../Components/Search/SearchContext";
 
 import CoolLightBox from 'vue-cool-lightbox'
 import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 
 import axios from 'axios'
 import qs from 'qs'
-import _merge from "lodash.merge";
 
 export default {
     name: "TextViewApp",
@@ -292,6 +293,8 @@ export default {
     mixins: [
         PersistentConfig('TextViewConfig'),
         ResultSet,
+        SearchSession,
+        SearchContext,
     ],
     props: {
         initUrls: {
@@ -393,8 +396,8 @@ export default {
             let annotations = this.text.annotations
 
             // filter by search context?
-            if ( this.config.annotations.showOnlyInSearchContext && (this.context.filters ?? false) ) {
-                annotations = this.annotationsFilterbyContext(annotations, this.context.params?.filters ?? {})
+            if ( this.config.annotations.showOnlyInSearchContext && (this.context.params ?? false) ) {
+                annotations = this.annotationsFilterbyContext(annotations, this.context.params ?? {})
             }
 
             return annotations
@@ -420,7 +423,7 @@ export default {
             return this.config.annotations.show || this.config.annotations.showList
         },
         hasSearchContext() {
-           return Object.keys(this.context.params?.filters ?? {} ).length > 0
+           return Object.keys(this.context.params ?? {} ).length > 0
         },
         genericTextStructure() {
             let ret = {}
@@ -519,20 +522,33 @@ export default {
         urlTmId(value) {
             return 'https://www.trismegistos.org/text/' + value
         },
+        getTextUrl(id) {
+            let url = this.urls['text_get_single'].replace('text_id', id);
+            if (this.isValidContext()) {
+                url += '#' + this.getContextHash()
+            }
+            return url
+        },
         loadText(id) {
-            this.openRequests = true
-            axios.get(this.getUrl('text_get_single').replace('text_id',id)).then( (response) => {
+            this.openRequests += 1
+            let url = this.getUrl('text_get_single').replace('text_id',id)
+            return axios.get(url).then( (response) => {
                 if (response.data) {
                     this.data.text = response.data;
                 }
-                this.openRequests = false
+                this.openRequests -= 1
             })
         },
         clickAnnotation(e) {
             e.stopPropagation()
 
+            // get annotation id
             let typeId = e.target?.dataset?.id;
-            this.annotationId = typeId
+            if ( typeId ) {
+                this.annotationId = typeId
+                // open selection details widget
+                this.config.widgets.selectionDetails.isOpen = true
+            }
         },
         bindEvents() {
             this.$nextTick(function () {
@@ -548,27 +564,24 @@ export default {
         },
 
         loadTextByIndex(index) {
-            let self = this;
+            let that = this;
+            if ( !this.resultSet.count ) return;
 
-            if ( !this.context.index ) return;
-
-            this.context.index = Math.max(1, Math.min(index, this.context.count))
-
-            this.getResultSetIdByIndex(this.context.index).then( function(id) {
-                self.loadText(id);
+            let newIndex = Math.max(1, Math.min(index, this.resultSet.count))
+            this.getResultSetIdByIndex(newIndex).then( function(id) {
+                that.loadText(id).then((response) => {
+                    // update context
+                    that.context.searchIndex = newIndex
+                    // update state
+                    window.history.replaceState({}, '', that.getTextUrl(id));
+                    // bind events
+                    that.bindEvents();
+                });
             })
         },
-        initContext() {
-            let context = {}
-            try {
-                let searchParams = new URLSearchParams(window.location.search);
-                if ( searchParams.has('context') ) {
-                    context = JSON.parse(window.atob(searchParams.get('context')))
-                }
-            } catch (e) {
-            }
-            this.context = _merge(this.defaultContext, context)
-        },
+        isValidResultSet() {
+            return this.context?.searchIndex && this.resultSet?.count
+        }
 
     },
     created() {
@@ -581,11 +594,14 @@ export default {
         })
 
         // init context
-        this.initContext()
+        this.initContextFromUrl()
 
-        // init ResultSet
-        if ( this.context ) {
-            this.initResultSet(this.context.urls.paginate, this.context.params, this.context.count)
+        // init ResultSet based on SearchSession
+        if ( this.context?.searchSessionHash ) {
+            let searchSession = this.getSearchSession(this.context.searchSessionHash)
+            if ( searchSession ) {
+                this.initResultSet(searchSession.urls.paginate, searchSession.params, searchSession.count)
+            }
         }
     },
 }
