@@ -143,12 +143,11 @@ export default {
         CheckboxSwitch
     },
     mixins: [
+        PersistentConfig('BaseAnnotationSearchConfig'),
         AbstractField,
         AbstractSearch,
-        PersistentConfig('BaseAnnotationSearchConfig'),
         SharedSearch,
-        CollapsibleGroups(),
-        ExpertGroups(),
+        ExpertGroups,
     ],
     props: {
     },
@@ -403,9 +402,6 @@ export default {
             let columns = ['id', 'tm_id', 'title', 'annotations']
             return columns
         },
-        defaultContext() {
-
-        }
     },
     watch: {
         defaultOrdering: function(val) {

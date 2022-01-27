@@ -107,12 +107,11 @@ export default {
         CheckboxSwitch
     },
     mixins: [
+        PersistentConfig('MaterialitySearchConfig'),
         AbstractField,
         AbstractSearch,
-        PersistentConfig('MaterialitySearchConfig'),
         SharedSearch,
-        CollapsibleGroups(),
-        ExpertGroups(),
+        ExpertGroups,
     ],
     props: {
     },

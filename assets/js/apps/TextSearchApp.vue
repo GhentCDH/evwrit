@@ -94,7 +94,6 @@ import CheckboxSwitch from '../Components/Shared/CheckboxSwitch'
 
 import fieldRadio from '../Components/FormFields/fieldRadio'
 
-import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
 import ExpertGroups from '../Components/Search/ExpertGroups'
 import SharedSearch from "../Components/Search/SharedSearch";
 import PersistentConfig from "../Components/Shared/PersistentConfig";
@@ -106,12 +105,11 @@ export default {
         CheckboxSwitch
     },
     mixins: [
+        PersistentConfig('TextSearchConfig'),
         AbstractField,
         AbstractSearch,
-        PersistentConfig('TextSearchConfig'),
         SharedSearch,
-        CollapsibleGroups(),
-        ExpertGroups(),
+        ExpertGroups,
     ],
     props: {
     },
