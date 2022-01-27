@@ -64,4 +64,9 @@ export default {
             return this.resultSet.ids[rsIndex]
         }
     },
+    created() {
+        if ( !this.resultSet ) {
+            this.resultSet = this.defaultResultSet
+        }
+    }
 }
