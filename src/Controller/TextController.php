@@ -108,21 +108,20 @@ class TextController extends BaseController
 
         // data
         $csvData = [];
-        $csvData[] = $csvHeader;
         foreach ($data['data'] as $row) {
             $csvRow = [];
 
-            $csvRow[] = $row['id'];
-            $csvRow[] = $row['tm_id'];
-            $csvRow[] = $row['year_begin'];
-            $csvRow[] = $row['year_end'];
-            $csvRow[] = $row['text'];
+            $csvRow['id'] = $row['id'];
+            $csvRow['tm_id'] = $row['tm_id'];
+            $csvRow['year_begin'] = $row['year_begin'];
+            $csvRow['year_end'] = $row['year_end'];
+            $csvRow['text'] = $row['text'];
 
             $csvData[] = $csvRow;
         }
 
         // csv response
-        $response = new StreamedCsvResponse($csvData, $csvData[0], 'texts.csv');
+        $response = new StreamedCsvResponse($csvData, $csvHeader, 'texts.csv');
         return $response;
     }
 
