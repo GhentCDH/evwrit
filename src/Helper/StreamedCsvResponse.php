@@ -41,7 +41,7 @@ class StreamedCsvResponse extends StreamedResponse
         $this->filename = $filename;
 
         parent::__construct([$this, 'stream'], $status, $headers);
-//        $this->setHeaders();
+        $this->setHeaders();
     }
 
     private function setHeaders(): void
