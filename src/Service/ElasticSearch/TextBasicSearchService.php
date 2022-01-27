@@ -249,6 +249,8 @@ class TextBasicSearchService extends AbstractSearchService
                     break;
                 case 'year_begin':
                 case 'year_end':
+                case 'id':
+                case 'tm_id':
                     $params['orderBy'] = [ $params['orderBy'] ];
                     break;
                 default:
