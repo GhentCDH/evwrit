@@ -107,11 +107,11 @@
                     </div>
                 </div>
 
-                <Widget title="Selection details" v-if="annotationId">
+                <Widget title="Selection details" v-if="annotationId" :isOpen.sync="config.widgets.selectionDetails.isOpen">
                     <AnnotationDetails :annotation="annotationByTypeId[annotationId]"></AnnotationDetails>
                 </Widget>
 
-                <Widget title="Metadata">
+                <Widget title="Metadata" :is-open.sync="config.widgets.metadata.isOpen">
                     <LabelValue label="ID" :value="text.id"></LabelValue>
                     <LabelValue label="Trismegistos ID" :value="text.tm_id" :url="urlTmId"></LabelValue>
 
@@ -129,13 +129,13 @@
 
                 </Widget>
 
-                <Widget title="Translations" :count="text.translation.length" :init-open="false">
+                <Widget title="Translations" :count="text.translation.length"  :is-open.sync="config.widgets.translations.isOpen">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.translation.show" class="switch-primary" label="Show translation(s)"></CheckboxSwitch>
                     </div>
                 </Widget>
 
-                <Widget title="Text options">
+                <Widget title="Text options" :is-open.sync="config.widgets.textOptions.isOpen">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.text.show" class="switch-primary" label="Show Text"></CheckboxSwitch>
                     </div>
@@ -147,7 +147,7 @@
                     </div>
                 </Widget>
 
-                <Widget title="Materiality" :init-open="false">
+                <Widget title="Materiality" :is-open.sync="config.widgets.materiality.isOpen">
                     <PropertyGroup>
                         <LabelValue type="id_name" label="Production stage" :value="text.production_stage" :url="urlGeneratorIdName('materiality_search','production_stage')"></LabelValue>
                         <LabelValue type="id_name" label="Material" :value="text.material" :url="urlGeneratorIdName('materiality_search','material')"></LabelValue>
@@ -165,7 +165,7 @@
                     </PropertyGroup>
                 </Widget>
 
-                <Widget title="Attestation" :init-open="false" :count="text.ancient_person.length">
+                <Widget title="Attestation"  :is-open.sync="config.widgets.attestation.isOpen" :count="text.ancient_person.length">
                     <template v-for="person in text.ancient_person">
                         <h3>{{ person.name }}</h3>
                         <LabelValue label="Role" :value="person.role"  type="id_name"></LabelValue>
@@ -179,7 +179,7 @@
                     </template>
                 </Widget>
 
-                <Widget title="Annotations" :init-open="false" :count="visibleAnnotationsByContext.length">
+                <Widget title="Annotations" :is-open.sync="config.widgets.annotations.isOpen" :count="visibleAnnotationsByContext.length">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.annotations.show" class="switch-primary" label="Show annotations in text"></CheckboxSwitch>
                     </div>
@@ -232,7 +232,7 @@
 
                 </Widget>
 
-                <Widget title="Generic Text Structure" :init-open="false" :count="text.generic_text_structure.length">
+                <Widget title="Generic Text Structure" :is-open.sync="config.widgets.genericTextStructure.isOpen" :count="text.generic_text_structure.length">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic text structure"></CheckboxSwitch>
                     </div>
@@ -241,11 +241,11 @@
                     </div>
                 </Widget>
 
-                <Widget title="Images" :count="text.image.length" :init-open="false">
+                <Widget title="Images" :count="text.image.length" :is-open.sync="config.widgets.images.isOpen">
                     <Gallery :images="images" :onClick="(index,url) => (imageIndex = index)" />
                 </Widget>
 
-                <Widget title="Links" :count="text.link.length" :init-open="false">
+                <Widget title="Links" :count="text.link.length" :is-open.sync="config.widgets.links.isOpen">
                     <div v-for="link in text.link">
                         <a :href="link.url">{{ link.title }}</a>
                     </div>
@@ -335,16 +335,18 @@ export default {
                 genericTextStructure: {
                     show: false,
                     groupByLevel: false
-                }
-            },
-            context: {},
-            defaultContext: {
-                urls: {},
-                index: null,
-                count: null,
-                params: {
-                    page: 1,
-                    limit: 25
+                },
+                widgets: {
+                    selectionDetails: { isOpen: false },
+                    metadata: { isOpen: false },
+                    translations: { isOpen: false },
+                    textOptions: { isOpen: false },
+                    materiality: { isOpen: false },
+                    attestation: { isOpen: false },
+                    annotations: { isOpen: false },
+                    genericTextStructure: { isOpen: false },
+                    images: { isOpen: false },
+                    links: { isOpen: false },
                 }
             },
             imageIndex: null,

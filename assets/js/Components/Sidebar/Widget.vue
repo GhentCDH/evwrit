@@ -10,23 +10,15 @@
                 </span>
             </div>
         </div>
-        <div class="body" :class="{fixed: fixed}">
+        <div class="body" :class="{fixed: isFixed}">
             <slot></slot>
         </div>
     </div>
 </template>
 
 <script>
-import VueCookies from 'vue-cookies'
-
-import Vue from 'vue'
-Vue.use(VueCookies)
-
 export default {
     name: "Widget",
-    components: {
-        VueCookies
-    },
     props: {
         title: {
             type: String,
@@ -36,39 +28,21 @@ export default {
             type: Number,
             required: false
         },
-        initFixed: {
+        isFixed: {
             type: Boolean,
             default: false
         },
-        initOpen: {
+        isOpen: {
             type: Boolean,
-            default: true
+            default: false
         }
-    },
-    data() {
-        return {
-            open: this.initOpen,
-            fixed: this.initFixed
-        }
-    },
-    computed: {
-        isOpen: function() { return this.open }
     },
     methods: {
         toggleOpen: function() {
-            this.open = !this.open;
-            this.$cookies.set(this.cookieName(),this.open,'30d')
-        },
-        cookieName() {
-            return 'sbw-'+this.title
+            let isOpenValue = !this.isOpen;
+            this.$emit('update:is-open', isOpenValue)
         },
     },
-    created() {
-        if ( !this.$cookies.isKey(this.cookieName()) )
-            this.$cookies.set(this.cookieName(),this.initOpen,'30d')
-        else
-            this.open = (this.$cookies.get(this.cookieName()) == "true")
-    }
 }
 </script>
 
