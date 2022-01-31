@@ -191,20 +191,17 @@ export default {
                             this.createMultiSelect('Era',
                                 {
                                     model: 'era'
-                                },
-                                {
-                                    multiple: true,
-                                    closeOnSelect: false,
                                 }
                             ),
                             this.createMultiSelect('Language',
                                 {
                                     model: 'language'
                                 },
+                            ),
+                            this.createMultiSelect('Script',
                                 {
-                                    multiple: true,
-                                    closeOnSelect: false,
-                                }
+                                    model: 'script'
+                                },
                             ),
                         ]
                     },
@@ -213,7 +210,7 @@ export default {
                         legend: 'Communicative information',
                         fields: [
                             this.createMultiSelect('Text type', {model: 'text_type'}),
-                            this.createMultiSelect('Text subtype', {model: 'text_subtype'}),
+                            this.createSelect('Text subtype', {model: 'text_subtype', 'dependency': 'text_type'}),
                             this.createMultiSelect('Social distance',
                                 {
                                     model: 'social_distance'
