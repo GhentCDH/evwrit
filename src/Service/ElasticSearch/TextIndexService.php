@@ -40,6 +40,7 @@ class TextIndexService extends AbstractIndexService
             'era' => ['type' => 'object'],
             'keyword' => ['type' => 'nested'],
             'language' => ['type' => 'nested'],
+            'script' => ['type' => 'nested'],
             'material' => ['type' => 'nested'],
             'project' => ['type' => 'nested'],
             'social_distance' => ['type' => 'nested'],

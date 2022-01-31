@@ -19,7 +19,10 @@ class TextBasicSearchService extends AbstractSearchService
 
     protected function getSearchFilterConfig(): array {
         $searchFilters = [
-            'title' => ['type' => self::FILTER_TEXT],
+            'title' => [
+                'type' => self::FILTER_KEYWORD,
+                'field' => 'title.keyword'
+            ],
             'id' => ['type' => self::FILTER_NUMERIC],
             'tm_id' => ['type' => self::FILTER_NUMERIC],
             'archive' => ['type' => self::FILTER_OBJECT_ID],
@@ -51,6 +54,7 @@ class TextBasicSearchService extends AbstractSearchService
             'form' => ['type' => self::FILTER_NESTED_ID],
             'keyword' => ['type' => self::FILTER_NESTED_ID],
             'language' => ['type' => self::FILTER_NESTED_ID],
+            'script' => ['type' => self::FILTER_NESTED_ID],
             'location_written' => ['type' => self::FILTER_NESTED_ID],
             'location_found' => ['type' => self::FILTER_NESTED_ID],
             'material' => ['type' => self::FILTER_NESTED_ID],
@@ -164,6 +168,7 @@ class TextBasicSearchService extends AbstractSearchService
             'form'  => ['type' => self::AGG_NESTED_ID_NAME],
             'keyword' => ['type' => self::AGG_NESTED_ID_NAME],
             'language' => ['type' => self::AGG_NESTED_ID_NAME],
+            'script' => ['type' => self::AGG_NESTED_ID_NAME],
             'location_written' => ['type' => self::AGG_NESTED_ID_NAME],
             'location_found' => ['type' => self::AGG_NESTED_ID_NAME],
             'material'  => ['type' => self::AGG_NESTED_ID_NAME],
@@ -172,7 +177,6 @@ class TextBasicSearchService extends AbstractSearchService
                 'type' => self::AGG_NESTED_ID_NAME,
                 'limitValue' => [1,4,7]
             ],
-            'script' => ['type' => self::AGG_NESTED_ID_NAME],
             'social_distance' => ['type' => self::AGG_NESTED_ID_NAME],
             'text_type' => ['type' => self::AGG_OBJECT_ID_NAME],
             'text_subtype' => ['type' => self::AGG_OBJECT_ID_NAME],

@@ -26,6 +26,8 @@ class TextMaterialitySearchService extends AbstractSearchService
             'tm_id' => ['type' => self::FILTER_NUMERIC],
             'material' => ['type' => self::FILTER_NESTED_ID],
             'text_format' => ['type' => self::FILTER_NESTED_ID],
+            'language' => ['type' => self::FILTER_NESTED_ID],
+            'script' => ['type' => self::FILTER_NESTED_ID],
             'writing_direction' => ['type' => self::FILTER_NESTED_ID],
             'project' => ['type' => self::FILTER_NESTED_ID],
             'production_stage' => ['type' => self::FILTER_NESTED_ID],
@@ -97,7 +99,6 @@ class TextMaterialitySearchService extends AbstractSearchService
 
     protected function getAggregationConfig(): array {
         $aggregationFilters = [
-            'material'  => ['type' => self::AGG_NESTED_ID_NAME],
             'text_format' => ['type' => self::AGG_NESTED_ID_NAME],
             'writing_direction' => ['type' => self::AGG_NESTED_ID_NAME],
             'production_stage' => ['type' => self::AGG_NESTED_ID_NAME],
@@ -126,6 +127,8 @@ class TextMaterialitySearchService extends AbstractSearchService
             ],
             'keyword' => ['type' => self::AGG_NESTED_ID_NAME],
             'language' => ['type' => self::AGG_NESTED_ID_NAME],
+            'script' => ['type' => self::AGG_NESTED_ID_NAME],
+            'material'  => ['type' => self::AGG_NESTED_ID_NAME],
             'collaborator'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'project'  => [
                 'type' => self::AGG_NESTED_ID_NAME,
