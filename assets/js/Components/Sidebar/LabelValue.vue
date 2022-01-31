@@ -53,7 +53,7 @@ export default {
         },
         ignoreValue: {
             type: Array,
-            default: []
+            default: () => []
         }
     },
     computed: {
