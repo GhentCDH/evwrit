@@ -162,6 +162,7 @@ class AnnotationSearchService extends AbstractSearchService
             'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation'],
             'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
             'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
+            'morphology' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
             'language' => ['bigraphismDomain', 'bigraphismRank', 'bigraphismFormulaicity', 'bigraphismType', 'codeswitchingType' ],
             'morpho_syntactical' => [
                 'coherenceForm', 'coherenceContent', 'coherenceContext',
@@ -291,6 +292,7 @@ class AnnotationSearchService extends AbstractSearchService
             'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation'],
             'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
             'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
+            'morphology' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
             // rank opsplitsen
             'language' => ['bigraphismDomain', 'bigraphismRank', 'bigraphismFormulaicity', 'bigraphismType', 'codeswitchingType' ],
             'morpho_syntactical' => [
