@@ -55,6 +55,11 @@
                                     <CheckboxSwitch v-model="config.showAnnotationDetails" class="switch-primary" label="Show annotation details"></CheckboxSwitch>
                                 </div>
                             </li>
+                            <li>
+                                <div class="form-group">
+                                    <CheckboxSwitch v-model="config.limitVisibleAnnotations" class="switch-primary" label="Show maximum 3 annotations per text"></CheckboxSwitch>
+                                </div>
+                            </li>
                             <li role="separator" class="divider"></li>
                             <li>
                                 <div class="form-group">
@@ -88,7 +93,7 @@
                     </a>
                 </template>
                 <template slot="annotations" slot-scope="props">
-                    <div class="annotation-result" v-for="annotation in props.row.annotations">
+                    <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)">
                         <GreekText
                                 v-show="config.showAnnotationContext"
                                 :text="annotation.context.text"
@@ -101,6 +106,9 @@
                                 :text="annotation.text_selection.text">
                         </GreekText>
                         <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation"></AnnotationDetailsFlat>
+                    </div>
+                    <div class="annotation-count" v-if="config.limitVisibleAnnotations && props.row.annotations.length > 3">
+                        <span class="bg-tertiary small">Showing 3 of {{ props.row.annotations.length }} annotations found in text.</span>
                     </div>
                 </template>
             </v-server-table>
@@ -155,7 +163,8 @@ export default {
         let data = {
             defaultConfig: {
                 showAnnotationContext: true,
-                showAnnotationDetails: false
+                showAnnotationDetails: false,
+                limitVisibleAnnotations: true,
             },
             model: {
                 date_search_type: 'exact',
@@ -415,18 +424,15 @@ export default {
         },
     },
     methods: {
-        getAnnotationFilter() {
-            if ( this.model.hasOwnProperty('annotation_type') && this.model.annotation_type ) {
-                return this.model.annotation_type.id;
-            } else {
-                return false;
-            }
-        },
         update() {
             // Don't create a new history item
             this.noHistory = true;
             this.$refs.resultTable.refresh();
         },
+        limitAnnotations(annotations) {
+            return this.config.limitVisibleAnnotations ? annotations.slice(0,3) : annotations
+        }
+
     },
 }
 </script>

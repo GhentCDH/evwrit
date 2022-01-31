@@ -9,6 +9,14 @@ export default {
         }
     },
     methods: {
+        getAnnotationFilter() {
+            if ( this.model.hasOwnProperty('annotation_type') && this.model.annotation_type ) {
+                return this.model.annotation_type.id;
+            } else {
+                return false;
+            }
+        },
+
         // update group & field visibility
         updateFieldVisibility() {
             let annotation_filter = this.getAnnotationFilter();
