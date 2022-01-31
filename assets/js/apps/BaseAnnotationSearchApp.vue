@@ -217,9 +217,9 @@ export default {
                             this.createMultiSelect('Subordination form', { model: 'morpho_syntactical_subordinationForm' }),
                             this.createMultiSelect('Subordination content', { model: 'morpho_syntactical_subordinationContent' }),
                             this.createMultiSelect('Subordination context', { model: 'morpho_syntactical_subordinationContext' }),
-                            this.createMultiSelect('Relativisation form', { model: 'morpho_syntactical_relativisationForm' }),
-                            this.createMultiSelect('Relativisation content', { model: 'morpho_syntactical_relativisationContent' }),
-                            this.createMultiSelect('Relativisation context', { model: 'morpho_syntactical_relativisationContext' }),
+                            this.createMultiSelect('Relativisation form', { model: 'morpho_syntactical_orderForm' }), // todo: use to relativisationForm after schema update
+                            this.createMultiSelect('Relativisation content', { model: 'morpho_syntactical_orderContent' }), // todo: use to relativisationContent after schema update
+                            this.createMultiSelect('Relativisation context', { model: 'morpho_syntactical_orderContext' }), // todo: use to relativisationContext after schema update
                         ]
                     },
                     // Generic text structure
@@ -321,7 +321,7 @@ export default {
                         expertOnly: true,
                         fields: [
                             this.createSelect('Text type', {model: 'text_type'}),
-                            this.createSelect('Text subtype', {model: 'text_subtype' , dependency: 'text_type' }),
+                            this.createSelect('Text subtype', {model: 'text_subtype', 'dependency': 'text_type'}),
                             this.createMultiSelect('Social distance', { model: 'social_distance' }),
                             this.createSelect('Generic agentive role', {model: 'generic_agentive_role'}),
                             this.createSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
@@ -432,13 +432,11 @@ export default {
 </script>
 
 <style lang="scss">
-.annotation-result + .annotation-result {
-  padding-top: 5px;
-  margin-top: 5px;
+.annotation-result {
+  border: 0;
   border-top: 1px solid #ccc;
 }
-
-.annotation-details {
-  margin: 10px 0
+.annotation-result:first-child {
+  border: 0;
 }
 </style>
