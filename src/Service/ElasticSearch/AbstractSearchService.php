@@ -399,7 +399,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $searchQuery = $this->createSearchQuery($searchFilters);
             $query->setQuery($searchQuery);
             $query->setHighlight($this->createHighlight($searchFilters));
-//            dump(json_encode($searchQuery->toArray(), JSON_PRETTY_PRINT));
+//            dump(json_encode($query->toArray(), JSON_PRETTY_PRINT));
         }
 
         // Search
@@ -462,8 +462,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $part['inner_hits'] = [];
                 foreach( $result['inner_hits'] as $field_name => $inner_hit ) {
                     $values = [];
-                    foreach($inner_hit['hits']['hits'] as $hit) {
-                        $values[] = $hit['_source'];
+                    foreach($inner_hit['hits']['hits'] ?? [] as $hit) {
+                        if ( $hit['_source'] ?? false ) {
+                            $values[] = $hit['_source'];
+                        }
                     }
                     $part['inner_hits'][$field_name] = $values;
                 }
@@ -959,7 +961,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
                         // inner hits?
                         if ($filterConfig['innerHits'] ?? false) {
-                            $queryNested->setInnerHits( new Query\InnerHits() );
+                            $innerHits = new Query\InnerHits();
+                            if ( $filterConfig['innerHits']['size'] ?? false ) {
+                                $innerHits->setSize($filterConfig['innerHits']['size']);
+                            }
+                            $queryNested->setInnerHits($innerHits);
                         }
 
                         $query->addMust($queryNested);
@@ -1019,7 +1025,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
                         // inner hits?
                         if ($filterConfig['innerHits'] ?? false) {
-                            $queryNested->setInnerHits( new Query\InnerHits() );
+                            $innerHits = new Query\InnerHits();
+                            if ( $filterConfig['innerHits']['size'] ?? false ) {
+                                $innerHits->setSize($filterConfig['innerHits']['size']);
+                            }
+                            $queryNested->setInnerHits($innerHits);
                         }
 
                         $query->addMust($queryNested);
