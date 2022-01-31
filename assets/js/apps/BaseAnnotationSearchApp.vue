@@ -182,6 +182,15 @@ export default {
                         legend: 'Annotations',
                         fields: [
                             this.createSelect('Type', { model: 'annotation_type' } ),
+                            // language
+                            this.createMultiSelect('Codeswitching', { model: 'language_codeswitchingType' }),
+                            this.createMultiSelect('Codeswitching rank', { model: 'language_codeswitchingRank' }),
+                            this.createMultiSelect('Codeswitching domain', { model: 'language_codeswitchingDomain' }),
+                            this.createMultiSelect('Codeswitching formulaicity', { model: 'language_codeswitchingFormulaicity' }),
+                            this.createMultiSelect('Bigraphism', { model: 'language_bigraphismType' }),
+                            this.createMultiSelect('Bigraphism rank', { model: 'language_bigraphismRank' }),
+                            this.createMultiSelect('Bigraphism domain', { model: 'language_bigraphismDomain' }),
+                            this.createMultiSelect('Bigraphism formulaicity', { model: 'language_bigraphismFormulaicity' }),
                             // typography
                             this.createMultiSelect('Word splitting', { model: 'typography_wordSplitting' }),
                             this.createMultiSelect('Correction', { model: 'typography_correction' }),
@@ -207,15 +216,13 @@ export default {
                             this.createMultiSelect('Wordclass', { model: 'orthography_wordclass' }),
                             this.createMultiSelect('Formulaicity', { model: 'orthography_formulaicity' }),
                             this.createMultiSelect('Position in word', { model: 'orthography_positionInWord' }),
-                            // language
-                            this.createMultiSelect('Codeswitching', { model: 'language_codeswitchingType' }),
-                            this.createMultiSelect('Codeswitching rank', { model: 'language_codeswitchingRank' }),
-                            this.createMultiSelect('Codeswitching domain', { model: 'language_codeswitchingDomain' }),
-                            this.createMultiSelect('Codeswitching formulaicity', { model: 'language_codeswitchingFormulaicity' }),
-                            this.createMultiSelect('Bigraphism', { model: 'language_bigraphismType' }),
-                            this.createMultiSelect('Bigraphism rank', { model: 'language_bigraphismRank' }),
-                            this.createMultiSelect('Bigraphism domain', { model: 'language_bigraphismDomain' }),
-                            this.createMultiSelect('Bigraphism formulaicity', { model: 'language_bigraphismFormulaicity' }),
+                            // morphology
+                            this.createMultiSelect('Standard form', { model: 'morphology_standardForm' }),
+                            this.createMultiSelect('Type', { model: 'morphology_type' }),
+                            this.createMultiSelect('Subtype', { model: 'morphology_subtype' }),
+                            this.createMultiSelect('Wordclass', { model: 'morphology_wordclass' }),
+                            this.createMultiSelect('Formulaicity', { model: 'morphology_formulaicity' }),
+                            this.createMultiSelect('Position in word', { model: 'morphology_positionInWord' }),
                             // morpho-syntactical
                             this.createMultiSelect('Coherence form', { model: 'morpho_syntactical_coherenceForm' }),
                             this.createMultiSelect('Coherence content', { model: 'morpho_syntactical_coherenceContent' }),
