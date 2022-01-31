@@ -197,6 +197,11 @@ export default {
                                     model: 'language'
                                 },
                             ),
+                            this.createMultiSelect('Script',
+                                {
+                                    model: 'script'
+                                },
+                            ),
                             this.createMultiSelect('Material',
                                 {
                                     model: 'material'
@@ -214,7 +219,7 @@ export default {
                                 },
                             ),
                             this.createSelect('Text type', {model: 'text_type'}),
-                            this.createSelect('Text subtype', {model: 'text_subtype'}),
+                            this.createSelect('Text subtype', {model: 'text_subtype', 'dependency': 'text_type'}),
                             this.createMultiSelect('Social distance',
                                 {
                                     model: 'social_distance'
