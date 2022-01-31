@@ -1,12 +1,11 @@
 <template>
-    <div class="labelvalue row" :class="'labelvalue--' + type">
+    <div class="labelvalue row" :class="'labelvalue--' + type" v-if="visible">
         <div :class="outputLabelClass">
             {{ label }}
         </div>
         <div :class="outputValueClass">
             <template v-if="value != null">
-                <FormatValue v-if="Array.isArray(value) && value.length" v-for="(item, index) in value" :key="index" :type="type" :value="item" :url="isCallable(url) ? url(value) : url" />
-                <FormatValue v-if="!Array.isArray(value)" :value="value" :type="type" :url="isCallable(url) ? url(value) : url"/>
+                <FormatValue v-if="outputValues && outputValues.length" v-for="(item, index) in outputValues" :key="index" :type="type" :value="item" :url="isCallable(url) ? url(value) : url" />
             </template>
             <span v-else>{{ unknown }}</span>
         </div>
@@ -30,7 +29,7 @@ export default {
         },
         unknown: {
             type: String,
-            default: 'Unknown'
+            default: null
         },
         inline: {
             type: Boolean,
@@ -52,6 +51,10 @@ export default {
             type: String|Function,
             default: null
         },
+        ignoreValue: {
+            type: Array,
+            default: []
+        }
     },
     computed: {
         outputLabelClass() {
@@ -60,6 +63,21 @@ export default {
         outputValueClass() {
             return ['labelvalue__value', this.inline ? 'labelvalue__value--inline col-xs-7' : 'col-xs-12', this.valueClass ? this.valueClass : ''].join(' ')
         },
+        outputValues() {
+            let values = this.value ? ( Array.isArray(this.value) ? this.value : [ this.value ] ) : ( this.unknown ? [ this.unknown ] : [] )
+            switch(this.type) {
+                case 'id_name':
+                    values = values.filter( (item) => !this.ignoreValue.includes(item.name) )
+                    break
+                case 'string':
+                    values = values.filter( (value) => !value || !this.ignoreValue.includes(value) )
+            }
+
+            return values
+        },
+        visible() {
+            return this.outputValues.length
+        }
     },
     methods: {
         isCallable(prop) {
