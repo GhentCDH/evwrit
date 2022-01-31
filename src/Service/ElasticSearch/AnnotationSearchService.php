@@ -153,7 +153,9 @@ class AnnotationSearchService extends AbstractSearchService
                     'type' => self::FILTER_OBJECT_ID
                 ]
             ],
-            'innerHits' => true
+            'innerHits' => [
+                'size' => 100
+            ]
         ];
 
         $annotationProperties = [
