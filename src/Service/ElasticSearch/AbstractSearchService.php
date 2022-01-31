@@ -68,7 +68,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return [];
     }
 
-    protected function sanitizeSearchParameters(array $params, $merge_defaults = true): array
+    protected function sanitizeSearchParameters(array $params, bool $merge_defaults = true): array
     {
         // Set default parameters
         $defaults = $merge_defaults ? $this->getDefaultSearchParameters() : [];
