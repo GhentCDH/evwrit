@@ -467,34 +467,44 @@ export default {
                 return that.visibleAnnotationTypes.includes(annotation.type)
             } )
         },
-        annotationsFilterbyContext(annotations, filters) {
+        annotationsFilterbyContext(annotations, context_params) {
+            let annotationTypeFilter = context_params.annotation_type ?? false
+
+            let annotationPropertyPrefixes = ['language', 'typography', 'orthography', 'lexis', 'morpho_syntactical','handshift']
+            let annotationPropertyFilters = {}
+            for ( const [key, value] of Object.entries(context_params) ) {
+                for ( const prefix of annotationPropertyPrefixes ) {
+                    if (key.startsWith(prefix + '_') ) {
+                        annotationPropertyFilters[key] = Array.isArray(value) ? value : [ value ]
+                    }
+                }
+            }
+
             return annotations.filter( function(annotation) {
                 // filter by type
-                if ( (filters.annotation_type ?? false) && filters.annotation_type !== annotation.type ) {
+                if ( annotationTypeFilter && annotationTypeFilter !== annotation.type ) {
                     return false
                 }
 
                 // filter by property
-                let propertyPrefixes = ['language', 'typography', 'orthography', 'lexis', 'morpho_syntactical','handshift']
-                // console.log(filters)
-                for ( const [key, value] of Object.entries(filters) ) {
-                    // make sure filter values is array of integers
-                    let filterValues = Array.isArray(value) ? value : [ value ]
-                    filterValues = filterValues.map(i=>Number(i))
+                for ( const [filterKey, filterValues] of Object.entries(annotationPropertyFilters) ) {
+                    // check if annotation has this property
+                    if ( !annotation.properties.hasOwnProperty(filterKey) ) {
+                        return false
+                    }
 
-                    // check if property key has correct prefix
-                    if ( propertyPrefixes.includes(key.split('_')[0]) ) {
-                        // check if annotation as this property
-                        if ( !annotation.properties.hasOwnProperty(key) ) {
-                            return false;
-                        }
+                    // check if property has value
+                    if ( !annotation.properties[filterKey] ) {
+                        return false
+                    }
 
-                        // check if property matches includes at least one of the filter values
-                        let propertieValues = Array.isArray(annotation.properties[key]) ? annotation.properties[key] : [ annotation.properties[key] ];
-                        let valuesMatched = propertieValues.filter( function(propertyValue) {
-                            return filterValues.includes(propertyValue.id)
-                        })
-                        return valuesMatched.length >= 1
+                    // check if property matches includes at least one of the filter values
+                    let propertieValues = Array.isArray(annotation.properties[filterKey]) ? annotation.properties[filterKey] : [ annotation.properties[filterKey] ];
+                    let valuesMatched = propertieValues.filter( function(propertyValue) {
+                        return filterValues.includes(propertyValue.id)
+                    })
+                    if ( valuesMatched.length === 0 ) {
+                        return false
                     }
                 }
 
