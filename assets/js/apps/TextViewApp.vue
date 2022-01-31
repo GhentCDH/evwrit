@@ -169,14 +169,14 @@
                     <template v-for="person in text.ancient_person">
                         <h3>{{ person.name }}</h3>
                         <LabelValue label="Trismegistos ID" :value="person.tm_id" :url="getTmPersonUrl"></LabelValue>
-                        <LabelValue label="Role" :value="person.role"  type="id_name" :ignore-value="['Unknown']"></LabelValue>
-                        <LabelValue label="Age" :value="person.age"  type="id_name" :ignore-value="['Unknown']"></LabelValue>
-                        <LabelValue label="Gender" :value="person.gender"  type="id_name" :ignore-value="['Unknown']"></LabelValue>
-                        <LabelValue label="Education" :value="person.education"  type="id_name" :ignore-value="['Unknown']"></LabelValue>
-                        <LabelValue label="Occupation" :value="person.occupation"  type="id_name" :ignore-value="['Unknown']"></LabelValue>
-                        <LabelValue label="Social Rank" :value="person.social_rank"  type="id_name" :ignore-value="['Unknown']"></LabelValue>
-                        <LabelValue label="Graph Type" :value="person.graph_type"  type="id_name" :ignore-value="['Unknown']"></LabelValue>
-                        <LabelValue label="Honorific Epithet" :value="person.honorific_epithet"  type="id_name" :ignore-value="['Unknown']"></LabelValue>
+                        <LabelValue label="Role" :value="person.role"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
+                        <LabelValue label="Age" :value="person.age"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
+                        <LabelValue label="Gender" :value="person.gender"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
+                        <LabelValue label="Education" :value="person.education"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
+                        <LabelValue label="Occupation" :value="person.occupation"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
+                        <LabelValue label="Social Rank" :value="person.social_rank"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
+                        <LabelValue label="Graph Type" :value="person.graph_type"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
+                        <LabelValue label="Honorific Epithet" :value="person.honorific_epithet"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
                     </template>
                 </Widget>
 
