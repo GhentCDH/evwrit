@@ -36,7 +36,7 @@ export default {
                     }
 
                     let value = this.annotation.properties[prop]
-                    prop = prop.split('_').slice(1).join('')
+                    prop = prop.split('_').slice(-1).join('') // strip type prefix
                     if ( value && Array.isArray(value) && value.length ) {
                         value.map( function(i) { if ( !i.name ) { /* console.log(i); console.log(value) */ } } )
                         ret[prop] = value.map( i => i.id_name.split('_').slice(1).join('_') ).join(', ')
