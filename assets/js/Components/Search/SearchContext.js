@@ -20,7 +20,7 @@ export default {
          * @param obj
          */
         initContext(data) {
-            this.context = _merge(this.defaultContext, data)
+            this.context = _merge({}, this.defaultContext, data)
         },
         // init context from url parameter or window.location
         initContextFromUrl() {
@@ -30,7 +30,7 @@ export default {
                 context = JSON.parse(window.atob(hash))
             } catch (e) {
             }
-            this.context = _merge(this.defaultContext, context)
+            this.context = _merge({}, this.defaultContext, context)
         },
         getContextHash(data) {
             return window.btoa(JSON.stringify(data ? data : this.context));

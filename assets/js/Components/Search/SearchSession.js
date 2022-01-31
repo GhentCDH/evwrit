@@ -17,14 +17,14 @@ export default {
     },
     methods: {
         initSearchSession(data) {
-            let sessionData = this.defaultSearchSession;
-            sessionData = _merge(sessionData, data)
+            let sessionData = _merge({}, this.defaultSearchSession, data)
             sessionData.hash = Date.now();
             window.sessionStorage.setItem('search_session', JSON.stringify(sessionData));
         },
         updateSearchSession(data) {
             let sessionData = this.getSearchSession();
-            sessionData = _merge(sessionData, data)
+            sessionData.params = {} // clear params
+            sessionData = _merge({}, sessionData, data)
             sessionData.hash = Date.now();
             window.sessionStorage.setItem('search_session', JSON.stringify(sessionData));
         },

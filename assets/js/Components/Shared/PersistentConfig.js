@@ -31,7 +31,7 @@ export default function(cookieName) {
                     let ret
                     ret = this.$cookies.get(name)
                     if (ret) {
-                        ret = _merge(defaultValue, ret)
+                        ret = _merge({}, defaultValue, ret)
                         return ret
                     }
                 } catch(error) {
