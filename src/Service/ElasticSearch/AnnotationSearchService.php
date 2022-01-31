@@ -165,7 +165,8 @@ class AnnotationSearchService extends AbstractSearchService
                 'coherenceForm', 'coherenceContent', 'coherenceContext',
                 'complementationForm', 'complementationContent', 'complementationContext',
                 'subordinationForm', 'subordinationContent', 'subordinationContext',
-                'relativisationForm', 'relativisationContent', 'relativisationContext',
+//                'relativisationForm', 'relativisationContent', 'relativisationContext',
+                'orderForm', 'orderContent', 'orderContext', // todo: replace by relativisation fields after reimport
                 'typeFormulaicity'
             ],
             'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting'],
@@ -294,7 +295,8 @@ class AnnotationSearchService extends AbstractSearchService
                 'coherenceForm', 'coherenceContent', 'coherenceContext',
                 'complementationForm', 'complementationContent', 'complementationContext',
                 'subordinationForm', 'subordinationContent', 'subordinationContext',
-                'relativisationForm', 'relativisationContent', 'relativisationContext',
+//                'relativisationForm', 'relativisationContent', 'relativisationContext', // todo: enable after schema update
+                'orderForm', 'orderContent', 'orderContext', // todo: remove after schema update
                 'typeFormulaicity'
             ],
             'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting'],
