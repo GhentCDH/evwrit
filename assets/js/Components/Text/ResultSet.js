@@ -21,6 +21,7 @@ export default {
     methods: {
         initResultSet(url, params, count) {
             this.resultSet = _merge(
+                {},
                 this.defaultResultSet,
                 {
                     url: url,
