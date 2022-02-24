@@ -12,12 +12,9 @@ use ReflectionException;
 /**
  * Class LayoutTextStructure
  *
- * @property int $generic_text_structure_id
+ * @property int $layout_text_structure_id
  * @property int $text_selection_id
- * @property int $text_level_id
  * @property int $layout_text_structure_part_id
- * @property int $text_structure_components_id
- * @property string $comment
  *
  * @property TextSelection textSelection
  * @property LayoutTextStructurePart part

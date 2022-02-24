@@ -96,8 +96,7 @@ class ElasticTextResource extends ElasticBaseResource
 
         // text structure
         $ret['generic_text_structure'] = ElasticGenericTextStructureResource::collection($this->genericTextStructure)->toArray();
-//        dump($ret['generic_text_structure']);
-//        $ret['layout_text_structure'] = ElasticLayoutTextStructure::collection($this->genericTextStructure);
+        $ret['layout_text_structure'] = ElasticLayoutTextStructureResource::collection($this->layoutTextStructure)->toArray();
         $ret['text_level'] = BaseResource::collection($this->textLevels)->toArray();
 
         // annotations
@@ -155,6 +154,7 @@ class ElasticTextResource extends ElasticBaseResource
             $annotation['generic_text_structure_part'] = array_values($annotation['generic_text_structure_part']);
         }
 
+        /*
         foreach($ret['annotations'] as &$annotation) {
             $annotation['layout_text_structure_part'] = [];
             foreach ( $ret['layout_text_structure'] ?? [] as $structure ) {
@@ -164,6 +164,7 @@ class ElasticTextResource extends ElasticBaseResource
                 }
             }
         }
+        */
 
         return $ret;
     }
