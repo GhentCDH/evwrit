@@ -66,6 +66,17 @@
                     </template>
                 </div>
 
+                <!-- Generic Text Structure -->
+                <div v-if="config.layoutTextStructure.show" :class="textContainerClass" class="text-structure">
+                    <h2>Layout text structure</h2>
+                    <div class="structure" v-for="textStructure in layoutTextStructure">
+                        <label>
+                            <span>{{ textStructure.part.name }}</span>
+                        </label>
+                        <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                    </div>
+                </div>
+
             </div>
 
             <div class="row mbottom-large">
@@ -242,6 +253,12 @@
                     </div>
                 </Widget>
 
+                <Widget title="Layout Text Structure" :is-open.sync="config.widgets.layoutTextStructure.isOpen" :count="text.layout_text_structure.length">
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout text structure"></CheckboxSwitch>
+                    </div>
+                </Widget>
+
                 <Widget title="Images" :count="text.image.length" :is-open.sync="config.widgets.images.isOpen">
                     <Gallery :images="images" :onClick="(index,url) => (imageIndex = index)" />
                 </Widget>
@@ -340,6 +357,9 @@ export default {
                     show: false,
                     groupByLevel: false
                 },
+                layoutTextStructure: {
+                    show: false,
+                },
                 widgets: {
                     selectionDetails: { isOpen: false },
                     metadata: { isOpen: false },
@@ -349,6 +369,7 @@ export default {
                     attestation: { isOpen: false },
                     annotations: { isOpen: false },
                     genericTextStructure: { isOpen: false },
+                    layoutTextStructure: { isOpen: false },
                     images: { isOpen: false },
                     links: { isOpen: false },
                 }
@@ -434,6 +455,14 @@ export default {
 
             return ret
         },
+        layoutTextStructure() {
+            let ret = {}
+
+            ret = this.data.text.layout_text_structure
+                .sort( (a,b) => a.text_selection.selection_start - b.text_selection.selection_start )
+
+            return ret
+        },
         genericTextStructureGroupedByLevel() {
             let ret = {}
 
@@ -452,12 +481,13 @@ export default {
                 this.config.text.showLemmas ? 1 : 0,
                 this.config.text.showApparatus ? 1 : 0,
                 this.config.translation.show ? 1 : 0,
-                this.config.genericTextStructure.show ? 1 : 0
+                this.config.genericTextStructure.show ? 1 : 0,
+                this.config.layoutTextStructure.show ? 1 : 0
             ]
             return conf.reduce((partial_sum, a) => partial_sum + a, 0);
         },
         textContainerClass() {
-            return this.textContainersOpen > 1 ? 'col-xs-12 col-md-6' : 'col-xs-12';
+            return this.textContainersOpen > 1 ? 'col-xs-12 col-lg-4 col-md-6' : 'col-xs-12';
         }
     },
     methods: {
