@@ -51,7 +51,9 @@ class TextRepository extends AbstractRepository
         'lexisAnnotations',
         'orthographyAnnotations',
         'handshiftAnnotations',
-        'languageAnnotations'
+        'languageAnnotations',
+        'genericTextStructure',
+        'layoutTextStructure'
     ];
     protected $model = Text::class;
 
