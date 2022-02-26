@@ -19,6 +19,7 @@ class ElasticHandshiftAnnotationResource extends BaseElasticAnnotationResource
         $resource = $this->resource;
 
         $ret = parent::toArray($request);
+        $ret['internal_hand_num'] = $resource->internal_hand_num;
 
         return $ret;
     }
