@@ -41,6 +41,7 @@ $nau-font-path: '../fonts/new-athena-unicode';
 
   &__line {
     display: flex;
+    position: relative;
   }
 
   &__line-number {

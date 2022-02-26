@@ -5,7 +5,7 @@
 }
 
 @each $name, $color in $annotations {
-  .annotation-#{$name} {
+  .annotation-wrapper.annotation-#{$name} {
     background-color: rgba($color, $opacity-annotation) !important;
   }
   .annotation-#{$name}.annotation-#{$name} {
@@ -16,7 +16,7 @@
 @each $name, $color in $annotations {
   @each $name2, $color2 in $annotations {
     @if $name != $name2 {
-      .annotation-#{$name}.annotation-#{$name2} {
+      .annotation-wrapper.annotation-#{$name}.annotation-#{$name2} {
         background-color: rgba(mix($color, $color2, 50%),$opacity-annotation);
       }
     }
@@ -35,4 +35,30 @@
   .annotation-details {
     margin-top: 10px
   }
+}
+
+.annotation-handshift::before {
+  left: -12px;
+  height: 100%;
+  width: 8px;
+  position: absolute;
+  content: ' ';
+  border-left: 3px solid white;
+  border-right: 3px solid white;
+}
+
+.annotation-handshift-1::before {
+  background-color: lightblue;
+}
+
+.annotation-handshift-2::before {
+  background-color: orange;
+}
+
+.annotation-handshift-3::before {
+  background-color: lightgreen;
+}
+
+.annotation-handshift-4::before {
+  background-color: purple;
 }

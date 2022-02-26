@@ -123,14 +123,34 @@ export default {
                         [line_start, line_end - 1]
                     ))
                 ) {
-                    let props = Object.entries(annotation[2].reduce( (prev, current) => ({...prev, ...current.data}) , {} )).map( i => `data-${i[0]}="${i[1]}"` ).join(' ')
+                    // let props = Object.entries(annotation[2].reduce( (prev, current) => ({...prev, ...current.data}) , {} )).map( i => `data-${i[0]}="${i[1]}"` ).join(' ')
+                    //
+                    // line = this.insertBefore(line, i[1] - line_start + 1, "</span>");
+                    // line = this.insertBefore(
+                    //     line,
+                    //     i[0] - line_start,
+                    //     '<span class="' + annotation[2].map( (i) => (i.class) ).join(" ") + '" ' + props + '>'
+                    // );
 
-                    line = this.insertBefore(line, i[1] - line_start + 1, "</span>");
+                    let globalClassses = annotation[2].map( (i) => (i.class) ).join(" ");
+                    let htmlSuffix = '</span>'.repeat(annotation[2].length + 1)
+                    let htmlPrefix = '<span class="annotation-wrapper ' + globalClassses + '">'
+
+                    console.log(htmlPrefix + htmlSuffix)
+                    htmlPrefix = annotation[2].reduce( function(html, i) {
+                        let props = Object.entries(i.data).map( i => `data-${i[0]}="${i[1]}"` ).join(' ');
+                        html += '<span class="' + i.class + '" ' + props + '>'
+                        return html
+                    }, htmlPrefix);
+
+                    line = this.insertBefore(line, i[1] - line_start + 1, htmlSuffix);
                     line = this.insertBefore(
                         line,
                         i[0] - line_start,
-                        '<span class="' + annotation[2].map( (i) => (i.class) ).join(" ") + '" ' + props + '>'
+                        htmlPrefix
                     );
+
+
                 }
             }
 
