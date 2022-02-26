@@ -24,19 +24,19 @@
                 </div>
 
                 <!-- Lemmas -->
-                <div v-if="config.text.showLemmas" :class="textContainerClass" class="text-lemmas">
+                <div v-if="config.text.showLemmas && text.text_lemmas" :class="textContainerClass" class="text-lemmas">
                     <h2>Lemmas</h2>
                     <GreekText :text="text.text_lemmas"   />
                 </div>
 
                 <!-- Lemmas -->
-                <div v-if="config.text.showApparatus" :class="textContainerClass" class="text-lemmas">
+                <div v-if="config.text.showApparatus && text.apparatus" :class="textContainerClass" class="text-lemmas">
                     <h2>Apparatus</h2>
                     <GreekText :text="text.apparatus"   />
                 </div>
 
                 <!-- Translations -->
-                <div v-if="config.translation.show" :class="textContainerClass" class="text-translations">
+                <div v-if="config.translation.show && text.translation.length" :class="textContainerClass" class="text-translations">
                     <div v-for="translation in text.translation" class="greek">
                         <h2>{{ translation.language.name}} Translation</h2>
                         <GreekText :text="translation.text"></GreekText>
@@ -44,7 +44,7 @@
                 </div>
 
                 <!-- Generic Text Structure -->
-                <div v-if="config.genericTextStructure.show" :class="textContainerClass" class="text-structure">
+                <div v-if="config.genericTextStructure.show && text.generic_text_structure.length" :class="textContainerClass" class="text-structure">
                     <h2>Generic text structure</h2>
                     <template v-if="config.genericTextStructure.groupByLevel">
                         <div class="level" v-for="level in genericTextStructureGroupedByLevel">
@@ -67,7 +67,7 @@
                 </div>
 
                 <!-- Generic Text Structure -->
-                <div v-if="config.layoutTextStructure.show" :class="textContainerClass" class="text-structure">
+                <div v-if="config.layoutTextStructure.show && text.layout_text_structure.length" :class="textContainerClass" class="text-structure">
                     <h2>Layout text structure</h2>
                     <div class="structure" v-for="textStructure in layoutTextStructure">
                         <label>
@@ -142,7 +142,7 @@
 
                 <Widget title="Translations" :count="text.translation.length"  :is-open.sync="config.widgets.translations.isOpen">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.translation.show" class="switch-primary" label="Show translation(s)"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.translation.show" class="switch-primary" label="Show translation(s)" :disabled="text.translation.length === 0"></CheckboxSwitch>
                     </div>
                 </Widget>
 
@@ -151,10 +151,10 @@
                         <CheckboxSwitch v-model="config.text.show" class="switch-primary" label="Show Text"></CheckboxSwitch>
                     </div>
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.text.showLemmas" class="switch-primary" label="Show Lemmas"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.text.showLemmas" class="switch-primary" label="Show Lemmas" :disabled="text.text_lemmas === ''"></CheckboxSwitch>
                     </div>
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.text.showApparatus" class="switch-primary" label="Show Apparatus"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.text.showApparatus" class="switch-primary" label="Show Apparatus" :disabled="text.apparatus === ''"></CheckboxSwitch>
                     </div>
                 </Widget>
 
@@ -246,16 +246,16 @@
 
                 <Widget title="Generic Text Structure" :is-open.sync="config.widgets.genericTextStructure.isOpen" :count="text.generic_text_structure.length">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic text structure"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic text structure" :disabled="text.generic_text_structure.length === 0"></CheckboxSwitch>
                     </div>
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.genericTextStructure.groupByLevel" class="switch-primary" label="Reconstruct levels"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.genericTextStructure.groupByLevel" class="switch-primary" label="Reconstruct levels"  :disabled="text.generic_text_structure.length === 0"></CheckboxSwitch>
                     </div>
                 </Widget>
 
                 <Widget title="Layout Text Structure" :is-open.sync="config.widgets.layoutTextStructure.isOpen" :count="text.layout_text_structure.length">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout text structure"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout text structure" :disabled="text.layout_text_structure.length === 0"></CheckboxSwitch>
                     </div>
                 </Widget>
 
@@ -351,7 +351,8 @@ export default {
                     showOrthography: true,
                     showMorphology: true,
                     showLexis: true,
-                    showMorphoSyntactical: true
+                    showMorphoSyntactical: true,
+                    showHandshift: true,
                 },
                 genericTextStructure: {
                     show: false,
@@ -410,6 +411,7 @@ export default {
             this.config.annotations.showMorphology && ret.push('morphology');
             this.config.annotations.showLexis && ret.push('lexis');
             this.config.annotations.showMorphoSyntactical && ret.push('morpho_syntactical');
+            this.config.annotations.showHandshift && ret.push('handshift');
 
             this.bindEvents();
             return ret;
@@ -478,16 +480,28 @@ export default {
         textContainersOpen() {
             let conf = [
                 this.config.text.show ? 1 : 0,
-                this.config.text.showLemmas ? 1 : 0,
-                this.config.text.showApparatus ? 1 : 0,
-                this.config.translation.show ? 1 : 0,
-                this.config.genericTextStructure.show ? 1 : 0,
-                this.config.layoutTextStructure.show ? 1 : 0
+                this.config.text.showLemmas && this.text.text_lemmas ? 1 : 0,
+                this.config.text.showApparatus && this.text.apparatus ? 1 : 0,
+                this.config.translation.show && this.text.translation.length ? 1 : 0,
+                this.config.genericTextStructure.show && this.text.generic_text_structure.length ? 1 : 0,
+                this.config.layoutTextStructure.show && this.text.layout_text_structure.length ? 1 : 0
             ]
             return conf.reduce((partial_sum, a) => partial_sum + a, 0);
         },
         textContainerClass() {
-            return this.textContainersOpen > 1 ? 'col-xs-12 col-lg-4 col-md-6' : 'col-xs-12';
+            let strClass = '';
+            switch(this.textContainersOpen) {
+                case 1:
+                    strClass = 'col-xs-12';
+                    break;
+                case 2:
+                    strClass = 'col-xs-12 col-md-6';
+                    break;
+                default:
+                    strClass = 'col-xs-12 col-lg-4 col-md-6';
+                    break;
+            }
+            return strClass;
         }
     },
     methods: {
@@ -549,7 +563,16 @@ export default {
             ]
         },
         getAnnotationClass(annotation) {
-            return ['annotation', 'annotation-' + annotation.type, 'annotation-' + annotation.type + '-' + annotation.id].join(' ');
+            let classes = [];
+            switch(annotation.type) {
+                case 'handshift':
+                    if ( annotation.internal_hand_num && annotation.internal_hand_num.match(/(\d+)/) ) {
+                        classes = classes.concat( ['annotation-handshift-' + annotation.internal_hand_num.match(/(\d+)/)[0]] );
+                    }
+                default:
+                    classes = classes.concat(['annotation', 'annotation-' + annotation.type, 'annotation-' + annotation.type + '-' + annotation.id]);
+            }
+            return classes.join(' ');
         },
         countAnnotationType(type) {
             return this.visibleAnnotationsByContext.filter( item => item.type === type ).length;
