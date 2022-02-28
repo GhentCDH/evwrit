@@ -33,10 +33,11 @@ $nau-font-path: '../fonts/new-athena-unicode';
 }
 
 .greek {
-  font-family: NewAthenaUnicode, Arial, sans-serif;
+  font-family: 'Noto serif', Arial, sans-serif;
 }
 
 .greek-text {
+  font-family: 'Noto serif', Arial, sans-serif;
   line-height: 1.9;
 
   &__line {
@@ -52,7 +53,7 @@ $nau-font-path: '../fonts/new-athena-unicode';
   }
 
   &__text {
-    font-family: NewAthenaUnicode, Arial, sans-serif;
+    font-family: 'Noto serif', Arial, sans-serif;
     padding-left: 0.5em
   }
 

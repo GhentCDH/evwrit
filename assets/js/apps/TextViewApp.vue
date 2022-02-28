@@ -257,6 +257,9 @@
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout text structure" :disabled="text.layout_text_structure.length === 0"></CheckboxSwitch>
                     </div>
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.annotations.showHandshift" class="switch-primary" label="Show handshift"></CheckboxSwitch>
+                    </div>
                 </Widget>
 
                 <Widget title="Images" :count="text.image.length" :is-open.sync="config.widgets.images.isOpen">
