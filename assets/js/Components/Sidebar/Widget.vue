@@ -55,7 +55,7 @@ export default {
     text-transform: uppercase;
     font-size: 19px;
     cursor: pointer;
-    padding: 10px 0 5px;
+    padding: 12px 0 7px;
     letter-spacing: 0.3rem;
 
     font-family: "PannoTextLight", Arial, sans-serif;
