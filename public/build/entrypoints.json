@@ -2,7 +2,7 @@
   "entrypoints": {
     "main": {
       "css": [
-        "/build/main.f02f06ab.css"
+        "/build/main.f73b51b3.css"
       ],
       "js": [
         "/build/main.93d0eeff.js"
@@ -29,15 +29,15 @@
         "/build/base-annotation-search.295269d4.css"
       ],
       "js": [
-        "/build/base-annotation-search.43f603fe.js"
+        "/build/base-annotation-search.4618f0a4.js"
       ]
     },
     "text-view": {
       "css": [
-        "/build/text-view.a198b6bc.css"
+        "/build/text-view.08794c48.css"
       ],
       "js": [
-        "/build/text-view.b6c23268.js"
+        "/build/text-view.fbe8d1fb.js"
       ]
     }
   }
