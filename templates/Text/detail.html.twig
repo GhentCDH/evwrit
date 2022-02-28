@@ -1,12 +1,10 @@
 {% extends 'base.html.twig' %}
 
 {% block content %}
-    <div id="text-view-app">
-        <text-view-app
-            init-urls="{{ urls }}"
-            init-data="{{ data }}"
-        />
-    </div>
+    <text-view-app id="text-view-app"
+        init-urls="{{ urls }}"
+        init-data="{{ data }}"
+    />
 {% endblock %}
 
 {% block javascript %}
