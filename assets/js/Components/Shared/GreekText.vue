@@ -92,7 +92,7 @@ export default {
             if (result.match(regLineNumber)) {
                 result = line.replace(regLineNumber, replaceLineNumber) + "</span>";
             } else {
-                result = '<span class="greek-text__text">' + line + "</span>";
+                result = '<span class="greek-text__line-number"></span><span class="greek-text__text">' + line + "</span>";
             }
             return '<div class="greek-text__line">' + result + '</div>';
         },
