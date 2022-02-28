@@ -2,7 +2,7 @@
     <div class="widget" :class="{closed: !isOpen}">
         <div class="sticky-block" @click="toggleOpen()">
             <div class="title">
-                <span class="toggle-open" >
+                <span class="toggle--open-close" >
                     <i class="fa fa-angle-down" aria-hidden="true"></i>
                 </span>
                 <span>{{ title }}
@@ -53,16 +53,17 @@ export default {
   }
   .title {
     text-transform: uppercase;
-    font-size: 18px;
-    letter-spacing: .1em;
+    font-size: 19px;
     cursor: pointer;
     padding: 10px 0 5px;
+    letter-spacing: 0.3rem;
 
-    font-family: "PannoTextMedium", Arial, sans-serif;
+    font-family: "PannoTextLight", Arial, sans-serif;
     color: #777;
 
-    .toggle-open {
+    .toggle--open-close {
       float: right;
+      color: #cccccc;
     }
 
     .count {
@@ -90,7 +91,7 @@ export default {
 }
 
 .widget.closed {
-  .toggle-open .fa {
+  .toggle--open-close .fa {
     transform: rotate(-90deg);
   }
 
