@@ -136,9 +136,8 @@ export default {
                     let htmlSuffix = '</span>'.repeat(annotation[2].length + 1)
                     let htmlPrefix = '<span class="annotation-wrapper ' + globalClassses + '">'
 
-                    console.log(htmlPrefix + htmlSuffix)
                     htmlPrefix = annotation[2].reduce( function(html, i) {
-                        let props = Object.entries(i.data).map( i => `data-${i[0]}="${i[1]}"` ).join(' ');
+                        let props = Object.entries(i.data ?? {}).map( i => `data-${i[0]}="${i[1]}"` ).join(' ');
                         html += '<span class="' + i.class + '" ' + props + '>'
                         return html
                     }, htmlPrefix);

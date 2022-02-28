@@ -90,7 +90,7 @@ import VueFormGenerator from 'vue-form-generator'
 
 import AbstractField from '../Components/FormFields/AbstractField'
 import AbstractSearch from '../Components/Search/AbstractSearch'
-import CheckboxSwitch from '../Components/Shared/CheckboxSwitch'
+import CheckboxSwitch from '../Components/FormFields/CheckboxSwitch'
 
 import fieldRadio from '../Components/FormFields/fieldRadio'
 
