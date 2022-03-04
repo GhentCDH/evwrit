@@ -2,7 +2,7 @@
   "entrypoints": {
     "main": {
       "css": [
-        "/build/main.1468fb15.css"
+        "/build/main.a01a13f8.css"
       ],
       "js": [
         "/build/main.93d0eeff.js"
@@ -13,7 +13,7 @@
         "/build/text-search.780eb3da.css"
       ],
       "js": [
-        "/build/text-search.eaaf1caf.js"
+        "/build/text-search.55790de2.js"
       ]
     },
     "materiality-search": {
@@ -21,23 +21,23 @@
         "/build/materiality-search.49a39f54.css"
       ],
       "js": [
-        "/build/materiality-search.0a860ed2.js"
+        "/build/materiality-search.c64e3897.js"
       ]
     },
     "base-annotation-search": {
       "css": [
-        "/build/base-annotation-search.295269d4.css"
+        "/build/base-annotation-search.db5f8f1e.css"
       ],
       "js": [
-        "/build/base-annotation-search.2c99137d.js"
+        "/build/base-annotation-search.d16bb620.js"
       ]
     },
     "text-view": {
       "css": [
-        "/build/text-view.ad195eff.css"
+        "/build/text-view.34c5a960.css"
       ],
       "js": [
-        "/build/text-view.d3906bed.js"
+        "/build/text-view.089873f8.js"
       ]
     }
   }

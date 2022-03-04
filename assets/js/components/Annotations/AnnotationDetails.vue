@@ -1,7 +1,7 @@
 <template>
     <div class="annotation__details">
         <LabelValue label="Original" :value="annotation.text_selection.text" :inline="false" value-class="greek" valueClass="greek" class="mbottom-small"></LabelValue>
-        <LabelValue label="Annotation Type" :value="annotation.type" :inline="false" class="mbottom-small"></LabelValue>
+        <LabelValue label="Annotation Type" :value="annotationType" :inline="false" class="mbottom-small"></LabelValue>
         <LabelValue v-for="(value, label) in propertiesLabelValue" v-bind:key="label" :label="label" :value="value" :inline="true"></LabelValue>
     </div>
 </template>
@@ -25,9 +25,11 @@ export default {
         properties() {
             return Object.keys(this.annotation.properties).filter(k => k.startsWith(this.annotation.type + '_'))
         },
+        annotationType() {
+            return this.annotation.type.replace('morpho_syntactical','syntax')
+        },
         propertiesLabelValue() {
             let ret = {};
-            console.log(this.properties)
             for (const prop of this.properties) {
                 let value = this.annotation.properties[prop]
                 let label = prop.split('_').slice(-1).join('') // strip type prefix

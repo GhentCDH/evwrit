@@ -148,10 +148,14 @@ export default {
                         i[0] - line_start,
                         htmlPrefix
                     );
-
-
                 }
             }
+
+            // remove (*)
+            line = line.replace('(*)','')
+
+            // remove (hand x)
+
 
             return line;
         },
