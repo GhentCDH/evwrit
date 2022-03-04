@@ -26,13 +26,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     protected const FILTER_NESTED_ID = "nested_id";
     protected const FILTER_NESTED_TOGGLE = "nested_toggle";
     protected const FILTER_NESTED_MULTIPLE = "nested_multiple";
-    protected const FILTER_MULTIPLE_FIELDS_OBJECT = "multiple_fields_object";
     protected const FILTER_DATE_RANGE = "date_range";
     protected const FILTER_NUMERIC_RANGE_SLIDER = "numeric_range";
 
     protected const AGG_NUMERIC = "numeric";
     protected const AGG_KEYWORD = "exact_text";
-    protected const AGG_NESTED = "nested";
     protected const AGG_NESTED_KEYWORD = "nested_term";
     protected const AGG_BOOLEAN = "bool";
     protected const AGG_GLOBAL_STATS = "stats";
@@ -705,7 +703,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         }
                         $results[$aggName][] = [
                             'id' => $result['key'],
-                            'name' => $result['key'],
+                            'name' => str_replace("morpho_syntactical", "syntax", $result['key']), // todo: DIRTY QUICK FIX!!
                             'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
                         ];
                     }
@@ -716,10 +714,18 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     foreach ($aggResults as $result) {
                         if ( !isset($result['key']) ) continue;
                         $parts = explode('_',$result['key'],2);
-                        // limitValue?
-                        if ( count($aggConfig['limitValue'] ?? []) && !in_array((int) $parts[0], $aggConfig['limitValue'], true) ) {
+                        // limitValue/limitId?
+                        if ( count($aggConfig['limitId'] ?? []) && !in_array((int) $parts[0], $aggConfig['limitId'], true) ) {
                             continue;
                         }
+                        if ( count($aggConfig['limitValue'] ?? []) && !in_array((int) $parts[1], $aggConfig['limitValue'], true) ) {
+                            continue;
+                        }
+                        // ignoreValue?
+                        if ( count($aggConfig['ignoreValue'] ?? []) && in_array($parts[1], $aggConfig['ignoreValue'], true) ) {
+                            continue;
+                        }
+
                         $results[$aggName][] = [
                             'id' => (int) $parts[0],
                             'name' => $parts[1],
@@ -1079,23 +1085,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         }
                     }
                     break;
-                case self::FILTER_MULTIPLE_FIELDS_OBJECT:
-                    // options = [[keys], value]
-                    foreach ($filterValue as $key => $options) {
-                        $subQuery = new Query\BoolQuery();
-                        foreach ($options[0] as $key) {
-                            $subQuery->addShould(
-                                (new Query\Nested())
-                                    ->setPath($key)
-                                    ->setQuery(
-                                        (new Query\BoolQuery())
-                                            ->addMust(['match' => [$key . '.id' => $options[1]]])
-                                    )
-                            );
-                        }
-                        $query->addMust($subQuery);
-                    }
-                    break;
             }
         }
 
@@ -1236,7 +1225,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
     protected function isNestedAggregation($config_name) {
         $config = $this->getAggregationConfig()[$config_name];
-        return ( in_array($config['type'], [self::AGG_NESTED, self::AGG_NESTED_ID_NAME, self::AGG_NESTED_KEYWORD],true) || ($config['nested_path'] ?? false) );
+        return ( in_array($config['type'], [self::AGG_NESTED_ID_NAME, self::AGG_NESTED_KEYWORD],true) || ($config['nested_path'] ?? false) );
     }
 
     protected function sortAggregationResult(?array &$agg_result) {
