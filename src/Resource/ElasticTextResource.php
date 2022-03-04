@@ -107,6 +107,8 @@ class ElasticTextResource extends ElasticBaseResource
             BaseElasticAnnotationResource::collection($this->orthographyAnnotations)->toArray(),
             BaseElasticAnnotationResource::collection($this->morphologyAnnotations)->toArray(),
             BaseElasticAnnotationResource::collection($this->morphoSyntacticalAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection($this->genericTextStructureAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection($this->layoutTextStructureAnnotations)->toArray(),
             $handshifts = ElasticHandshiftAnnotationResource::collection($this->handshiftAnnotations)->toArray()
         );
 

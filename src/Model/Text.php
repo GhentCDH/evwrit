@@ -62,6 +62,8 @@ use ReflectionException;
  * @property MorphologyAnnotation[] morphologyAnnotations
  * @property MorphoSyntacticalAnnotation[] morphoSyntacticalAnnotations
  * @property HandshiftAnnotation[] handshiftAnnotations
+ * @property GenericTextStructureAnnotation[] genericTextStructureAnnotations
+ * @property LayoutTextStructureAnnotation[] layoutTextStructureAnnotations
  *
  * @property GenericTextStructure[] genericTextStructure
  * @property LayoutTextStructure[] layoutTextStructure
@@ -356,11 +358,27 @@ class Text extends AbstractModel
     }
 
     /**
+     * @return HasManyThrough|GenericTextStructureAnnotation[]
+     */
+    public function genericTextStructureAnnotations()
+    {
+        return $this->hasManyThrough(GenericTextStructureAnnotation::class, TextSelection::class);
+    }
+
+    /**
      * @return HasManyThrough|LayoutTextStructure[]
      */
     public function layoutTextStructure()
     {
         return $this->hasManyThrough(LayoutTextStructure::class, TextSelection::class);
+    }
+
+    /**
+     * @return HasManyThrough|LayoutTextStructureAnnotation[]
+     */
+    public function layoutTextStructureAnnotations()
+    {
+        return $this->hasManyThrough(LayoutTextStructureAnnotation::class, TextSelection::class);
     }
 
     /**

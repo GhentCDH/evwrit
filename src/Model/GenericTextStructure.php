@@ -55,9 +55,9 @@ class GenericTextStructure extends AbstractModel
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function partNumber(): ?int
+    public function partNumber(): ?string
     {
         return $this->generic_text_structure_part_number;
     }
