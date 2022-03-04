@@ -10,6 +10,8 @@ class TextBasicSearchService extends AbstractSearchService
 {
     const indexName = "texts";
 
+    const ignoreUnknownUncertain = ['unknown','uncertain', 'Unknown', 'Uncertain', 'Unknwon'];
+
     public function __construct(Client $client)
     {
         parent::__construct(
@@ -144,21 +146,25 @@ class TextBasicSearchService extends AbstractSearchService
 
             /* role */
             'agentive_role' => [
+                'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'agentive_role',
                 'filter' => [ 'generic_agentive_role' => 'generic_agentive_role.id' ]
             ],
             'generic_agentive_role' => [
+                'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'agentive_role',
             ],
             /* goal */
             'communicative_goal' => [
+                'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'communicative_goal',
                 'filter' => [ 'generic_communicative_goal' => 'generic_communicative_goal.id' ]
             ],
             'generic_communicative_goal' => [
+                'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'communicative_goal',
             ],
@@ -175,9 +181,12 @@ class TextBasicSearchService extends AbstractSearchService
             'collaborator'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'project'  => [
                 'type' => self::AGG_NESTED_ID_NAME,
-                'limitValue' => [1,4,7]
+                'limitId' => [1,4,7]
             ],
-            'social_distance' => ['type' => self::AGG_NESTED_ID_NAME],
+            'social_distance' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'ignoreValue' => self::ignoreUnknownUncertain,
+            ],
             'text_type' => ['type' => self::AGG_OBJECT_ID_NAME],
             'text_subtype' => ['type' => self::AGG_OBJECT_ID_NAME],
 
@@ -189,29 +198,35 @@ class TextBasicSearchService extends AbstractSearchService
             'ap_role' => [
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'ancient_person',
-                'field' => 'role'
+                'field' => 'role',
+                'ignoreValue' => self::ignoreUnknownUncertain,
             ],
             'ap_gender' => [
+                'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'ancient_person',
                 'field' => 'gender'
             ],
             'ap_occupation' => [
+                'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'ancient_person',
                 'field' => 'occupation'
             ],
             'ap_social_rank' => [
+                'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'ancient_person',
                 'field' => 'social_rank'
             ],
             'ap_honorific_epithet' => [
+                'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'ancient_person',
                 'field' => 'honorific_epithet'
             ],
             'ap_graph_type' => [
+                'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'ancient_person',
                 'field' => 'graph_type'
