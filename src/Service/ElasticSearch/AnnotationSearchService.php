@@ -229,7 +229,7 @@ class AnnotationSearchService extends AbstractSearchService
             'collaborator'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'project'  => [
                 'type' => self::AGG_NESTED_ID_NAME,
-                'limitValue' => [1,4,7]
+                'limitId' => [1,4,7]
             ],
             'social_distance' => ['type' => self::AGG_NESTED_ID_NAME],
             'text_type' => ['type' => self::AGG_OBJECT_ID_NAME],
