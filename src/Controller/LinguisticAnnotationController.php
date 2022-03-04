@@ -36,7 +36,7 @@ class LinguisticAnnotationController extends BaseController
         return $this->_search(
             $request,
             [
-                'title' => 'Linguistic annotations'
+                'title' => 'Lexicogrammar'
             ],
             [
                 'search_api' => 'linguistic_annotation_search_api',
@@ -88,7 +88,7 @@ class LinguisticAnnotationController extends BaseController
         $csvData = $this->renderCsvData($data);
 
         // csv response
-        $response = new StreamedCsvResponse($csvData, $csvData[0], 'linguistic-annotations.csv');
+        $response = new StreamedCsvResponse($csvData, $csvData[0], 'lexicogrammar.csv');
         return $response;
     }
 
