@@ -44,13 +44,13 @@
                 </div>
 
                 <!-- Generic Text Structure -->
-                <div v-if="config.genericTextStructure.show && text.generic_text_structure.length" :class="textContainerClass" class="text-structure">
+                <div v-if="config.genericTextStructure.show && genericTextStructure.length" :class="textContainerClass" class="text-structure">
                     <h2>Generic text structure</h2>
                     <template v-if="config.genericTextStructure.groupByLevel">
                         <div class="level" v-for="level in genericTextStructureGroupedByLevel">
                             <label><span>Level {{ level.number }} {{ level.type}}</span></label>
                             <div class="structure" v-for="textStructure in level.children">
-                                <label><span>{{ textStructure.part.name }} {{ textStructure.part_number}}</span></label>
+                                <label><span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span></label>
                                 <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
                             </div>
                         </div>
@@ -59,19 +59,19 @@
                         <div class="structure" v-for="textStructure in genericTextStructure">
                             <label>
                                 <span v-if="textStructure.text_level">Level {{ textStructure.text_level.number }}</span>
-                                <span>{{ textStructure.part.name }} {{ textStructure.part_number}}</span>
+                                <span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span>
                             </label>
                             <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
                         </div>
                     </template>
                 </div>
 
-                <!-- Generic Text Structure -->
-                <div v-if="config.layoutTextStructure.show && text.layout_text_structure.length" :class="textContainerClass" class="text-structure">
+                <!-- Layout Text Structure -->
+                <div v-if="config.layoutTextStructure.show && layoutTextStructure.length" :class="textContainerClass" class="text-structure">
                     <h2>Layout text structure</h2>
                     <div class="structure" v-for="textStructure in layoutTextStructure">
                         <label>
-                            <span>{{ textStructure.part.name }}</span>
+                            <span>{{ textStructure.properties.lts_part.name }}</span>
                         </label>
                         <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
                     </div>
@@ -86,14 +86,14 @@
                     <h2 v-if="config.text.show || config.text.showLemmas || config.genericTextStructure.show">Annotations</h2>
                     <div class="annotation-result" v-for="annotation in visibleAnnotations">
                         <GreekText
-                                v-show="config.annotations.showContext"
+                                v-if="config.annotations.showContext && annotationHasContext(annotation)"
                                 :text="annotation.context.text"
-                                :annotations="[ formatAnnotation(annotation) ]"
+                                :annotations="formatAnnotation(annotation)"
                                 :annotationOffset="annotation.context.start + 1"
                                 :compact="true">
                         </GreekText>
                         <GreekText
-                                v-show="!config.annotations.showContext"
+                                v-if="!config.annotations.showContext || !annotationHasContext(annotation)"
                                 :text="annotation.text_selection.text">
                         </GreekText>
                         <AnnotationDetailsFlat v-show="config.annotations.showDetails" :annotation="annotation"></AnnotationDetailsFlat>
@@ -196,7 +196,7 @@
                         <CheckboxSwitch v-model="config.annotations.show" class="switch-primary" label="Show annotations in text"></CheckboxSwitch>
                     </div>
 
-                    <div v-if="showAnnotationOptions && hasSearchContext" class="form-group">
+                    <div v-if="showBaseAnnotations && hasSearchContext" class="form-group">
                         <CheckboxSwitch v-model="config.annotations.showOnlyInSearchContext" class="switch-primary" label="Limit annotations to search context"></CheckboxSwitch>
                     </div>
 
@@ -210,55 +210,96 @@
                         <CheckboxSwitch v-model="config.annotations.showDetails" class="switch-primary" label="Show annotation details"></CheckboxSwitch>
                     </div>
 
-                    <div v-if="showAnnotationOptions" class="form-group mtop-default">
-                        <CheckboxSwitch v-model="config.annotations.showLanguage" class="switch-primary" label="Language annotations">
-                            <span class="count pull-right annotation-language">{{ countAnnotationType('language') }}</span>
-                        </CheckboxSwitch>
-                    </div>
-                    <div v-if="showAnnotationOptions" class="form-group mbottom-default">
-                        <CheckboxSwitch v-model="config.annotations.showTypography" class="switch-primary" label="Typography annotations">
-                            <span class="count pull-right annotation-typography">{{ countAnnotationType('typography') }}</span>
-                        </CheckboxSwitch>
+                    <div v-if="showBaseAnnotations" class="mtop-default">
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.annotations.showTypography" class="switch-primary" label="Typography annotations">
+                                <span class="count pull-right annotation-typography">{{ countAnnotationType('typography') }}</span>
+                            </CheckboxSwitch>
+                        </div>
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.annotations.showLanguage" class="switch-primary" label="Language annotations">
+                                <span class="count pull-right annotation-language">{{ countAnnotationType('language') }}</span>
+                            </CheckboxSwitch>
+                        </div>
                     </div>
 
-                    <div v-if="showAnnotationOptions" class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showMorphoSyntactical" class="switch-primary" label="Morpho-Syntactical annotations">
-                            <span class="count pull-right annotation-morpho_syntactical">{{ countAnnotationType('morpho_syntactical') }}</span>
-                        </CheckboxSwitch>
+                    <div v-if="showBaseAnnotations" class="mtop-default">
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.annotations.showMorphoSyntactical" class="switch-primary" label="Syntax annotations">
+                                <span class="count pull-right annotation-morpho_syntactical">{{ countAnnotationType('morpho_syntactical') }}</span>
+                            </CheckboxSwitch>
+                        </div>
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.annotations.showOrthography" class="switch-primary" label="Orthography annotations">
+                                <span class="count pull-right annotation-orthography">{{ countAnnotationType('orthography') }}</span>
+                            </CheckboxSwitch>
+                        </div>
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.annotations.showLexis" class="switch-primary" label="Lexis annotations">
+                                <span class="count pull-right annotation-lexis">{{ countAnnotationType('lexis') }}</span>
+                            </CheckboxSwitch>
+                        </div>
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.annotations.showMorphology" class="switch-primary" label="Morphology annotations">
+                                <span class="count pull-right annotation-morphology">{{ countAnnotationType('morphology') }}</span>
+                            </CheckboxSwitch>
+                        </div>
                     </div>
-                    <div v-if="showAnnotationOptions"  class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showOrthography" class="switch-primary" label="Orthography annotations">
-                            <span class="count pull-right annotation-orthography">{{ countAnnotationType('orthography') }}</span>
-                        </CheckboxSwitch>
-                    </div>
-                    <div v-if="showAnnotationOptions" class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showLexis" class="switch-primary" label="Lexis annotations">
-                            <span class="count pull-right annotation-lexis">{{ countAnnotationType('lexis') }}</span>
-                        </CheckboxSwitch>
-                    </div>
-                    <div v-if="showAnnotationOptions" class="form-group mbottom-default">
-                        <CheckboxSwitch v-model="config.annotations.showMorphology" class="switch-primary" label="Morphology annotations">
-                            <span class="count pull-right annotation-morphology">{{ countAnnotationType('morphology') }}</span>
-                        </CheckboxSwitch>
-                    </div>
+
 
                 </Widget>
 
-                <Widget title="Generic Text Structure" :is-open.sync="config.widgets.genericTextStructure.isOpen" :count="text.generic_text_structure.length">
+                <Widget title="Generic Text Structure" :is-open.sync="config.widgets.genericTextStructure.isOpen" :count="genericTextStructure.length">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic text structure" :disabled="text.generic_text_structure.length === 0"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic text structure" :disabled="genericTextStructure.length === 0"></CheckboxSwitch>
                     </div>
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.genericTextStructure.groupByLevel" class="switch-primary" label="Reconstruct levels"  :disabled="text.generic_text_structure.length === 0"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.genericTextStructure.groupByLevel" class="switch-primary" label="Reconstruct levels"  :disabled="genericTextStructure.length === 0"></CheckboxSwitch>
+                    </div>
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.genericTextStructure.showAnnotations" class="switch-primary" label="Show generic text structure annotations"></CheckboxSwitch>
+                    </div>
+
+                    <div v-if="showGTSA" class="mtop-default">
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.genericTextStructure.showUnit" class="switch-primary" label="Show Units"></CheckboxSwitch>
+                        </div>
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.genericTextStructure.showSubunit" class="switch-primary" label="Show Subunits"></CheckboxSwitch>
+                        </div>
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.genericTextStructure.showElement" class="switch-primary" label="Show Elements"></CheckboxSwitch>
+                        </div>
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.genericTextStructure.showModifier" class="switch-primary" label="Show Modifiers"></CheckboxSwitch>
+                        </div>
                     </div>
                 </Widget>
 
-                <Widget title="Layout Text Structure" :is-open.sync="config.widgets.layoutTextStructure.isOpen" :count="text.layout_text_structure.length">
+                <Widget title="Layout Text Structure" :is-open.sync="config.widgets.layoutTextStructure.isOpen" :count="layoutTextStructure.length">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout text structure" :disabled="text.layout_text_structure.length === 0"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout text structure" :disabled="layoutTextStructure.length === 0"></CheckboxSwitch>
                     </div>
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showHandshift" class="switch-primary" label="Show handshift"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.annotations.showHandshift" class="switch-primary" label="Show handshift annotations"></CheckboxSwitch>
+                    </div>
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.layoutTextStructure.showAnnotations" class="switch-primary" label="Show layout text structure annotations"></CheckboxSwitch>
+                    </div>
+
+                    <div v-if="showLTSA" class="mtop-default">
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.layoutTextStructure.showUnit" class="switch-primary" label="Show Units"></CheckboxSwitch>
+                        </div>
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.layoutTextStructure.showSubunit" class="switch-primary" label="Show Subunits"></CheckboxSwitch>
+                        </div>
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.layoutTextStructure.showElement" class="switch-primary" label="Show Elements"></CheckboxSwitch>
+                        </div>
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.layoutTextStructure.showModifier" class="switch-primary" label="Show Modifiers"></CheckboxSwitch>
+                        </div>
                     </div>
                 </Widget>
 
@@ -285,20 +326,20 @@
 
 <script>
 import Vue from 'vue'
-import Widget from '../Components/Sidebar/Widget'
-import LabelValue from '../Components/Sidebar/LabelValue'
-import PageMetrics from '../Components/Sidebar/PageMetrics'
-import GreekText from '../Components/Shared/GreekText'
-import PropertyGroup from '../Components/Sidebar/PropertyGroup'
-import Gallery from '../Components/Sidebar/Gallery'
-import CheckboxSwitch from '../Components/Shared/CheckboxSwitch'
-import AnnotationDetailsFlat from '../Components/Annotations/AnnotationDetailsFlat'
-import AnnotationDetails from '../Components/Annotations/AnnotationDetails'
+import Widget from '../components/Sidebar/Widget'
+import LabelValue from '../components/Sidebar/LabelValue'
+import PageMetrics from '../components/Sidebar/PageMetrics'
+import GreekText from '../components/Text/GreekText'
+import PropertyGroup from '../components/Sidebar/PropertyGroup'
+import Gallery from '../components/Sidebar/Gallery'
+import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
+import AnnotationDetailsFlat from '../components/Annotations/AnnotationDetailsFlat'
+import AnnotationDetails from '../components/Annotations/AnnotationDetails'
 
-import PersistentConfig from "../Components/Shared/PersistentConfig";
-import ResultSet from "../Components/Text/ResultSet";
-import SearchSession from "../Components/Search/SearchSession";
-import SearchContext from "../Components/Search/SearchContext";
+import PersistentConfig from "../components/Shared/PersistentConfig";
+import ResultSet from "../components/Search/ResultSet";
+import SearchSession from "../components/Search/SearchSession";
+import SearchContext from "../components/Search/SearchContext";
 
 import CoolLightBox from 'vue-cool-lightbox'
 import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
@@ -359,10 +400,20 @@ export default {
                 },
                 genericTextStructure: {
                     show: false,
-                    groupByLevel: false
+                    groupByLevel: false,
+                    showAnnotations: false,
+                    showUnit: true,
+                    showSubunit: true,
+                    showElement: true,
+                    showModifier: true
                 },
                 layoutTextStructure: {
                     show: false,
+                    showAnnotations: false,
+                    showUnit: true,
+                    showSubunit: true,
+                    showElement: true,
+                    showModifier: true
                 },
                 widgets: {
                     selectionDetails: { isOpen: false },
@@ -408,14 +459,40 @@ export default {
         },
         visibleAnnotationTypes() {
             let ret = [];
-            this.config.annotations.showLanguage && ret.push('language');
-            this.config.annotations.showTypography && ret.push('typography');
-            this.config.annotations.showOrthography && ret.push('orthography');
-            this.config.annotations.showMorphology && ret.push('morphology');
-            this.config.annotations.showLexis && ret.push('lexis');
-            this.config.annotations.showMorphoSyntactical && ret.push('morpho_syntactical');
+            if ( this.config.annotations.show ) {
+                this.config.annotations.showLanguage && ret.push('language');
+                this.config.annotations.showTypography && ret.push('typography');
+                this.config.annotations.showOrthography && ret.push('orthography');
+                this.config.annotations.showMorphology && ret.push('morphology');
+                this.config.annotations.showLexis && ret.push('lexis');
+                this.config.annotations.showMorphoSyntactical && ret.push('morpho_syntactical');
+            }
             this.config.annotations.showHandshift && ret.push('handshift');
+            this.config.genericTextStructure.showAnnotations && ret.push('gtsa');
+            this.config.layoutTextStructure.showAnnotations && ret.push('ltsa');
 
+            this.bindEvents();
+            return ret;
+        },
+        visibleLTSATypes() {
+            let ret = [];
+            if ( this.showLTSA ) {
+                this.config.layoutTextStructure.showUnit && ret.push('Unit');
+                this.config.layoutTextStructure.showSubunit && ret.push('Subunit');
+                this.config.layoutTextStructure.showModifier && ret.push('Modifier');
+                this.config.layoutTextStructure.showElement && ret.push('Element');
+            }
+            this.bindEvents();
+            return ret;
+        },
+        visibleGTSATypes() {
+            let ret = [];
+            if ( this.showGTSA ) {
+                this.config.genericTextStructure.showUnit && ret.push('Unit');
+                this.config.genericTextStructure.showSubunit && ret.push('Subunit');
+                this.config.genericTextStructure.showModifier && ret.push('Modifier');
+                this.config.genericTextStructure.showElement && ret.push('Element');
+            }
             this.bindEvents();
             return ret;
         },
@@ -430,9 +507,6 @@ export default {
             return annotations
         },
         visibleAnnotations() {
-            if ( !this.config.annotations.show )
-                return [];
-
             let annotations = this.visibleAnnotationsByContext
 
             // filter by config
@@ -444,10 +518,16 @@ export default {
                 });
         },
         visibleAnnotationsFormatted() {
-            return this.visibleAnnotations.map( annotation => this.formatAnnotation(annotation) );
+            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(this.formatAnnotation(annotation)), [] );
         },
-        showAnnotationOptions() {
+        showBaseAnnotations() {
             return this.config.annotations.show || this.config.annotations.showList
+        },
+        showGTSA() {
+            return this.config.genericTextStructure.showAnnotations
+        },
+        showLTSA() {
+            return this.config.layoutTextStructure.showAnnotations
         },
         hasSearchContext() {
            return Object.keys(this.context.params ?? {} ).length > 0
@@ -455,7 +535,10 @@ export default {
         genericTextStructure() {
             let ret = {}
 
-            ret = this.data.text.generic_text_structure
+            ret = this.data.text.annotations
+                .filter( function(annotation) {
+                    return annotation.type === 'gts'
+                })
                 .sort( (a,b) => a.text_selection.selection_start - b.text_selection.selection_start )
 
             return ret
@@ -463,7 +546,10 @@ export default {
         layoutTextStructure() {
             let ret = {}
 
-            ret = this.data.text.layout_text_structure
+            ret = this.data.text.annotations
+                .filter( function(annotation) {
+                    return annotation.type === 'lts'
+                })
                 .sort( (a,b) => a.text_selection.selection_start - b.text_selection.selection_start )
 
             return ret
@@ -486,8 +572,8 @@ export default {
                 this.config.text.showLemmas && this.text.text_lemmas ? 1 : 0,
                 this.config.text.showApparatus && this.text.apparatus ? 1 : 0,
                 this.config.translation.show && this.text.translation.length ? 1 : 0,
-                this.config.genericTextStructure.show && this.text.generic_text_structure.length ? 1 : 0,
-                this.config.layoutTextStructure.show && this.text.layout_text_structure.length ? 1 : 0
+                this.config.genericTextStructure.show && this.genericTextStructure.length ? 1 : 0,
+                this.config.layoutTextStructure.show && this.layoutTextStructure.length ? 1 : 0
             ]
             return conf.reduce((partial_sum, a) => partial_sum + a, 0);
         },
@@ -508,11 +594,24 @@ export default {
         }
     },
     methods: {
+        annotationHasContext(annotation) {
+           return !!annotation?.context
+        },
         annotationsFilterByConfig(annotations) {
             let that = this
-            return annotations.filter( function(annotation) {
-                return that.visibleAnnotationTypes.includes(annotation.type)
-            } )
+            return annotations
+                // filter by annotation type
+                .filter( function(annotation) {
+                    return that.visibleAnnotationTypes.includes(annotation.type)
+                })
+                // filter gtsa annotations by gtsa_type
+                .filter( function(annotation) {
+                    return annotation.type !== "gtsa" || ( annotation.type === "gtsa" && that.visibleGTSATypes.includes(annotation.properties?.gtsa_type?.name) )
+                })
+                // filter ltsa annotations by ltsa_type
+                .filter( function(annotation) {
+                    return annotation.type !== "ltsa" || ( annotation.type === "ltsa" && that.visibleLTSATypes.includes(annotation.properties?.ltsa_type?.name) )
+                })
         },
         annotationsFilterbyContext(annotations, context_params) {
             let annotationTypeFilter = context_params.annotation_type ?? false
@@ -559,21 +658,68 @@ export default {
             } )
         },
         formatAnnotation(annotation) {
-            return [
-                annotation.text_selection.selection_start,
-                annotation.text_selection.selection_end -1,
-                { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation) }
-            ]
+            switch ( annotation.text_selection.selection_start - (annotation.text_selection.selection_end -1) ) {
+                case 1:
+                    return [
+                        [
+                            annotation.text_selection.selection_start,
+                            annotation.text_selection.selection_end -1,
+                            { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation) }
+                        ]
+                    ]
+                case 2:
+                    return [
+                        [
+                            annotation.text_selection.selection_start,
+                            annotation.text_selection.selection_start,
+                            { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation) }
+                        ],
+                        [
+                            annotation.text_selection.selection_start + 1,
+                            annotation.text_selection.selection_end -1,
+                            { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation) }
+                        ]
+                    ]
+                default:
+                    return [
+                        [
+                            annotation.text_selection.selection_start,
+                            annotation.text_selection.selection_start,
+                            { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation, 'annotation-start') }
+                        ],
+                        [
+                            annotation.text_selection.selection_start + 1,
+                            annotation.text_selection.selection_end - 2,
+                            { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation) }
+                        ],
+                        [
+                            annotation.text_selection.selection_end - 1,
+                            annotation.text_selection.selection_end - 1,
+                            { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation, 'annotation-end') }
+                        ]
+                    ]
+            }
         },
-        getAnnotationClass(annotation) {
+        getAnnotationClass(annotation, extra) {
             let classes = [];
             switch(annotation.type) {
+                case 'gtsa':
+                    if ( annotation.properties?.gtsa_type?.name ) {
+                        classes = classes.concat( ['annotation-' + annotation.type + '-' + annotation.properties.gtsa_type.name.toLowerCase()] );
+                    }
+                case 'ltsa':
+                    if ( annotation.properties?.ltsa_type?.name ) {
+                        classes = classes.concat( ['annotation-' + annotation.type + '-' + annotation.properties.ltsa_type.name.toLowerCase()] );
+                    }
                 case 'handshift':
                     if ( annotation.internal_hand_num && annotation.internal_hand_num.match(/(\d+)/) ) {
                         classes = classes.concat( ['annotation-handshift-' + annotation.internal_hand_num.match(/(\d+)/)[0]] );
                     }
                 default:
                     classes = classes.concat(['annotation', 'annotation-' + annotation.type, 'annotation-' + annotation.type + '-' + annotation.id]);
+            }
+            if ( extra ) {
+                classes.push(extra)
             }
             return classes.join(' ');
         },
