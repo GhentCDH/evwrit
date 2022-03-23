@@ -94,12 +94,9 @@ class ElasticTextResource extends ElasticBaseResource
             'annotations' => []
         ];
 
-        // text structure
-        $ret['generic_text_structure'] = ElasticGenericTextStructureResource::collection($this->genericTextStructure)->toArray();
-        $ret['layout_text_structure'] = ElasticLayoutTextStructureResource::collection($this->layoutTextStructure)->toArray();
-        $ret['text_level'] = BaseResource::collection($this->textLevels)->toArray();
 
-        // annotations
+
+        // base annotations
         $ret['annotations'] = array_merge(
             BaseElasticAnnotationResource::collection($this->languageAnnotations)->toArray(),
             BaseElasticAnnotationResource::collection($this->typographyAnnotations)->toArray(),
@@ -107,68 +104,89 @@ class ElasticTextResource extends ElasticBaseResource
             BaseElasticAnnotationResource::collection($this->orthographyAnnotations)->toArray(),
             BaseElasticAnnotationResource::collection($this->morphologyAnnotations)->toArray(),
             BaseElasticAnnotationResource::collection($this->morphoSyntacticalAnnotations)->toArray(),
-            BaseElasticAnnotationResource::collection($this->genericTextStructureAnnotations)->toArray(),
-            BaseElasticAnnotationResource::collection($this->layoutTextStructureAnnotations)->toArray(),
-            $handshifts = ElasticHandshiftAnnotationResource::collection($this->handshiftAnnotations)->toArray()
         );
 
-        // calculate base annotations / handshift intersects, add handshift properties to annotation properties
-        foreach($ret['annotations'] as &$annotation) {
-            // collect handshift properties, avoid duplicates by checking id key
-            $annotation_handshift = [];
-            foreach ($handshifts as $handshift) {
-                if ($annotation['type'] != 'handshift' && $this->textSelectionIntersect($handshift['text_selection'], $annotation['text_selection'])) {
-                    foreach (array_filter($handshift['properties']) as $h_key => $h_value) {
-                        if (!isset($annotation_handshift[$h_key])) {
-                            $annotation_handshift[$h_key] = [];
-                        }
-                        $annotation_handshift[$h_key][$h_value['id']] = $h_value;
-                    }
-                }
-            }
-            // remove handshift value keys
-            foreach ($annotation_handshift as $h_key => $h_value) {
-                $annotation_handshift[$h_key] = array_values($h_value);
-            }
-            // merge handshift properties with annotation properties
-            $annotation['properties'] += $annotation_handshift;
-            if (count($annotation_handshift)) {
-                $annotation['has_handshift'] = self::boolean(1); // reduce values to 1
-            }
+        // handshift annotations
+        $handshiftAnnotations = ElasticHandshiftAnnotationResource::collection($this->handshiftAnnotations)->toArray();
+
+        // generic/layout text structure
+        $genericTextStructure = ElasticGenericTextStructureResource::collection($this->genericTextStructure)->toArray();
+        $ret['has_generic_text_structure'] = self::boolean(count($genericTextStructure) > 0);
+        $layoutTextStructure = ElasticLayoutTextStructureResource::collection($this->layoutTextStructure)->toArray();
+        $ret['has_layout_text_structure'] = self::boolean(count($layoutTextStructure) > 0);
+
+        // text levels
+        $ret['text_level'] = BaseResource::collection($this->textLevels)->toArray();
+
+        // calculate base annotations intersect with text_structure and handshift
+        foreach($ret['annotations'] as &$annotationSource) {
+            $this->annotationIntersect($annotationSource, $genericTextStructure ?? [], ['gts_part', 'gts_textLevel']);
+            $this->annotationIntersect($annotationSource, $layoutTextStructure ?? [], ['gts_part', 'gts_textLevel']);
+            $this->annotationIntersect($annotationSource, $handshiftAnnotations);
         }
 
-        // calculate base annotations / text_structure intersects, add text_structure properties
-        foreach($ret['annotations'] as &$annotation) {
-            $annotation['text_level'] = [];
-            $annotation['generic_text_structure_part'] = [];
-            foreach ($ret['generic_text_structure'] ?? [] as $structure ) {
-                if ( $this->textSelectionIntersect($structure['text_selection'], $annotation['text_selection']) ) {
-                    if ( $text_level = $structure['text_level'] ) {
-                        $annotation['text_level'][ $text_level['number'] ] = $text_level; // prevent doubles using string key
-                    }
-                    if ( $part = $structure['part'] ) {
-                        $annotation['generic_text_structure_part'][ $part['id'] ] = $part; // prevent doubles using string key
-                    }
-                }
-            }
-            // delete string keys
-            $annotation['text_level'] = array_values($annotation['text_level']);
-            $annotation['generic_text_structure_part'] = array_values($annotation['generic_text_structure_part']);
+        // generic/layout text structure annotations
+        $gtsAnnotations = ElasticGenericTextStructureAnnotationResource::collection($this->genericTextStructureAnnotations)->toArray();
+        $ltsAnnotations = ElasticLayoutTextStructureAnnotationResource::collection($this->layoutTextStructureAnnotations)->toArray();
+
+        // intersect generic text structure annotations with lts, gts, ltsa, handshift
+        foreach( $gtsAnnotations as &$annotationSource ) {
+            $this->annotationIntersect($annotationSource, $ltsAnnotations);
+            $this->annotationIntersect($annotationSource, $handshiftAnnotations);
+            $this->annotationIntersect($annotationSource, $genericTextStructure);
+            $this->annotationIntersect($annotationSource, $layoutTextStructure);
+        }
+        // intersect layout text structure annotations with gts, lts, gtsa and handshift
+        foreach( $ltsAnnotations as &$annotationSource ) {
+            $this->annotationIntersect($annotationSource, $gtsAnnotations);
+            $this->annotationIntersect($annotationSource, $handshiftAnnotations);
+            $this->annotationIntersect($annotationSource, $genericTextStructure);
+            $this->annotationIntersect($annotationSource, $layoutTextStructure);
         }
 
-        /*
-        foreach($ret['annotations'] as &$annotation) {
-            $annotation['layout_text_structure_part'] = [];
-            foreach ( $ret['layout_text_structure'] ?? [] as $structure ) {
-                if ( $this->textSelectionIntersect($structure['text_selection'], $annotation['text_selection']) ) {
-                    $annotation['layout_text_structure_part'][] = $structure['part'];
-//                    dump($annotation);
-                }
-            }
+        // interset generic text structure  with lts and handshift
+        foreach( $genericTextStructure as &$annotationSource ) {
+            $this->annotationIntersect($annotationSource, $layoutTextStructure);
+            $this->annotationIntersect($annotationSource, $handshiftAnnotations);
         }
-        */
+
+        // interset layout text structure  with gts and handshift
+        foreach( $layoutTextStructure as &$annotationSource ) {
+            $this->annotationIntersect($annotationSource, $genericTextStructure);
+            $this->annotationIntersect($annotationSource, $handshiftAnnotations);
+        }
+
+        $ret['annotations'] = array_merge(
+            $ret['annotations'],
+            $gtsAnnotations,
+            $ltsAnnotations,
+            $genericTextStructure,
+            $layoutTextStructure,
+            $handshiftAnnotations
+        );
 
         return $ret;
+    }
+
+    private function annotationIntersect(&$annotationSource, $annotations, $limitProperties= []) {
+        $additionalProperties = [];
+        foreach( $annotations as $annotationTest ) {
+            $type = $annotationTest['type'];
+            if ($this->textSelectionIntersect($annotationSource['text_selection'], $annotationTest['text_selection'])) {
+                $properties = array_filter($annotationTest['properties'], fn($v,$k) => $v && strpos( $k , $type ) === 0, ARRAY_FILTER_USE_BOTH);
+                foreach ($properties as $propertyKey => $propertyValue) {
+                    if ( $propertyValue['id'] ?? $propertyValue['number'] ?? null) { // todo: dirty!
+                        $additionalProperties[$propertyKey][$propertyValue['id'] ?? $propertyValue['number']] = $propertyValue;
+                    }
+                }
+            }
+        }
+        // remove keys of additional properties
+        foreach ($additionalProperties as $propertyKey => $propertyValues) {
+            $additionalProperties[$propertyKey] = array_values($propertyValues);
+        }
+        // merge additional properties with existing properties
+        $annotationSource['properties'] += $additionalProperties;
     }
 
     private function textSelectionIntersect($a, $b) {
