@@ -154,12 +154,10 @@ abstract class AbstractModel extends Model
      * @param  string|null  $secondKey
      * @param  string|null  $localKey
      * @param  string|null  $secondLocalKey
-     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     * @return HasManyThrough
      */
-    public function hasManyThrough($related, $through, $firstKey = null, $secondKey = null, $localKey = null, $secondLocalKey = null)
+    public function hasManyThrough($related, $through, $firstKey = null, $secondKey = null, $localKey = null, $secondLocalKey = null): HasManyThrough
     {
-//        $related_table = u((new ReflectionClass($related))->getShortName())->snake();
-//        $related_pk = $related_table.'_id';
         $through_table = u((new ReflectionClass($through))->getShortName())->snake();
         $through_pk = $through_table.'_id';
 

@@ -7,6 +7,7 @@ use ReflectionException;
 
 /**
  * @property int $text_selection_id
+ * @property TextSelection textSelection
  */
 abstract class AbstractAnnotationModel extends AbstractModel
 {

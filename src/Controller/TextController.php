@@ -3,28 +3,12 @@
 namespace App\Controller;
 
 use App\Helper\StreamedCsvResponse;
-use App\Model\Text;
-use App\Repository\LanguageAnnotationRepository;
-use App\Resource\BaseAnnotationResource;
-use App\Resource\BaseElasticAnnotationResource;
-use App\Resource\ElasticLanguageAnnotationResource;
-use App\Resource\ElasticTextResource;
-use App\Resource\ElasticTypographyAnnotationResource;
-use App\Resource\TextResource;
-use App\Service\ElasticSearch\AbstractSearchService;
-use App\Service\ElasticSearch\TextBasicSearchService;
-use App\Service\ElasticSearch\TextIndexService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-
-use App\Repository\TextRepository;
-use Symfony\Component\Serializer\Encoder\CsvEncoder;
 
 class TextController extends BaseController
 {
