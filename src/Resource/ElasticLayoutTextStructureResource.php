@@ -22,7 +22,11 @@ class ElasticLayoutTextStructureResource extends BaseResource
         $ret = [
             'id' => $resource->getId(),
             'text_selection' => (new TextSelectionResource($resource->textSelection))->toArray(),
-            'part' => new IdNameResource($resource->part),
+            'type' => 'lts',
+            'properties' => [
+                'lts_part' => (new ElasticIdNameResource($resource->part))->toArray(),
+                'lts_partNumber' => $resource->partNumber,
+            ]
         ];
 
         return $ret;

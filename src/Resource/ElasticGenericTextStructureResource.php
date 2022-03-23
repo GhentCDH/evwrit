@@ -28,10 +28,13 @@ class ElasticGenericTextStructureResource extends BaseResource
         $ret = [
             'id' => $resource->getId(),
             'text_selection' => (new TextSelectionResource($resource->textSelection))->toArray(),
-            'part' => (new ElasticIdNameResource($resource->part))->toArray(),
-            'part_number' => $resource->partNumber(),
+            'type' => 'gts',
+            'properties' => [
+                'gts_part' => (new ElasticIdNameResource($resource->part))->toArray(),
+                'gts_partNumber' => $resource->partNumber,
 //            'components' => IdNameResource::collection($resource->components),
-            'text_level' => $resource->textLevel ? (new ElasticTextLevelResource($resource->textLevel))->toArray() : null
+                'gts_textLevel' => $resource->textLevel ? (new ElasticTextLevelResource($resource->textLevel))->toArray() : null
+            ]
         ];
 
         return $ret;
