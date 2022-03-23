@@ -7,6 +7,7 @@ use App\Repository\TextRepository;
 use App\Resource\ElasticTextResource;
 use App\Service\ElasticSearch\TextIndexService;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -50,14 +51,22 @@ class IndexElasticsearchCommand extends Command
                     $service = $this->container->get('text_index_service');
                     $service->setup();
 
+                    $total = $repository->findByProjectNames(['ERC (main corpus)', 'Post-doc Bentein', 'Serena', 'Emmanuel'])->count();
+
+                    $progressBar = new ProgressBar($output, $total);
+                    $progressBar->start();
+
                     $repository->findByProjectNames(['ERC (main corpus)', 'Post-doc Bentein', 'Serena', 'Emmanuel'])->chunk(100,
-                        function($res) use ($service, &$count) {
+                        function($res) use ($service, &$count, $progressBar) {
                             foreach ($res as $text) {
                                 $res = new ElasticTextResource($text);
                                 $service->add($res);
                                 $count++;
                             }
+                            $progressBar->advance(100);
                         });
+
+                    $progressBar->finish();
 
                     break;
             }
