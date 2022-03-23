@@ -44,17 +44,20 @@ class BaseController extends AbstractController
             'materiality_search' => $this->generateUrl('materiality_search'),
             'linguistic_annotation_search' => $this->generateUrl('linguistic_annotation_search'),
             'languagetypography_annotation_search' => $this->generateUrl('languagetypography_annotation_search'),
+            'text_structure_search' => $this->generateUrl('text_structure_search'),
 
             'text_search_api' => $this->generateUrl('text_search_api'),
             'materiality_search_api' => $this->generateUrl('materiality_search_api'),
             'linguistic_annotation_search_api' => $this->generateUrl('linguistic_annotation_search_api'),
             'languagetypography_annotation_search_api' => $this->generateUrl('languagetypography_annotation_search_api'),
+            'text_structure_search_api' => $this->generateUrl('text_structure_search_api'),
 
             // paginate
             'text_paginate' => $this->generateUrl('text_paginate'),
             'materiality_paginate' => $this->generateUrl('materiality_paginate'),
             'linguistic_annotation_paginate' => $this->generateUrl('linguistic_annotation_paginate'),
             'languagetypography_annotation_paginate' => $this->generateUrl('languagetypography_annotation_paginate'),
+            'text_structure_paginate' => $this->generateUrl('text_structure_paginate'),
 
             // export csv
             'text_export_csv' => $this->generateUrl('text_export_csv'),
