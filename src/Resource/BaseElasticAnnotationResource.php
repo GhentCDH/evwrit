@@ -5,6 +5,7 @@ namespace App\Resource;
 
 
 use App\Model\AbstractAnnotationModel;
+use App\Model\IdNameModel;
 use App\Model\Text;
 use App\Model\TextSelection;
 use Illuminate\Contracts\Support\Arrayable;
@@ -14,9 +15,8 @@ use function Symfony\Component\String\u;
 
 class BaseElasticAnnotationResource extends BaseResource
 {
-    protected const annotationLookupModels = [];
-
-
+    protected $includeAttributes = [];
+    protected $generateContext = true;
 
     /**
      * Transform the resource into an array.
@@ -37,17 +37,30 @@ class BaseElasticAnnotationResource extends BaseResource
             ]
         ];
 
-        // add all properties (using relations)
-        // skip textSelection relation
+        // add all id_name lookups
         $relations = $resource->getRelations();
-        unset($relations['textSelection']);
-
         foreach( $relations as $name => $model) {
-            $ret['properties'][$type.'_'.$name] = (new ElasticIdNameResource($model))->toArray();
+            if (is_subclass_of($model, IdNameModel::class)) {
+                $ret['properties'][$type.'_'.$name] = (new ElasticIdNameResource($model))->toArray();
+            }
         }
 
-        // add context
-        $ret['context'] = $this->createTextSelectionContext();
+        // add all extra properties
+        foreach($this->includeAttributes as $attribute ) {
+            $attributeValue = $resource->getAttribute($attribute);
+            if ( is_object($attributeValue) ) {
+                if (is_subclass_of($attributeValue, IdNameModel::class)) {
+                    $ret['properties'][$type . '_' . $attribute] = (new ElasticIdNameResource($attributeValue))->toArray();
+                }
+            } else {
+                $ret['properties'][$type . '_' . $attribute] = $attributeValue;
+            }
+        }
+
+        // generate text selection context?
+        if ( $this->generateContext ) {
+            $ret['context'] = $this->createTextSelectionContext();
+        }
 
         return $ret;
     }
