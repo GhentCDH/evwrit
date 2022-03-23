@@ -31,7 +31,7 @@ export default {
             for (let prop in this.annotation.properties) {
                 if (this.annotation.properties.hasOwnProperty(prop)) {
                     // remove boolean property
-                    if (prop == 'has_handshift') {
+                    if (prop === 'has_handshift') {
                         continue;
                     }
 
