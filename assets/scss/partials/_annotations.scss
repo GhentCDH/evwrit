@@ -1,27 +1,167 @@
-.annotation {
-  //font-weight: bold;
-  padding: 4px 0px;
-  cursor: pointer;
-}
+.annotation-wrapper {
+  display: inline-block;
+  padding: 4px 0;
+  //position: relative;
+  white-space: pre;
 
-@each $name, $color in $annotations {
-  .annotation-wrapper.annotation-#{$name} {
-    background-color: rgba($color, $opacity-annotation) !important;
-  }
-  .annotation-#{$name}.annotation-#{$name} {
-
+  .annotation {
+    pointer-events: auto;
   }
 }
 
-@each $name, $color in $annotations {
-  @each $name2, $color2 in $annotations {
-    @if $name != $name2 {
-      .annotation-wrapper.annotation-#{$name}.annotation-#{$name2} {
-        background-color: rgba(mix($color, $color2, 50%),$opacity-annotation);
+// base annotations
+.annotation-wrapper {
+  @each $name, $color in $base-annotations {
+    // base annotation
+    .annotation-#{$name}  {
+      display: inline-block;
+      cursor: pointer;
+      height: 28px;
+
+      background-color: rgba($color, $base-annotation-opacity) !important;
+      border-top: 1px solid rgba($color, $base-annotation-opacity + 0.1);
+      border-bottom: 1px solid rgba($color, $base-annotation-opacity + 0.1);
+
+      margin-top: -1px;
+      margin-bottom: -1px;
+
+      // base annotation start & end
+      &.annotation-start {
+        border-bottom-left-radius: 3px;
+        border-top-left-radius: 3px;
+        border-left: 1px solid rgba($color, $base-annotation-opacity + 0.1);
+      }
+      &.annotation-end {
+        border-bottom-right-radius: 3px;
+        border-top-right-radius: 3px;
+        margin-right: 1px;
+        border-right: 1px solid rgba($color, $base-annotation-opacity + 0.1);
+      }
+    }
+    .annotation-#{$name}.annotation-#{$name} {
+    }
+  }
+
+  @each $name, $color in $base-annotations {
+    @each $name2, $color2 in $base-annotations {
+      @if $name != $name2 {
+        .annotation-#{$name}.annotation-#{$name2} {
+          background-color: rgba(mix($color, $color2, 50%),$base-annotation-opacity);
+        }
       }
     }
   }
 }
+
+.annotation-wrapper {
+
+
+  &.annotation-handshift::before {
+    left: -25px;
+    height: 100%;
+    width: 8px;
+    position: absolute;
+    content: ' ';
+    border-left: 2px solid white;
+    border-right: 2px solid white;
+  }
+
+  @each $name, $color in $handshift-annotations {
+    &.annotation-handshift-#{$name}::before {
+      background-color: $color;
+    }
+  }
+}
+
+.annotation-wrapper {
+
+  &.annotation-gtsa, &.annotation-ltsa {
+      padding-bottom: 30px;
+  }
+
+  .annotation-gtsa, .annotation-ltsa {
+    display: inline-block;
+    position: relative;
+    pointer-events: none;
+
+    &::before {
+      pointer-events: auto;
+      display: inline-block;
+      position: absolute;
+      content: ' ';
+      width: 100%;
+      cursor: pointer;
+      height: 4px;
+    }
+
+    &.annotation-start::before {
+      border-bottom-left-radius: 4px;
+    }
+
+    &.annotation-end::before {
+      border-bottom-right-radius: 4px;
+    }
+
+    &-unit {
+      &::before {
+        border-bottom: 2px solid red;
+        top: 39px;
+      }
+      &.annotation-start::before {
+        border-left: 2px solid red;
+      }
+      &.annotation-end::before {
+        border-right: 2px solid red;
+      }
+    }
+
+    &-subunit {
+      &::before {
+        border-bottom: 2px solid orange;
+        top: 36px;
+      }
+      &.annotation-start::before {
+        border-left: 2px solid orange;
+      }
+      &.annotation-end::before {
+        border-right: 2px solid orange;
+      }
+    }
+
+    &-element {
+      &::before {
+        border-bottom: 2px solid green;
+        top: 33px;
+      }
+      &.annotation-start::before {
+        border-left: 2px solid green;
+      }
+      &.annotation-end::before {
+        border-right: 2px solid green;
+      }
+    }
+
+    &-modifier {
+      &::before {
+        border-bottom: 2px solid lightblue;
+        top: 30px;
+      }
+      &.annotation-start::before {
+        border-left: 2px solid lightblue;
+      }
+      &.annotation-end::before {
+        border-right: 2px solid lightblue;
+      }
+    }
+
+    }
+}
+
+
+
+
+
+// base annotation overlays
 
 .annotation-result {
   padding: 8px 0;
@@ -35,30 +175,4 @@
   .annotation-details {
     margin-top: 10px
   }
-}
-
-.annotation-handshift::before {
-  left: 25px;
-  height: 100%;
-  width: 8px;
-  position: absolute;
-  content: ' ';
-  border-left: 2px solid white;
-  border-right: 2px solid white;
-}
-
-.annotation-handshift-1::before {
-  background-color: lightblue;
-}
-
-.annotation-handshift-2::before {
-  background-color: orange;
-}
-
-.annotation-handshift-3::before {
-  background-color: lightgreen;
-}
-
-.annotation-handshift-4::before {
-  background-color: purple;
 }

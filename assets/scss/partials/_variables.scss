@@ -1,18 +1,21 @@
 $maxwidth-container: 1600px;
 
-$color-annotation-red: #e61919;
-$color-annotation-orange: #f58231;
-$color-annotation-green: #18aa2a;
-$color-annotation-magenta: #f032e6;
-$color-annotation-blue: #1E64C8;
-$color-annotation-brown: #5d2802;
-$opacity-annotation: 0.3;
+// annotations
+$base-annotation-opacity: 0.3;
 
-$annotations: (
-        "orthography": $color-annotation-orange,
-        "typography": $color-annotation-red,
-        "morpho_syntactical": $color-annotation-green,
-        "lexis": $color-annotation-magenta,
-        "language": $color-annotation-blue,
-        "morphology": $color-annotation-brown
+$handshift-annotations: (
+        "1": lightblue,
+        "2": orange,
+        "3": lightgreen,
+        "4": purple,
 );
+
+$base-annotations: (
+        "orthography": #f58231,
+        "typography": #e61919,
+        "morpho_syntactical": #18aa2a,
+        "lexis": #f032e6,
+        "language": #1E64C8,
+        "morphology": #5d2802,
+);
+
