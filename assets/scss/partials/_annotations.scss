@@ -105,7 +105,7 @@
     &-unit {
       &::before {
         border-bottom: 2px solid red;
-        top: 39px;
+        top: 42px;
       }
       &.annotation-start::before {
         border-left: 2px solid red;
@@ -118,7 +118,7 @@
     &-subunit {
       &::before {
         border-bottom: 2px solid orange;
-        top: 36px;
+        top: 38px;
       }
       &.annotation-start::before {
         border-left: 2px solid orange;
@@ -131,7 +131,7 @@
     &-element {
       &::before {
         border-bottom: 2px solid green;
-        top: 33px;
+        top: 34px;
       }
       &.annotation-start::before {
         border-left: 2px solid green;
