@@ -31,7 +31,7 @@ class TextRepository extends AbstractRepository
         'links',
         'images',
         'writingDirections',
-        'attestations',
+//        'attestations',
         'attestations.ancientPerson',
         'attestations.ancientPerson.gender',
         'attestations.roles',
@@ -42,18 +42,35 @@ class TextRepository extends AbstractRepository
         'attestations.honorificEpithets',
         'attestations.occupations',
         'translations',
+//        'agentiveRoles',
         'agentiveRoles.agentiveRole',
         'agentiveRoles.genericAgentiveRole',
+//        'communicativeGoals',
         'communicativeGoals.communicativeGoal',
         'communicativeGoals.genericCommunicativeGoal',
+//        'textSelections',
         'typographyAnnotations',
+        'typographyAnnotations.textSelection',
         'morphologyAnnotations',
+        'morphologyAnnotations.textSelection',
         'lexisAnnotations',
+        'lexisAnnotations.textSelection',
         'orthographyAnnotations',
+        'orthographyAnnotations.textSelection',
+        'morphoSyntacticalAnnotations',
+        'morphoSyntacticalAnnotations.textSelection',
         'handshiftAnnotations',
+        'handshiftAnnotations.textSelection',
         'languageAnnotations',
+        'languageAnnotations.textSelection',
         'genericTextStructure',
-        'layoutTextStructure'
+        'genericTextStructure.textSelection',
+        'layoutTextStructure',
+        'layoutTextStructure.textSelection',
+        'genericTextStructureAnnotations',
+        'genericTextStructureAnnotations.textSelection',
+        'layoutTextStructureAnnotations.textSelection',
+        'textLevels'
     ];
     protected $model = Text::class;
 
@@ -74,6 +91,7 @@ class TextRepository extends AbstractRepository
      */
     public function findByProjectNames(array $project_names): Builder
     {
+        // todo: does this work?
         return $this->indexQuery()->whereHas('projects', function(Builder $query) use ($project_names) {
             $query->whereIn('project.name', $project_names);
         });
