@@ -24,7 +24,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
     protected const FILTER_OBJECT_ID = "object_id";
     protected const FILTER_NESTED_ID = "nested_id";
-    protected const FILTER_NESTED_TOGGLE = "nested_toggle";
+
     protected const FILTER_NESTED_MULTIPLE = "nested_multiple";
     protected const FILTER_DATE_RANGE = "date_range";
     protected const FILTER_NUMERIC_RANGE_SLIDER = "numeric_range";
@@ -104,11 +104,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         switch ($filterConfig['type'] ?? false) {
             case self::FILTER_NUMERIC:
-                if ($filterValue === false) break;
-                if (is_numeric($filterValue)) {
-                    $ret = (int) $filterValue;
-                }
-                break;
             case self::FILTER_OBJECT_ID:
             case self::FILTER_NESTED_ID:
                 if ($filterValue === false) break;
@@ -192,9 +187,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 if (is_string($filterValue)) {
                     $ret = $filterValue;
                 }
+                if (is_array($filterValue)) {
+                    $ret = $filterValue;
+                }
                 break;
         }
-
         return $ret;
     }
 
@@ -533,7 +530,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $aggType = $aggConfig['type'];
 
             // global aggregation
-            $aggIsGlobal = $this->isGlobalAggregation($aggName);
+            $aggIsGlobal = $this->isGlobalAggregation($aggConfig);
 
             // aggregation field = field property or config name
             $aggField = $aggConfig['field'] ?? $aggName;
@@ -561,7 +558,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             }
 
             // nested aggregation?
-            $aggIsNested = $this->isNestedAggregation($aggName);
+            $aggIsNested = $this->isNestedAggregation($aggConfig);
             if ( $aggIsNested ) {
                 // add nested path to filed
                 $aggNestedPath = $aggConfig['nested_path'] ?? $aggName;
@@ -582,8 +579,19 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $aggNestedFilter = array_intersect_key($aggNestedFilter, $filterValues); // only add filters with values
 
                 if ($aggNestedFilter) {
-                    foreach($aggNestedFilter as $queryFilterField => $aggFilterField ) {
+                    foreach($aggNestedFilter as $queryFilterField => $aggFilterConfig ) {
                         $filterCount++;
+                        $aggFilterConfig = is_string($aggFilterConfig) ? [ 'field' => $aggFilterConfig, 'type' => self::FILTER_KEYWORD ] : $aggFilterConfig;
+                        $aggFilterConfig['name'] = $queryFilterField;
+                        $aggFilterField = $aggFilterConfig['field'];
+                        $aggFilterType = $aggFilterConfig['type'];
+
+                        switch ($aggFilterType) {
+                            case self::FILTER_OBJECT_ID:
+                                $aggFilterField .= '.id';
+                                break;
+                        }
+
                         if ( is_array($filterValues[$queryFilterField]) ) {
                             $filterQuery->addFilter(
                                 new Query\Terms($aggNestedPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
@@ -761,6 +769,266 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $result;
     }
 
+    protected function addFieldQuery(Query\BoolQuery $query, array $filterConfig, array $filters) {
+        $filterName = $filterConfig['name'];
+        $filterValue = $filterConfig['value'] ?? $filters[$filterName] ?? $filters['defaultValue'] ?? null; // filter can have fixed value
+        $filterType = $filterConfig['type'];
+        $filterField = $filterConfig['field'] ?? $filterName;
+        $filterPath = $filterConfig['nested_path'] ?? $filterName;
+
+        // skip config if no subfilters and no filter value
+        if ( !isset($filterConfig['filters']) && !$filterValue ) {
+            return;
+        }
+
+        $boolIsNestedFilter = $this->isNestedFilter($filterConfig);
+        if ( $boolIsNestedFilter ) {
+            $filterField = isset($filterConfig['nested_path']) ? $filterConfig['nested_path'].'.'.$filterField : $filterField;
+
+            $subquery = new Query\BoolQuery();
+            $queryNested = (new Query\Nested())
+                ->setPath($filterPath)
+                ->setQuery($subquery);
+
+            // inner hits?
+            if ($filterConfig['innerHits'] ?? false) {
+                $innerHits = new Query\InnerHits();
+                if ( $filterConfig['innerHits']['size'] ?? false ) {
+                    $innerHits->setSize($filterConfig['innerHits']['size']);
+                }
+                $queryNested->setInnerHits($innerHits);
+            }
+
+            $query->addMust($queryNested);
+            $query = $subquery;
+        }
+
+        switch ($filterType) {
+            case self::FILTER_OBJECT_ID:
+                $filterField .= '.id';
+            case self::FILTER_KEYWORD: // includes FILTER_OBJECT_ID
+                // If value == -1, select all entries without a value for a specific field
+                if ($filterValue === -1) {
+                    $query->addMustNot(
+                        new Query\Exists($filterField)
+                    );
+                    break;
+                }
+            case self::FILTER_NUMERIC: // includes FILTER_OBJECT_ID & FILTER_KEYWORD
+                if (is_array($filterValue)) {
+                    $filterQuery = new Query\Terms($filterField, $filterValue);
+                    $query->addMust($filterQuery);
+                } else {
+                    $filterQuery = new Query\Term();
+                    $filterQuery->setTerm($filterField, $filterValue);
+                    $query->addMust($filterQuery);
+                }
+                break;
+            case self::FILTER_BOOLEAN:
+                $filterQuery = new Query\Term();
+                $filterQuery->setTerm($filterField, $filterValue);
+
+                $query->addMust( $filterQuery );
+                break;
+            case self::FILTER_WILDCARD:
+                $filterQuery = new Query\Wildcard($filterField, $filterValue);
+                $query->addMust( $filterQuery );
+                break;
+            case self::FILTER_TEXT:
+                $query->addMust(self::constructTextQuery($filterField, $filterValue));
+                break;
+            case self::FILTER_TEXT_MULTIPLE:
+                $subQuery = new Query\BoolQuery();
+                foreach ($filterValue as $field => $value) {
+                    $subQuery->addShould(self::constructTextQuery($field, $value));
+                }
+                $query->addMust($subQuery);
+                break;
+            case self::FILTER_NUMERIC_RANGE_SLIDER:
+                $floorField = $filterConfig['floorField'] ?? $filterName;
+                $ceilingField = $filterConfig['ceilingField'] ?? $filterName;
+
+                if (isset($filterValue['floor'])) {
+                    $query->addMust(
+                        (new Query\Range())
+                            ->addField($floorField, ['gte' => $filterValue['floor']])
+                    );
+                }
+                if (isset($filterValue['ceiling'])) {
+                    $query->addMust(
+                        (new Query\Range())
+                            ->addField($ceilingField, ['lte' => $filterValue['ceiling']])
+                    );
+                }
+                break;
+            case self::FILTER_DATE_RANGE:
+                // The data interval must exactly match the search interval
+                if (isset($filterValue['type']) && $filterValue['type'] == 'exact') {
+                    if (isset($filterValue['floor'])) {
+                        $query->addMust(
+                            new Query\Match($filterConfig['floorField'], $filterValue['floor'])
+                        );
+                    }
+                    if (isset($filterValue['ceiling'])) {
+                        $query->addMust(
+                            new Query\Match($filterConfig['ceilingField'], $filterValue['ceiling'])
+                        );
+                    }
+                }
+
+                // The data interval must be included in the search interval
+                if (isset($filterValue['type']) && $filterValue['type'] == 'included') {
+                    if (isset($filterValue['floor'])) {
+                        $query->addMust(
+                            (new Query\Range())
+                                ->addField($filterConfig['floorField'], ['gte' => $filterValue['floor']])
+                        );
+                    }
+                    if (isset($filterValue['ceiling'])) {
+                        $query->addMust(
+                            (new Query\Range())
+                                ->addField($filterConfig['ceilingField'], ['lte' => $filterValue['ceiling']])
+                        );
+                    }
+                }
+
+                // The data interval must include the search interval
+                // If only start or end: exact match with start or end
+                // range must be between floor and ceiling
+                if (isset($filterValue['type']) && $filterValue['type'] == 'include') {
+                    if (isset($filterValue['floor']) && isset($filterValue['ceiling'])) {
+                        $query->addMust(
+                            (new Query\Range())
+                                ->addField($filterConfig['floorField'], ['lte' => $filterValue['floor']])
+                        );
+                        $query->addMust(
+                            (new Query\Range())
+                                ->addField($filterConfig['ceilingField'], ['gte' => $filterValue['ceiling']])
+                        );
+                    }
+                }
+                // The data interval must overlap with the search interval
+                // floor or ceiling must be within range, or range must be between floor and ceiling
+                if (isset($filterValue['type']) && $filterValue['type'] == 'overlap') {
+                    $args = [];
+                    if (isset($filterValue['floor'])) {
+                        $args['gte'] = $filterValue['floor'];
+                    }
+                    if (isset($filterValue['ceiling'])) {
+                        $args['lte'] = $filterValue['ceiling'];
+                    }
+                    $subQuery = (new Query\BoolQuery())
+                        // floor
+                        ->addShould(
+                            (new Query\Range())
+                                ->addField(
+                                    $filterConfig['floorField'],
+                                    $args
+                                )
+                        )
+                        // ceiling
+                        ->addShould(
+                            (new Query\Range())
+                                ->addField(
+                                    $filterConfig['ceilingField'],
+                                    $args
+                                )
+                        );
+                    if (isset($filterValue['floor']) && isset($filterValue['ceiling'])) {
+                        $subQuery
+                            // between floor and ceiling
+                            ->addShould(
+                                (new Query\BoolQuery())
+                                    ->addMust(
+                                        (new Query\Range())
+                                            ->addField($filterConfig['floorField'], ['lte' => $filterValue['floor']])
+                                    )
+                                    ->addMust(
+                                        (new Query\Range())
+                                            ->addField($filterConfig['ceilingField'], ['gte' => $filterValue['ceiling']])
+                                    )
+                            );
+                    }
+                    $query->addMust(
+                        $subQuery
+                    );
+                }
+                break;
+            case self::FILTER_NESTED_ID:
+                $filterFieldId = $filterField.".id";
+
+                // multiple values?
+                if ( is_array($filterValue) ) {
+                    $subquery = new Query\BoolQuery();
+                    foreach( $filterValue as $val) {
+                        $subquery->addShould(['match' => [$filterFieldId => $val]]);
+                    }
+
+//                    // create nested query
+//                    $queryNested = (new Query\Nested())
+//                        ->setPath($filterPath)
+//                        ->setQuery($subquery);
+//
+//                    // inner hits?
+//                    if ($filterConfig['innerHits'] ?? false) {
+//                        $innerHits = new Query\InnerHits();
+//                        if ( $filterConfig['innerHits']['size'] ?? false ) {
+//                            $innerHits->setSize($filterConfig['innerHits']['size']);
+//                        }
+//                        $queryNested->setInnerHits($innerHits);
+//                    }
+
+                    $query->addMust($subquery);
+                }
+                // single value
+                else {
+                    // If value == -1, select all entries without a value for a specific field
+                    if ($filterValue == -1) {
+                        $query->addMustNot(new Query\Exists($filterField));
+                    } else {
+                        $query->addMust(['match' => [$filterFieldId => $filterValue]]);
+                    }
+                }
+                break;
+            case self::FILTER_NESTED_MULTIPLE:
+                $filterPath = $filterConfig['nested_path'] ?? $filterName;
+
+                // subfilters with values
+                $subFilters = array_intersect_key($filterConfig['filters'] ?? [], $filters);
+
+                // add subfilters
+                if (count($subFilters)) {
+                    $subquery = new Query\BoolQuery();
+                    foreach($subFilters as $subFilterName => $subFilterConfig) {
+//                        $subFilterValue = $subFilterConfig['value'] ?? $filters[$subFilterName] ?? $subFilterConfig['defaultValue'] ?? null;
+                        $subFilterConfig['field'] = $subFilterConfig['field'] ?? $subFilterName;
+                        $subFilterConfig['field'] = isset($filterConfig['nested_path']) ? $filterConfig['nested_path'].'.'.$subFilterConfig['field'] : $subFilterConfig['field'];
+                        $subFilterConfig['type'] = $subFilterConfig['type'] ?? self::FILTER_KEYWORD;
+                        $subFilterConfig['name'] = $subFilterName;
+
+                        $this->addFieldQuery($subquery, $subFilterConfig, $filters);
+                    }
+
+//                    // create nested query
+//                    $queryNested = (new Query\Nested())
+//                        ->setPath($filterPath)
+//                        ->setQuery($subquery);
+//
+//                    // inner hits?
+//                    if ($filterConfig['innerHits'] ?? false) {
+//                        $innerHits = new Query\InnerHits();
+//                        if ( $filterConfig['innerHits']['size'] ?? false ) {
+//                            $innerHits->setSize($filterConfig['innerHits']['size']);
+//                        }
+//                        $queryNested->setInnerHits($innerHits);
+//                    }
+
+                    $query->addMust($subquery);
+                }
+                break;
+        }
+    }
+
     protected function createSearchQuery(array $filters, array $excludeConfigs = null, $useOnlyConfigs = null): Query\BoolQuery
     {
         $filterConfigs = $useOnlyConfigs ?? $this->getSearchFilterConfig();
@@ -770,322 +1038,14 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // walk filter configs
         foreach ($filterConfigs as $filterName => $filterConfig) {
-
-            // skip excluded filters
+                        // skip excluded filters
             if ( $excludeConfigs && in_array($filterName, $excludeConfigs, true) ) {
                 continue;
             }
 
-            $filterValue = $filterConfig['value'] ?? $filters[$filterName] ?? null; // filter can have fixed value
-            $filterType = $filterConfig['type'];
-            $filterField = $filterConfig['field'] ?? $filterName;
+            $filterConfig['name'] = $filterName;
 
-            // skip filter if no subfilters and no filter value
-            if ( !isset($filterConfig['filters']) && !$filterValue ) {
-                continue;
-            }
-
-            // type
-            switch ($filterType) {
-                case self::FILTER_NUMERIC:
-                case self::FILTER_BOOLEAN:
-                    $filterQuery = new Query\Term();
-                    $filterQuery->setTerm($filterField, $filterValue);
-
-                    $query->addMust( $filterQuery );
-                    break;
-                case self::FILTER_KEYWORD:
-                    if ($filterValue == -1) {
-                        $query->addMustNot(
-                            new Query\Exists($filterField)
-                        );
-                    } else {
-                        $filterQuery = new Query\Term();
-                        $filterQuery->setTerm($filterField, $filterValue);
-
-                        $query->addMust( $filterQuery );
-                    }
-                    break;
-                case self::FILTER_WILDCARD:
-                    $filterQuery = new Query\Wildcard($filterField, $filterValue);
-                    $query->addMust( $filterQuery );
-                    break;
-                case self::FILTER_TEXT:
-                    $query->addMust(self::constructTextQuery($filterField, $filterValue));
-                    break;
-                case self::FILTER_TEXT_MULTIPLE:
-                    $subQuery = new Query\BoolQuery();
-                    foreach ($filterValue as $field => $value) {
-                        $subQuery->addShould(self::constructTextQuery($field, $value));
-                    }
-                    $query->addMust($subQuery);
-                    break;
-                case self::FILTER_OBJECT_ID:
-                    $filterField .= '.id';
-                    // If value == -1, select all entries without a value for a specific field
-                    if ($filterValue === -1) {
-                        $query->addMustNot(
-                            new Query\Exists($filterField)
-                        );
-                    } else {
-                        if ( is_array($filterValue) ) {
-                            $filterQuery = new Query\Terms($filterField, $filterValue);
-                            $query->addMust( $filterQuery );
-                        } else {
-                            $filterQuery = new Query\Term();
-                            $filterQuery->setTerm($filterField, $filterValue);
-                            $query->addMust( $filterQuery );
-                        }
-                    }
-                    break;
-                case self::FILTER_NUMERIC_RANGE_SLIDER:
-                    $floorField = $filterConfig['floorField'] ?? $filterName;
-                    $ceilingField = $filterConfig['ceilingField'] ?? $filterName;
-
-                    if (isset($filterValue['floor'])) {
-                        $query->addMust(
-                            (new Query\Range())
-                                ->addField($floorField, ['gte' => $filterValue['floor']])
-                        );
-                    }
-                    if (isset($filterValue['ceiling'])) {
-                        $query->addMust(
-                            (new Query\Range())
-                                ->addField($ceilingField, ['lte' => $filterValue['ceiling']])
-                        );
-                    }
-                    break;
-                case self::FILTER_DATE_RANGE:
-                    // The data interval must exactly match the search interval
-                    if (isset($filterValue['type']) && $filterValue['type'] == 'exact') {
-                        if (isset($filterValue['floor'])) {
-                            $query->addMust(
-                                new Query\Match($filterConfig['floorField'], $filterValue['floor'])
-                            );
-                        }
-                        if (isset($filterValue['ceiling'])) {
-                            $query->addMust(
-                                new Query\Match($filterConfig['ceilingField'], $filterValue['ceiling'])
-                            );
-                        }
-                    }
-
-                    // The data interval must be included in the search interval
-                    if (isset($filterValue['type']) && $filterValue['type'] == 'included') {
-                        if (isset($filterValue['floor'])) {
-                            $query->addMust(
-                                (new Query\Range())
-                                    ->addField($filterConfig['floorField'], ['gte' => $filterValue['floor']])
-                            );
-                        }
-                        if (isset($filterValue['ceiling'])) {
-                            $query->addMust(
-                                (new Query\Range())
-                                    ->addField($filterConfig['ceilingField'], ['lte' => $filterValue['ceiling']])
-                            );
-                        }
-                    }
-
-                    // The data interval must include the search interval
-                    // If only start or end: exact match with start or end
-                    // range must be between floor and ceiling
-                    if (isset($filterValue['type']) && $filterValue['type'] == 'include') {
-                        if (isset($filterValue['floor']) && isset($filterValue['ceiling'])) {
-                            $query->addMust(
-                                (new Query\Range())
-                                    ->addField($filterConfig['floorField'], ['lte' => $filterValue['floor']])
-                            );
-                            $query->addMust(
-                                (new Query\Range())
-                                    ->addField($filterConfig['ceilingField'], ['gte' => $filterValue['ceiling']])
-                            );
-                        }
-                    }
-                    // The data interval must overlap with the search interval
-                    // floor or ceiling must be within range, or range must be between floor and ceiling
-                    if (isset($filterValue['type']) && $filterValue['type'] == 'overlap') {
-                        $args = [];
-                        if (isset($filterValue['floor'])) {
-                            $args['gte'] = $filterValue['floor'];
-                        }
-                        if (isset($filterValue['ceiling'])) {
-                            $args['lte'] = $filterValue['ceiling'];
-                        }
-                        $subQuery = (new Query\BoolQuery())
-                            // floor
-                            ->addShould(
-                                (new Query\Range())
-                                    ->addField(
-                                        $filterConfig['floorField'],
-                                        $args
-                                    )
-                            )
-                            // ceiling
-                            ->addShould(
-                                (new Query\Range())
-                                    ->addField(
-                                        $filterConfig['ceilingField'],
-                                        $args
-                                    )
-                            );
-                        if (isset($filterValue['floor']) && isset($filterValue['ceiling'])) {
-                            $subQuery
-                                // between floor and ceiling
-                                ->addShould(
-                                    (new Query\BoolQuery())
-                                        ->addMust(
-                                            (new Query\Range())
-                                                ->addField($filterConfig['floorField'], ['lte' => $filterValue['floor']])
-                                        )
-                                        ->addMust(
-                                            (new Query\Range())
-                                                ->addField($filterConfig['ceilingField'], ['gte' => $filterValue['ceiling']])
-                                        )
-                                );
-                        }
-                        $query->addMust(
-                            $subQuery
-                        );
-                    }
-                    break;
-                case self::FILTER_NESTED_ID:
-                    $filterPath = $filterConfig['nested_path'] ?? $filterName;
-                    $filterField = isset($filterConfig['nested_path']) ? $filterConfig['nested_path'].'.'.$filterField : $filterField;
-                    $filterFieldId = $filterField.".id";
-
-                    // multiple values?
-                    if ( is_array($filterValue) ) {
-                        $subquery = new Query\BoolQuery();
-                        foreach( $filterValue as $val) {
-                            $subquery->addShould(['match' => [$filterFieldId => $val]]);
-                        }
-
-                        // create nested query
-                        $queryNested = (new Query\Nested())
-                            ->setPath($filterPath)
-                            ->setQuery($subquery);
-
-                        // inner hits?
-                        if ($filterConfig['innerHits'] ?? false) {
-                            $innerHits = new Query\InnerHits();
-                            if ( $filterConfig['innerHits']['size'] ?? false ) {
-                                $innerHits->setSize($filterConfig['innerHits']['size']);
-                            }
-                            $queryNested->setInnerHits($innerHits);
-                        }
-
-                        $query->addMust($queryNested);
-                    }
-                    // single value
-                    else {
-                        // If value == -1, select all entries without a value for a specific field
-                        if ($filterValue == -1) {
-                            $query->addMustNot(
-                                (new Query\Nested())
-                                    ->setPath($filterPath)
-                                    ->setQuery(
-                                        (new Query\BoolQuery())
-                                            ->addMust(new Query\Exists($filterField))
-                                    )
-                            );
-                        } else {
-                            $query->addMust(
-                                (new Query\Nested())
-                                    ->setPath($filterPath)
-                                    ->setQuery(
-                                        (new Query\BoolQuery())
-                                            ->addMust(['match' => [$filterFieldId => $filterValue]])
-                                    )
-                            );
-                        }
-                    }
-                    break;
-                case self::FILTER_NESTED_MULTIPLE:
-                    $filterPath = $filterConfig['nested_path'] ?? $filterName;
-
-                    // subfilters with values
-                    $subFilters = array_intersect_key($filterConfig['filters'] ?? [], $filters);
-
-                    // add subfilters
-                    if (count($subFilters)) {
-                        $subquery = new Query\BoolQuery();
-                        foreach($subFilters as $subFilterName => $subFilterConfig) {
-                            $subFilterValue = $subFilterConfig['value'] ?? $filters[$subFilterName] ?? $subFilterConfig['defaultValue'] ?? null;
-                            $subFilterField = $subFilterConfig['field'] ?? $subFilterName;
-                            $subFilterField = isset($filterConfig['nested_path']) ? $filterConfig['nested_path'].'.'.$subFilterField : $subFilterField;
-
-                            if ( is_array($subFilterValue) ) {
-                                $subFilterQuery = new Query\Terms($subFilterField, $subFilterValue);
-                                $subquery->addMust( $subFilterQuery );
-                            } else {
-                                $subFilterQuery = new Query\Term();
-                                $subFilterQuery->setTerm($subFilterField, $subFilterValue);
-                                $subquery->addMust( $subFilterQuery );
-                            }
-                        }
-
-                        // create nested query
-                        $queryNested = (new Query\Nested())
-                                ->setPath($filterPath)
-                                ->setQuery($subquery);
-
-                        // inner hits?
-                        if ($filterConfig['innerHits'] ?? false) {
-                            $innerHits = new Query\InnerHits();
-                            if ( $filterConfig['innerHits']['size'] ?? false ) {
-                                $innerHits->setSize($filterConfig['innerHits']['size']);
-                            }
-                            $queryNested->setInnerHits($innerHits);
-                        }
-
-                        $query->addMust($queryNested);
-                    }
-                    break;
-                case self::FILTER_NESTED_TOGGLE:
-                    foreach ($filterValue as $key => $filterValue) {
-                        // value = [actual value, include/exclude]
-                        if (!$filterValue[1]) {
-                            // management collection not present
-                            // no management collections present or only other management collections present
-                            $query->addMust(
-                                (new Query\BoolQuery())
-                                    ->addShould(
-                                        (new Query\BoolQuery())
-                                            ->addMustNot(
-                                                (new Query\Nested())
-                                                    ->setPath($key)
-                                                    ->setQuery(
-                                                        (new Query\BoolQuery())
-                                                            ->addMust(new Query\Exists($key))
-                                                    )
-                                            )
-                                    )
-                                    ->addShould(
-                                        (new Query\BoolQuery())
-                                            ->addMustNot(
-                                                (new Query\Nested())
-                                                    ->setPath($key)
-                                                    ->setQuery(
-                                                        (new Query\BoolQuery())
-                                                            ->addMust(['match' => [$key . '.id' => $filterValue[0]]])
-                                                    )
-                                            )
-                                    )
-                            );
-                        } else {
-                            // management collection present
-                            $query->addMust(
-                                (new Query\Nested())
-                                    ->setPath($key)
-                                    ->setQuery(
-                                        (new Query\BoolQuery())
-                                            ->addMust(['match' => [$key . '.id' => $filterValue[0]]])
-                                    )
-                            );
-                        }
-                    }
-                    break;
-            }
+            $this->addFieldQuery($query, $filterConfig, $filters);
         }
 
         return $query;
@@ -1218,14 +1178,16 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     }
 
     /** check if aggregation works on global dataset or filtered dataset */
-    protected function isGlobalAggregation($config_name) {
-        $config = $this->getAggregationConfig()[$config_name];
+    protected function isGlobalAggregation($config) {
         return ( in_array($config['type'], [self::AGG_GLOBAL_STATS],true) || ($config['globalAggregation'] ?? false) );
     }
 
-    protected function isNestedAggregation($config_name) {
-        $config = $this->getAggregationConfig()[$config_name];
+    protected function isNestedAggregation($config) {
         return ( in_array($config['type'], [self::AGG_NESTED_ID_NAME, self::AGG_NESTED_KEYWORD],true) || ($config['nested_path'] ?? false) );
+    }
+
+    protected function isNestedFilter($config) {
+        return ( in_array($config['type'], [self::FILTER_NESTED_ID, self::FILTER_NESTED_MULTIPLE],true) || ($config['nested_path'] ?? false) );
     }
 
     protected function sortAggregationResult(?array &$agg_result) {
