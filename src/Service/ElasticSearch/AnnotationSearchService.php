@@ -145,11 +145,11 @@ class AnnotationSearchService extends AbstractSearchService
                     'field' => 'type.keyword'
                 ],
                 'text_level' => [
-                    'field' => 'text_level.number',
+                    'field' => 'properties.gts_textLevel.number',
                     'type' => self::FILTER_NUMERIC
                 ],
                 'generic_text_structure_part' => [
-                    'field' => 'generic_text_structure_part.id',
+                    'field' => 'properties.gts_part',
                     'type' => self::FILTER_OBJECT_ID
                 ]
             ],
@@ -180,7 +180,7 @@ class AnnotationSearchService extends AbstractSearchService
                 $subfilter_name = "{$type}_{$property}";
                 $subfilter_field = "{$type}_{$property}";
                 $searchFilters['annotations']['filters'][$subfilter_name] = [
-                    'field' => "properties.{$subfilter_field}.id",
+                    'field' => "properties.{$subfilter_field}",
                     'type' => self::FILTER_OBJECT_ID
                 ];
             }
@@ -332,8 +332,8 @@ class AnnotationSearchService extends AbstractSearchService
                     }, [])
                 ];
                 $aggregationFilters[$filter_name]['filter']['annotation_type'] = "type"; // filter on type
-                $aggregationFilters[$filter_name]['filter']['generic_text_structure_part'] = "generic_text_structure_part.id"; // filter on type
-                $aggregationFilters[$filter_name]['filter']['text_level'] = "text_level.number"; // filter on type
+                $aggregationFilters[$filter_name]['filter']['generic_text_structure_part'] = "properties.gts_part.id"; // filter on generic text structure part
+                $aggregationFilters[$filter_name]['filter']['text_level'] = "properties.gts_textLevel.number"; // filter on text level
             }
         }
 
@@ -350,13 +350,13 @@ class AnnotationSearchService extends AbstractSearchService
                 return $carry;
             }, []),
         ];
-        $aggregationFilters['annotation_type']['filter']['generic_text_structure_part'] = "generic_text_structure_part.id"; // filter on type
-        $aggregationFilters['annotation_type']['filter']['text_level'] = "text_level.number"; // filter on type
+        $aggregationFilters[$filter_name]['filter']['generic_text_structure_part'] = "properties.gts_part.id"; // filter on generic text structure part
+        $aggregationFilters[$filter_name]['filter']['text_level'] = "properties.gts_textLevel.number"; // filter on text level
 
         // add annotation type filter
         $aggregationFilters['text_level'] = [
             'type' => self::AGG_NUMERIC,
-            'field' => 'text_level.number',
+            'field' => 'properties.gts_textLevel.number',
             'nested_path' => "annotations",
 //            'excludeFilter' => ['annotations'], // exclude filter of same type
 //            'filter' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
@@ -369,7 +369,7 @@ class AnnotationSearchService extends AbstractSearchService
 
         $aggregationFilters['generic_text_structure_part'] = [
             'type' => self::AGG_NESTED_ID_NAME,
-            'field' => 'generic_text_structure_part',
+            'field' => 'properties.gts_part',
             'nested_path' => "annotations",
 //            'excludeFilter' => ['annotations'], // exclude filter of same type
 //            'filter' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
