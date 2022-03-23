@@ -1,0 +1,34 @@
+.scrollable {
+  overflow: auto;
+
+  &::-webkit-scrollbar {
+    width: 24px;
+    height: 0;
+  }
+
+  &::-webkit-scrollbar-track {
+    width: 6px;
+    border-left: 18px solid white;
+    background-color: #efefef;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-left: 18px solid white;
+  }
+
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  &--vertical {
+    overflow: hidden;
+    overflow-y: auto;
+  }
+
+  &--horizontal {
+    overflow: hidden;
+    overflow-x: auto;
+  }
+
+}
