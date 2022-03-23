@@ -3,8 +3,6 @@
 namespace App\Model;
 
 
-use App\Model\Lookup\GenericTextStructureComponents;
-use App\Model\Lookup\GenericTextStructurePart;
 use App\Model\Lookup\LayoutTextStructurePart;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use ReflectionException;
@@ -18,10 +16,13 @@ use ReflectionException;
  *
  * @property TextSelection textSelection
  * @property LayoutTextStructurePart part
+ * @property string partNumber*
  * @package App\Model
  */
 class LayoutTextStructure extends AbstractModel
 {
+    protected $with = ['textSelection', 'textSelection.sourceText', 'part'];
+
     /**
      * @return BelongsTo|TextSelection
      * @throws ReflectionException
@@ -38,6 +39,14 @@ class LayoutTextStructure extends AbstractModel
     public function part(): belongsTo
     {
         return $this->belongsTo(LayoutTextStructurePart::class);
+    }
+
+    /**
+     * @return string
+     */
+    public function getPartNumberAttribute(): ?string
+    {
+        return $this->layout_text_structure_part_number;
     }
 
     /**

@@ -23,10 +23,13 @@ use ReflectionException;
  * @property GenericTextStructurePart part
  * @property GenericTextStructureComponents components
  * @property TextLevel textLevel
+ * @property string partNumber*
  * @package App\Model
  */
 class GenericTextStructure extends AbstractModel
 {
+    protected $with = ['textSelection', 'textSelection.sourceText', 'part', 'textLevel'];
+
     /**
      * @return BelongsTo|TextSelection
      * @throws ReflectionException
@@ -57,18 +60,9 @@ class GenericTextStructure extends AbstractModel
     /**
      * @return string
      */
-    public function partNumber(): ?string
+    public function getPartNumberAttribute(): ?string
     {
         return $this->generic_text_structure_part_number;
-    }
-
-    /**
-     * @return BelongsTo|GenericTextStructureComponents
-     * @throws ReflectionException
-     */
-    public function components(): belongsTo
-    {
-        return $this->belongsTo(GenericTextStructureComponents::class);
     }
 
     /**
