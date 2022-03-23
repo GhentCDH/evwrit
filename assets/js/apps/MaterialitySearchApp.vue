@@ -88,16 +88,16 @@
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
-import AbstractField from '../Components/FormFields/AbstractField'
-import AbstractSearch from '../Components/Search/AbstractSearch'
-import CheckboxSwitch from '../Components/FormFields/CheckboxSwitch'
+import AbstractField from '../components/FormFields/AbstractField'
+import AbstractSearch from '../components/Search/AbstractSearch'
+import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
 
-import fieldRadio from '../Components/FormFields/fieldRadio'
+import fieldRadio from '../components/FormFields/fieldRadio'
 
-import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
-import ExpertGroups from '../Components/Search/ExpertGroups'
-import PersistentConfig from "../Components/Shared/PersistentConfig";
-import SharedSearch from "../Components/Search/SharedSearch";
+import CollapsibleGroups from '../components/Search/CollapsibleGroups'
+import ExpertGroups from '../components/Search/ExpertGroups'
+import PersistentConfig from "../components/Shared/PersistentConfig";
+import SharedSearch from "../components/Search/SharedSearch";
 
 
 Vue.component('fieldRadio', fieldRadio);
