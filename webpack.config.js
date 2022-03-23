@@ -13,6 +13,9 @@ Encore
 
     // allow pug templates in vue components
     .enableVueLoader()
+    // .enableVueLoader( () => {}, {
+    //     compiler: require('vue-template-babel-compiler')
+    // })
 
     // Add javascripts
     .autoProvidejQuery()
@@ -20,6 +23,7 @@ Encore
     .addEntry('text-search', './assets/js/main/text-search.js')
     .addEntry('materiality-search', './assets/js/main/materiality-search.js')
     .addEntry('base-annotation-search', './assets/js/main/base-annotation-search.js')
+    .addEntry('text-structure-search', './assets/js/main/text-structure-search.js')
     .addEntry('text-view', './assets/js/main/text-view.js')
 
     // allow sass/scss files to be processed
@@ -55,6 +59,7 @@ config.plugins.push(new WebpackShellPlugin({
         './copy_assets.sh',
     ]
 }));
+
 
 // Make sure watch works
 // https://github.com/symfony/webpack-encore/issues/191
