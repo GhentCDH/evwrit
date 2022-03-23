@@ -59,6 +59,12 @@ services:
         public: true
     App\Service\ElasticSearch\LanguageTypographyAnnotationSearchService: '@language_typography_annotation_search_service'
 
+    text_structure_search_service:
+        class: App\Service\ElasticSearch\TextStructureSearchService
+        arguments: ['@elastic_search_client']
+        public: true
+    App\Service\ElasticSearch\TextStructureSearchService: '@text_structure_search_service'
+
     text_index_service:
         class: App\Service\ElasticSearch\TextIndexService
         arguments: ['@elastic_search_client']
