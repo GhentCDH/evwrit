@@ -11,91 +11,93 @@
 
                 <div class="row mbottom-large">
 
-                <!-- Text -->
-                <div v-if="config.text.show" :class="textContainerClass" class="text">
-                    <h2>Text</h2>
-                    <GreekText :text="text.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="1"/>
-                </div>
-
-                <!-- Lemmas -->
-                <div v-if="config.text.showLemmas && text.text_lemmas" :class="textContainerClass" class="text-lemmas">
-                    <h2>Lemmas</h2>
-                    <GreekText :text="text.text_lemmas"   />
-                </div>
-
-                <!-- Lemmas -->
-                <div v-if="config.text.showApparatus && text.apparatus" :class="textContainerClass" class="text-lemmas">
-                    <h2>Apparatus</h2>
-                    <GreekText :text="text.apparatus"   />
-                </div>
-
-                <!-- Translations -->
-                <div v-if="config.translation.show && text.translation.length" :class="textContainerClass" class="text-translations">
-                    <div v-for="translation in text.translation" class="greek">
-                        <h2>{{ translation.language.name}} Translation</h2>
-                        <GreekText :text="translation.text"></GreekText>
+                    <!-- Text -->
+                    <div v-if="config.text.show" :class="textContainerClass" class="text">
+                        <h2>Text</h2>
+                        <GreekText :text="text.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="1"/>
                     </div>
-                </div>
 
-                <!-- Generic Text Structure -->
-                <div v-if="config.genericTextStructure.show && genericTextStructure.length" :class="textContainerClass" class="text-structure">
-                    <h2>Generic text structure</h2>
-                    <template v-if="config.genericTextStructure.groupByLevel">
-                        <div class="level" v-for="level in genericTextStructureGroupedByLevel">
-                            <label><span>Level {{ level.number }} {{ level.type}}</span></label>
-                            <div class="structure" v-for="textStructure in level.children">
-                                <label><span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span></label>
+                    <!-- Lemmas -->
+                    <div v-if="config.text.showLemmas && text.text_lemmas" :class="textContainerClass" class="text-lemmas">
+                        <h2>Lemmas</h2>
+                        <GreekText :text="text.text_lemmas"   />
+                    </div>
+
+                    <!-- Lemmas -->
+                    <div v-if="config.text.showApparatus && text.apparatus" :class="textContainerClass" class="text-lemmas">
+                        <h2>Apparatus</h2>
+                        <GreekText :text="text.apparatus"   />
+                    </div>
+
+                    <!-- Translations -->
+                    <div v-if="config.translation.show && text.translation.length" :class="textContainerClass" class="text-translations">
+                        <div v-for="translation in text.translation" class="greek">
+                            <h2>{{ translation.language.name}} Translation</h2>
+                            <GreekText :text="translation.text"></GreekText>
+                        </div>
+                    </div>
+
+                    <!-- Generic Text Structure -->
+                    <div v-if="config.genericTextStructure.show && genericTextStructure.length" :class="textContainerClass" class="text-structure">
+                        <h2>Generic text structure</h2>
+                        <template v-if="config.genericTextStructure.groupByLevel">
+                            <div class="level" v-for="level in genericTextStructureGroupedByLevel">
+                                <label><span>Level {{ level.number }} {{ level.type}}</span></label>
+                                <div class="structure" v-for="textStructure in level.children">
+                                    <label><span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span></label>
+                                    <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                                </div>
+                            </div>
+                        </template>
+                        <template v-if="!config.genericTextStructure.groupByLevel">
+                            <div class="structure" v-for="textStructure in genericTextStructure">
+                                <label>
+                                    <span v-if="textStructure.text_level">Level {{ textStructure.text_level.number }}</span>
+                                    <span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span>
+                                </label>
                                 <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
                             </div>
-                        </div>
-                    </template>
-                    <template v-if="!config.genericTextStructure.groupByLevel">
-                        <div class="structure" v-for="textStructure in genericTextStructure">
+                        </template>
+                    </div>
+
+                    <!-- Layout Text Structure -->
+                    <div v-if="config.layoutTextStructure.show && layoutTextStructure.length" :class="textContainerClass" class="text-structure">
+                        <h2>Layout text structure</h2>
+                        <div class="structure" v-for="textStructure in layoutTextStructure">
                             <label>
-                                <span v-if="textStructure.text_level">Level {{ textStructure.text_level.number }}</span>
-                                <span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span>
+                                <span>{{ textStructure.properties.lts_part.name }}</span>
                             </label>
                             <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
                         </div>
-                    </template>
-                </div>
-
-                <!-- Layout Text Structure -->
-                <div v-if="config.layoutTextStructure.show && layoutTextStructure.length" :class="textContainerClass" class="text-structure">
-                    <h2>Layout text structure</h2>
-                    <div class="structure" v-for="textStructure in layoutTextStructure">
-                        <label>
-                            <span>{{ textStructure.properties.lts_part.name }}</span>
-                        </label>
-                        <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
                     </div>
+
                 </div>
 
-            </div>
+                <div class="row mbottom-large">
 
-            <div class="row mbottom-large">
-
-                <!-- Annotations -->
-                <div v-if="config.annotations.showList" class="col-xs-12">
-                    <h2 v-if="config.text.show || config.text.showLemmas || config.genericTextStructure.show">Annotations</h2>
-                    <div class="annotation-result" v-for="annotation in visibleAnnotations">
-                        <GreekText
-                                v-if="config.annotations.showContext && annotationHasContext(annotation)"
-                                :text="annotation.context.text"
-                                :annotations="formatAnnotation(annotation)"
-                                :annotationOffset="annotation.context.start + 1"
-                                :compact="true">
-                        </GreekText>
-                        <GreekText
-                                v-if="!config.annotations.showContext || !annotationHasContext(annotation)"
-                                :text="annotation.text_selection.text">
-                        </GreekText>
-                        <AnnotationDetailsFlat v-show="config.annotations.showDetails" :annotation="annotation"></AnnotationDetailsFlat>
+                    <!-- Annotations -->
+                    <div v-if="config.annotations.showList" class="col-xs-12">
+                        <h2 v-if="config.text.show || config.text.showLemmas || config.genericTextStructure.show">Annotations</h2>
+                        <div class="annotation-result" v-for="annotation in visibleAnnotations">
+                            <GreekText
+                                    v-if="config.annotations.showContext && annotationHasContext(annotation)"
+                                    :text="annotation.context.text"
+                                    :annotations="formatAnnotation(annotation)"
+                                    :annotationOffset="annotation.context.start + 1"
+                                    :compact="true">
+                            </GreekText>
+                            <GreekText
+                                    v-if="!config.annotations.showContext || !annotationHasContext(annotation)"
+                                    :text="annotation.text_selection.text">
+                            </GreekText>
+                            <AnnotationDetailsFlat v-show="config.annotations.showDetails" :annotation="annotation"></AnnotationDetailsFlat>
+                        </div>
                     </div>
                 </div>
             </div>
+
         </article>
-        <aside class="col-sm-3">
+        <aside class="col-sm-3 scrollable scrollable--vertical">
             <div class="padding-default">
 
                 <div v-if="isValidResultSet()">
@@ -526,6 +528,7 @@ export default {
         hasSearchContext() {
            return Object.keys(this.context.params ?? {} ).length > 0
         },
+        // get generic text structure annotations
         genericTextStructure() {
             let ret = {}
 
@@ -537,6 +540,7 @@ export default {
 
             return ret
         },
+        // get layout text structure annotations
         layoutTextStructure() {
             let ret = {}
 
@@ -548,15 +552,18 @@ export default {
 
             return ret
         },
+        // group text structure annotations by level number
+        // catch: not all annotations have a level assigned
         genericTextStructureGroupedByLevel() {
             let ret = {}
 
-            this.genericTextStructure.forEach( function(item) {
-                    let level_number =  String(item?.text_level?.number || 0);
+            this.genericTextStructure.forEach( function(annotation) {
+                    let level_number =  String(annotation?.properties?.gts_textLevel?.number || 0);
+                    let level_properties = annotation?.properties?.gts_textLevel?.number ? annotation?.properties?.gts_textLevel : { number: 0, type: "" }
                     if (!(level_number in ret)) {
-                        ret[level_number] = { ...item.text_level, ...{ children: [] } }
+                        ret[level_number] = { ...level_properties, ...{ children: [] } }
                     }
-                    ret[level_number].children.push(item)
+                    ret[level_number].children.push(annotation)
                 });
             return ret;
         },
@@ -818,14 +825,28 @@ export default {
 </script>
 
 <style scoped lang="scss">
+#text-view-app {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  overflow: hidden;
+  height: 100%;
 
-aside > div {
-  background-color: #fafafa !important;
-  border-left: 1px solid #e9ecef;
+  article {
+    display: flex;
 
-  .widget {
-    border-bottom: 1px solid #e9ecef;
+    & > div {
+      width: 100%;
+    }
+  }
+
+  aside {
+    background-color: #fafafa !important;
+
+
+    .widget {
+      border-bottom: 1px solid #e9ecef;
+    }
   }
 }
-
 </style>
