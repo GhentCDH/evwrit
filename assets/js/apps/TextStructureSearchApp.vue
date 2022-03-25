@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="row">
         <aside class="col-sm-3">
             <div class="bg-tertiary padding-default">
                 <div
