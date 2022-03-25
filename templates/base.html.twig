@@ -41,8 +41,8 @@
         <meta property="og:image" content="{{ app.request.getSchemeAndHttpHost() ~ asset('build/static/images/logo_square.png') }}">
         <meta property="og:url" content="{{ app.request.uri }}">
     </head>
-    <body>
-        <div class="fluid-container">
+    <body class="{% block body_class %}test{% endblock %}">
+        <div class="fluid-container page__header">
             <div class="row">
                 <header class="pageheader col-xs-12 ">
                     <nav class="navbar navbar-default">
@@ -116,6 +116,9 @@
                                             <li class="{{ app.request.get('_route') == 'linguistic_annotation_search' ? 'active' }}">
                                                 <a href="{{ path('linguistic_annotation_search') }}"><span>Lexicogrammar</span></a>
                                             </li>
+                                            <li class="{{ app.request.get('_route') == 'text_structure_search' ? 'active' }}">
+                                                <a href="{{ path('text_structure_search') }}"><span>Text structure</span></a>
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>
@@ -140,7 +143,7 @@
             </div>
         </div>
 
-        <div class="fluid-container">
+        <div class="fluid-container page__content">
             {% if app.request.hasPreviousSession %}
                 {% for type, messages in app.session.flashbag.all() %}
                     {% for message in messages %}
@@ -154,7 +157,7 @@
             {% block content %}{% endblock %}
         </div>
 
-        <footer class="page-footer fluid-container">
+        <footer class="fluid-container page__footer">
             <div class="row">
                 <div class="col-xs-12">
                     <div class="banner-img padding-20">
