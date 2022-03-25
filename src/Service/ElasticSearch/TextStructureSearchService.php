@@ -48,8 +48,8 @@ class TextStructureSearchService extends AbstractSearchService
         $annotationProperties = [
             'gts' => ['part'],
             'lts' => ['part'],
-            'ltsa' => ['type', 'subType', 'spacing', 'separation', 'orientation', 'alignment', 'indentation', 'lectionalSigns', 'lineation', 'pagination'],
-            'gtsa' => ['type', 'subType', 'standardForm', 'attachedTo', 'attachmentType','speechAct','informationStatus'],
+            'ltsa' => ['type', 'subtype', 'spacing', 'separation', 'orientation', 'alignment', 'indentation', 'lectionalSigns', 'lineation', 'pagination'],
+            'gtsa' => ['type', 'subtype', 'standardForm', 'attachedTo', 'attachmentType','speechAct','informationStatus'],
             'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting'],
         ];
 
@@ -76,8 +76,8 @@ class TextStructureSearchService extends AbstractSearchService
         $annotationProperties = [
             'gts' => ['part'],
             'lts' => ['part'],
-            'ltsa' => ['type', 'subType', 'spacing', 'separation', 'orientation', 'alignment', 'indentation', 'lectionalSigns', 'lineation', 'pagination'],
-            'gtsa' => ['type', 'subType', 'standardForm', 'attachedTo', 'attachmentType','speechAct','informationStatus'],
+            'ltsa' => ['type', 'subtype', 'spacing', 'separation', 'orientation', 'alignment', 'indentation', 'lectionalSigns', 'lineation', 'pagination'],
+            'gtsa' => ['type', 'subtype', 'standardForm', 'attachedTo', 'attachmentType','speechAct','informationStatus'],
             'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting'],
         ];
 
