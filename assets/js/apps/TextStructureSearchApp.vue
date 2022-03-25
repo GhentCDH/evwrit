@@ -142,7 +142,7 @@ export default {
                             this.createMultiSelect('Level', { model: 'gts_textLevel' }),
                             this.createMultiSelect('Part', { model: 'gts_part' }),
                             this.createMultiSelect('Type', { model: 'gtsa_type' }),
-                            this.createMultiSelect('Subtype', { model: 'gtsa_subtype' }),
+                            this.createMultiSelect('Subtype', { model: 'gtsa_subtype', 'dependency': 'gtsa_type' }),
                             this.createMultiSelect('Speech act', { model: 'gtsa_speechAct' }),
                             this.createMultiSelect('Information status', { model: 'gtsa_informationStatus' }),
                             this.createMultiSelect('Standard form', { model: 'gtsa_standardForm' }),
@@ -158,7 +158,7 @@ export default {
                         fields: [
                             this.createMultiSelect('Part', { model: 'lts_part' }),
                             this.createMultiSelect('Type', { model: 'ltsa_type' }),
-                            this.createMultiSelect('Subtype', { model: 'ltsa_subtype' }),
+                            this.createMultiSelect('Subtype', { model: 'ltsa_subtype', 'dependency': 'ltsa_type' }),
                             this.createMultiSelect('Spacing', { model: 'ltsa_spacing' }),
                             this.createMultiSelect('Separation', { model: 'ltsa_separation' }),
                             this.createMultiSelect('Orientation', { model: 'ltsa_orientation' }),
