@@ -100,8 +100,8 @@
         <aside class="col-sm-3 scrollable scrollable--vertical">
             <div class="padding-default">
 
-                <div v-if="isValidResultSet()">
-                    <div class="row">
+                <Widget v-if="isValidResultSet()" title="Search" :isOpen="true">
+                    <div class="row mbottom-default">
                         <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex - 1)">&lt;</span>
@@ -112,7 +112,12 @@
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex( resultSet.count )">&raquo;</span>
                         </div>
                     </div>
-                </div>
+                    <div v-if="hasSearchContext" class="form-group">
+                        <CheckboxSwitch v-model="config.annotations.showOnlyInSearchContext" class="switch-primary" label="Limit annotations to search context"></CheckboxSwitch>
+                    </div>
+                </Widget>
+
+
 
                 <Widget title="Selection details" v-if="annotationId" :isOpen.sync="config.widgets.selectionDetails.isOpen">
                     <AnnotationDetails :annotation="annotationByTypeId[annotationId]"></AnnotationDetails>
@@ -190,10 +195,6 @@
                 <Widget title="Annotations" :is-open.sync="config.widgets.annotations.isOpen" :count="visibleAnnotationsByContext.length">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.annotations.show" class="switch-primary" label="Show annotations in text"></CheckboxSwitch>
-                    </div>
-
-                    <div v-if="showBaseAnnotations && hasSearchContext" class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showOnlyInSearchContext" class="switch-primary" label="Limit annotations to search context"></CheckboxSwitch>
                     </div>
 
                     <div class="form-group mtop-default">
@@ -617,7 +618,7 @@ export default {
         annotationsFilterbyContext(annotations, context_params) {
             let annotationTypeFilter = context_params.annotation_type ?? false
 
-            let annotationPropertyPrefixes = ['language', 'typography', 'orthography', 'lexis', 'morpho_syntactical','handshift']
+            let annotationPropertyPrefixes = ['language', 'typography', 'orthography', 'lexis', 'morpho_syntactical','handshift','ltsa','gtsa']
             let annotationPropertyFilters = {}
             for ( const [key, value] of Object.entries(context_params) ) {
                 for ( const prefix of annotationPropertyPrefixes ) {
@@ -627,11 +628,18 @@ export default {
                 }
             }
 
+            console.log(annotationPropertyFilters)
+            console.log(annotationTypeFilter)
             return annotations.filter( function(annotation) {
                 // filter by type
-                if ( annotationTypeFilter && annotationTypeFilter !== annotation.type ) {
-                    return false
+                if ( annotationTypeFilter ) {
+                    if ( Array.isArray(annotationTypeFilter) && !annotationTypeFilter.includes(annotation.type) )
+                        return false
+                    else if ( !Array.isArray(annotationTypeFilter) && annotationTypeFilter !== annotation.type )
+                        return false
                 }
+                console.log(annotation)
+
 
                 // filter by property
                 for ( const [filterKey, filterValues] of Object.entries(annotationPropertyFilters) ) {
@@ -646,8 +654,8 @@ export default {
                     }
 
                     // check if property matches includes at least one of the filter values
-                    let propertieValues = Array.isArray(annotation.properties[filterKey]) ? annotation.properties[filterKey] : [ annotation.properties[filterKey] ];
-                    let valuesMatched = propertieValues.filter( function(propertyValue) {
+                    let propertyValues = Array.isArray(annotation.properties[filterKey]) ? annotation.properties[filterKey] : [ annotation.properties[filterKey] ];
+                    let valuesMatched = propertyValues.filter( function(propertyValue) {
                         return filterValues.includes(propertyValue.id)
                     })
                     if ( valuesMatched.length === 0 ) {
