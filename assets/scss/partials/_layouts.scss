@@ -1,0 +1,75 @@
+/*
+COMPACT LAYOUT
+- compact header
+- hidden footer
+*/
+
+body.layout--compact {
+
+  @media (min-width: 768px) {
+    .pageheader .spacer {
+      min-height: 60px;
+    }
+
+    .pageheader .branding-container {
+      position: absolute;
+      top: 22px;
+
+      h1 {
+        font-size: 28px
+      }
+    }
+
+    .pageheader .page-logo img {
+      margin: 10px 0 0;
+      height: 50px;
+    }
+
+    .pageheader .navbar-default .nav-primary {
+      padding: 10px 0 10px 0;
+    }
+  }
+
+  .page__footer {
+    display: none;
+  }
+}
+
+/*
+FULLSCREEN LAYOUT
+- body 100% width & height
+- no overflows
+*/
+body.layout--fullscreen {
+
+  display: flex;
+  flex-direction: column;
+
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+
+  & > .fluid-container {
+    flex: 0 1;
+    margin: 0;
+    max-width: unset;
+  }
+
+  & > .fluid-container > .row {
+    width: 100%;
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+
+    aside {
+      margin: 0;
+    }
+
+  }
+
+  & > .fluid-container.page__content {
+    flex-grow: 1;
+    overflow: hidden;
+  }
+
+}
