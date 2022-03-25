@@ -6,16 +6,10 @@
                 @close="imageIndex = null">
         </CoolLightBox>
         <article class="col-sm-9">
-            <h1>{{ text.title }}</h1>
+            <div class="scrollable scrollable--vertical">
+                <h1>{{ text.title }}</h1>
 
-            <!-- result navigation -->
-<!--            <div class="hidden">-->
-<!--                <b-button class="btn" @click="gotoNextText()">prev</b-button>-->
-<!--                <b-button class="btn" href="">back to search</b-button>-->
-<!--                <b-button class="btn" @click="gotoPrevText()">next</b-button>-->
-<!--            </div>-->
-
-            <div class="row mbottom-large">
+                <div class="row mbottom-large">
 
                 <!-- Text -->
                 <div v-if="config.text.show" :class="textContainerClass" class="text">

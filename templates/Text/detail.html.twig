@@ -1,5 +1,7 @@
 {% extends 'base.html.twig' %}
 
+{% block body_class %}layout--fullscreen layout--compact{% endblock %}
+
 {% block content %}
     <text-view-app id="text-view-app"
         init-urls="{{ urls }}"
