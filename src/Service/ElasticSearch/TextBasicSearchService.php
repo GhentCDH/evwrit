@@ -181,7 +181,7 @@ class TextBasicSearchService extends AbstractSearchService
             'collaborator'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'project'  => [
                 'type' => self::AGG_NESTED_ID_NAME,
-                'limitId' => [1,4,7]
+                'limitId' => [2,3,4,9] //todo: fix this!!
             ],
             'social_distance' => [
                 'type' => self::AGG_NESTED_ID_NAME,
