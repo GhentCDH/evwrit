@@ -29,7 +29,7 @@
         "/build/base-annotation-search.db5f8f1e.css"
       ],
       "js": [
-        "/build/base-annotation-search.1e9b6285.js"
+        "/build/base-annotation-search.58bebeaf.js"
       ]
     },
     "text-structure-search": {
@@ -37,7 +37,7 @@
         "/build/text-structure-search.d0a8063e.css"
       ],
       "js": [
-        "/build/text-structure-search.40360bae.js"
+        "/build/text-structure-search.17bcd0af.js"
       ]
     },
     "text-view": {
@@ -45,7 +45,7 @@
         "/build/text-view.fb17bb1e.css"
       ],
       "js": [
-        "/build/text-view.926840e5.js"
+        "/build/text-view.694ffde9.js"
       ]
     }
   }
