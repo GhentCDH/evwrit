@@ -151,7 +151,7 @@ export default {
 
                         ]
                     },
-                    // Generic text structure
+                    // Layout text structure
                     {
                         styleClasses: 'collapsible collapsed',
                         legend: 'Layout text structure',
@@ -191,7 +191,183 @@ export default {
                             this.createMultiSelect('Word splitting', { model: 'handshift_wordSplitting' }),
                         ]
                     },
-
+                    // Physical information
+                    {
+                        styleClasses: 'collapsible collapsed',
+                        legend: 'Physical information',
+                        fields: [
+                            {
+                                type: 'input',
+                                inputType: 'text',
+                                label: 'Title',
+                                model: 'title',
+                            },
+                            {
+                                type: 'input',
+                                inputType: 'text',
+                                label: 'Text ID',
+                                model: 'id',
+                            },
+                            {
+                                type: 'input',
+                                inputType: 'text',
+                                label: 'Trismegistos ID',
+                                model: 'tm_id',
+                            },
+                            this.createMultiSelect('Keyword',
+                                {
+                                    model: 'keyword'
+                                }
+                            ),
+                            {
+                                type: 'input',
+                                inputType: 'number',
+                                label: 'Year from',
+                                model: 'year_begin',
+                                min: AbstractSearch.YEAR_MIN,
+                                max: AbstractSearch.YEAR_MAX,
+                                validator: VueFormGenerator.validators.number,
+                            },
+                            {
+                                type: 'input',
+                                inputType: 'number',
+                                label: 'Year to',
+                                model: 'year_end',
+                                min: AbstractSearch.YEAR_MIN,
+                                max: AbstractSearch.YEAR_MAX,
+                                validator: VueFormGenerator.validators.number,
+                            },
+                            {
+                                type: 'radio',
+                                label: 'The text date interval must ... the search date interval:',
+                                labelClasses: 'control-label',
+                                model: 'date_search_type',
+                                values: [
+                                    {value: 'exact', name: 'exactly match'},
+                                    {value: 'included', name: 'be included in'},
+                                    {value: 'overlap', name: 'overlap with'},
+                                ],
+                            },
+                            this.createMultiSelect('Era',
+                                {
+                                    model: 'era'
+                                },
+                            ),
+                            this.createMultiSelect('Location found',
+                                {
+                                    model: 'location_found'
+                                }
+                            ),
+                            this.createMultiSelect('Location written',
+                                {
+                                    model: 'location_written'
+                                }
+                            ),
+                            this.createMultiSelect('Language',
+                                {
+                                    model: 'language'
+                                },
+                            ),
+                            this.createMultiSelect('Script',
+                                {
+                                    model: 'script'
+                                },
+                            ),
+                            this.createMultiSelect('Material',
+                                {
+                                    model: 'material'
+                                },
+                            ),
+                        ]
+                    },
+                    // Communicative information
+                    {
+                        styleClasses: 'collapsible collapsed',
+                        legend: 'Communicative information',
+                        fields: [
+                            this.createMultiSelect('Archive',
+                                {
+                                    model: 'archive'
+                                },
+                            ),
+                            this.createSelect('Text type', {model: 'text_type'}),
+                            this.createSelect('Text subtype', {model: 'text_subtype', 'dependency': 'text_type'}),
+                            this.createMultiSelect('Social distance',
+                                {
+                                    model: 'social_distance'
+                                },
+                            ),
+                            this.createSelect('Generic agentive role', {model: 'generic_agentive_role'}),
+                            this.createSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
+                            this.createSelect('Generic communicative goal', {model: 'generic_communicative_goal'}),
+                            this.createSelect('Communicative goal', {model: 'communicative_goal', 'dependency': 'generic_communicative_goal'}),
+                        ]
+                    },
+                    // Materiality
+                    {
+                        styleClasses: 'collapsible collapsed',
+                        legend: 'Materiality',
+                        fields: [
+                            this.createMultiSelect('Production stage',
+                                {
+                                    model: 'production_stage'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            this.createMultiSelect('Material',
+                                {
+                                    model: 'material'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            this.createMultiSelect('Format',
+                                {
+                                    model: 'text_format'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            this.createMultiSelect('Writing direction',
+                                {
+                                    model: 'writing_direction'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            this.createMultiSelect('Recto', { model: 'is_recto' } ),
+                            this.createMultiSelect('Verso', { model: 'is_verso' } ),
+                            this.createMultiSelect('Transversa charta', { model: 'is_transversa_charta' } ),
+                            this.createRangeSlider('lines','Text lines',0,160,5),
+                            this.createRangeSlider('columns','Text columns',0,10,1),
+                            this.createRangeSlider('letters_per_line','Letters per line',0,220,5),
+                            this.createRangeSlider('width','Width',0,320,5),
+                            this.createRangeSlider('height','Height',0,300,5),
+                        ]
+                    },
+                    // Administrative information
+                    {
+                        expertOnly: true,
+                        styleClasses: 'collapsible collapsed',
+                        legend: 'Administrative information',
+                        fields: [
+                            this.createMultiSelect('Project',
+                                {
+                                    model: 'project'
+                                },
+                            ),
+                            this.createMultiSelect('Collaborator', {model: 'collaborator'}),
+                        ]
+                    }
                 ],
             },
             tableOptions: {
