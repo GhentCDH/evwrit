@@ -583,7 +583,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         $filterCount++;
                         $aggFilterConfig = is_string($aggFilterConfig) ? [ 'field' => $aggFilterConfig, 'type' => self::FILTER_KEYWORD ] : $aggFilterConfig;
                         $aggFilterConfig['name'] = $queryFilterField;
-                        $aggFilterField = $aggFilterConfig['field'];
+                        $aggFilterField = $aggFilterConfig['field'] ?? $queryFilterField;
                         $aggFilterType = $aggFilterConfig['type'];
 
                         switch ($aggFilterType) {
