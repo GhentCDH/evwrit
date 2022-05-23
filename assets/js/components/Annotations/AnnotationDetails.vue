@@ -20,10 +20,22 @@ export default {
             type: Object,
             required: true
         },
+        ignoreProperties: {
+            type: Array,
+            required: false,
+            default: function() { return [
+                'morpho_syntactical_cliticForm','morpho_syntactical_cliticContent','morpho_syntactical_cliticContext',
+                'morpho_syntactical_caseForm','morpho_syntactical_caseContent','morpho_syntactical_caseContext',
+                'morpho_syntactical_aspectForm','morpho_syntactical_aspectContent','morpho_syntactical_aspectContext',
+                'morpho_syntactical_modalityForm','morpho_syntactical_modalityContent','morpho_syntactical_modalityContext',
+            ] }
+        }
     },
     computed: {
         properties() {
-            return Object.keys(this.annotation.properties).filter(k => k.startsWith(this.annotation.type + '_'))
+            return Object.keys(this.annotation.properties)
+                .filter(k => k.startsWith(this.annotation.type + '_'))
+                .filter(k => !this.ignoreProperties.includes(k))
         },
         annotationType() {
             return this.annotation.type.replace('morpho_syntactical','syntax')
