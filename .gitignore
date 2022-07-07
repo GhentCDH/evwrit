@@ -19,8 +19,8 @@ bower_components
 node_modules
 /images/
 .idea/
-.env
-.env.*
+.env.local
+.env.*.local
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
 npm-debug.log
