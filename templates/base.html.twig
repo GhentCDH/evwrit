@@ -41,7 +41,7 @@
         <meta property="og:image" content="{{ app.request.getSchemeAndHttpHost() ~ asset('build/static/images/logo_square.png') }}">
         <meta property="og:url" content="{{ app.request.uri }}">
     </head>
-    <body class="{% block body_class %}test{% endblock %}">
+    <body class="{% block body_class %}{% endblock %}">
         <div class="fluid-container page__header">
             <div class="row">
                 <header class="pageheader col-xs-12 ">
