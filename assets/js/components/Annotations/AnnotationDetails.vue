@@ -32,7 +32,7 @@ export default {
         }
     },
     computed: {
-        properties() {
+        propertyKeys() {
             return Object.keys(this.annotation.properties)
                 .filter(k => k.startsWith(this.annotation.type + '_'))
                 .filter(k => !this.ignoreProperties.includes(k))
@@ -42,7 +42,7 @@ export default {
         },
         propertiesLabelValue() {
             let ret = {};
-            for (const prop of this.properties) {
+            for (const prop of this.propertyKeys) {
                 let value = this.annotation.properties[prop]
                 let label = prop.split('_').slice(-1).join('') // strip type prefix
                 label = label.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase() )
