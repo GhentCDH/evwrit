@@ -20,15 +20,30 @@ export default {
             type: Object,
             required: true
         },
+        ignoreProperties: {
+            type: Array,
+            required: false,
+            default: function() { return [
+                'morpho_syntactical_cliticForm','morpho_syntactical_cliticContent','morpho_syntactical_cliticContext',
+                'morpho_syntactical_caseForm','morpho_syntactical_caseContent','morpho_syntactical_caseContext',
+                'morpho_syntactical_aspectForm','morpho_syntactical_aspectContent','morpho_syntactical_aspectContext',
+                'morpho_syntactical_modalityForm','morpho_syntactical_modalityContent','morpho_syntactical_modalityContext',
+            ] }
+        }
     },
     computed: {
+        propertyKeys() {
+            return Object.keys(this.annotation.properties)
+                .filter(k => k.startsWith(this.annotation.type + '_'))
+                .filter(k => !this.ignoreProperties.includes(k))
+        },
         details() {
             let ret = {};
             ret['original'] = this.annotation.text_selection.text
             //ret['selectionStart'] = this.annotation.text_selection.selection_start
             //ret['selectionEnd'] = this.annotation.text_selection.selection_end
 
-            for (let prop in this.annotation.properties) {
+            for (const prop of this.propertyKeys) {
                 if (this.annotation.properties.hasOwnProperty(prop)) {
                     // remove boolean property
                     if (prop === 'has_handshift') {
