@@ -1,14 +1,12 @@
 {
-  "dependencies": {
+  "devDependencies": {
     "etali": "^1.2.3",
     "lodash.merge": "^4.6.2",
-    "regenerator-runtime": "^0.13.7"
-  },
-  "devDependencies": {
+    "regenerator-runtime": "^0.13.7",
     "@firstandthird/toc": "^1.4.1",
     "@symfony/webpack-encore": "^0.24.0",
     "axios": "^0.18.0",
-    "bootstrap-sass": "^3.4.1",
+    "bootstrap-sass": "~3.3.7",
     "ckeditor": "^4.11.3",
     "ekko-lightbox": "^5.3.0",
     "huisstijl2016": "git+ssh://git@github.ugent.be/lw/huisstijl2016.git",
