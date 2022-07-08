@@ -33,6 +33,7 @@
     "vue2-dropzone": "^3.5.2",
     "vuedraggable": "^2.19.1",
     "webpack-shell-plugin": "^0.5.0",
-    "wnumb": "^1.2.0"
+    "wnumb": "^1.2.0",
+    "yargs": "^17.5.1"
   }
 }
