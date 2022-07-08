@@ -10,8 +10,9 @@
 
 
 - Development tools
-  - node 12
+  - node 14
   - npm 6
+  - yarn
 
 ## Install development version 
 
@@ -34,9 +35,14 @@ SSH to vm
     sudo ./install/apache.sh
     sudo ./install/php7.4-fpm.sh
     sudo ./install/postgresql-12.sh
+
     # install build tools
     sudo ./install/composer.sh
     sudo ./install/nodejs.sh
+    sudo npm i yarn -g
+
+    # install symfony cli
+    sudo ./install/symfony-cli.sh
 
 #### set default php version to 7.4
 
@@ -45,13 +51,13 @@ SSH to vm
 ### Deploy code
 
     git clone git@github.ugent.be:GhentCDH/Evwrit-web.git evwrit
-
-
-Add `.env.dev.local` to project root and set APP_SECRET variable
-
-Dump environment
-
+    cd evwrit
+    # install php dependencies
+    composer install
+    # install node dependencies
     composer dump-env dev
+    # dump .env.* to .env.local.php
+    yarn install
 
 ### Import database
 
@@ -73,7 +79,12 @@ Alter permissions after import
 
 ## Misc
 
-### Pull production build
+### Pull qas build
+
+    git pull
+    php7.4 bin/console cache:clear --env=qas
+
+### Pull prod build
 
     git pull
     php7.4 bin/console cache:clear --env=prod
