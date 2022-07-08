@@ -77,6 +77,13 @@ Alter permissions after import
 
     php bin/console app:elasticsearch:index text
 
+### Test site
+
+Site is available on these addresses:
+
+    http://evwrit.local/evwrit/public
+    http://localhost:8080/evwrit/public/
+
 ## Misc
 
 ### Pull qas build
