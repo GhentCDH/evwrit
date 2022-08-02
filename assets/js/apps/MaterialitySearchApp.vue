@@ -130,7 +130,7 @@ export default {
                 groups: [
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Physical information',
+                        legend: 'General information',
                         fields: [
                             {
                                 type: 'input',

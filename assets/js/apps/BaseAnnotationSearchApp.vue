@@ -273,10 +273,10 @@ export default {
                         ]
                     },
 
-                    // physical
+                    // general
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Physical information',
+                        legend: 'General information',
                         fields: [
                             {
                                 type: 'input',

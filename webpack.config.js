@@ -9,7 +9,7 @@ Encore
     .enableVersioning()
 
     // the public path used by the web server to access the previous directory
-    .setPublicPath(Encore.isProduction() ? '/build/' : '/evwrit/public/build/')
+    .setPublicPath(Encore.isProduction() ? '/build/' : '/build/')
 
     // allow pug templates in vue components
     .enableVueLoader()

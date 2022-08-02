@@ -191,10 +191,10 @@ export default {
                             this.createMultiSelect('Word splitting', { model: 'handshift_wordSplitting' }),
                         ]
                     },
-                    // Physical information
+                    // General information
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Physical information',
+                        legend: 'General information',
                         fields: [
                             {
                                 type: 'input',
