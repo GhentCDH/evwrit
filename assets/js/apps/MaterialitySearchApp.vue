@@ -130,6 +130,56 @@ export default {
                 groups: [
                     {
                         styleClasses: 'collapsible collapsed',
+                        legend: 'Materiality',
+                        fields: [
+                            this.createMultiSelect('Production stage',
+                                {
+                                    model: 'production_stage'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            this.createMultiSelect('Material',
+                                {
+                                    model: 'material'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            this.createMultiSelect('Format',
+                                {
+                                    model: 'text_format'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            this.createMultiSelect('Writing direction',
+                                {
+                                    model: 'writing_direction'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
+                            ),
+                            this.createMultiSelect('Recto', { model: 'is_recto' } ),
+                            this.createMultiSelect('Verso', { model: 'is_verso' } ),
+                            this.createMultiSelect('Transversa charta', { model: 'is_transversa_charta' } ),
+                            this.createRangeSlider('lines','Text lines',0,160,5),
+                            this.createRangeSlider('columns','Text columns',0,10,1),
+                            this.createRangeSlider('letters_per_line','Letters per line',0,220,5),
+                            this.createRangeSlider('width','Width',0,320,5),
+                            this.createRangeSlider('height','Height',0,300,5),
+                        ]
+                    },
+                    {
+                        styleClasses: 'collapsible collapsed',
                         legend: 'General information',
                         fields: [
                             {
@@ -224,56 +274,6 @@ export default {
                             this.createMultiSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
                             this.createMultiSelect('Generic communicative goal', {model: 'generic_communicative_goal'}),
                             this.createMultiSelect('Communicative goal', {model: 'communicative_goal', 'dependency': 'generic_communicative_goal'}),
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Materiality',
-                        fields: [
-                            this.createMultiSelect('Production stage',
-                                {
-                                    model: 'production_stage'
-                                },
-                                {
-                                    multiple: true,
-                                    closeOnSelect: false,
-                                }
-                            ),
-                            this.createMultiSelect('Material',
-                                {
-                                    model: 'material'
-                                },
-                                {
-                                    multiple: true,
-                                    closeOnSelect: false,
-                                }
-                            ),
-                            this.createMultiSelect('Format',
-                                {
-                                    model: 'text_format'
-                                },
-                                {
-                                    multiple: true,
-                                    closeOnSelect: false,
-                                }
-                            ),
-                            this.createMultiSelect('Writing direction',
-                                {
-                                    model: 'writing_direction'
-                                },
-                                {
-                                    multiple: true,
-                                    closeOnSelect: false,
-                                }
-                            ),
-                            this.createMultiSelect('Recto', { model: 'is_recto' } ),
-                            this.createMultiSelect('Verso', { model: 'is_verso' } ),
-                            this.createMultiSelect('Transversa charta', { model: 'is_transversa_charta' } ),
-                            this.createRangeSlider('lines','Text lines',0,160,5),
-                            this.createRangeSlider('columns','Text columns',0,10,1),
-                            this.createRangeSlider('letters_per_line','Letters per line',0,220,5),
-                            this.createRangeSlider('width','Width',0,320,5),
-                            this.createRangeSlider('height','Height',0,300,5),
                         ]
                     },
                     {
