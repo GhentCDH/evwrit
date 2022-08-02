@@ -32,7 +32,6 @@ SSH to vm
 ### Install server packages 
 
     sudo ./install/elasticsearch7.sh
-    sudo ./install/apache.sh
     sudo ./install/php7.4-fpm.sh
     sudo ./install/postgresql-12.sh
 
@@ -50,6 +49,7 @@ SSH to vm
 
 ### Deploy code
 
+    cd /vagrant/src/ 
     git clone git@github.ugent.be:GhentCDH/Evwrit-web.git evwrit
     cd evwrit
     # install php dependencies
@@ -71,18 +71,22 @@ Download database from [data.ghentcdh.ugent.be](https://data.ghentcdh.ugent.be) 
 
 Alter permissions after import
 
-    sudo -u postgres psql < alter-grants.sql
+    sudo -u postgres psql < ./dev/alter-grants.sql
 
 ### Create/Update Elasticsearch index
 
     php bin/console app:elasticsearch:index text
 
-### Test site
+### Run application
+
+Start the back-end dev server
+
+    symfony server:start --no-tls
 
 Site is available on these addresses:
 
-    http://evwrit.local/evwrit/public
-    http://localhost:8080/evwrit/public/
+    http://evwrit.vagrant:8000/
+    http://localhost:8000/
 
 ## Misc
 
