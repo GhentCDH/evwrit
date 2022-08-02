@@ -7,8 +7,11 @@
         </CoolLightBox>
         <article class="col-sm-9">
             <div class="scrollable scrollable--vertical">
-                <h1>{{ text.title }}</h1>
-
+                <div class="mbottom-small"> 
+                    <h1 style="display:inline">{{ text.title }}</h1>
+                    <p style="display:inline" class="padding-20">ID: {{text.id}} - Trismegistos ID: {{text.tm_id}}</p>
+                </div>
+               
                 <div class="row mbottom-large">
 
                     <!-- Text -->
