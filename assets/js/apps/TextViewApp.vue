@@ -262,16 +262,24 @@
 
                     <div v-if="showGTSA" class="mtop-default">
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.genericTextStructure.showUnit" class="switch-primary" label="Show Units"></CheckboxSwitch>
+                            <CheckboxSwitch v-model="config.genericTextStructure.showUnit" class="switch-primary" label="Show Units">
+                                <span class="count pull-right gts-units">{{ countGtsType('Unit') }}</span>
+                            </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.genericTextStructure.showSubunit" class="switch-primary" label="Show Subunits"></CheckboxSwitch>
+                            <CheckboxSwitch v-model="config.genericTextStructure.showSubunit" class="switch-primary" label="Show Subunits">
+                                <span class="count pull-right gts-subunits">{{ countGtsType('Subunit') }}</span>
+                            </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.genericTextStructure.showElement" class="switch-primary" label="Show Elements"></CheckboxSwitch>
+                            <CheckboxSwitch v-model="config.genericTextStructure.showElement" class="switch-primary" label="Show Elements">
+                                <span class="count pull-right gts-elements">{{ countGtsType('Element') }}</span>
+                            </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.genericTextStructure.showModifier" class="switch-primary" label="Show Modifiers"></CheckboxSwitch>
+                            <CheckboxSwitch v-model="config.genericTextStructure.showModifier" class="switch-primary" label="Show Modifiers">
+                                <span class="count pull-right gts-modifiers">{{ countGtsType('Modifier') }}</span>
+                            </CheckboxSwitch>
                         </div>
                     </div>
                 </Widget>
@@ -289,16 +297,24 @@
 
                     <div v-if="showLTSA" class="mtop-default">
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.layoutTextStructure.showUnit" class="switch-primary" label="Show Units"></CheckboxSwitch>
+                            <CheckboxSwitch v-model="config.layoutTextStructure.showUnit" class="switch-primary" label="Show Units">
+                                <span class="count pull-right lts-units">{{ countLtsType('Unit') }}</span>
+                            </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.layoutTextStructure.showSubunit" class="switch-primary" label="Show Subunits"></CheckboxSwitch>
+                            <CheckboxSwitch v-model="config.layoutTextStructure.showSubunit" class="switch-primary" label="Show Subunits">
+                                <span class="count pull-right lts-subunits">{{ countLtsType('Subunit') }}</span>
+                            </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.layoutTextStructure.showElement" class="switch-primary" label="Show Elements"></CheckboxSwitch>
+                            <CheckboxSwitch v-model="config.layoutTextStructure.showElement" class="switch-primary" label="Show Elements">
+                                <span class="count pull-right lts-elements">{{ countLtsType('Element') }}</span>
+                            </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.layoutTextStructure.showModifier" class="switch-primary" label="Show Modifiers"></CheckboxSwitch>
+                            <CheckboxSwitch v-model="config.layoutTextStructure.showModifier" class="switch-primary" label="Show Modifiers">
+                                <span class="count pull-right lts-modifiers">{{ countLtsType('Modifier') }}</span>
+                            </CheckboxSwitch>
                         </div>
                     </div>
                 </Widget>
@@ -737,6 +753,12 @@ export default {
         },
         countAnnotationType(type) {
             return this.visibleAnnotationsByContext.filter( item => item.type === type ).length;
+        },
+        countGtsType(type) {
+            return this.visibleAnnotationsByContext.filter( item => item.properties?.gtsa_type?.name === type ).length;
+        },
+        countLtsType(type) {
+            return this.visibleAnnotationsByContext.filter ( item => item.properties?.ltsa_type?.name === type ).length;
         },
         urlGeneratorIdName(url, filter) {
             return (value) => ( this.getUrl(url) + '?' + qs.stringify( { filters: {[filter]: value.id } } ) )
