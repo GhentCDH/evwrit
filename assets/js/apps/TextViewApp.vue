@@ -144,6 +144,10 @@
 
                 </Widget>
 
+                <Widget title="Images" :count="text.image.length" :is-open.sync="config.widgets.images.isOpen">
+                    <Gallery :images="images" :onClick="(index,url) => (imageIndex = index)" />
+                </Widget>
+
                 <Widget title="Translations" :count="text.translation.length"  :is-open.sync="config.widgets.translations.isOpen">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.translation.show" class="switch-primary" label="Show translation(s)" :disabled="text.translation.length === 0"></CheckboxSwitch>
@@ -317,10 +321,6 @@
                             </CheckboxSwitch>
                         </div>
                     </div>
-                </Widget>
-
-                <Widget title="Images" :count="text.image.length" :is-open.sync="config.widgets.images.isOpen">
-                    <Gallery :images="images" :onClick="(index,url) => (imageIndex = index)" />
                 </Widget>
 
                 <Widget title="Links" :count="text.link.length" :is-open.sync="config.widgets.links.isOpen">
