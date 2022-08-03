@@ -45,7 +45,7 @@
                         <ul class="dropdown-menu dropdown-menu-right" onclick="event.stopPropagation()">
                             <li>
                                 <div class="form-group">
-                                    <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Expert mode"></CheckboxSwitch>
+                                    <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Advanced mode"></CheckboxSwitch>
                                 </div>
                             </li>
                         </ul>
