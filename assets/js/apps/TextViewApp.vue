@@ -140,6 +140,11 @@
                         <LabelValue label="Era" :value="text.era" type="id_name" :url="urlGeneratorIdName('text_search', 'era')"></LabelValue>
                     </PropertyGroup>
 
+                    <PropertyGroup>
+                        <LabelValue label="Location written" :value="text.location_written" type="id_name"></LabelValue>
+                        <LabelValue label="Location found" :value="text.location_found" type="id_name"></LabelValue>
+                    </PropertyGroup>
+
                     <LabelValue v-if="text.keyword" label="Keywords" :value="text.keyword" :url="urlGeneratorIdName('text_search', 'keyword')" type="id_name"></LabelValue>
 
                 </Widget>
