@@ -136,7 +136,7 @@ export default {
                     // Generic text structure
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Generic text structure',
+                        legend: 'Generic structure',
                         fields: [
                             // level
                             this.createMultiSelect('Level', { model: 'gts_textLevel' }),
@@ -154,7 +154,7 @@ export default {
                     // Layout text structure
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Layout text structure',
+                        legend: 'Layout structure',
                         fields: [
                             this.createMultiSelect('Part', { model: 'lts_part' }),
                             this.createMultiSelect('Type', { model: 'ltsa_type' }),
@@ -172,7 +172,7 @@ export default {
                     // Handshift
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Handshift',
+                        legend: 'Handwriting',
                         fields: [
                             // handshift
                             this.createMultiSelect('Abbreviation', { model: 'handshift_abbreviation' }),

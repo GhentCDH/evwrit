@@ -9,7 +9,7 @@
             <div class="scrollable scrollable--vertical">
                 <div class="mbottom-small"> 
                     <h1 style="display:inline">{{ text.title }}</h1>
-                    <p style="display:inline" class="padding-20">EVWRIT ID: {{text.id}} - TM ID: {{text.tm_id}}</p>
+                    <b style="display:inline" class="padding-20">EVWRIT ID: {{text.id}} - TM ID: {{text.tm_id}}</b>
                 </div>
                
                 <div class="row mbottom-large">
@@ -42,7 +42,7 @@
 
                     <!-- Generic Text Structure -->
                     <div v-if="config.genericTextStructure.show && genericTextStructure.length" :class="textContainerClass" class="text-structure">
-                        <h2>Generic text structure</h2>
+                        <h2>Generic structure</h2>
                         <template v-if="config.genericTextStructure.groupByLevel">
                             <div class="level" v-for="level in genericTextStructureGroupedByLevel">
                                 <label><span>Level {{ level.number }} {{ level.type}}</span></label>
@@ -65,7 +65,7 @@
 
                     <!-- Layout Text Structure -->
                     <div v-if="config.layoutTextStructure.show && layoutTextStructure.length" :class="textContainerClass" class="text-structure">
-                        <h2>Layout text structure</h2>
+                        <h2>Layout structure</h2>
                         <div class="structure" v-for="textStructure in layoutTextStructure">
                             <label>
                                 <span>{{ textStructure.properties.lts_part.name }}</span>
@@ -249,15 +249,15 @@
 
                 </Widget>
 
-                <Widget title="Generic Text Structure" :is-open.sync="config.widgets.genericTextStructure.isOpen" :count="genericTextStructure.length">
+                <Widget title="Generic Structure" :is-open.sync="config.widgets.genericTextStructure.isOpen" :count="genericTextStructure.length">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic text structure" :disabled="genericTextStructure.length === 0"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic structure" :disabled="genericTextStructure.length === 0"></CheckboxSwitch>
                     </div>
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.genericTextStructure.groupByLevel" class="switch-primary" label="Reconstruct levels"  :disabled="genericTextStructure.length === 0"></CheckboxSwitch>
                     </div>
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.genericTextStructure.showAnnotations" class="switch-primary" label="Show generic text structure annotations"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.genericTextStructure.showAnnotations" class="switch-primary" label="Show generic structure annotations"></CheckboxSwitch>
                     </div>
 
                     <div v-if="showGTSA" class="mtop-default">
@@ -284,15 +284,15 @@
                     </div>
                 </Widget>
 
-                <Widget title="Layout Text Structure" :is-open.sync="config.widgets.layoutTextStructure.isOpen" :count="layoutTextStructure.length">
+                <Widget title="Layout Structure" :is-open.sync="config.widgets.layoutTextStructure.isOpen" :count="layoutTextStructure.length">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout text structure" :disabled="layoutTextStructure.length === 0"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout structure" :disabled="layoutTextStructure.length === 0"></CheckboxSwitch>
                     </div>
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showHandshift" class="switch-primary" label="Show handshift annotations"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.annotations.showHandshift" class="switch-primary" label="Show handwriting annotations"></CheckboxSwitch>
                     </div>
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.layoutTextStructure.showAnnotations" class="switch-primary" label="Show layout text structure annotations"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.layoutTextStructure.showAnnotations" class="switch-primary" label="Show layout structure annotations"></CheckboxSwitch>
                     </div>
 
                     <div v-if="showLTSA" class="mtop-default">

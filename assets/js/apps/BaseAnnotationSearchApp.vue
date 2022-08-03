@@ -241,7 +241,7 @@ export default {
                     // Generic text structure
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Generic text structure',
+                        legend: 'Generic structure',
                         fields: [
                             // level
                             this.createMultiSelect('Level', { model: 'text_level' }),
@@ -253,7 +253,7 @@ export default {
                     // Handshift
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Handshift',
+                        legend: 'Handwriting',
                         fields: [
                             // handshift
                             this.createMultiSelect('Script Type', { model: 'handshift_scriptType' }),
