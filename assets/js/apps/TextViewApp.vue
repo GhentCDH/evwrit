@@ -9,7 +9,7 @@
             <div class="scrollable scrollable--vertical">
                 <div class="mbottom-small"> 
                     <h1 style="display:inline">{{ text.title }}</h1>
-                    <p style="display:inline" class="padding-20">ID: {{text.id}} - Trismegistos ID: {{text.tm_id}}</p>
+                    <p style="display:inline" class="padding-20">EVWRIT ID: {{text.id}} - TM ID: {{text.tm_id}}</p>
                 </div>
                
                 <div class="row mbottom-large">
@@ -127,7 +127,7 @@
                 </Widget>
 
                 <Widget title="Metadata" :is-open.sync="config.widgets.metadata.isOpen">
-                    <LabelValue label="ID" :value="text.id"></LabelValue>
+                    <LabelValue label="EVWRIT ID" :value="text.id"></LabelValue>
                     <LabelValue label="Trismegistos ID" :value="text.tm_id" :url="getTmTextUrl"></LabelValue>
 
                     <PropertyGroup>
