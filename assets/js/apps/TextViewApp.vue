@@ -9,7 +9,7 @@
             <div class="scrollable scrollable--vertical">
                 <div class="mbottom-small"> 
                     <h1 style="display:inline">{{ text.title }}</h1>
-                    <b style="display:inline" class="padding-20">EVWRIT ID: {{text.id}} - TM ID: {{text.tm_id}}</b>
+                    <b style="display:inline" class="padding-20">EVWRIT ID: {{text.id}} — TM ID: {{text.tm_id}}</b>
                 </div>
                
                 <div class="row mbottom-large">
@@ -887,4 +887,5 @@ export default {
     }
   }
 }
+
 </style>

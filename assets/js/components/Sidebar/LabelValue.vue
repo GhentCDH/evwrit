@@ -103,5 +103,11 @@ export default {
 
 .labelvalue__value--inline > span {
   padding: 0;
+  margin-right: 0.5em;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
 }
 </style>
