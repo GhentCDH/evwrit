@@ -15,7 +15,7 @@
                 <div class="row mbottom-large">
 
                     <!-- Text -->
-                    <div v-if="config.text.show" :class="textContainerClass" class="text">
+                    <div v-if="config.text.show && !config.genericTextStructure.show && !config.layoutTextStructure.show" :class="textContainerClass" class="text">
                         <h2>Text</h2>
                         <GreekText :text="text.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="1"/>
                     </div>
