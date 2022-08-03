@@ -296,7 +296,6 @@ export default {
                                 label: 'Trismegistos ID',
                                 model: 'tm_id',
                             },
-                            this.createMultiSelect('Keyword', { model: 'keyword'}),
                             {
                                 type: 'input',
                                 inputType: 'number',
@@ -328,6 +327,7 @@ export default {
                             },
                             this.createMultiSelect('Era',{ model: 'era' } ),
                             this.createMultiSelect('Language', { model: 'language' } ),
+                            this.createMultiSelect('Keyword', { model: 'keyword'})
                         ]
                     },
                     // communicative

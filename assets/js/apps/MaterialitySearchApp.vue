@@ -200,15 +200,6 @@ export default {
                                 label: 'Trismegistos ID',
                                 model: 'tm_id',
                             },
-                            this.createMultiSelect('Keyword',
-                                {
-                                    model: 'keyword'
-                                },
-                                {
-                                    multiple: true,
-                                    closeOnSelect: false,
-                                }
-                            ),
                             {
                                 type: 'input',
                                 inputType: 'number',
@@ -252,6 +243,15 @@ export default {
                                 {
                                     model: 'script'
                                 },
+                            ),
+                            this.createMultiSelect('Keyword',
+                                {
+                                    model: 'keyword'
+                                },
+                                {
+                                    multiple: true,
+                                    closeOnSelect: false,
+                                }
                             ),
                         ]
                     },
