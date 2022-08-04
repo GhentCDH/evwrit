@@ -109,7 +109,7 @@
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex - 1)">&lt;</span>
                         </div>
-                        <div class="col col-xs-6 text-center"><span>Result {{ context.searchIndex }} of {{ resultSet.count }}</span></div>
+                        <div class="col col-xs-6 text-center"> <input :placeholder="context.searchIndex" type="number" class="form-control input-sm input-no-controls" v-model="indexNumberInputValue" @keydown.enter="loadTextByIndex(indexNumberInputValue)"/> <span> of {{ resultSet.count }}</span></div>
                         <div class="col col-xs-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex + 1)">&gt;</span>
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex( resultSet.count )">&raquo;</span>
@@ -453,6 +453,7 @@ export default {
             imageIndex: null,
             annotationId: null,
             openRequests: false,
+            indexNumberInputValue: null,
         }
         return data
     },
@@ -831,6 +832,8 @@ export default {
                     window.history.replaceState({}, '', that.getTextUrl(id));
                     // bind events
                     that.bindEvents();
+                    // update input field value
+                    that.indexNumberInputValue = newIndex;
                 });
             })
         },
@@ -876,6 +879,12 @@ export default {
     & > div {
       width: 100%;
     }
+  }
+
+  .input-no-controls {
+    display: inline;
+    width: 3.5em;
+    margin-right: 0.5em;
   }
 
   aside {
