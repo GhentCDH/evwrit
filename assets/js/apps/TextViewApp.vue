@@ -81,7 +81,7 @@
                     <!-- Annotations -->
                     <div v-if="config.annotations.showList" class="col-xs-12">
                         <h2 v-if="config.text.show || config.text.showLemmas || config.genericTextStructure.show">Annotations</h2>
-                        <div class="annotation-result" v-for="annotation in visibleAnnotations">
+                        <div class="annotation-result" v-for="annotation in visibleAnnotationsByContext">
                             <GreekText
                                     v-if="config.annotations.showContext && annotationHasContext(annotation)"
                                     :text="annotation.context.text"
