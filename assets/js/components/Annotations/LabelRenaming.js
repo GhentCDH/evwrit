@@ -8,6 +8,7 @@ export default {
                 'Bigraphism Domain': 'Transliteration Domain',
                 'Bigraphism Formulaicity': 'Transliteration Formulaicity',
                 'Bigraphism Type': 'Transliteration Type',
+                'Accronym': 'Acronym',
             }
         }
     },
