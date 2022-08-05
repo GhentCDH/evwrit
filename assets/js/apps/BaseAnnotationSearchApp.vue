@@ -200,6 +200,7 @@ export default {
                             this.createMultiSelect('Deletion', { model: 'typography_deletion' }),
                             this.createMultiSelect('Word splitting', { model: 'typography_wordSplitting' }),
                             this.createMultiSelect('Abbreviation', { model: 'typography_abbreviation' }),
+                            this.createMultiSelect('Vacat', { model: 'typography_vacat' }),
                             // lexis
                             this.createMultiSelect('Standard form', { model: 'lexis_standardForm' }),
                             this.createMultiSelect('Type', { model: 'lexis_type' }),
