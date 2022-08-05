@@ -4,7 +4,7 @@ namespace App\Model;
 
 use App\Model\Lookup\AnnotationAbbreviation;
 use App\Model\Lookup\AnnotationAccentuation;
-use App\Model\Lookup\AnnotationAcronym;
+use App\Model\Lookup\AnnotationAccronym;
 use App\Model\Lookup\AnnotationConnectivity;
 use App\Model\Lookup\AnnotationCorrection;
 use App\Model\Lookup\AnnotationCurvature;
@@ -32,7 +32,7 @@ use ReflectionException;
  * @property int $text_selection_id
  * @property int $annotation_abbreviation_id
  * @property int $annotation_accentuation_id
- * @property int $annotation_acronym_id
+ * @property int $annotation_accronym_id
  * @property int $annotation_insertion_id
  * @property int $annotation_expansion_id
  * @property int $annotation_connectivity_id
@@ -55,7 +55,7 @@ use ReflectionException;
  */
 class TypographyAnnotation extends AbstractAnnotationModel
 {
-    protected $with = ['textSelection', 'textSelection.sourceText', 'abbreviation','accentuation','acronym','insertion','expansion','connectivity','correction','curvature','deletion','orientation','vacat','weight','symbol','wordSplitting','wordClass','punctuation','positionInText','regularity','slope','scriptType'];
+    protected $with = ['textSelection', 'textSelection.sourceText', 'abbreviation','accentuation','accronym','insertion','expansion','connectivity','correction','curvature','deletion','orientation','vacat','weight','symbol','wordSplitting','wordClass','punctuation','positionInText','regularity','slope','scriptType'];
 
     public function getAnnotationType(): string
     {
@@ -84,9 +84,9 @@ class TypographyAnnotation extends AbstractAnnotationModel
      * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
-    public function acronym(): belongsTo
+    public function accronym(): belongsTo
     {
-        return $this->belongsTo(AnnotationAcronym::class);
+        return $this->belongsTo(AnnotationAccronym::class);
     }
 
     /**
