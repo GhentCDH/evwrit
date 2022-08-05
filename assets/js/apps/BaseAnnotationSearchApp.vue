@@ -201,6 +201,7 @@ export default {
                             this.createMultiSelect('Word splitting', { model: 'typography_wordSplitting' }),
                             this.createMultiSelect('Abbreviation', { model: 'typography_abbreviation' }),
                             this.createMultiSelect('Vacat', { model: 'typography_vacat' }),
+                            this.createMultiSelect('Acronym', { model: 'typography_accronym' }),
                             // lexis
                             this.createMultiSelect('Standard form', { model: 'lexis_standardForm' }),
                             this.createMultiSelect('Type', { model: 'lexis_type' }),
