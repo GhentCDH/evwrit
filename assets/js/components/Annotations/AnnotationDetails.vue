@@ -9,12 +9,16 @@
 <script>
 
 import LabelValue from '../Sidebar/LabelValue'
+import LabelRenaming from './LabelRenaming'
 
 export default {
     name: "AnnotationDetails",
     components: {
         LabelValue
     },
+    mixins: [
+        LabelRenaming,
+    ],
     props: {
         annotation: {
             type: Object,
@@ -46,6 +50,8 @@ export default {
                 let value = this.annotation.properties[prop]
                 let label = prop.split('_').slice(-1).join('') // strip type prefix
                 label = label.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase() )
+                // Check if label uses old expression that has since been renamed
+                label = this.renameLabel(label);
                 if ( value && Array.isArray(value) && value.length ) {
                     ret[label] = value.map( i => i.id_name.split('_').slice(1).join('_') ).join(', ')
                 } else if ( value && typeof value === 'object' && value.hasOwnProperty('id_name')) {
