@@ -8,8 +8,8 @@
         <article class="col-sm-9">
             <div class="scrollable scrollable--vertical">
                 <div class="mbottom-small"> 
-                    <h1 style="display:inline">{{ text.title }}</h1>
-                    <b style="display:inline" class="padding-20">EVWRIT ID: {{text.id}} — TM ID: {{text.tm_id}}</b>
+                    <h1 class="inline_title">{{ text.title }}</h1>
+                    <h5 class="padding-20 inline_title">{{text.id ? 'EVWRIT ID:' + text.id : ''}} {{text.id && text.tm_id ? '—' : ''}} {{text.tm_id ? 'TM ID:' + text.tm_id : ''}}</h5>
                 </div>
                
                 <div class="row mbottom-large">
@@ -885,6 +885,10 @@ export default {
     display: inline;
     width: 3.5em;
     margin-right: 0.5em;
+  }
+
+  .inline_title {
+    display: inline;
   }
 
   aside {
