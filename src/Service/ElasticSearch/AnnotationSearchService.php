@@ -159,7 +159,7 @@ class AnnotationSearchService extends AbstractSearchService
         ];
 
         $annotationProperties = [
-            'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation', 'vacat', 'accronym', 'positionInText'],
+            'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation', 'vacat', 'accronym', 'positionInText', 'wordClass'],
             'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
             'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
             'morphology' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
@@ -289,7 +289,7 @@ class AnnotationSearchService extends AbstractSearchService
 
         // annotation aggregations
         $annotationProperties = [
-            'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation', 'vacat', 'accronym', 'positionInText'],
+            'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation', 'vacat', 'accronym', 'positionInText', 'wordClass'],
             'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
             'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
             'morphology' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
