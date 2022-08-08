@@ -221,12 +221,12 @@
 
                     <div v-if="showBaseAnnotations" class="mtop-default">
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.annotations.showTypography" class="switch-primary" label="Typography annotations">
+                            <CheckboxSwitch v-model="config.annotations.showTypography" class="switch-primary annotation-color-wrapper" label="Typography annotations">
                                 <span class="count pull-right annotation-typography">{{ countAnnotationType('typography') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.annotations.showLanguage" class="switch-primary" label="Language annotations">
+                            <CheckboxSwitch v-model="config.annotations.showLanguage" class="switch-primary annotation-color-wrapper" label="Language annotations">
                                 <span class="count pull-right annotation-language">{{ countAnnotationType('language') }}</span>
                             </CheckboxSwitch>
                         </div>
@@ -234,22 +234,22 @@
 
                     <div v-if="showBaseAnnotations" class="mtop-default">
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.annotations.showMorphoSyntactical" class="switch-primary" label="Syntax annotations">
+                            <CheckboxSwitch v-model="config.annotations.showMorphoSyntactical" class="switch-primary annotation-color-wrapper" label="Syntax annotations">
                                 <span class="count pull-right annotation-morpho_syntactical">{{ countAnnotationType('morpho_syntactical') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.annotations.showOrthography" class="switch-primary" label="Orthography annotations">
+                            <CheckboxSwitch v-model="config.annotations.showOrthography" class="switch-primary annotation-color-wrapper" label="Orthography annotations">
                                 <span class="count pull-right annotation-orthography">{{ countAnnotationType('orthography') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.annotations.showLexis" class="switch-primary" label="Lexis annotations">
+                            <CheckboxSwitch v-model="config.annotations.showLexis" class="switch-primary annotation-color-wrapper" label="Lexis annotations">
                                 <span class="count pull-right annotation-lexis">{{ countAnnotationType('lexis') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.annotations.showMorphology" class="switch-primary" label="Morphology annotations">
+                            <CheckboxSwitch v-model="config.annotations.showMorphology" class="switch-primary annotation-color-wrapper" label="Morphology annotations">
                                 <span class="count pull-right annotation-morphology">{{ countAnnotationType('morphology') }}</span>
                             </CheckboxSwitch>
                         </div>

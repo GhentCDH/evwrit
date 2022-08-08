@@ -53,6 +53,15 @@
   }
 }
 
+// just the annotation color for the counts
+.annotation-color-wrapper {
+  @each $name, $color in $base-annotations {
+    .annotation-#{$name}  {
+      background-color: rgba($color, $base-annotation-opacity) !important;
+    }
+  }
+}
+
 .annotation-wrapper {
 
 
