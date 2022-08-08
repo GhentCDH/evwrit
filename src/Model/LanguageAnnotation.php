@@ -6,6 +6,7 @@ use App\Model\Lookup\AnnotationBigraphismComments;
 use App\Model\Lookup\AnnotationBigraphismDomain;
 use App\Model\Lookup\AnnotationBigraphismFormulaicity;
 use App\Model\Lookup\AnnotationBigraphismRank;
+use App\Model\Lookup\AnnotationBigraphismType;
 use App\Model\Lookup\AnnotationCodeswitchingComments;
 use App\Model\Lookup\AnnotationCodeswitchingDomain;
 use App\Model\Lookup\AnnotationCodeswitchingRank;
@@ -91,7 +92,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
      */
     public function bigraphismType(): belongsTo
     {
-        return $this->belongsTo(AnnotationBigraphismComments::class);
+        return $this->belongsTo(AnnotationBigraphismType::class);
     }
 
     /**
