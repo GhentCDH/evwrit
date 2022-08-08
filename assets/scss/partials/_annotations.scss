@@ -60,6 +60,11 @@
       background-color: rgba($color, $base-annotation-opacity) !important;
     }
   }
+  @each $name, $color in $structure-annotations {
+    .annotation-#{$name}  {
+      background-color: rgba($color, $base-annotation-opacity) !important;
+    }
+  }
 }
 
 .annotation-wrapper {

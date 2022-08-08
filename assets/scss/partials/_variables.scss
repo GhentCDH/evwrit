@@ -19,3 +19,9 @@ $base-annotations: (
         "morphology": #5d2802,
 );
 
+$structure-annotations: (
+        "unit": red,
+        "subunit": orange,
+        "element": green,
+        "modifier": lightblue,
+)

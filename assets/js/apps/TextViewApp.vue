@@ -271,23 +271,23 @@
 
                     <div v-if="showGTSA" class="mtop-default">
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.genericTextStructure.showUnit" class="switch-primary" label="Show Units">
-                                <span class="count pull-right gts-units">{{ countGtsType('Unit') }}</span>
+                            <CheckboxSwitch v-model="config.genericTextStructure.showUnit" class="switch-primary annotation-color-wrapper" label="Show Units">
+                                <span class="count pull-right annotation-unit">{{ countGtsType('Unit') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.genericTextStructure.showSubunit" class="switch-primary" label="Show Subunits">
-                                <span class="count pull-right gts-subunits">{{ countGtsType('Subunit') }}</span>
+                            <CheckboxSwitch v-model="config.genericTextStructure.showSubunit" class="switch-primary annotation-color-wrapper" label="Show Subunits">
+                                <span class="count pull-right annotation-subunit">{{ countGtsType('Subunit') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.genericTextStructure.showElement" class="switch-primary" label="Show Elements">
-                                <span class="count pull-right gts-elements">{{ countGtsType('Element') }}</span>
+                            <CheckboxSwitch v-model="config.genericTextStructure.showElement" class="switch-primary annotation-color-wrapper" label="Show Elements">
+                                <span class="count pull-right annotation-element">{{ countGtsType('Element') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.genericTextStructure.showModifier" class="switch-primary" label="Show Modifiers">
-                                <span class="count pull-right gts-modifiers">{{ countGtsType('Modifier') }}</span>
+                            <CheckboxSwitch v-model="config.genericTextStructure.showModifier" class="switch-primary annotation-color-wrapper" label="Show Modifiers">
+                                <span class="count pull-right annotation-modifier">{{ countGtsType('Modifier') }}</span>
                             </CheckboxSwitch>
                         </div>
                     </div>
@@ -306,23 +306,23 @@
 
                     <div v-if="showLTSA" class="mtop-default">
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.layoutTextStructure.showUnit" class="switch-primary" label="Show Units">
-                                <span class="count pull-right lts-units">{{ countLtsType('Unit') }}</span>
+                            <CheckboxSwitch v-model="config.layoutTextStructure.showUnit" class="switch-primary annotation-color-wrapper" label="Show Units">
+                                <span class="count pull-right annotation-unit">{{ countLtsType('Unit') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.layoutTextStructure.showSubunit" class="switch-primary" label="Show Subunits">
-                                <span class="count pull-right lts-subunits">{{ countLtsType('Subunit') }}</span>
+                            <CheckboxSwitch v-model="config.layoutTextStructure.showSubunit" class="switch-primary annotation-color-wrapper" label="Show Subunits">
+                                <span class="count pull-right annotation-subunit">{{ countLtsType('Subunit') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.layoutTextStructure.showElement" class="switch-primary" label="Show Elements">
-                                <span class="count pull-right lts-elements">{{ countLtsType('Element') }}</span>
+                            <CheckboxSwitch v-model="config.layoutTextStructure.showElement" class="switch-primary annotation-color-wrapper" label="Show Elements">
+                                <span class="count pull-right annotation-element">{{ countLtsType('Element') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.layoutTextStructure.showModifier" class="switch-primary" label="Show Modifiers">
-                                <span class="count pull-right lts-modifiers">{{ countLtsType('Modifier') }}</span>
+                            <CheckboxSwitch v-model="config.layoutTextStructure.showModifier" class="switch-primary annotation-color-wrapper" label="Show Modifiers">
+                                <span class="count pull-right annotation-modifier">{{ countLtsType('Modifier') }}</span>
                             </CheckboxSwitch>
                         </div>
                     </div>
