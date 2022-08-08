@@ -19,9 +19,10 @@ $base-annotations: (
         "morphology": #5d2802,
 );
 
+// color & top position of text structure annotations
 $structure-annotations: (
-        "unit": red,
-        "subunit": orange,
-        "element": green,
-        "modifier": lightblue,
-)
+        "unit": (red, 42px),
+        "subunit": (orange, 38px),
+        "element": (green, 34px),
+        "modifier": (lightblue,30px),
+);
