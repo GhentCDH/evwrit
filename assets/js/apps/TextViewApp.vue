@@ -15,7 +15,7 @@
                 <div class="row mbottom-large">
 
                     <!-- Text -->
-                    <div v-if="config.text.show && !config.genericTextStructure.show && !config.layoutTextStructure.show" :class="textContainerClass" class="text">
+                    <div v-if="showText" :class="textContainerClass" class="text">
                         <h2>Text</h2>
                         <GreekText :text="text.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="1"/>
                     </div>
@@ -80,7 +80,7 @@
 
                     <!-- Annotations -->
                     <div v-if="config.annotations.showList" class="col-xs-12">
-                        <h2 v-if="config.text.show || config.text.showLemmas || config.genericTextStructure.show">Annotations</h2>
+                        <h2 v-if="showText || config.text.showLemmas || config.genericTextStructure.show">Annotations</h2>
                         <div class="annotation-result" v-for="annotation in visibleAnnotationsByContext">
                             <GreekText
                                     v-if="config.annotations.showContext && annotationHasContext(annotation)"
@@ -160,9 +160,6 @@
                 </Widget>
 
                 <Widget title="Text options" :is-open.sync="config.widgets.textOptions.isOpen">
-                    <div class="form-group">
-                        <CheckboxSwitch v-model="config.text.show" class="switch-primary" label="Show Text"></CheckboxSwitch>
-                    </div>
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.text.showLemmas" class="switch-primary" label="Show Lemmas" :disabled="text.text_lemmas === ''"></CheckboxSwitch>
                     </div>
@@ -548,6 +545,9 @@ export default {
         visibleAnnotationsFormattedNoLts() {
             return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type != 'ltsa' ? this.formatAnnotation(annotation) : []), [] );
         },
+        showText() {
+            return  (!this.config.genericTextStructure.show || !this.genericTextStructure.length) && (!this.config.layoutTextStructure.show || !this.layoutTextStructure.length)
+        },
         showBaseAnnotations() {
             return this.config.annotations.show || this.config.annotations.showList
         },
@@ -601,7 +601,7 @@ export default {
         },
         textContainersOpen() {
             let conf = [
-                this.config.text.show ? 1 : 0,
+                this.showText ? 1 : 0,
                 this.config.text.showLemmas && this.text.text_lemmas ? 1 : 0,
                 this.config.text.showApparatus && this.text.apparatus ? 1 : 0,
                 this.config.translation.show && this.text.translation.length ? 1 : 0,
