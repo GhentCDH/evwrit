@@ -43,7 +43,9 @@ class ElasticTextResource extends ElasticBaseResource
             'archive' => new ElasticIdNameResource($this->archive),
 
             'language' => ElasticIdNameResource::collection($this->languages)->toArray(null),
+            'language_count' => count($this->languages),
             'script' => ElasticIdNameResource::collection($this->scripts)->toArray(null),
+            'script_count' => count($this->scripts),
 
             'text_type' => new ElasticIdNameResource($this->textType),
             'text_subtype' => new ElasticIdNameResource($this->textSubtype),
