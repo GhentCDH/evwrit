@@ -523,7 +523,7 @@ export default {
 
             // filter by search context?
             if ( this.config.annotations.showOnlyInSearchContext && (this.context.params ?? false) ) {
-                annotations = this.annotationsFilterbyContext(annotations, this.context.params ?? {})
+                annotations = this.annotationsFilterByContext(annotations, this.context.params ?? {})
             }
 
             return annotations
@@ -643,15 +643,15 @@ export default {
                     return annotation.type !== "ltsa" || ( annotation.type === "ltsa" && that.visibleLTSATypes.includes(annotation.properties?.ltsa_type?.name) )
                 })
         },
-        annotationsFilterbyContext(annotations, context_params) {
-            let annotationTypeFilter = context_params.annotation_type ?? false
+        annotationsFilterByContext(annotations, context_params) {
+            let annotationTypeFilter = context_params.annotation_type['value'] ?? false
 
             let annotationPropertyPrefixes = ['language', 'typography', 'orthography', 'lexis', 'morpho_syntactical','handshift','ltsa','gtsa']
             let annotationPropertyFilters = {}
             for ( const [key, value] of Object.entries(context_params) ) {
                 for ( const prefix of annotationPropertyPrefixes ) {
                     if (key.startsWith(prefix + '_') ) {
-                        annotationPropertyFilters[key] = Array.isArray(value) ? value : [ value ]
+                        annotationPropertyFilters[key] = Array.isArray(value['value']) ? value['value'] : [ value ]
                     }
                 }
             }

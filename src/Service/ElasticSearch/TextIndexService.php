@@ -15,6 +15,7 @@ class TextIndexService extends AbstractIndexService
 
     protected function getMappingProperties(): array {
         return [
+            // physical info
             'title' => [
                 'type' => 'text',
                 // Needed for sorting
@@ -34,27 +35,34 @@ class TextIndexService extends AbstractIndexService
                 'type' => 'text',
                 'analyzer' => 'custom_greek_original',
             ],
+//            'keyword' => ['type' => 'nested'],
             'year_begin' => ['type' => 'short'],
             'year_end' => ['type' => 'short'],
-            'archive' => ['type' => 'object'],
-            'era' => ['type' => 'object'],
-            'keyword' => ['type' => 'nested'],
-            'language' => ['type' => 'nested'],
-            'script' => ['type' => 'nested'],
-            'material' => ['type' => 'nested'],
-            'project' => ['type' => 'nested'],
-            'social_distance' => ['type' => 'nested'],
-            'text_type' => ['type' => 'object'],
-            'text_subtype' => ['type' => 'object'],
-            'location_found' => ['type' => 'nested'],
-            'location_written' => ['type' => 'nested'],
+//            'era' => ['type' => 'object'],
+//            'location_found' => ['type' => 'nested'],
+//            'location_written' => ['type' => 'nested'],
+//            'language' => ['type' => 'nested'],
+//            'script' => ['type' => 'nested'],
+//            'material' => ['type' => 'nested'],
+
+            // admin info
+//            'project' => ['type' => 'nested'],
+
+
+            // com info
+//            'archive' => ['type' => 'object'],
+//            'text_type' => ['type' => 'object'],
+//            'text_subtype' => ['type' => 'object'],
+//            'social_distance' => ['type' => 'object'],
             'agentive_role' => ['type' => 'nested'],
             'communicative_goal'  => ['type' => 'nested'],
+
+            // ancient person
             'ancient_person' => [ 'type' => 'nested' ],
 
-            'production_stage' => ['type' => 'nested'],
-            'text_format' => ['type' => 'nested'],
-            'writing_direction' => ['type' => 'nested'],
+//            'production_stage' => ['type' => 'nested'],
+//            'text_format' => ['type' => 'nested'],
+//            'writing_direction' => ['type' => 'nested'],
 
             'columns.min' => ['type' => 'short'],
             'columns.max' => ['type' => 'short'],

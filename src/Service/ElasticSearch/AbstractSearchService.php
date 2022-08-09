@@ -8,63 +8,12 @@ use Elastica\Query\AbstractQuery;
 use Elastica\Index;
 
 
-abstract class AbstractSearchService extends AbstractService implements SearchServiceInterface
+abstract class AbstractSearchService extends AbstractService implements SearchServiceInterface, SearchConfigInterface
 {
     const MAX_AGG = 2147483647;
     const MAX_SEARCH = 10000;
     const SEARCH_RAW_MAX_RESULTS = 500;
-
-    protected const FILTER_NUMERIC = "numeric"; // numeric term filter
-    protected const FILTER_BOOLEAN = "boolean"; // boolean term filter
-    protected const FILTER_KEYWORD = "keyword"; // term filter
-    protected const FILTER_WILDCARD = "wildcard"; // wildcard term filter
-
-    protected const FILTER_TEXT = "text";
-    protected const FILTER_TEXT_MULTIPLE = "text_multiple";
-
-    protected const FILTER_OBJECT_ID = "object_id";
-    protected const FILTER_NESTED_ID = "nested_id";
-
-    protected const FILTER_NESTED_MULTIPLE = "nested_multiple";
-    protected const FILTER_DATE_RANGE = "date_range";
-    protected const FILTER_NUMERIC_RANGE_SLIDER = "numeric_range";
-
-    protected const AGG_NUMERIC = "numeric";
-    protected const AGG_KEYWORD = "exact_text";
-    protected const AGG_NESTED_KEYWORD = "nested_term";
-    protected const AGG_BOOLEAN = "bool";
-    protected const AGG_GLOBAL_STATS = "stats";
-
-    protected const AGG_NESTED_ID_NAME = "nested_id_name";
-    protected const AGG_OBJECT_ID_NAME = "object_id_name";
-
-    /**
-     * Add aggregation details to search service
-     * Return array of aggregation_field => [
-     *  'type' => aggregation type
-     * ]
-     * @return array
-     */
-    protected abstract function getAggregationConfig(): array;
-
-    /**
-     * Add search filter details to search service
-     * Return array of search_field => [
-     *  'type' => aggregation type
-     * ]
-     * @return array
-     */
-    protected abstract function getSearchFilterConfig(): array;
-
-    protected function getDefaultSearchParameters(): array
-    {
-        return [];
-    }
-
-    protected function getDefaultSearchFilters(): array
-    {
-        return [];
-    }
+    private const DEFAULT_FILTER_TYPE = self::FILTER_KEYWORD;
 
     protected function sanitizeSearchParameters(array $params, bool $merge_defaults = true): array
     {
@@ -99,24 +48,64 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $result;
     }
 
-    protected function sanitizeSearchFilter($filterValue, $filterConfig, $filterName, $params) {
+    protected function sanitizeSearchFilters(array $params): array
+    {
+        // Init Filters
+        $filters = $this->getDefaultSearchFilters();
+
+        // Validate values
+        $filterConfigs = $this->getSanitizedSearchFilterConfig();
+
+        foreach ($filterConfigs as $filterName => $filterConfig) {
+            // filter has subfilters?
+            if ($filterConfig['filters'] ?? false) {
+                foreach ($filterConfig['filters'] as $subFilterName => $subFilterConfig) {
+                    $ret = $this->sanitizeSearchFilter($subFilterName, $subFilterConfig, $params);
+                    if (!is_null($ret)) {
+                        $filters[$subFilterName] = $ret;
+                    }
+                }
+            } else {
+                // no subfilters
+                $filterValue = $this->sanitizeSearchFilter($filterName, $filterConfig, $params);
+                if (!is_null($filterValue)) {
+                    $filters[$filterName] = $filterValue;
+                }
+            }
+        }
+
+        return $filters;
+    }
+
+    protected function sanitizeSearchFilter($filterName, $filterConfig, $params): ?array
+    {
         $ret = null;
 
-        switch ($filterConfig['type'] ?? false) {
+        $filterValue = $filterConfig['value'] ?? $params[$filterName] ?? $filterConfig['defaultValue'] ?? null;
+
+        switch ($filterConfig['type'] ?? self::DEFAULT_FILTER_TYPE) {
             case self::FILTER_NUMERIC:
             case self::FILTER_OBJECT_ID:
             case self::FILTER_NESTED_ID:
-                if ($filterValue === false) break;
+                if ($filterValue === null) break;
                 if (is_array($filterValue)) {
-                    $ret = array_map( fn($value) => (int) $value , $filterValue);
+                    $ret['value'] = array_map(fn($value) => (int)$value, $filterValue);
                 }
                 if (is_numeric($filterValue)) {
-                    $ret = (int) $filterValue;
+                    $ret['value'] = [(int)$filterValue];
                 }
+                $ret['operator'] = $params[$filterName . '_op'] ?? ['or'];
+                $ret['operator'] = is_array($ret['operator']) ? $ret['operator'] : [$ret['operator']];
+                break;
+            case self::FILTER_KEYWORD:
+                if ($filterValue === null) break;
+                $ret['value'] = is_array($filterValue) ? $filterValue : [ $filterValue ];
+                $ret['operator'] = $params[$filterName . '_op'] ?? ['or'];
+                $ret['operator'] = is_array($ret['operator']) ? $ret['operator'] : [$ret['operator']];
                 break;
             case self::FILTER_BOOLEAN:
-                if ($filterValue === false) break;
-                $ret = ($filterValue === '1');
+                if ($filterValue === null) break;
+                $ret['value'] = ($filterValue === '1' || $filterValue === 'true');
                 break;
             case self::FILTER_DATE_RANGE:
                 $rangeFilter = [];
@@ -132,707 +121,352 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 }
 
                 $valueField = $filterConfig['typeField'];
-                if (isset($params[$valueField]) && in_array($params[$valueField], ['exact','included','include','overlap'], true)) {
+                if (isset($params[$valueField]) && in_array($params[$valueField], ['exact', 'included', 'include', 'overlap'], true)) {
                     $rangeFilter['type'] = $params[$valueField];
                 }
 
                 if ($rangeFilter) {
-                    $ret = $rangeFilter;
+                    $ret['value'] = $rangeFilter;
+                }
+
+                break;
+            case self::FILTER_DMY_RANGE:
+                $rangeFilter = [
+                    'from' => [],
+                    'till' => [],
+                    'has_from' => false,
+                    'has_till' => false
+                ];
+                $boolValid = false;
+
+                $dateParts = [
+                    'month',
+                    'day',
+                    'year',
+                ];
+
+                foreach ($dateParts as $datePart) {
+                    $rangeFilter['from'][$datePart] = is_numeric($filterValue['from'][$datePart] ?? null) ? intval($filterValue['from'][$datePart]) : null;
+                    $rangeFilter['has_from'] = $rangeFilter['has_from'] || ($rangeFilter['from'][$datePart] !== null);
+                    $rangeFilter['till'][$datePart] = is_numeric($filterValue['till'][$datePart] ?? null) ? intval($filterValue['till'][$datePart]) : null;
+                    $rangeFilter['has_till'] = $rangeFilter['has_till'] || ($rangeFilter['till'][$datePart] !== null);
+                }
+
+                // check if valid range query
+                if ($rangeFilter['has_from'] && $rangeFilter['has_till']
+                    && !array_diff_key(array_filter($rangeFilter['from'], fn($i) => $i != null), array_filter($rangeFilter['till'], fn($i) => $i != null))
+                    && !array_diff_key(array_filter($rangeFilter['till'], fn($i) => $i != null), array_filter($rangeFilter['from'], fn($i) => $i != null))
+                    && isset($rangeFilter['till']['month'])
+                ) {
+                    $rangeFilter['type'] = 'range';
+                    $boolValid = true;
+                } elseif ($rangeFilter['has_from']) {
+                    $rangeFilter['type'] = 'exact';
+                    $boolValid = true;
+                } else {
+                    $rangeFilter['type'] = 'invalid';
+                }
+
+                if ($boolValid) {
+                    $ret['value'] = $rangeFilter;
                 }
 
                 break;
             case self::FILTER_NUMERIC_RANGE_SLIDER:
                 $rangeFilter = [];
                 $ignore = $filterConfig['ignore'] ?? [];
-                $ignore = is_array($ignore) ? $ignore : [ $ignore ];
+                $ignore = is_array($ignore) ? $ignore : [$ignore];
 
                 $value = $filterValue[0] ?? null;
-                if ( is_numeric($value) && !in_array(floatval($value), $ignore)) {
+                if (is_numeric($value) && !in_array(floatval($value), $ignore)) {
                     $rangeFilter['floor'] = floatval($value);
                 }
 
                 $value = $filterValue[1] ?? null;
-                if ( is_numeric($value) && !in_array(floatval($value), $ignore)) {
+                if (is_numeric($value) && !in_array(floatval($value), $ignore)) {
                     $rangeFilter['ceiling'] = floatval($value);
                 }
 
                 if ($rangeFilter) {
-                    $ret = $rangeFilter;
+                    $ret['value'] = $rangeFilter;
                 }
 
                 break;
             case self::FILTER_TEXT_MULTIPLE:
-                if ($filterValue === false) break;
+                if ($filterValue === null) break;
                 if (is_array($filterValue)) {
-                    $ret = $filterValue;
+                    $ret['value'] = $filterValue;
                 }
                 break;
             case self::FILTER_TEXT:
-                if ($filterValue === false) break;
+                if ($filterValue === null) break;
                 if (is_array($filterValue)) {
-                    $ret = $filterValue;
+                    $ret['value'] = $filterValue;
                 }
                 if (is_string($filterValue)) {
                     $combination = $params[$filterName . '_combination'] ?? 'any';
                     $combination = in_array($combination, ['any', 'all', 'phrase'], true) ? $combination : 'any';
 
-                    $ret = [
+                    $ret['value'] = [
                         'text' => $filterValue,
                         'combination' => $combination
                     ];
                 }
                 break;
             default:
-                if ($filterValue === false) break;
+                if ($filterValue === null) break;
                 if (is_string($filterValue)) {
-                    $ret = $filterValue;
+                    $ret['value'] = $filterValue;
                 }
                 if (is_array($filterValue)) {
-                    $ret = $filterValue;
+                    $ret['value'] = $filterValue;
                 }
                 break;
         }
         return $ret;
     }
 
-    protected function sanitizeSearchFilters(array $params): array
+    private final function sanitizeSearchFilterConfig(string $name, array $config): array
     {
-        // Init Filters
-        $filterDefaults = $this->getDefaultSearchFilters();
-        $filters = $filterDefaults;
-
-        // Validate values
-        $filterConfigs = $this->getSearchFilterConfig();
-
-        foreach ($filterConfigs as $filterName => $filterConfig) {
-            // filterValue = fixed value || query value || default value || false
-            $filterValue = $filterConfig['value'] ?? $params[$filterName] ?? $filterConfig['defaultValue'] ?? false;
-
-            // filter has subfilters?
-            if ($filterConfig['filters'] ?? false) {
-                foreach ($filterConfig['filters'] as $subFilterName => $subFilterConfig) {
-                    // filterValue = fixed value || query value || default value || false
-                    $subFilterValue = $subFilterConfig['value'] ?? $params[$subFilterName] ?? $subFilterConfig['defaultValue'] ?? false;
-                    if ($subFilterValue === false) continue;
-                    if ($subFilterConfig)
-                        $ret = $this->sanitizeSearchFilter($subFilterValue, $subFilterConfig, $subFilterName, $params);
-                    if (!is_null($ret)) {
-                        $filters[$subFilterName] = $ret;
-                    }
-                }
-            } else {
-                // no subfilters
-                $filterValue = $this->sanitizeSearchFilter($filterValue, $filterConfig, $filterName, $params);
-                if ( !is_null($filterValue) ) {
-                    $filters[$filterName] = $filterValue;
-                }
+        $config['name'] = $name;
+        $config['type'] = $config['type'] ?? self::DEFAULT_FILTER_TYPE;
+        if ( $config['type'] !== self::FILTER_NESTED_MULTIPLE ) {
+            $config['field'] = $config['field'] ?? $config['name'];
+        }
+        if($this->isNestedFilter($config)) {
+            $config['nested_path'] = $config['nested_path'] ?? $config['name'];
+        }
+        if($config['filters'] ?? []) {
+            foreach($config['filters'] as $sub_name => $sub_config) {
+                $sub_config['fieldPrefix'] = $config['nested_path'] ?? null;
+                $config['filters'][$sub_name] = $this->sanitizeSearchFilterConfig($sub_name, $sub_config);
             }
         }
-
-        return $filters;
+        return $config;
     }
 
-    protected function sanitizeSearchResult(array $result) {
-        return $result;
-    }
-
-    public function searchRaw(array $params = null, array $fields = null): array
+    private final function sanitizeAggregationConfig(string $name, array $config): array
     {
-        // sanitize search parameters
-        $searchParams = $this->sanitizeSearchParameters($params, false);
-
-        // Construct query
-        $query = new Query();
-
-        // Number of results
-        if (isset($searchParams['limit']) && is_numeric($searchParams['limit'])) {
-            $query->setSize(min($searchParams['limit'], static::SEARCH_RAW_MAX_RESULTS)); //todo; fix this!
-        } else {
-            $query->setSize(static::SEARCH_RAW_MAX_RESULTS);
-        }
-
-        // Pagination
-        if (isset($searchParams['page']) && is_numeric($searchParams['page']) &&
-            isset($searchParams['limit']) && is_numeric($searchParams['limit'])
-        ) {
-            $query->setFrom(($searchParams['page'] - 1) * $searchParams['limit']);
-        }
-
-        // Sorting
-        if (isset($searchParams['orderBy'])) {
-            if (isset($searchParams['ascending']) && $searchParams['ascending'] == 0) {
-                $order = 'desc';
-            } else {
-                $order = 'asc';
-            }
-            $sort = [];
-            foreach ($searchParams['orderBy'] as $field) {
-                $sort[] = [$field => $order];
-            }
-            $query->setSort($sort);
-        }
-
-        // Set result fields
-        // todo: better use fields option?
-        if ( $fields ) {
-            $query->setSource($fields);
-        }
-
-        // Filtering
-        $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
-        if ( count($searchFilters) ) {
-            $searchQuery = $this->createSearchQuery($searchFilters);
-            $query->setQuery($searchQuery);
-        }
-
-        // Search
-        $data = $this->getIndex()->search($query)->getResponse()->getData();
-
-        // Format response
-        $response = [
-            'count' => $data['hits']['total']['value'] ?? 0,
-            'data' => [],
-        ];
-
-        // Build array to remove _stemmer or _original blow
-        $rename = [];
-        $filterConfigs = $this->getSearchFilterConfig();
-        foreach ($filterConfigs as $filterName => $filterConfig)
-        {
-            switch ($filterConfig['type'] ?? null) {
-                case self::FILTER_TEXT:
-                    $filterValue = $filterValues[$filterName] ?? null;
-                    if (isset($filterValue['field'])) {
-                        $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
-                    }
-                    break;
-                case self::FILTER_TEXT_MULTIPLE:
-                    $filterValues = $filterValues[$filterName] ?? null;
-                    if ( is_array($filterValues) ) {
-                        foreach($filterValues as $filterValue) {
-                            if (isset($filterValue['field'])) {
-                                $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
-                            }
-                        }
-                    }
-                    break;
-            }
-        }
-        foreach ( ($data['hits']['hits'] ?? []) as $result) {
-            $part = $result['_source'];
-            // Remove _stemmer or _original
-            foreach ($rename as $key => $value) {
-                if (isset($part[$key])) {
-                    $part[$value] = $part[$key];
-                    unset($part[$key]);
-                }
-                if (isset($part['original_' . $key])) {
-                    $part['original_' . $value] = $part['original_' . $key];
-                    unset($part['original_' . $key]);
-                }
-            }
-
-            // add inner_hits
-            if ( isset($result['inner_hits']) ) {
-                $part['inner_hits'] = [];
-                foreach( $result['inner_hits'] as $field_name => $inner_hit ) {
-                    $values = [];
-                    foreach($inner_hit['hits']['hits'] as $hit) {
-                        $values[] = $hit['_source'];
-                    }
-                    $part['inner_hits'][$field_name] = $values;
-                }
-            }
-
-            // sanitize result
-            $response['data'][] = $part;
-        }
-
-        unset($data);
-
-        return $response;
+        $config['name'] = $name;
+        return $config;
     }
 
-    protected function search(array $params = null): array
+    protected function getDefaultSearchFilters(): array
     {
-        // sanitize search parameters
-        $searchParams = $this->sanitizeSearchParameters($params);
-
-        // Construct query
-        $query = new Query();
-        // Number of results
-        if (isset($searchParams['limit']) && is_numeric($searchParams['limit'])) {
-            $query->setSize($searchParams['limit']);
-        }
-
-        // Pagination
-        if (isset($searchParams['page']) && is_numeric($searchParams['page']) &&
-            isset($searchParams['limit']) && is_numeric($searchParams['limit'])
-        ) {
-            $query->setFrom(($searchParams['page'] - 1) * $searchParams['limit']);
-        }
-
-        // Sorting
-        if (isset($searchParams['orderBy'])) {
-            if (isset($searchParams['ascending']) && $searchParams['ascending'] == 0) {
-                $order = 'desc';
-            } else {
-                $order = 'asc';
-            }
-            $sort = [];
-            foreach ($searchParams['orderBy'] as $field) {
-                $sort[] = [$field => $order];
-            }
-            $query->setSort($sort);
-        }
-
-        // Filtering
-//        dump($params);
-        $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
-        if ( count($searchFilters) ) {
-//            dump($searchFilters);
-            $searchQuery = $this->createSearchQuery($searchFilters);
-            $query->setQuery($searchQuery);
-            $query->setHighlight($this->createHighlight($searchFilters));
-//            dump(json_encode($query->toArray(), JSON_PRETTY_PRINT));
-        }
-
-        // Search
-        $data = $this->getIndex()->search($query)->getResponse()->getData();
-
-        // Format response
-        $response = [
-            'count' => $data['hits']['total']['value'] ?? 0,
-            'data' => [],
-            'search' => $searchParams,
-            'filters' => $searchFilters
-        ];
-
-        // Build array to remove _stemmer or _original blow
-        $rename = [];
-        $filterConfigs = $this->getSearchFilterConfig();
-        foreach ($filterConfigs as $filterName => $filterConfig)
-        {
-            switch ($filterConfig['type'] ?? null) {
-                case self::FILTER_TEXT:
-                    $filterValue = $filterValues[$filterName] ?? null;
-                    if (isset($filterValue['field'])) {
-                        $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
-                    }
-                    break;
-                case self::FILTER_TEXT_MULTIPLE:
-                    $filterValues = $filterValues[$filterName] ?? null;
-                    if ( is_array($filterValues) ) {
-                        foreach($filterValues as $filterValue) {
-                            if (isset($filterValue['field'])) {
-                                $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
-                            }
-                        }
-                    }
-                    break;
-            }
-        }
-        foreach ( ($data['hits']['hits'] ?? []) as $result) {
-            $part = $result['_source'];
-            if (isset($result['highlight'])) {
-                foreach ($result['highlight'] as $key => $value) {
-                    $part['original_' . $key] = $part[$key];
-                    $part[$key] = self::formatHighlight($value[0]);
-                }
-            }
-            // Remove _stemmer or _original
-            foreach ($rename as $key => $value) {
-                if (isset($part[$key])) {
-                    $part[$value] = $part[$key];
-                    unset($part[$key]);
-                }
-                if (isset($part['original_' . $key])) {
-                    $part['original_' . $value] = $part['original_' . $key];
-                    unset($part['original_' . $key]);
-                }
-            }
-
-            // add inner_hits
-            if ( isset($result['inner_hits']) ) {
-                $part['inner_hits'] = [];
-                foreach( $result['inner_hits'] as $field_name => $inner_hit ) {
-                    $values = [];
-                    foreach($inner_hit['hits']['hits'] ?? [] as $hit) {
-                        if ( $hit['_source'] ?? false ) {
-                            $values[] = $hit['_source'];
-                        }
-                    }
-                    $part['inner_hits'][$field_name] = $values;
-                }
-            }
-
-            // sanitize result
-            $response['data'][] = $this->sanitizeSearchResult($part);
-        }
-
-        return $response;
+        return [];
     }
 
+    protected function getDefaultSearchParameters(): array
+    {
+        return [];
+    }
 
     /**
-     * Return filters that are used in aggregations
-     * Todo: Now based on aggregation type or config (mostly nested), should be based on aggregation config check!
+     * Add search filter details to search service
+     * Return array of search_field => [
+     *  'type' => aggregation type
+     * ]
+     * @return array
      */
-    private function getAggregationFilters(): array {
+    protected abstract function getSearchFilterConfig(): array;
 
-        $filters = $this->getSearchFilterConfig();
-        $aggOrFilters = [];
-        foreach( $filters as $filterName => $filterConfig ) {
-            $filterType = $filterConfig['type'];
-            switch($filterType) {
-                case self::FILTER_NESTED_ID:
-                case self::FILTER_OBJECT_ID:
-                case self::FILTER_NESTED_MULTIPLE:
-                    if ( ($aggConfig['aggregationFilter'] ?? true) ) {
-                        $aggOrFilters[$filterName] = $filterConfig;
-                    }
-                    break;
-            }
-        }
+    /**
+     * Add aggregation details to search service
+     * Return array of aggregation_field => [
+     *  'type' => aggregation type
+     * ]
+     * @return array
+     */
+    protected abstract function getAggregationConfig(): array;
 
-        return $aggOrFilters;
-    }
-
-    protected function aggregate(array $filterValues): array
+    private function getSanitizedAggregationConfig(): array
     {
-        // get agg config
-        $aggConfigs = $this->getAggregationConfig();
-//        dump($aggConfigs);
-        if ( !count($aggConfigs) ) {
-            return [];
+        static $config = null;
+
+        if ($config) {
+            return $config;
         }
 
-        // sanitize filter values
-        $filterValues = $this->sanitizeSearchFilters($filterValues);
-
-        // get filters used in multiselect aggregations
-        $aggFilterConfigs = $this->getAggregationFilters($filterValues);
-
-        // create global search query
-        // exclude filters used in multiselect aggregations, will be added as aggregation filters
-        $query = (new Query())
-            ->setQuery($this->createSearchQuery($filterValues, array_keys($aggFilterConfigs)))
-            ->setSize(0); // Only aggregation will be used
-
-        // create global aggregation (unfiltered, full dataset)
-        // global aggregations will be added as sub-aggregations to this aggregation
-        $aggGlobalQuery = new Aggregation\GlobalAggregation("global_aggregation");
-        $query->addAggregation($aggGlobalQuery);
-
-        // walk aggregation configs
-        foreach($aggConfigs as $aggName => $aggConfig) {
-            // aggregation type
-            $aggType = $aggConfig['type'];
-
-            // global aggregation
-            $aggIsGlobal = $this->isGlobalAggregation($aggConfig);
-
-            // aggregation field = field property or config name
-            $aggField = $aggConfig['field'] ?? $aggName;
-
-            // query root
-            $aggParentQuery = $aggIsGlobal ? $aggGlobalQuery : $query;
-
-            // add aggregation filter (if not global)
-            // - remove excludeFilter
-            // - don't filter myself
-            if ( !$aggIsGlobal ) {
-                $aggSearchFilters = array_diff_key($aggFilterConfigs, array_flip($aggConfig['excludeFilter'] ?? []));
-                unset($aggSearchFilters[$aggName]);
-
-                if (count($aggSearchFilters)) {
-                    $filterQuery = $this->createSearchQuery($filterValues, [], $aggSearchFilters);
-                    if ( $filterQuery->count() ) {
-                        $aggSubQuery = new Aggregation\Filter($aggName);
-                        $aggSubQuery->setFilter($filterQuery);
-
-                        $aggParentQuery->addAggregation($aggSubQuery);
-                        $aggParentQuery = $aggSubQuery;
-                    }
-                }
-            }
-
-            // nested aggregation?
-            $aggIsNested = $this->isNestedAggregation($aggConfig);
-            if ( $aggIsNested ) {
-                // add nested path to filed
-                $aggNestedPath = $aggConfig['nested_path'] ?? $aggName;
-                $aggField = isset($aggConfig['nested_path']) ? $aggConfig['nested_path'].'.'.$aggField : $aggField;
-
-                // add nested aggregation
-                $aggSubQuery = new Aggregation\Nested($aggName, $aggNestedPath);
-                $aggParentQuery->addAggregation($aggSubQuery);
-                $aggParentQuery = $aggSubQuery;
-
-                // prepare possible aggregation filter
-                $filterQuery = new Query\BoolQuery();
-                $filterCount = 0;
-
-                // aggregation has filter config?
-                $aggNestedFilter = $aggConfig['filter'] ?? [];
-                unset($aggNestedFilter[$aggName]); // do not filter myself
-                $aggNestedFilter = array_intersect_key($aggNestedFilter, $filterValues); // only add filters with values
-
-                if ($aggNestedFilter) {
-                    foreach($aggNestedFilter as $queryFilterField => $aggFilterConfig ) {
-                        $filterCount++;
-                        $aggFilterConfig = is_string($aggFilterConfig) ? [ 'field' => $aggFilterConfig, 'type' => self::FILTER_KEYWORD ] : $aggFilterConfig;
-                        $aggFilterConfig['name'] = $queryFilterField;
-                        $aggFilterField = $aggFilterConfig['field'] ?? $queryFilterField;
-                        $aggFilterType = $aggFilterConfig['type'];
-
-                        switch ($aggFilterType) {
-                            case self::FILTER_OBJECT_ID:
-                                $aggFilterField .= '.id';
-                                break;
-                        }
-
-                        if ( is_array($filterValues[$queryFilterField]) ) {
-                            $filterQuery->addFilter(
-                                new Query\Terms($aggNestedPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
-                            );
-                        } else {
-                            $filterQuery->addFilter(
-                                (new Query\Term())
-                                    ->setTerm($aggNestedPath.'.'.$aggFilterField, $filterValues[$queryFilterField])
-                            );
-                        }
-                    }
-                }
-
-                // aggregation has a limit on allowed values?
-                if ( $aggConfig['allowedValue'] ?? false ) {
-                    $filterCount++;
-                    $allowedValue = $aggConfig['allowedValue'];
-                    if ( is_array($allowedValue) ) {
-                        $filterQuery->addFilter(
-                            new Query\Terms($aggField, $allowedValue)
-                        );
-                    } else {
-                        $filterQuery->addFilter(
-                            (new Query\Term())
-                                ->setTerm($aggField, $allowedValue)
-                        );
-                    }
-                }
-
-                // filter aggregation?
-                if ( $filterCount ) {
-                    $aggSubQuery = new Aggregation\Filter($aggName);
-                    $aggSubQuery->setFilter($filterQuery);
-
-                    $aggParentQuery->addAggregation($aggSubQuery);
-                    $aggParentQuery = $aggSubQuery;
-                }
-
-            }
-
-            // add aggregation
-            $aggTerm = null;
-            switch($aggType) {
-                case self::AGG_GLOBAL_STATS:
-                    $aggParentQuery->addAggregation(
-                        (new Aggregation\Stats($aggName))
-                            ->setField($aggField)
-                    );
-                    break;
-                case self::AGG_KEYWORD:
-                    $aggField = $aggField.'.keyword';
-
-                    $aggTerm = (new Aggregation\Terms($aggName))
-                        ->setSize(self::MAX_AGG)
-                        ->setField($aggField);
-                    $aggParentQuery->addAggregation($aggTerm);
-
-                    break;
-                case self::AGG_BOOLEAN:
-                case self::AGG_NUMERIC:
-                    $aggTerm = (new Aggregation\Terms($aggName))
-                        ->setSize(self::MAX_AGG)
-                        ->setField($aggField);
-                    $aggParentQuery->addAggregation($aggTerm);
-
-                    break;
-                case self::AGG_OBJECT_ID_NAME:
-                case self::AGG_NESTED_ID_NAME:
-                    $aggField = $aggField.'.id_name.keyword';
-
-                    $aggTerm = (new Aggregation\Terms($aggName))
-                        ->setSize(self::MAX_AGG)
-                        ->setField($aggField);
-                    $aggParentQuery->addAggregation($aggTerm);
-
-                    break;
-            }
-
-            // count top documents?
-            if ( $aggIsNested && $aggTerm ) {
-                $aggTerm->addAggregation( new Aggregation\ReverseNested('top_reverse_nested') );
-            }
-
+        $config = $this->getAggregationConfig();
+        foreach ($config as $filterName => $filterConfig) {
+            $config[$filterName] = $this->sanitizeAggregationConfig($filterName, $filterConfig);
         }
+        return $config;
 
-//        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
-
-        // parse query result
-        $searchResult = $this->getIndex()->search($query);
-        $results = [];
-
-        $arrAggData = $searchResult->getAggregations();
-//        dump($arrAggData);
-
-        foreach($aggConfigs as $aggName => $aggConfig) {
-            $aggType = $aggConfig['type'];
-
-            // get aggregation results
-            $aggResults = $arrAggData['global_aggregation'][$aggName] ?? $arrAggData[$aggName] ?? [];
-
-            // local/global filtered?
-            while ( isset($aggResults[$aggName]) ) {
-                $aggResults = $aggResults[$aggName];
-            }
-            $aggResults = $aggResults['buckets'] ?? $aggResults;
-
-            switch($aggType) {
-                case self::AGG_GLOBAL_STATS:
-                    $results[$aggName] = $aggResults;
-                    break;
-                case self::AGG_NUMERIC:
-                case self::AGG_KEYWORD:
-                    foreach ($aggResults as $result) {
-                        if ( !isset($result['key']) ) continue;
-                        if ( count($aggConfig['limitValue'] ?? []) && !in_array($result['key'], $aggConfig['limitValue'], true) ) {
-                            continue;
-                        }
-                        $results[$aggName][] = [
-                            'id' => $result['key'],
-                            'name' => str_replace("morpho_syntactical", "syntax", $result['key']), // todo: DIRTY QUICK FIX!!
-                            'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
-                        ];
-                    }
-//                    $this->sortAggregationResult($results[$aggName]);
-                    break;
-                case self::AGG_OBJECT_ID_NAME:
-                case self::AGG_NESTED_ID_NAME:
-                    foreach ($aggResults as $result) {
-                        if ( !isset($result['key']) ) continue;
-                        $parts = explode('_',$result['key'],2);
-                        // limitValue/limitId?
-                        if ( count($aggConfig['limitId'] ?? []) && !in_array((int) $parts[0], $aggConfig['limitId'], true) ) {
-                            continue;
-                        }
-                        if ( count($aggConfig['limitValue'] ?? []) && !in_array((int) $parts[1], $aggConfig['limitValue'], true) ) {
-                            continue;
-                        }
-                        // ignoreValue?
-                        if ( count($aggConfig['ignoreValue'] ?? []) && in_array($parts[1], $aggConfig['ignoreValue'], true) ) {
-                            continue;
-                        }
-
-                        $results[$aggName][] = [
-                            'id' => (int) $parts[0],
-                            'name' => $parts[1],
-                            'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
-                        ];
-                    }
-//                    $this->sortAggregationResult($results[$aggName]);
-                    break;
-                case self::AGG_BOOLEAN:
-                    foreach ($aggResults as $result) {
-                        if ( !isset($result['key']) ) continue;
-                        $results[$aggName][] = [
-                            'id' => $result['key'],
-                            'name' => $result['key_as_string'],
-                            'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
-                        ];
-                    }
-                    break;
-            }
-        }
-
-        return $results;
     }
 
-    public function searchAndAggregate(array $params): array
+    private function getSanitizedSearchFilterConfig(): array
     {
-        // search
-        $result = $this->search($params);
+        static $config = null;
 
-        // aggregate
-        $result['aggregation'] = $this->aggregate($params['filters'] ?? []);
+        if ($config) {
+            return $config;
+        }
 
-        return $result;
+        $config = $this->getSearchFilterConfig();
+        foreach ($config as $filterName => $filterConfig) {
+            $config[$filterName] = $this->sanitizeSearchFilterConfig($filterName, $filterConfig);
+        }
+        return $config;
     }
 
-    protected function addFieldQuery(Query\BoolQuery $query, array $filterConfig, array $filters) {
+    protected function createSearchQuery(array $filters, array $excludeConfigs = null, $useOnlyConfigs = null): Query\BoolQuery
+    {
+        $filterConfigs = $useOnlyConfigs ?? $this->getSanitizedSearchFilterConfig();
+
+        // parent query
+        $query = new Query\BoolQuery();
+
+        // walk filter configs
+        foreach ($filterConfigs as $filterName => $filterConfig) {
+            // skip excluded filters
+            if ($excludeConfigs && in_array($filterName, $excludeConfigs, true)) {
+                continue;
+            }
+
+            $this->addFieldQuery($query, $filterConfig, $filters);
+        }
+
+        return $query;
+    }
+
+    private function calculateFilterField($config): ?string
+    {
+        $filterField = $config['field'] ?? null;
+        if (!$filterField) {
+            return null;
+        }
+        if($config['nested_path'] ?? null) {
+            $filterField = $config['nested_path'] . ($filterField ? '.' . $filterField : '');
+        }
+        if ($config['fieldPrefix'] ?? null) {
+            $filterField = $config['fieldPrefix'] . ($filterField ? '.' . $filterField : '');
+        }
+
+        return $filterField;
+    }
+
+    protected function addFieldQuery(Query\BoolQuery $query, array $filterConfig, array $filters)
+    {
+        $query_top = $query;
+
+        // nested filter?
+        $boolIsNestedFilter = $this->isNestedFilter($filterConfig);
+
         $filterName = $filterConfig['name'];
-        $filterValue = $filterConfig['value'] ?? $filters[$filterName] ?? $filters['defaultValue'] ?? null; // filter can have fixed value
+        $filterField = $this->calculateFilterField($filterConfig);
+        $filterValue = $filterConfig['value'] ?? $filters[$filterName]['value'] ?? $filterConfig['defaultValue'] ?? null; // filter can have fixed value
         $filterType = $filterConfig['type'];
-        $filterField = $filterConfig['field'] ?? $filterName;
-        $filterPath = $filterConfig['nested_path'] ?? $filterName;
+        $filterNestedPath = $filterConfig['nested_path'] ?? null;
 
         // skip config if no subfilters and no filter value
-        if ( !isset($filterConfig['filters']) && !$filterValue ) {
+        if (!isset($filterConfig['filters']) && !$filterValue) {
             return;
         }
 
-        $boolIsNestedFilter = $this->isNestedFilter($filterConfig);
-        if ( $boolIsNestedFilter ) {
-            $filterField = isset($filterConfig['nested_path']) ? $filterConfig['nested_path'].'.'.$filterField : $filterField;
-
-            $subquery = new Query\BoolQuery();
-            $queryNested = (new Query\Nested())
-                ->setPath($filterPath)
-                ->setQuery($subquery);
-
-            // inner hits?
-            if ($filterConfig['innerHits'] ?? false) {
-                $innerHits = new Query\InnerHits();
-                if ( $filterConfig['innerHits']['size'] ?? false ) {
-                    $innerHits->setSize($filterConfig['innerHits']['size']);
-                }
-                $queryNested->setInnerHits($innerHits);
-            }
-
-            $query->addMust($queryNested);
-            $query = $subquery;
-        }
+        // nested filter? add nested query
+//        if ( $boolIsNestedFilter ) {
+//            $queryNested = self::createNestedQuery($filterNestedPath, $filterConfig);
+//            $subquery = $queryNested->getParam('query');
+//
+//            $query->addMust($queryNested);
+//            $query = $subquery;
+//        }
 
         switch ($filterType) {
             case self::FILTER_OBJECT_ID:
-                $filterField .= '.id';
-            case self::FILTER_KEYWORD: // includes FILTER_OBJECT_ID
-                // If value == -1, select all entries without a value for a specific field
-                if ($filterValue === -1) {
-                    $query->addMustNot(
-                        new Query\Exists($filterField)
-                    );
-                    break;
-                }
-            case self::FILTER_NUMERIC: // includes FILTER_OBJECT_ID & FILTER_KEYWORD
-                if (is_array($filterValue)) {
-                    $filterQuery = new Query\Terms($filterField, $filterValue);
-                    $query->addMust($filterQuery);
+            case self::FILTER_NESTED_ID:
+            case self::FILTER_KEYWORD:
+            case self::FILTER_NUMERIC:
+                $arrSuffix = [
+                    self::FILTER_OBJECT_ID => '.id',
+                    self::FILTER_NESTED_ID => '.id',
+                    self::FILTER_KEYWORD => '.keyword',
+                ];
+
+                $filterFieldId = $filterField . ($arrSuffix[$filterType] ?? '');
+                $filterFieldCount = $filterField . '_count';
+                $filterOperator = $filters[$filterName]['operator'];
+
+                // AND operator? or default OR operator?
+                if (in_array('and', $filterOperator, true)) {
+                    $query = new Query\BoolQuery();
+
+                    foreach ($filterValue as $value) {
+                        // nested query? create nested query for each value
+                        if ($boolIsNestedFilter) {
+                            // create nested query
+                            $queryNested = self::createNestedQuery($filterNestedPath, $filterConfig);
+                            $query_filters = $queryNested->getParam('query');
+                            // add nested query to main query, basted on operator
+                            $query->addFilter($queryNested);
+                        } else {
+                            $query_filters = $query;
+                        }
+
+                        // If value == -1, select all entries without a value for a specific field
+                        if ($value === -1) {
+                            $query_filters->addMustNot(new Query\Exists($filterFieldId));
+                        } else {
+                            $query_filters->addMust(self::createTermQuery($filterFieldId, $value));
+                        }
+                    }
+                    if ($query->count()) {
+                        in_array('not', $filterOperator, true) ? $query_top->addMustNot($query) : $query_top->addFilter($query);
+                        // only these allowed?
+                        // todo: what if count field inside nested?
+                        if (in_array('only', $filterOperator, true)) {
+                            $query_top->addMust((new Query\Term())->setTerm($filterFieldCount, count($filterValue)));
+                        }
+                    }
                 } else {
-                    $filterQuery = new Query\Term();
-                    $filterQuery->setTerm($filterField, $filterValue);
-                    $query->addMust($filterQuery);
+                    // nested query?
+                    if ($boolIsNestedFilter) {
+                        // create nested query
+                        $query = self::createNestedQuery($filterNestedPath, $filterConfig);
+                        $query_filters = $query->getParam('query');
+                    } else {
+                        $query_filters = $query = new Query\BoolQuery();
+                    }
+
+                    $query_filters_count = 0;
+                    foreach ($filterValue as $value) {
+                        if ($value === -1) {
+                            $query_filters->addShould((new Query\BoolQuery())->addMustNot(new Query\Exists($filterFieldId)));
+                        } else {
+                            $query_filters->addShould(self::createTermQuery($filterFieldId, $value));
+                            $query_filters_count++;
+                        }
+                    }
+
+                    if ($query_filters->count()) {
+                        in_array('not', $filterOperator, true) ? $query_top->addMustNot($query) : $query_top->addFilter($query);
+                        // allow
+                        if (in_array('only', $filterOperator, true)) {
+                            $query_top->addMust((new Query\Term())->setTerm($filterFieldCount, count($filterValue)));
+                        }
+                    }
                 }
+
                 break;
             case self::FILTER_BOOLEAN:
-                $filterQuery = new Query\Term();
-                $filterQuery->setTerm($filterField, $filterValue);
+                if ($filterConfig['only_filter_on_true'] ?? false) {
+                    if ($filterValue) {
+                        $filterQuery = new Query\Term();
+                        $filterQuery->setTerm($filterField, $filterValue ? $filterConfig['true_value'] ?? true : $filterConfig['false_value'] ?? false);
 
-                $query->addMust( $filterQuery );
+                        $query->addMust($filterQuery);
+                    }
+                } else {
+                    $filterQuery = new Query\Term();
+                    $filterQuery->setTerm($filterField, $filterValue ? $filterConfig['true_value'] ?? true : $filterConfig['false_value'] ?? false);
+
+                    $query->addMust($filterQuery);
+                }
                 break;
             case self::FILTER_WILDCARD:
                 $filterQuery = new Query\Wildcard($filterField, $filterValue);
-                $query->addMust( $filterQuery );
+                $query->addMust($filterQuery);
                 break;
             case self::FILTER_TEXT:
                 $query->addMust(self::constructTextQuery($filterField, $filterValue));
@@ -861,6 +495,64 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     );
                 }
                 break;
+            case self::FILTER_DMY_RANGE:
+                if (($filterValue['type'] ?? null) === 'exact') {
+                    foreach ($filterValue['from'] as $datePart => $value) {
+                        // todo: add datepart field option
+                        if ($value) {
+                            $query->addMust(
+                                (new Query\Term())->setTerm($filterField . '.' . $datePart, $value)
+                            );
+                        }
+                    }
+                }
+                if (($filterValue['type'] ?? null) === 'range') {
+                    $dateParts = ['year', 'month', 'day'];
+
+                    $count = count(array_filter($filterValue['from']));
+                    $fromCarry = [];
+                    $tillCarry = [];
+                    $i = 0;
+
+                    $fromQuery = new Query\BoolQuery();
+                    $tillQuery = new Query\BoolQuery();
+
+                    foreach ($dateParts as $datePart) {
+                        if (!is_null($filterValue['from'][$datePart] ?? null) && !is_null($filterValue['till'][$datePart] ?? null)) {
+                            $fromQueryPart = new Query\BoolQuery();
+                            $tillQueryPart = new Query\BoolQuery();
+
+                            $i++;
+                            foreach ($fromCarry as $carryDatePart) {
+                                $fromQueryPart->addMust((new Query\Term())->setTerm($filterField . '.' . $carryDatePart, $filterValue['from'][$carryDatePart]));
+                                $tillQueryPart->addMust((new Query\Term())->setTerm($filterField . '.' . $carryDatePart, $filterValue['till'][$carryDatePart]));
+                            }
+                            $operator = ($i === $count) ? 'gte' : 'gt';
+                            $fromQueryPart->addMust((new Query\Range())->addField($filterField . '.' . $datePart, [$operator => $filterValue['from'][$datePart]]));
+                            $operator = ($i === $count) ? 'lte' : 'lt';
+                            $tillQueryPart->addMust((new Query\Range())->addField($filterField . '.' . $datePart, [$operator => $filterValue['till'][$datePart]]));
+                            $fromCarry[] = $datePart;
+
+                            $fromQuery->addShould($fromQueryPart);
+                            $tillQuery->addShould($tillQueryPart);
+                        }
+                    }
+
+                    if ($fromQuery->count()) {
+                        $query->addMust($fromQuery);
+                    }
+                    if ($tillQuery->count()) {
+                        $query->addMust($tillQuery);
+                    }
+                    /*
+                    year > from[year] or
+                    OR ( year == from[year] and ( month > from[month] )
+                    OR ( year == from[year] and ( month == from[month] ) and ( day >= from[day] )
+
+*/
+                }
+                break;
+
             case self::FILTER_DATE_RANGE:
                 // The data interval must exactly match the search interval
                 if (isset($filterValue['type']) && $filterValue['type'] == 'exact') {
@@ -954,102 +646,348 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     );
                 }
                 break;
-            case self::FILTER_NESTED_ID:
-                $filterFieldId = $filterField.".id";
 
-                // multiple values?
-                if ( is_array($filterValue) ) {
-                    $subquery = new Query\BoolQuery();
-                    foreach( $filterValue as $val) {
-                        $subquery->addShould(['match' => [$filterFieldId => $val]]);
-                    }
-
-//                    // create nested query
-//                    $queryNested = (new Query\Nested())
-//                        ->setPath($filterPath)
-//                        ->setQuery($subquery);
-//
-//                    // inner hits?
-//                    if ($filterConfig['innerHits'] ?? false) {
-//                        $innerHits = new Query\InnerHits();
-//                        if ( $filterConfig['innerHits']['size'] ?? false ) {
-//                            $innerHits->setSize($filterConfig['innerHits']['size']);
-//                        }
-//                        $queryNested->setInnerHits($innerHits);
-//                    }
-
-                    $query->addMust($subquery);
-                }
-                // single value
-                else {
-                    // If value == -1, select all entries without a value for a specific field
-                    if ($filterValue == -1) {
-                        $query->addMustNot(new Query\Exists($filterField));
-                    } else {
-                        $query->addMust(['match' => [$filterFieldId => $filterValue]]);
-                    }
-                }
-                break;
             case self::FILTER_NESTED_MULTIPLE:
                 $filterPath = $filterConfig['nested_path'] ?? $filterName;
+
+                // create nested query
+                $queryNested = self::createNestedQuery($filterNestedPath, $filterConfig);
+                $subquery = $queryNested->getParam('query');
+
+                $query->addMust($queryNested);
+                $query = $subquery;
 
                 // subfilters with values
                 $subFilters = array_intersect_key($filterConfig['filters'] ?? [], $filters);
 
                 // add subfilters
                 if (count($subFilters)) {
-                    $subquery = new Query\BoolQuery();
-                    foreach($subFilters as $subFilterName => $subFilterConfig) {
-//                        $subFilterValue = $subFilterConfig['value'] ?? $filters[$subFilterName] ?? $subFilterConfig['defaultValue'] ?? null;
-                        $subFilterConfig['field'] = $subFilterConfig['field'] ?? $subFilterName;
-                        $subFilterConfig['field'] = isset($filterConfig['nested_path']) ? $filterConfig['nested_path'].'.'.$subFilterConfig['field'] : $subFilterConfig['field'];
-                        $subFilterConfig['type'] = $subFilterConfig['type'] ?? self::FILTER_KEYWORD;
-                        $subFilterConfig['name'] = $subFilterName;
+                    foreach ($subFilters as $subFilterName => $subFilterConfig) {
+//                        $subFilterConfig['name'] = $subFilterName;
+//                        $subFilterConfig['field'] = $subFilterConfig['field'] ?? $subFilterName;
+//                        $subFilterConfig['fieldPrefix'] = $filterPath;
+//                        $subFilterConfig['type'] = $subFilterConfig['type'] ?? self::FILTER_KEYWORD; // legacy?
 
-                        $this->addFieldQuery($subquery, $subFilterConfig, $filters);
+                        $this->addFieldQuery($query, $subFilterConfig, $filters);
                     }
-
-//                    // create nested query
-//                    $queryNested = (new Query\Nested())
-//                        ->setPath($filterPath)
-//                        ->setQuery($subquery);
-//
-//                    // inner hits?
-//                    if ($filterConfig['innerHits'] ?? false) {
-//                        $innerHits = new Query\InnerHits();
-//                        if ( $filterConfig['innerHits']['size'] ?? false ) {
-//                            $innerHits->setSize($filterConfig['innerHits']['size']);
-//                        }
-//                        $queryNested->setInnerHits($innerHits);
-//                    }
-
-                    $query->addMust($subquery);
                 }
                 break;
         }
     }
 
-    protected function createSearchQuery(array $filters, array $excludeConfigs = null, $useOnlyConfigs = null): Query\BoolQuery
+    protected function isNestedFilter($config)
     {
-        $filterConfigs = $useOnlyConfigs ?? $this->getSearchFilterConfig();
+        return (in_array($config['type'], [self::FILTER_NESTED_ID, self::FILTER_NESTED_MULTIPLE], true) || ($config['nested_path'] ?? false));
+    }
 
-        // parent query
-        $query = new Query\BoolQuery();
+    private static function createNestedQuery(string $filterNestedPath, array $filterConfig = []): Query\Nested
+    {
+        // create nested query
+        $queryNested = (new Query\Nested())
+            ->setPath($filterNestedPath)
+            ->setQuery(new Query\BoolQuery());
 
-        // walk filter configs
-        foreach ($filterConfigs as $filterName => $filterConfig) {
-                        // skip excluded filters
-            if ( $excludeConfigs && in_array($filterName, $excludeConfigs, true) ) {
-                continue;
+        // add inner hits?
+        if ($filterConfig['innerHits'] ?? false) {
+            $innerHits = new Query\InnerHits();
+            if ($filterConfig['innerHits']['size'] ?? false) {
+                $innerHits->setSize($filterConfig['innerHits']['size']);
             }
-
-            $filterConfig['name'] = $filterName;
-
-            $this->addFieldQuery($query, $filterConfig, $filters);
+            $queryNested->setInnerHits($innerHits);
         }
 
-        return $query;
+        return $queryNested;
     }
+
+    private static function createTermQuery(string $field, $value): Query\Term
+    {
+        return (new Query\Term())->setTerm($field, $value);
+    }
+
+    /**
+     * Construct a text query
+     * @param string $key Elasticsearch field to match (unless $value['field']) is provided
+     * @param array $value Array with [combination] of match (any, all, phrase), the [text] to search for and optionally the [field] to search in (if not provided, $key is used)
+     * @return AbstractQuery
+     */
+    protected static function constructTextQuery(string $key, array $value): AbstractQuery
+    {
+        // Verse initialization
+        if (isset($value['init']) && $value['init']) {
+            return new Query\MatchPhrase($key, $value['text']);
+        }
+
+        $field = $value['field'] ?? $key;
+        // Replace multiple spaces with a single space
+        $text = preg_replace('!\s+!', ' ', $value['text']);
+
+        // Remove colons
+        $text = str_replace(':', '', $text);
+
+        // Check if user does not use advanced syntax
+        if (preg_match('/AND|OR|[\/~\-"()]/', $text) === 0) {
+            if ($value['combination'] == 'phrase') {
+                if (preg_match('/[*?]/', $text) === 0) {
+                    $text = '"' . $text . '"';
+                } else {
+                    $text = implode(' AND ', explode(' ', $text));
+                }
+            } elseif ($value['combination'] == 'all') {
+                $text = implode(' AND ', explode(' ', $text));
+            }
+        }
+
+        return (new Query\QueryString($text))->setDefaultField($field);
+    }
+
+    public function searchAndAggregate(array $params): array
+    {
+        // search
+        $result = $this->search($params);
+
+        // aggregate
+        $result['aggregation'] = $this->aggregate($params['filters'] ?? []);
+
+        return $result;
+    }
+
+    protected function search(array $params = null): array
+    {
+        // sanitize search parameters
+        $searchParams = $this->sanitizeSearchParameters($params);
+
+        // Construct query
+        $query = new Query();
+        // Number of results
+        if (isset($searchParams['limit']) && is_numeric($searchParams['limit'])) {
+            $query->setSize($searchParams['limit']);
+        }
+
+        // Pagination
+        if (isset($searchParams['page']) && is_numeric($searchParams['page']) &&
+            isset($searchParams['limit']) && is_numeric($searchParams['limit'])
+        ) {
+            $query->setFrom(($searchParams['page'] - 1) * $searchParams['limit']);
+        }
+
+        // Sorting
+        if (isset($searchParams['orderBy'])) {
+            if (isset($searchParams['ascending']) && $searchParams['ascending'] == 0) {
+                $order = 'desc';
+            } else {
+                $order = 'asc';
+            }
+            $sort = [];
+            foreach ($searchParams['orderBy'] as $field) {
+                $sort[] = [$field => $order];
+            }
+            $query->setSort($sort);
+        }
+
+        // Track total number of hits
+        $query->setTrackTotalHits();
+
+        // Filtering
+//        dump($params);
+        $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
+        if (count($searchFilters)) {
+//            dump($searchFilters);
+            $query->setQuery($this->createSearchQuery($searchFilters));
+            $query->setHighlight($this->createHighlight($searchFilters));
+            dump(json_encode($query->toArray(), JSON_PRETTY_PRINT));
+        }
+
+        // Search
+        $data = $this->getIndex()->search($query)->getResponse()->getData();
+
+        // Format response
+        $response = [
+            'count' => $data['hits']['total']['value'] ?? 0,
+            'data' => [],
+            'search' => $searchParams,
+            'filters' => $searchFilters
+        ];
+
+        // Build array to remove _stemmer or _original blow
+        $rename = [];
+        $filterConfigs = $this->getSanitizedSearchFilterConfig();
+        foreach ($filterConfigs as $filterName => $filterConfig) {
+            switch ($filterConfig['type'] ?? null) {
+                case self::FILTER_TEXT:
+                    $filterValue = $filterValues[$filterName] ?? null;
+                    if (isset($filterValue['field'])) {
+                        $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
+                    }
+                    break;
+                case self::FILTER_TEXT_MULTIPLE:
+                    $filterValues = $filterValues[$filterName] ?? null;
+                    if (is_array($filterValues)) {
+                        foreach ($filterValues as $filterValue) {
+                            if (isset($filterValue['field'])) {
+                                $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+        foreach (($data['hits']['hits'] ?? []) as $result) {
+            $part = $result['_source'];
+            if (isset($result['highlight'])) {
+                foreach ($result['highlight'] as $key => $value) {
+                    $part['original_' . $key] = $part[$key];
+                    $part[$key] = self::formatHighlight($value[0]);
+                }
+            }
+            // Remove _stemmer or _original
+            foreach ($rename as $key => $value) {
+                if (isset($part[$key])) {
+                    $part[$value] = $part[$key];
+                    unset($part[$key]);
+                }
+                if (isset($part['original_' . $key])) {
+                    $part['original_' . $value] = $part['original_' . $key];
+                    unset($part['original_' . $key]);
+                }
+            }
+
+            // add inner_hits
+            if (isset($result['inner_hits'])) {
+                $part['inner_hits'] = [];
+                foreach ($result['inner_hits'] as $field_name => $inner_hit) {
+                    $values = [];
+                    foreach ($inner_hit['hits']['hits'] ?? [] as $hit) {
+                        if ($hit['_source'] ?? false) {
+                            $values[] = $hit['_source'];
+                        }
+                    }
+                    $part['inner_hits'][$field_name] = $values;
+                }
+            }
+
+            // sanitize result
+            $response['data'][] = $this->sanitizeSearchResult($part);
+        }
+
+        return $response;
+    }
+
+    public function searchRaw(array $params = null, array $fields = null): array
+    {
+        // sanitize search parameters
+        $searchParams = $this->sanitizeSearchParameters($params, false);
+
+        // Construct query
+        $query = new Query();
+
+        // Number of results
+        if (isset($searchParams['limit']) && is_numeric($searchParams['limit'])) {
+            $query->setSize(min($searchParams['limit'], static::SEARCH_RAW_MAX_RESULTS)); //todo; fix this!
+        } else {
+            $query->setSize(static::SEARCH_RAW_MAX_RESULTS);
+        }
+
+        // Pagination
+        if (isset($searchParams['page']) && is_numeric($searchParams['page']) &&
+            isset($searchParams['limit']) && is_numeric($searchParams['limit'])
+        ) {
+            $query->setFrom(($searchParams['page'] - 1) * $searchParams['limit']);
+        }
+
+        // Sorting
+        if (isset($searchParams['orderBy'])) {
+            if (isset($searchParams['ascending']) && $searchParams['ascending'] == 0) {
+                $order = 'desc';
+            } else {
+                $order = 'asc';
+            }
+            $sort = [];
+            foreach ($searchParams['orderBy'] as $field) {
+                $sort[] = [$field => $order];
+            }
+            $query->setSort($sort);
+        }
+
+        // Set result fields
+        // todo: better use fields option?
+        if ($fields) {
+            $query->setSource($fields);
+        }
+
+        // Filtering
+        $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
+        if (count($searchFilters)) {
+            $searchQuery = $this->createSearchQuery($searchFilters);
+            $query->setQuery($searchQuery);
+        }
+
+        // Search
+        $data = $this->getIndex()->search($query)->getResponse()->getData();
+
+        // Format response
+        $response = [
+            'count' => $data['hits']['total']['value'] ?? 0,
+            'data' => [],
+        ];
+
+        // Build array to remove _stemmer or _original blow
+        $rename = [];
+        $filterConfigs = $this->getSanitizedSearchFilterConfig();
+        foreach ($filterConfigs as $filterName => $filterConfig) {
+            switch ($filterConfig['type'] ?? null) {
+                case self::FILTER_TEXT:
+                    $filterValue = $filterValues[$filterName] ?? null;
+                    if (isset($filterValue['field'])) {
+                        $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
+                    }
+                    break;
+                case self::FILTER_TEXT_MULTIPLE:
+                    $filterValues = $filterValues[$filterName] ?? null;
+                    if (is_array($filterValues)) {
+                        foreach ($filterValues as $filterValue) {
+                            if (isset($filterValue['field'])) {
+                                $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+        foreach (($data['hits']['hits'] ?? []) as $result) {
+            $part = $result['_source'];
+            // Remove _stemmer or _original
+            foreach ($rename as $key => $value) {
+                if (isset($part[$key])) {
+                    $part[$value] = $part[$key];
+                    unset($part[$key]);
+                }
+                if (isset($part['original_' . $key])) {
+                    $part['original_' . $value] = $part['original_' . $key];
+                    unset($part['original_' . $key]);
+                }
+            }
+
+            // add inner_hits
+            if (isset($result['inner_hits'])) {
+                $part['inner_hits'] = [];
+                foreach ($result['inner_hits'] as $field_name => $inner_hit) {
+                    $values = [];
+                    foreach ($inner_hit['hits']['hits'] as $hit) {
+                        $values[] = $hit['_source'];
+                    }
+                    $part['inner_hits'][$field_name] = $values;
+                }
+            }
+
+            // sanitize result
+            $response['data'][] = $part;
+        }
+
+        unset($data);
+
+        return $response;
+    }
+
 
     protected function createHighlight(array $filters): array
     {
@@ -1060,9 +998,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             'fields' => [],
         ];
 
-        $filterConfig = $this->getSearchFilterConfig();
+        $filterConfig = $this->getSanitizedSearchFilterConfig();
 
-        foreach( $filters as $filterName => $filterValue ) {
+        foreach ($filters as $filterName => $filterValue) {
             $filterType = $filterConfig[$filterName]['type'] ?? false;
             switch ($filterType) {
                 case self::FILTER_TEXT:
@@ -1096,40 +1034,311 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $result;
     }
 
-    /**
-     * Construct a text query
-     * @param  string         $key   Elasticsearch field to match (unless $value['field']) is provided
-     * @param  array          $value Array with [combination] of match (any, all, phrase), the [text] to search for and optionally the [field] to search in (if not provided, $key is used)
-     * @return AbstractQuery
-     */
-    protected static function constructTextQuery(string $key, array $value): AbstractQuery
+    protected function sanitizeSearchResult(array $result)
     {
-        // Verse initialization
-        if (isset($value['init']) && $value['init']) {
-            return new Query\MatchPhrase($key, $value['text']);
+        return $result;
+    }
+
+    protected function aggregate(array $filterValues): array
+    {
+        // get agg config
+        $aggConfigs = $this->getSanitizedAggregationConfig();
+//        dump($aggConfigs);
+        if (!count($aggConfigs)) {
+            return [];
         }
 
-        $field = $value['field'] ?? $key;
-        // Replace multiple spaces with a single space
-        $text = preg_replace('!\s+!', ' ', $value['text']);
+        // sanitize filter values
+        $filterValues = $this->sanitizeSearchFilters($filterValues);
 
-        // Remove colons
-        $text = str_replace(':', '', $text);
+        // get filters used in multiselect aggregations
+        // these filters don't filter the whole set, but filter the set for each aggregation
+        $aggFilterConfigs = $this->getAggregationFilters($filterValues);
+//        dump($aggFilterConfigs);
 
-        // Check if user does not use advanced syntax
-        if (preg_match('/AND|OR|[\/~\-"()]/', $text) === 0) {
-            if ($value['combination'] == 'phrase') {
-                if (preg_match('/[*?]/', $text) === 0) {
-                    $text = '"' . $text . '"';
-                } else {
-                    $text = implode(' AND ', explode(' ', $text));
+        // create global search query
+        // exclude filters used in multiselect aggregations, will be added as aggregation filters
+        $query = (new Query())
+            ->setQuery($this->createSearchQuery($filterValues, array_keys($aggFilterConfigs)))
+            ->setSize(0); // Only aggregation will be used
+
+        // create global aggregation (unfiltered, full dataset)
+        // global aggregations will be added as sub-aggregations to this aggregation
+        $aggGlobalQuery = new Aggregation\GlobalAggregation("global_aggregation");
+        $query->addAggregation($aggGlobalQuery);
+
+        // walk aggregation configs
+        foreach ($aggConfigs as $aggName => $aggConfig) {
+            $aggType = $aggConfig['type']; // aggregation type
+            $aggField = $aggConfig['field'] ?? $aggName; // aggregation field = field property or config name
+            $aggIsGlobal = $this->isGlobalAggregation($aggConfig); // global aggregation?
+
+            // query root
+            $aggParentQuery = $aggIsGlobal ? $aggGlobalQuery : $query;
+
+            // add aggregation filter (if not global)
+            // - remove excludeFilter
+            // - don't filter myself
+            if (!$aggIsGlobal) {
+                $aggSearchFilters = array_diff_key($aggFilterConfigs, array_flip($aggConfig['excludeFilter'] ?? []));
+                unset($aggSearchFilters[$aggName]);
+
+                if (count($aggSearchFilters)) {
+                    $filterQuery = $this->createSearchQuery($filterValues, [], $aggSearchFilters);
+                    if ($filterQuery->count()) {
+                        $aggSubQuery = new Aggregation\Filter($aggName);
+                        $aggSubQuery->setFilter($filterQuery);
+
+                        $aggParentQuery->addAggregation($aggSubQuery);
+                        $aggParentQuery = $aggSubQuery;
+                    }
                 }
-            } elseif ($value['combination'] == 'all') {
-                $text = implode(' AND ', explode(' ', $text));
+            }
+
+            // nested aggregation?
+            $aggIsNested = $this->isNestedAggregation($aggConfig);
+            if ($aggIsNested) {
+                // add nested path to filed
+                $aggNestedPath = $aggConfig['nested_path'] ?? $aggName;
+//                $aggField = isset($aggConfig['nested_path']) ? $aggConfig['nested_path'] . ($aggField ? '.' . $aggField : '' ): $aggField;
+                $aggField = $aggNestedPath . ($aggField ? '.' . $aggField : '' );
+
+                // add nested aggregation
+                $aggSubQuery = new Aggregation\Nested($aggName, $aggNestedPath);
+                $aggParentQuery->addAggregation($aggSubQuery);
+                $aggParentQuery = $aggSubQuery;
+
+                // prepare possible aggregation filter
+                $filterQuery = new Query\BoolQuery();
+                $filterCount = 0;
+
+                // aggregation has filter config?
+                $aggNestedFilter = $aggConfig['filter'] ?? [];
+                unset($aggNestedFilter[$aggName]); // do not filter myself
+                $aggNestedFilter = array_intersect_key($aggNestedFilter, $filterValues); // only add filters with values
+
+                if ($aggNestedFilter) {
+                    foreach ($aggNestedFilter as $queryFilterField => $aggFilterConfig) {
+                        $filterCount++;
+                        $aggFilterConfig = is_string($aggFilterConfig) ? ['field' => $aggFilterConfig, 'type' => self::FILTER_KEYWORD] : $aggFilterConfig;
+                        $aggFilterConfig['name'] = $queryFilterField;
+                        $aggFilterField = $aggFilterConfig['field'] ?? $queryFilterField;
+                        $aggFilterType = $aggFilterConfig['type'];
+
+                        switch ($aggFilterType) {
+                            case self::FILTER_OBJECT_ID:
+                                $aggFilterField .= '.id';
+                                break;
+                            case self::FILTER_KEYWORD:
+                                $aggFilterField .= '.keyword';
+                                break;
+                        }
+
+                        if (is_array($filterValues[$queryFilterField])) {
+                            $filterQuery->addFilter(
+                                new Query\Terms($aggNestedPath . '.' . $aggFilterField, $filterValues[$queryFilterField]['value'])
+                            );
+                        } else {
+                            $filterQuery->addFilter(
+                                (new Query\Term())
+                                    ->setTerm($aggNestedPath . '.' . $aggFilterField, $filterValues[$queryFilterField]['value'])
+                            );
+                        }
+                    }
+                }
+
+                // aggregation has a limit on allowed values?
+                if ($aggConfig['allowedValue'] ?? false) {
+                    $filterCount++;
+                    $allowedValue = $aggConfig['allowedValue'];
+                    if (is_array($allowedValue)) {
+                        $filterQuery->addFilter(
+                            new Query\Terms($aggField, $allowedValue)
+                        );
+                    } else {
+                        $filterQuery->addFilter(
+                            (new Query\Term())
+                                ->setTerm($aggField, $allowedValue)
+                        );
+                    }
+                }
+
+                // filter aggregation?
+                if ($filterCount) {
+                    $aggSubQuery = new Aggregation\Filter($aggName);
+                    $aggSubQuery->setFilter($filterQuery);
+
+                    $aggParentQuery->addAggregation($aggSubQuery);
+                    $aggParentQuery = $aggSubQuery;
+                }
+            }
+
+            // add aggregation
+            $aggTerm = null;
+            switch ($aggType) {
+                case self::AGG_GLOBAL_STATS:
+                    $aggParentQuery->addAggregation(
+                        (new Aggregation\Stats($aggName))
+                            ->setField($aggField)
+                    );
+                    break;
+                case self::AGG_KEYWORD:
+                    $aggField = $aggField . '.keyword';
+
+                    $aggTerm = (new Aggregation\Terms($aggName))
+                        ->setSize(self::MAX_AGG)
+                        ->setField($aggField);
+                    $aggParentQuery->addAggregation($aggTerm);
+
+                    break;
+                case self::AGG_BOOLEAN:
+                case self::AGG_NUMERIC:
+                    $aggTerm = (new Aggregation\Terms($aggName))
+                        ->setSize(self::MAX_AGG)
+                        ->setField($aggField);
+                    $aggParentQuery->addAggregation($aggTerm);
+
+                    break;
+                case self::AGG_OBJECT_ID_NAME:
+                case self::AGG_NESTED_ID_NAME:
+                    $aggField = $aggField . '.id_name.keyword';
+
+                    $aggTerm = (new Aggregation\Terms($aggName))
+                        ->setSize(self::MAX_AGG)
+                        ->setField($aggField);
+                    $aggParentQuery->addAggregation($aggTerm);
+
+                    break;
+            }
+
+            // count top documents?
+            if ($aggIsNested && $aggTerm) {
+                $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+            }
+
+        }
+
+//        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
+
+        // parse query result
+        $searchResult = $this->getIndex()->search($query);
+        $results = [];
+
+        $arrAggData = $searchResult->getAggregations();
+//        dump($arrAggData);
+
+        foreach ($aggConfigs as $aggName => $aggConfig) {
+            $aggType = $aggConfig['type'];
+
+            // get aggregation results
+            $aggResults = $arrAggData['global_aggregation'][$aggName] ?? $arrAggData[$aggName] ?? [];
+
+            // local/global filtered?
+            while (isset($aggResults[$aggName])) {
+                $aggResults = $aggResults[$aggName];
+            }
+            $aggResults = $aggResults['buckets'] ?? $aggResults;
+
+            switch ($aggType) {
+                case self::AGG_GLOBAL_STATS:
+                    $results[$aggName] = $aggResults;
+                    break;
+                case self::AGG_NUMERIC:
+                case self::AGG_KEYWORD:
+                    foreach ($aggResults as $result) {
+                        if (!isset($result['key'])) continue;
+                        if (count($aggConfig['limitValue'] ?? []) && !in_array($result['key'], $aggConfig['limitValue'], true)) {
+                            continue;
+                        }
+                        $results[$aggName][] = [
+                            'id' => $result['key'],
+                            'name' => str_replace("morpho_syntactical", "syntax", $result['key']), // todo: DIRTY QUICK FIX!!
+                            'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
+                        ];
+                    }
+//                    $this->sortAggregationResult($results[$aggName]);
+                    break;
+                case self::AGG_OBJECT_ID_NAME:
+                case self::AGG_NESTED_ID_NAME:
+                    foreach ($aggResults as $result) {
+                        if (!isset($result['key'])) continue;
+                        $parts = explode('_', $result['key'], 2);
+                        // limitValue/limitId?
+                        if (count($aggConfig['limitId'] ?? []) && !in_array((int)$parts[0], $aggConfig['limitId'], true)) {
+                            continue;
+                        }
+                        if (count($aggConfig['limitValue'] ?? []) && !in_array((int)$parts[1], $aggConfig['limitValue'], true)) {
+                            continue;
+                        }
+                        // ignoreValue?
+                        if (count($aggConfig['ignoreValue'] ?? []) && in_array($parts[1], $aggConfig['ignoreValue'], true)) {
+                            continue;
+                        }
+
+                        $results[$aggName][] = [
+                            'id' => (int)$parts[0],
+                            'name' => $parts[1],
+                            'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
+                        ];
+                    }
+//                    $this->sortAggregationResult($results[$aggName]);
+                    break;
+                case self::AGG_BOOLEAN:
+                    foreach ($aggResults as $result) {
+                        if (!isset($result['key'])) continue;
+                        $results[$aggName][] = [
+                            'id' => $result['key'],
+                            'name' => $result['key_as_string'],
+                            'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
+                        ];
+                    }
+                    break;
             }
         }
 
-        return (new Query\QueryString($text))->setDefaultField($field);
+        return $results;
+    }
+
+
+    /**
+     * Return filters that are used in aggregations
+     * Todo: Now based on aggregation type or config (mostly nested), should be based on aggregation config check!
+     */
+    private function getAggregationFilters(): array
+    {
+
+        $filters = $this->getSanitizedSearchFilterConfig();
+        $aggOrFilters = [];
+        foreach ($filters as $filterName => $filterConfig) {
+            $filterType = $filterConfig['type'];
+            switch ($filterType) {
+                case self::FILTER_NESTED_ID:
+                case self::FILTER_OBJECT_ID:
+                case self::FILTER_NESTED_MULTIPLE:
+                    if (($filterConfig['aggregationFilter'] ?? true)) {
+                        $aggOrFilters[$filterName] = $filterConfig;
+                    }
+                    break;
+                default:
+                    if (($filterConfig['aggregationFilter'] ?? false)) {
+                        $aggOrFilters[$filterName] = $filterConfig;
+                    }
+                    break;
+            }
+        }
+
+        return $aggOrFilters;
+    }
+
+    /** check if aggregation works on global dataset or filtered dataset */
+    protected function isGlobalAggregation($config)
+    {
+        return (in_array($config['type'], [self::AGG_GLOBAL_STATS], true) || ($config['globalAggregation'] ?? false));
+    }
+
+    protected function isNestedAggregation($config)
+    {
+        return (in_array($config['type'], [self::AGG_NESTED_ID_NAME, self::AGG_NESTED_KEYWORD], true) || ($config['nested_path'] ?? false));
     }
 
     protected function normalizeString(string $input): string
@@ -1140,7 +1349,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         // question mark
         $qPos = [];
         $lastPos = 0;
-        while (($lastPos = strpos($result, '?', $lastPos))!== false) {
+        while (($lastPos = strpos($result, '?', $lastPos)) !== false) {
             $qPos[] = $lastPos;
             $lastPos = $lastPos + strlen('*');
         }
@@ -1148,7 +1357,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         // asterisk
         $aPos = [];
         $lastPos = 0;
-        while (($lastPos = strpos($result, '*', $lastPos))!== false) {
+        while (($lastPos = strpos($result, '*', $lastPos)) !== false) {
             $aPos[] = $lastPos;
             $lastPos = $lastPos + strlen('*');
         }
@@ -1177,24 +1386,12 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $result;
     }
 
-    /** check if aggregation works on global dataset or filtered dataset */
-    protected function isGlobalAggregation($config) {
-        return ( in_array($config['type'], [self::AGG_GLOBAL_STATS],true) || ($config['globalAggregation'] ?? false) );
-    }
-
-    protected function isNestedAggregation($config) {
-        return ( in_array($config['type'], [self::AGG_NESTED_ID_NAME, self::AGG_NESTED_KEYWORD],true) || ($config['nested_path'] ?? false) );
-    }
-
-    protected function isNestedFilter($config) {
-        return ( in_array($config['type'], [self::FILTER_NESTED_ID, self::FILTER_NESTED_MULTIPLE],true) || ($config['nested_path'] ?? false) );
-    }
-
-    protected function sortAggregationResult(?array &$agg_result) {
-        if( !$agg_result ) {
+    protected function sortAggregationResult(?array &$agg_result)
+    {
+        if (!$agg_result) {
             return;
         }
-        usort($agg_result, function($a, $b) {
+        usort($agg_result, function ($a, $b) {
             return strnatcasecmp($a['name'], $b['name']);
         });
     }
