@@ -210,6 +210,10 @@ export default {
                             this.createMultiSelect('Deletion', { model: 'typography_deletion' }),
                             this.createMultiSelect('Word splitting', { model: 'typography_wordSplitting' }),
                             this.createMultiSelect('Abbreviation', { model: 'typography_abbreviation' }),
+                            this.createMultiSelect('Vacat', { model: 'typography_vacat' }),
+                            this.createMultiSelect('Acronym', { model: 'typography_accronym' }),
+                            this.createMultiSelect('Position in text', { model: 'typography_positionInText' }),
+                            this.createMultiSelect('Word class', { model: 'typography_wordClass' }),
                             // lexis
                             this.createMultiSelect('Standard form', { model: 'lexis_standardForm' }),
                             this.createMultiSelect('Type', { model: 'lexis_type' }),

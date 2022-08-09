@@ -9,6 +9,7 @@ export default {
                 'Bigraphism Formulaicity': 'Transliteration Formulaicity',
                 'Bigraphism Type': 'Transliteration Type',
                 'Bigraphism Rank': 'Transliteration Rank'
+                'Accronym': 'Acronym',
             }
         }
     },
