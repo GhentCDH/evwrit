@@ -194,14 +194,17 @@ export default {
                             ),
                             this.createMultiSelect('Location written',
                                 {
-                                    model: 'location_written'
+                                    model: 'location_written',
+                                    styleClasses: "collapsible collapsed",
                                 }
                             ),
+                            this.createOperators('language_op'),
                             this.createMultiSelect('Language',
                                 {
                                     model: 'language'
                                 },
                             ),
+                            this.createOperators('script_op'),
                             this.createMultiSelect('Script',
                                 {
                                     model: 'script'
