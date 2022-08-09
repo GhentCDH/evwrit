@@ -76,6 +76,16 @@
                         {{ props.row.tm_id }}
                     </a>
                 </template>
+                <template slot="text_type" slot-scope="props">
+                    <td>
+                        {{ props.row.text_type.name }}
+                    </td>
+                </template>
+                <template slot="location_found" slot-scope="props">
+                    <td>
+                        {{ props.row.location_found[0]?.name }}
+                    </td>
+                </template>
             </v-server-table>
         </article>
         <div
@@ -407,7 +417,7 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['id', 'tm_id', 'title']
+            let columns = ['id', 'tm_id', 'title', 'text_type', 'location_found']
             return columns
         },
     },
