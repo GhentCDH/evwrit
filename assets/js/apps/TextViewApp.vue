@@ -644,20 +644,18 @@ export default {
                 })
         },
         annotationsFilterByContext(annotations, context_params) {
-            let annotationTypeFilter = context_params.annotation_type['value'] ?? false
+            let annotationTypeFilter = context_params?.annotation_type?.value ?? false
 
             let annotationPropertyPrefixes = ['language', 'typography', 'orthography', 'lexis', 'morpho_syntactical','handshift','ltsa','gtsa']
             let annotationPropertyFilters = {}
-            for ( const [key, value] of Object.entries(context_params) ) {
+            for ( const [key, param] of Object.entries(context_params) ) {
                 for ( const prefix of annotationPropertyPrefixes ) {
                     if (key.startsWith(prefix + '_') ) {
-                        annotationPropertyFilters[key] = Array.isArray(value['value']) ? value['value'] : [ value ]
+                        annotationPropertyFilters[key] = Array.isArray(param.value) ? param.value : [ param.value ]
                     }
                 }
             }
 
-            console.log(annotationPropertyFilters)
-            console.log(annotationTypeFilter)
             return annotations.filter( function(annotation) {
                 // filter by type
                 if ( annotationTypeFilter ) {
@@ -666,8 +664,6 @@ export default {
                     else if ( !Array.isArray(annotationTypeFilter) && annotationTypeFilter !== annotation.type )
                         return false
                 }
-                console.log(annotation)
-
 
                 // filter by property
                 for ( const [filterKey, filterValues] of Object.entries(annotationPropertyFilters) ) {
