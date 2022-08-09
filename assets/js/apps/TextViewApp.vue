@@ -32,14 +32,6 @@
                         <GreekText :text="text.apparatus"   />
                     </div>
 
-                    <!-- Translations -->
-                    <div v-if="config.translation.show && text.translation.length" :class="textContainerClass" class="text-translations">
-                        <div v-for="translation in text.translation" class="greek">
-                            <h2>{{ translation.language.name}} Translation</h2>
-                            <GreekText :text="translation.text"></GreekText>
-                        </div>
-                    </div>
-
                     <!-- Generic Text Structure -->
                     <div v-if="config.genericTextStructure.show && genericTextStructure.length" :class="textContainerClass" class="text-structure">
                         <h2>Generic structure</h2>
@@ -71,6 +63,14 @@
                                 <span>{{ textStructure.properties.lts_part.name }}</span>
                             </label>
                             <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                        </div>
+                    </div>
+
+                    <!-- Translations -->
+                    <div v-if="config.translation.show && text.translation.length" :class="textContainerClass" class="text-translations">
+                        <div v-for="translation in text.translation" class="greek">
+                            <h2>{{ translation.language.name}} Translation</h2>
+                            <GreekText :text="translation.text"></GreekText>
                         </div>
                     </div>
 
