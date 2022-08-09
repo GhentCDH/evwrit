@@ -4,10 +4,15 @@ $maxwidth-container: 1600px;
 $base-annotation-opacity: 0.3;
 
 $handshift-annotations: (
-        "1": lightblue,
-        "2": orange,
-        "3": lightgreen,
-        "4": purple,
+        "1": #6200d1,
+        "2": #008d7c,
+        "3": #ffbc05,
+        "4": #8aff05,
+        "5": #ff7ec3,
+        "6": #05d1ff,
+        "7": #f51720,
+        "8": #424600,
+        "9": #613900,
 );
 
 $base-annotations: (
@@ -19,3 +24,10 @@ $base-annotations: (
         "morphology": #5d2802,
 );
 
+// color & top position of text structure annotations
+$structure-annotations: (
+        "unit": (red, 42px),
+        "subunit": (orange, 38px),
+        "element": (green, 34px),
+        "modifier": (lightblue,30px),
+);
