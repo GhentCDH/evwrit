@@ -100,7 +100,7 @@
             </div>
 
         </article>
-        <aside class="col-sm-3 scrollable scrollable--vertical">
+        <aside class="col-sm-3 scrollable scrollable--vertical" ref="sidebar">
             <div class="padding-default">
 
                 <Widget v-if="isValidResultSet()" title="Search" :isOpen="true">
@@ -807,6 +807,7 @@ export default {
                 // open selection details widget
                 this.config.widgets.selectionDetails.isOpen = true
             }
+            this.$refs.sidebar.scrollTop = 0;
         },
         bindEvents() {
             this.$nextTick(function () {
