@@ -9,6 +9,7 @@ import VueTables from 'vue-tables-2'
 import * as uiv from 'uiv'
 
 import fieldMultiselectClear from '../FormFields/fieldMultiselectClear'
+import fieldCheckboxes from '../FormFields/fieldCheckboxes'
 
 Vue.use(uiv)
 Vue.use(VueFormGenerator)
@@ -16,6 +17,7 @@ Vue.use(VueTables.ServerTable)
 
 Vue.component('multiselect', VueMultiselect)
 Vue.component('fieldMultiselectClear', fieldMultiselectClear)
+Vue.component('fieldCheckboxes', fieldCheckboxes)
 
 const YEAR_MIN = 1
 const YEAR_MAX = (new Date()).getFullYear()
