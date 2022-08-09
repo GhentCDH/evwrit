@@ -111,6 +111,16 @@
                         <span class="bg-tertiary small">Showing 3 of {{ props.row.annotations.length }} annotations found in text.</span>
                     </div>
                 </template>
+                <template slot="text_type" slot-scope="props">
+                    <td>
+                        {{ props.row.text_type.name }}
+                    </td>
+                </template>
+                <template slot="location_found" slot-scope="props">
+                    <td>
+                        {{ props.row.location_found[0]?.name }}
+                    </td>
+                </template>
             </v-server-table>
         </article>
         <div
@@ -200,6 +210,10 @@ export default {
                             this.createMultiSelect('Deletion', { model: 'typography_deletion' }),
                             this.createMultiSelect('Word splitting', { model: 'typography_wordSplitting' }),
                             this.createMultiSelect('Abbreviation', { model: 'typography_abbreviation' }),
+                            this.createMultiSelect('Vacat', { model: 'typography_vacat' }),
+                            this.createMultiSelect('Acronym', { model: 'typography_accronym' }),
+                            this.createMultiSelect('Position in text', { model: 'typography_positionInText' }),
+                            this.createMultiSelect('Word class', { model: 'typography_wordClass' }),
                             // lexis
                             this.createMultiSelect('Standard form', { model: 'lexis_standardForm' }),
                             this.createMultiSelect('Type', { model: 'lexis_type' }),
@@ -415,7 +429,7 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['id', 'tm_id', 'title', 'annotations']
+            let columns = ['id', 'tm_id', 'title', 'annotations', 'text_type', 'location_found']
             return columns
         },
     },

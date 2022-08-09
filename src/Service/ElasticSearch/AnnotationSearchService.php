@@ -159,7 +159,7 @@ class AnnotationSearchService extends AbstractSearchService
         ];
 
         $annotationProperties = [
-            'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation'],
+            'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation', 'vacat', 'accronym', 'positionInText', 'wordClass'],
             'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
             'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
             'morphology' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
@@ -289,7 +289,7 @@ class AnnotationSearchService extends AbstractSearchService
 
         // annotation aggregations
         $annotationProperties = [
-            'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation'],
+            'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation', 'vacat', 'accronym', 'positionInText', 'wordClass'],
             'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
             'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
             'morphology' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
@@ -394,7 +394,7 @@ class AnnotationSearchService extends AbstractSearchService
 
     protected function sanitizeSearchResult(array $result): array
     {
-        $returnProps = ['id', 'tm_id', 'title', 'year_begin', 'year_end', 'inner_hits', 'annotations'];
+        $returnProps = ['id', 'tm_id', 'title', 'year_begin', 'year_end', 'inner_hits', 'annotations', 'text_type', 'location_found'];
 
         $result = array_intersect_key($result, array_flip($returnProps));
         $result['annotations'] = $result['annotations'] ?? [];

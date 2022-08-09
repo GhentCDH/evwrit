@@ -53,6 +53,20 @@
   }
 }
 
+// just the annotation color for the counts
+.annotation-color-wrapper {
+  @each $name, $color in $base-annotations {
+    .annotation-#{$name}  {
+      background-color: rgba($color, $base-annotation-opacity) !important;
+    }
+  }
+  @each $name, $properties in $structure-annotations {
+    .annotation-#{$name}  {
+      background-color: rgba(nth($properties, 1), $base-annotation-opacity) !important;
+    }
+  }
+}
+
 .annotation-wrapper {
 
 
@@ -101,60 +115,22 @@
     &.annotation-end::before {
       border-bottom-right-radius: 4px;
     }
-
-    &-unit {
-      &::before {
-        border-bottom: 2px solid red;
-        top: 42px;
-      }
-      &.annotation-start::before {
-        border-left: 2px solid red;
-      }
-      &.annotation-end::before {
-        border-right: 2px solid red;
-      }
-    }
-
-    &-subunit {
-      &::before {
-        border-bottom: 2px solid orange;
-        top: 38px;
-      }
-      &.annotation-start::before {
-        border-left: 2px solid orange;
-      }
-      &.annotation-end::before {
-        border-right: 2px solid orange;
+    
+    @each $name, $properties in $structure-annotations {
+      &-#{$name} {
+        &::before {
+          border-bottom: 2px solid nth($properties, 1);
+          top: nth($properties, 2);
+        }
+        &.annotation-start::before {
+          border-left: 2px solid nth($properties, 1);
+        }
+        &.annotation-end::before {
+          border-right: 2px solid nth($properties, 1);
+        }
       }
     }
-
-    &-element {
-      &::before {
-        border-bottom: 2px solid green;
-        top: 34px;
-      }
-      &.annotation-start::before {
-        border-left: 2px solid green;
-      }
-      &.annotation-end::before {
-        border-right: 2px solid green;
-      }
-    }
-
-    &-modifier {
-      &::before {
-        border-bottom: 2px solid lightblue;
-        top: 30px;
-      }
-      &.annotation-start::before {
-        border-left: 2px solid lightblue;
-      }
-      &.annotation-end::before {
-        border-right: 2px solid lightblue;
-      }
-    }
-
-    }
+  }
 }
 
 
