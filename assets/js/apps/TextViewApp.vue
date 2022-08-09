@@ -50,7 +50,7 @@
                                     <span v-if="textStructure.text_level">Level {{ textStructure.text_level.number }}</span>
                                     <span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span>
                                 </label>
-                                <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                                <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormattedNoLts" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
                             </div>
                         </template>
                     </div>
@@ -544,6 +544,9 @@ export default {
         },
         visibleAnnotationsFormattedNoGts() {
             return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type != 'gtsa' ? this.formatAnnotation(annotation) : []), [] );
+        },
+        visibleAnnotationsFormattedNoLts() {
+            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type != 'ltsa' ? this.formatAnnotation(annotation) : []), [] );
         },
         showBaseAnnotations() {
             return this.config.annotations.show || this.config.annotations.showList
