@@ -66,6 +66,49 @@ export default {
 
             return result;
         },
+        createOperators(model, extra, allowedOperators = [])
+        {
+            let result = {
+                type: "checkboxes",
+                styleClasses: "field-inline-options field-checkboxes-labels-only collapsible collapsed",
+                label: 'options',
+                model: model,
+                parentModel: model.replace('_op',''),
+                values: [
+                    { name: "OR", value: "or", toggleGroup: "and_or", disabled: this.operatorIsDisabled },
+                    { name: "AND", value: "and", toggleGroup: "and_or", disabled: this.operatorIsDisabled },
+                    { name: "NOT", value: "not", disabled: this.operatorIsDisabled },
+                    { name: "ONLY", value: "only", disabled: this.operatorIsDisabled },
+                    { name: "ANY", value: "any", disabled: this.operatorIsDisabled },
+                ]
+            }
+            if (extra != null) {
+                for (let key of Object.keys(extra)) {
+                    result[key] = extra[key]
+                }
+            }
+            if (allowedOperators.length) {
+                result.values = result.values.filter(item => allowedOperators.includes(item.value))
+            }
+
+            return result;
+        },
+        operatorIsDisabled(model, schema, item) {
+            let parentCount = model[schema.parentModel] === undefined ? 0 : model[schema.parentModel].length;
+
+            if ( ['and', 'or', 'only'].includes(item.value) ) {
+                if ( parentCount < 2 ) {
+                    return true
+                }
+            }
+            if (item.value === 'not') {
+                if ( model[schema.model] === undefined || model[schema.model].filter( v => ['and', 'or', 'any'].includes(v)).length === 0) {
+                    return true
+                }
+            }
+
+            return false
+        },
         formatSliderToolTip(value) {
             if ( value > -1 && value < 10000 ) {
                 return wNumb({decimals: 0}).to(value)
@@ -143,67 +186,6 @@ export default {
             if (field.model === 'diktyon') {
                 field.placeholder = 'Select a Diktyon number'
             }
-        },
-        loadLocationField(field, model = null) {
-            if (model == null) {
-                model = this.model
-            }
-            let locations = this.values
-
-            // filter dependency
-            if (field.hasOwnProperty('dependency')) {
-                switch (field.dependency) {
-                case 'regionWithParents':
-                    locations = locations.filter((location) => location.regionWithParents.id === model.regionWithParents.id)
-                    break
-                case 'institution':
-                    locations = locations.filter((location) => ( location.institution != null && location.institution.id === model.institution.id))
-                    break
-                }
-            }
-
-            // get everything after last '.'
-            let modelName = field.model.split('.').pop()
-
-            // filter null values
-            switch (modelName) {
-            case 'institution':
-                locations = locations.filter((location) => location.institution != null)
-                break
-            case 'collection':
-                locations = locations.filter((location) => location.collection != null)
-                break
-            }
-
-            let values = locations
-                // get the requested field information
-                .map((location) => {
-                    let fieldInfo = {
-                        locationId: location.id
-                    }
-                    switch (modelName) {
-                    case 'regionWithParents':
-                        fieldInfo.id = location.regionWithParents.id
-                        fieldInfo.name = location.regionWithParents.name
-                        fieldInfo.individualName = location.regionWithParents.individualName
-                        fieldInfo.historicalName = location.regionWithParents.historicalName
-                        fieldInfo.individualHistoricalName = location.regionWithParents.individualHistoricalName
-                        break
-                    case 'institution':
-                        fieldInfo.id = location.institution.id
-                        fieldInfo.name = location.institution.name
-                        break
-                    case 'collection':
-                        fieldInfo.id = location.collection.id
-                        fieldInfo.name = location.collection.name
-                        break
-                    }
-                    return fieldInfo
-                })
-                // remove duplicates
-                .filter((location, index, self) => index === self.findIndex((l) => l.id === location.id))
-
-            field.values = values
         },
         noValuesField(field, model = null, search = false) {
             if (model == null) {
