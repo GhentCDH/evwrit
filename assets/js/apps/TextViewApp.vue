@@ -62,7 +62,7 @@
                             <label>
                                 <span>{{ textStructure.properties.lts_part.name }}</span>
                             </label>
-                            <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                            <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormattedNoGts" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
                         </div>
                     </div>
 
@@ -541,6 +541,9 @@ export default {
         },
         visibleAnnotationsFormatted() {
             return this.visibleAnnotations.reduce( (result, annotation) => result.concat(this.formatAnnotation(annotation)), [] );
+        },
+        visibleAnnotationsFormattedNoGts() {
+            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type != 'gtsa' ? this.formatAnnotation(annotation) : []), [] );
         },
         showBaseAnnotations() {
             return this.config.annotations.show || this.config.annotations.showList
