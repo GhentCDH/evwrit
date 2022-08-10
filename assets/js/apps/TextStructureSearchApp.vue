@@ -288,6 +288,16 @@ export default {
                                     model: 'keyword'
                                 }
                             ),
+                            {
+                                type: 'switch',
+                                label: 'Translated',
+                                model: 'has_translation',
+                            },
+                            {
+                                type: 'switch',
+                                label: 'Has image(s)',
+                                model: 'has_image',
+                            },
                         ]
                     },
                     // Communicative information

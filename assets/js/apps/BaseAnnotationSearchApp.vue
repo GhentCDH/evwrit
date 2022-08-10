@@ -341,7 +341,17 @@ export default {
                             },
                             this.createMultiSelect('Era',{ model: 'era' } ),
                             this.createMultiSelect('Language', { model: 'language' } ),
-                            this.createMultiSelect('Keyword', { model: 'keyword'})
+                            this.createMultiSelect('Keyword', { model: 'keyword'}),
+                            {
+                                type: 'switch',
+                                label: 'Translated',
+                                model: 'has_translation',
+                            },
+                            {
+                                type: 'switch',
+                                label: 'Has image(s)',
+                                model: 'has_image',
+                            },
                         ]
                     },
                     // communicative
