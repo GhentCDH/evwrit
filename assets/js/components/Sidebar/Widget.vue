@@ -47,18 +47,20 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import '~huisstijl2016/sass/settings';
+
 .widget {
 
   .sticky-block {
   }
   .title {
     text-transform: uppercase;
-    font-size: 19px;
+    font-size: 18px;
     cursor: pointer;
     padding: 12px 0 7px;
-    letter-spacing: 0.3rem;
+    letter-spacing: 0.2rem;
 
-    font-family: "PannoTextLight", Arial, sans-serif;
+    font-family: $default-font-family, Arial, sans-serif;
     color: #777;
 
     .toggle--open-close {
@@ -67,14 +69,17 @@ export default {
     }
 
     .count {
-      border: 1px solid #aaa;
+      border: 1px solid #eee;
       padding: 3px 5px;
       border-radius: 5px;
       font-size: 80%;
       color: #aaa;
       position: relative;
-      top: -2px;
+      top: 0;
       margin-right: 0.5em;
+      letter-spacing: 0;
+      line-height: 1;
+      float: right;
     }
   }
 
@@ -87,6 +92,15 @@ export default {
       overflow-y: auto;
     }
 
+  }
+
+  .form-group {
+    margin-bottom: 5px;
+
+    .checkbox, .radio {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
   }
 }
 
