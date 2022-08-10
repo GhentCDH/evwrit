@@ -134,27 +134,5 @@ export default {
 </script>
 
 <style lang="scss">
-.multiselect {
 
-    .multiselect__option {
-
-        .option__count {
-            display: inline-block;
-            border: 1px solid #d1d1d1;
-            padding: 3px 8px;
-            margin-left: 1em;
-            border-radius: 5px;
-            font-size: 80%;
-            line-height: 1;
-            float: right;
-            margin-top: -3px;
-        }
-
-        &.multiselect__option--highlight .option__count {
-             background-color: white;
-             color: black;
-             border: 1px solid #1E64C8;
-         }
-    }
-}
 </style>
