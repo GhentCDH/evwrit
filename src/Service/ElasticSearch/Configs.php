@@ -142,20 +142,20 @@ class Configs implements SearchConfigInterface
 
             'lines' => [
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
-                'floorField' => 'lines_min',
-                'ceilingField' => 'lines_max',
+                'floorField' => 'lines.min',
+                'ceilingField' => 'lines.max',
                 'ignore' => [-1, 10000]
             ],
             'columns' => [
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
-                'floorField' => 'columns_min',
-                'ceilingField' => 'columns_max',
+                'floorField' => 'columns.min',
+                'ceilingField' => 'columns.max',
                 'ignore' => [-1, 10000]
             ],
             'letters_per_line' => [
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
-                'floorField' => 'letters_per_line_min',
-                'ceilingField' => 'letters_per_line_max',
+                'floorField' => 'letters_per_line.min',
+                'ceilingField' => 'letters_per_line.max',
                 'ignore' => [-1, 10000]
             ],
             'width' => [
