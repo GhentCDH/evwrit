@@ -10,6 +10,7 @@ import * as uiv from 'uiv'
 
 import fieldMultiselectClear from '../FormFields/fieldMultiselectClear'
 import fieldCheckboxes from '../FormFields/fieldCheckboxes'
+import fieldNoUiSlider from '../FormFields/fieldNoUiSlider'
 
 Vue.use(uiv)
 Vue.use(VueFormGenerator)
@@ -17,7 +18,8 @@ Vue.use(VueTables.ServerTable)
 
 Vue.component('multiselect', VueMultiselect)
 Vue.component('fieldMultiselectClear', fieldMultiselectClear)
-Vue.component('fieldCheckboxes', fieldCheckboxes)
+Vue.component('fieldCustomNoUiSlider', fieldNoUiSlider)
+
 
 const YEAR_MIN = 1
 const YEAR_MAX = (new Date()).getFullYear()

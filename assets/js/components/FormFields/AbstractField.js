@@ -46,7 +46,8 @@ export default {
         },
         createRangeSlider(model, label, min, max, step, extra = null) {
             let result = {
-                type: "noUiSlider",
+                type: "customNoUiSlider",
+                styleClasses: "field-noUiSlider",
                 label: label,
                 model: model,
                 min: min,
