@@ -235,4 +235,64 @@ class Configs implements SearchConfigInterface
             ]
         ];
     }
+
+    public static function aggregateAncientPerson(): array
+    {
+        return [
+            'ap_name' => [
+                'type' => self::AGG_KEYWORD, 
+                'field' => 'name',
+                'nested_path' => 'ancient_person',
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_name'])),
+            ],
+            'ap_tm_id' => [
+                'type' => self::AGG_NUMERIC, 
+                'field' => 'tm_id',
+                'nested_path' => 'ancient_person',
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['tm_id'])),
+            ],
+            'ap_role' => [
+                'type' => self::AGG_NESTED_ID_NAME, 
+                'field' => 'role',
+                'nested_path' => 'ancient_person',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_role'])),
+            ],
+            'ap_gender' => [
+                'type' => self::AGG_NESTED_ID_NAME, 
+                'field' => 'gender',
+                'nested_path' => 'ancient_person',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_gender'])),
+            ],
+            'ap_occupation' => [
+                'type' => self::AGG_NESTED_ID_NAME, 
+                'field' => 'occupation',
+                'nested_path' => 'ancient_person',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_occupation'])),
+            ],
+            'ap_social_rank' => [
+                'type' => self::AGG_NESTED_ID_NAME, 
+                'field' => 'social_rank',
+                'nested_path' => 'ancient_person',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_social_rank'])),
+            ],
+            'ap_honorific_epithet' => [
+                'type' => self::AGG_NESTED_ID_NAME, 
+                'field' => 'honorific_epithet',
+                'nested_path' => 'ancient_person',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_honorific_epithet'])),
+            ],
+            'ap_graph_type' => [
+                'type' => self::AGG_NESTED_ID_NAME, 
+                'field' => 'graph_type',
+                'nested_path' => 'ancient_person',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_graph_type'])),
+            ],
+        ];
+    }
 }
