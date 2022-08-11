@@ -195,7 +195,6 @@ export default {
                             this.createMultiSelect('Location written',
                                 {
                                     model: 'location_written',
-                                    styleClasses: "collapsible collapsed",
                                 }
                             ),
                             this.createOperators('language_op'),
