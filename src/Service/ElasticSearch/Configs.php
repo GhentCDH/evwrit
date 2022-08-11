@@ -195,89 +195,44 @@ class Configs implements SearchConfigInterface
     public static function filterAncientPerson(): array
     {
         return [
-            'ap_tm_id' => [
-                'type' => self::FILTER_NUMERIC,
+            'ancient_person' => [
+                'type' => self::FILTER_NESTED_MULTIPLE,
                 'nested_path' => 'ancient_person',
-                'field' => 'tm_id'
-            ],
-            'ap_role' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'ancient_person',
-                'field' => 'role'
-            ],
-            'ap_gender' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'ancient_person',
-                'field' => 'gender'
-            ],
-            'ap_occupation' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'ancient_person',
-                'field' => 'occupation'
-            ],
-            'ap_social_rank' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'ancient_person',
-                'field' => 'social_rank'
-            ],
-            'ap_honorific_epithet' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'ancient_person',
-                'field' => 'honorific_epithet'
-            ],
-            'ap_graph_type' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'ancient_person',
-                'field' => 'graph_type'
-            ],
+                'filters' => [
+                    'ap_name' => [
+                        'field' => 'name',
+                        'type' => self::FILTER_KEYWORD,
+                    ],
+                    'ap_tm_id' => [
+                        'field' => 'tm_id',
+                        'type' => self::FILTER_NUMERIC,
+                    ],
+                    'ap_role' => [
+                        'field' => 'role',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_gender' => [
+                        'field' => 'gender',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_occupation' => [
+                        'field' => 'occupation',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_social_rank' => [
+                        'field' => 'social_rank',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_honorific_epithet' => [
+                        'field' => 'honorific_epithet',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_graph_type' => [
+                        'field' => 'graph_type',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                ]
+            ]
         ];
     }
-
-    public static function aggregateAncientPerson(): array
-    {
-        return [
-            'ap_name' => [
-                'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'ancient_person',
-                'field' => ''
-            ],
-            'ap_role' => [
-                'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'ancient_person',
-                'field' => 'role',
-                'ignoreValue' => self::ignoreUnknownUncertain,
-            ],
-            'ap_gender' => [
-                'ignoreValue' => self::ignoreUnknownUncertain,
-                'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'ancient_person',
-                'field' => 'gender'
-            ],
-            'ap_occupation' => [
-                'ignoreValue' => self::ignoreUnknownUncertain,
-                'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'ancient_person',
-                'field' => 'occupation'
-            ],
-            'ap_social_rank' => [
-                'ignoreValue' => self::ignoreUnknownUncertain,
-                'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'ancient_person',
-                'field' => 'social_rank'
-            ],
-            'ap_honorific_epithet' => [
-                'ignoreValue' => self::ignoreUnknownUncertain,
-                'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'ancient_person',
-                'field' => 'honorific_epithet'
-            ],
-            'ap_graph_type' => [
-                'ignoreValue' => self::ignoreUnknownUncertain,
-                'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'ancient_person',
-                'field' => 'graph_type'
-            ],
-        ];
-    }
-
 }
