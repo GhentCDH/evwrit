@@ -20,18 +20,6 @@
                         <GreekText :text="text.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="1"/>
                     </div>
 
-                    <!-- Lemmas -->
-                    <div v-if="config.text.showLemmas && text.text_lemmas" :class="textContainerClass" class="text-lemmas">
-                        <h2>Lemmas</h2>
-                        <GreekText :text="text.text_lemmas"   />
-                    </div>
-
-                    <!-- Lemmas -->
-                    <div v-if="config.text.showApparatus && text.apparatus" :class="textContainerClass" class="text-lemmas">
-                        <h2>Apparatus</h2>
-                        <GreekText :text="text.apparatus"   />
-                    </div>
-
                     <!-- Generic Text Structure -->
                     <div v-if="config.genericTextStructure.show && genericTextStructure.length" :class="textContainerClass" class="text-structure">
                         <h2>Generic structure</h2>
@@ -64,6 +52,18 @@
                             </label>
                             <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormattedNoGts" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
                         </div>
+                    </div>
+
+                    <!-- Lemmas -->
+                    <div v-if="config.text.showLemmas && text.text_lemmas" :class="textContainerClass" class="text-lemmas">
+                        <h2>Lemmas</h2>
+                        <GreekText :text="text.text_lemmas"   />
+                    </div>
+
+                    <!-- Apparatus -->
+                    <div v-if="config.text.showApparatus && text.apparatus" :class="textContainerClass" class="text-lemmas">
+                        <h2>Apparatus</h2>
+                        <GreekText :text="text.apparatus"   />
                     </div>
 
                     <!-- Translations -->
@@ -186,7 +186,7 @@
                     </PropertyGroup>
                 </Widget>
 
-                <Widget title="Attestation"  :is-open.sync="config.widgets.attestation.isOpen" :count="text.ancient_person.length">
+                <Widget title="People"  :is-open.sync="config.widgets.attestation.isOpen" :count="text.ancient_person.length">
                     <template v-for="person in text.ancient_person">
                         <h3>{{ person.name }}</h3>
                         <LabelValue label="Trismegistos ID" :value="person.tm_id" :url="getTmPersonUrl"></LabelValue>
@@ -206,7 +206,7 @@
                         <CheckboxSwitch v-model="config.annotations.show" class="switch-primary" label="Show annotations in text"></CheckboxSwitch>
                     </div>
 
-                    <div class="form-group mtop-default">
+                    <div class="form-group mtop-small">
                         <CheckboxSwitch v-model="config.annotations.showList" class="switch-primary" label="Show annotation list below text"></CheckboxSwitch>
                     </div>
                     <div v-if="config.annotations.showList" class="form-group">
@@ -216,7 +216,7 @@
                         <CheckboxSwitch v-model="config.annotations.showDetails" class="switch-primary" label="Show annotation details"></CheckboxSwitch>
                     </div>
 
-                    <div v-if="showBaseAnnotations" class="mtop-default">
+                    <div v-if="showBaseAnnotations" class="mtop-small">
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.annotations.showTypography" class="switch-primary annotation-color-wrapper" label="Typography annotations">
                                 <span class="count pull-right annotation-typography">{{ countAnnotationType('typography') }}</span>
@@ -229,7 +229,7 @@
                         </div>
                     </div>
 
-                    <div v-if="showBaseAnnotations" class="mtop-default">
+                    <div v-if="showBaseAnnotations" class="mtop-small">
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.annotations.showMorphoSyntactical" class="switch-primary annotation-color-wrapper" label="Syntax annotations">
                                 <span class="count pull-right annotation-morpho_syntactical">{{ countAnnotationType('morpho_syntactical') }}</span>
@@ -266,7 +266,7 @@
                         <CheckboxSwitch v-model="config.genericTextStructure.showAnnotations" class="switch-primary" label="Show generic structure annotations"></CheckboxSwitch>
                     </div>
 
-                    <div v-if="showGTSA" class="mtop-default">
+                    <div v-if="showGTSA" class="mtop-small">
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.genericTextStructure.showUnit" class="switch-primary annotation-color-wrapper" label="Show Units">
                                 <span class="count pull-right annotation-unit">{{ countGtsType('Unit') }}</span>
@@ -301,7 +301,7 @@
                         <CheckboxSwitch v-model="config.layoutTextStructure.showAnnotations" class="switch-primary" label="Show layout structure annotations"></CheckboxSwitch>
                     </div>
 
-                    <div v-if="showLTSA" class="mtop-default">
+                    <div v-if="showLTSA" class="mtop-small">
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.layoutTextStructure.showUnit" class="switch-primary annotation-color-wrapper" label="Show Units">
                                 <span class="count pull-right annotation-unit">{{ countLtsType('Unit') }}</span>
