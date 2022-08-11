@@ -187,6 +187,11 @@ export default {
                             this.createRangeSlider('letters_per_line','Letters per line',0,220,5),
                             this.createRangeSlider('width','Width',0,320,5),
                             this.createRangeSlider('height','Height',0,300,5),
+                            this.createRangeSlider('interlinear_space','Interlinear space',0,22,0),
+                            this.createRangeSlider('margin_left','Margin Left',0,410,5),
+                            this.createRangeSlider('margin_right','Margin Right',0,410,5),
+                            this.createRangeSlider('margin_top','Margin Top',0,350,5),
+                            this.createRangeSlider('margin_bottom','Margin Bottom',0,1050,5),
                         ]
                     },
                     {

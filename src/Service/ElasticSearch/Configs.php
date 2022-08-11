@@ -167,6 +167,26 @@ class Configs implements SearchConfigInterface
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
                 'ignore' => [-1, 10000]
             ],
+            'interlinear_space' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'margin_left' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'margin_right' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'margin_top' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'margin_bottom' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
         ];
     }
 
@@ -191,6 +211,11 @@ class Configs implements SearchConfigInterface
             'letters_per_line_max' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'letters_per_line.max'],
             'width' => ['type' => self::AGG_GLOBAL_STATS],
             'height' => ['type' => self::AGG_GLOBAL_STATS],
+            'interlinear_space' => ['type' => self::AGG_GLOBAL_STATS],
+            'margin_left' => ['type' => self::AGG_GLOBAL_STATS],
+            'margin_right' => ['type' => self::AGG_GLOBAL_STATS],
+            'margin_top' => ['type' => self::AGG_GLOBAL_STATS],
+            'margin_bottom' => ['type' => self::AGG_GLOBAL_STATS],
         ];
     }
 
