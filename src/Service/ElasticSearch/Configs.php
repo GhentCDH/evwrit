@@ -143,6 +143,7 @@ class Configs implements SearchConfigInterface
             'material' => ['type' => self::FILTER_OBJECT_ID],
             'text_format' => ['type' => self::FILTER_OBJECT_ID],
             'writing_direction' => ['type' => self::FILTER_OBJECT_ID],
+            'kollesis' => ['type' => self::FILTER_NUMERIC],
 
             'is_recto' => ['type' => self::FILTER_BOOLEAN],
             'is_verso' => ['type' => self::FILTER_BOOLEAN],
@@ -174,6 +175,26 @@ class Configs implements SearchConfigInterface
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
                 'ignore' => [-1, 10000]
             ],
+            'interlinear_space' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'margin_left' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'margin_right' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'margin_top' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'margin_bottom' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
         ];
     }
 
@@ -184,6 +205,7 @@ class Configs implements SearchConfigInterface
             'material'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'text_format' => ['type' => self::AGG_OBJECT_ID_NAME],
             'writing_direction' => ['type' => self::AGG_OBJECT_ID_NAME],
+            'kollesis' => ['type' => self::AGG_NUMERIC],
 
             'is_recto' => ['type' => self::AGG_BOOLEAN],
             'is_verso' => ['type' => self::AGG_BOOLEAN],
@@ -197,6 +219,11 @@ class Configs implements SearchConfigInterface
             'letters_per_line_max' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'letters_per_line.max'],
             'width' => ['type' => self::AGG_GLOBAL_STATS],
             'height' => ['type' => self::AGG_GLOBAL_STATS],
+            'interlinear_space' => ['type' => self::AGG_GLOBAL_STATS],
+            'margin_left' => ['type' => self::AGG_GLOBAL_STATS],
+            'margin_right' => ['type' => self::AGG_GLOBAL_STATS],
+            'margin_top' => ['type' => self::AGG_GLOBAL_STATS],
+            'margin_bottom' => ['type' => self::AGG_GLOBAL_STATS],
         ];
     }
 
