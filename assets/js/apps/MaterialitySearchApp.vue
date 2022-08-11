@@ -250,6 +250,16 @@ export default {
                                     model: 'era'
                                 }
                             ),
+                            this.createMultiSelect('Location found',
+                                {
+                                    model: 'location_found'
+                                }
+                            ),
+                            this.createMultiSelect('Location written',
+                                {
+                                    model: 'location_written'
+                                }
+                            ),
                             this.createMultiSelect('Language',
                                 {
                                     model: 'language'
