@@ -181,6 +181,7 @@ export default {
                             this.createMultiSelect('Recto', { model: 'is_recto' } ),
                             this.createMultiSelect('Verso', { model: 'is_verso' } ),
                             this.createMultiSelect('Transversa charta', { model: 'is_transversa_charta' } ),
+                            this.createMultiSelect('Kollesis', { model: 'kollesis' } ),
                             this.createRangeSlider('lines','Text lines',0,160,5),
                             this.createRangeSlider('columns','Text columns',0,10,1),
                             this.createRangeSlider('letters_per_line','Letters per line',0,220,5),
