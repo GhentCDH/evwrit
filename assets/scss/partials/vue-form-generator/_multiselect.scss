@@ -90,6 +90,10 @@
     .multiselect__select {
       border-color: $white;
     }
+
+    .multiselect__placeholder {
+      color: white;
+    }
   }
 
   .multiselect--active {
@@ -490,6 +494,12 @@
       left: 1px;
       right: auto;
     }
+  }
+
+  // style dependent field placeholder
+  .field-multiselectClear.field--dependency-missing .multiselect__placeholder::before {
+    content: '\f06a';
+    font-family: 'fontawesome';
   }
 
 }

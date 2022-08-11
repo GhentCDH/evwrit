@@ -1,5 +1,8 @@
 import wNumb from 'wnumb'
 
+import Articles from 'articles'
+
+
 const RANGE_MIN_INVALID = -1
 const RANGE_MAX_INVALID = 10000
 
@@ -134,10 +137,14 @@ export default {
             // get everything after last '.'
             let modelName = field.model.split('.').pop()
 
+            let label = field.dependencyName ?? this.fields[field.dependency].label.toLowerCase()
+
             delete model[modelName]
             field.disabled = true
             field.selectOptions.loading = false
-            field.placeholder = 'Please select a ' + (field.dependencyName ? field.dependencyName : field.dependency) + ' first'
+            field.placeholder = 'Please select ' + Articles.articlize(label) + ' first'
+            // set dependency state
+            field.styleClasses = [...new Set(field?.styleClasses?.split(' ') ?? []).add('field--dependency-missing')].join(' ')
         },
         enableField(field, model = null, search = false) {
             if (model == null) {
@@ -169,24 +176,12 @@ export default {
             field.selectOptions.loading = false
             field.disabled = field.originalDisabled == null ? false : field.originalDisabled;
             let label = field.label.toLowerCase()
-            let article = 'a ';
-            switch(label) {
-                case 'article':
-                case 'office':
-                case 'online source':
-                case 'origin':
-                case 'editorial status':
-                case 'id':
-                    article = 'an ';
-                    break;
-                case 'acknowledgements':
-                    article = '';
-                    break;
-            }
-            field.placeholder = (field.selectOptions.multiple ? 'Select ' : 'Select ' + article) + label
-            if (field.model === 'diktyon') {
-                field.placeholder = 'Select a Diktyon number'
-            }
+            field.placeholder = 'Select ' + Articles.articlize(label)
+
+            // remove dependency state
+            let classes = new Set(field?.styleClasses?.split(' ') ?? [])
+            classes.delete('field--dependency-missing')
+            field.styleClasses = [... classes].join(' ')
         },
         noValuesField(field, model = null, search = false) {
             if (model == null) {
