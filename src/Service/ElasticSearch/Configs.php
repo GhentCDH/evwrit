@@ -31,6 +31,14 @@ class Configs implements SearchConfigInterface
             'location_written' => ['type' => self::FILTER_OBJECT_ID],
             'location_found' => ['type' => self::FILTER_OBJECT_ID],
             'form' => ['type' => self::FILTER_OBJECT_ID],
+            'has_translation' => [
+                'type' => self::FILTER_EXISTS,
+                'field' => 'translation',
+            ],
+            'has_image' => [
+                'type' => self::FILTER_EXISTS,
+                'field' => 'image',
+            ],
         ];
     }
 
