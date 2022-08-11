@@ -292,11 +292,15 @@ export default {
                                 type: 'switch',
                                 label: 'Translated',
                                 model: 'has_translation',
+                                textOff: ' ',
+                                textOn: ' ',
                             },
                             {
                                 type: 'switch',
                                 label: 'Has image(s)',
                                 model: 'has_image',
+                                textOff: ' ',
+                                textOn: ' ',
                             },
                         ]
                     },
