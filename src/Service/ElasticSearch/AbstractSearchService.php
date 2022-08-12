@@ -1064,7 +1064,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     {
         // get agg config
         $aggConfigs = $this->getSanitizedAggregationConfig();
-//        dump($aggConfigs);
         if (!count($aggConfigs)) {
             return [];
         }
@@ -1075,7 +1074,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         // get filters used in multiselect aggregations
         // these filters don't filter the whole set, but filter the set for each aggregation
         $aggFilterConfigs = $this->getAggregationFilters($filterValues);
-//        dump($aggFilterConfigs);
 
         // create global search query
         // exclude filters used in multiselect aggregations, will be added as aggregation filters
@@ -1141,32 +1139,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     foreach ($aggNestedFilter as $queryFilterField => $aggFilterConfig) {
                         $filterCount++;
                         self::addFieldQuery($filterQuery, $aggFilterConfig, $filterValues);
-                        /*
-                        $aggFilterConfig = is_string($aggFilterConfig) ? ['field' => $aggFilterConfig, 'type' => self::FILTER_KEYWORD] : $aggFilterConfig;
-                        $aggFilterConfig['name'] = $queryFilterField;
-                        $aggFilterField = $aggFilterConfig['field'] ?? $queryFilterField;
-                        $aggFilterType = $aggFilterConfig['type'];
-
-                        switch ($aggFilterType) {
-                            case self::FILTER_OBJECT_ID:
-                                $aggFilterField .= '.id';
-                                break;
-                            case self::FILTER_KEYWORD:
-                                $aggFilterField .= '.keyword';
-                                break;
-                        }
-
-                        if (is_array($filterValues[$queryFilterField])) {
-                            $filterQuery->addFilter(
-                                new Query\Terms($aggNestedPath . '.' . $aggFilterField, $filterValues[$queryFilterField]['value'])
-                            );
-                        } else {
-                            $filterQuery->addFilter(
-                                (new Query\Term())
-                                    ->setTerm($aggNestedPath . '.' . $aggFilterField, $filterValues[$queryFilterField]['value'])
-                            );
-                        }
-                        */
                     }
                 }
 
@@ -1207,10 +1179,17 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     break;
                 case self::AGG_KEYWORD:
                     $aggField = $aggField . '.keyword';
+                    $aggFilterValues = $filterValues[$aggName]['value'] ?? [];
 
                     $aggTerm = (new Aggregation\Terms($aggName))
                         ->setSize(self::MAX_AGG)
                         ->setField($aggField);
+
+                    // allow 0 doc count if aggregation is filtered
+                    if ( count($aggFilterValues) ) {
+                        $aggTerm->setMinimumDocumentCount(0);
+                    }
+
                     $aggParentQuery->addAggregation($aggTerm);
 
                     break;
@@ -1225,10 +1204,17 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 case self::AGG_OBJECT_ID_NAME:
                 case self::AGG_NESTED_ID_NAME:
                     $aggField = $aggField . '.id_name.keyword';
+                    $aggFilterValues = $filterValues[$aggName]['value'] ?? [];
 
                     $aggTerm = (new Aggregation\Terms($aggName))
                         ->setSize(self::MAX_AGG)
                         ->setField($aggField);
+
+                    // allow 0 doc count if aggregation is filtered
+                    if ( count($aggFilterValues) ) {
+                        $aggTerm->setMinimumDocumentCount(0);
+                    }
+
                     $aggParentQuery->addAggregation($aggTerm);
 
                     break;
@@ -1283,9 +1269,14 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     break;
                 case self::AGG_OBJECT_ID_NAME:
                 case self::AGG_NESTED_ID_NAME:
+                    $aggFilterValues = $filterValues[$aggName]['value'] ?? [];
                     foreach ($aggResults as $result) {
                         if (!isset($result['key'])) continue;
                         $parts = explode('_', $result['key'], 2);
+                        $count = (int) ($result['top_reverse_nested']['doc_count'] ?? $result['doc_count']);
+                        $id = (int) $parts[0];
+                        $name = $parts[1];
+
                         // limitValue/limitId?
                         if (count($aggConfig['limitId'] ?? []) && !in_array((int)$parts[0], $aggConfig['limitId'], true)) {
                             continue;
@@ -1297,11 +1288,15 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         if (count($aggConfig['ignoreValue'] ?? []) && in_array($parts[1], $aggConfig['ignoreValue'], true)) {
                             continue;
                         }
+                        // zero doc count?
+                        if ( $count === 0 && ( !count($aggFilterValues) || !in_array($id, $aggFilterValues, true) ) ) {
+                            continue;
+                        }
 
                         $results[$aggName][] = [
-                            'id' => (int)$parts[0],
-                            'name' => $parts[1],
-                            'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
+                            'id' => $id,
+                            'name' => $name,
+                            'count' => $count
                         ];
                     }
 //                    $this->sortAggregationResult($results[$aggName]);
