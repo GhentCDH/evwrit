@@ -23,7 +23,7 @@ export default {
         ExpertGroups,
     ],
     methods: {
-        generalInformationFields() {
+        generalInformationFields(includeMaterial = false) {
             return {
                 styleClasses: 'collapsible collapsed',
                 legend: 'General information',
@@ -103,11 +103,12 @@ export default {
                             model: 'script'
                         },
                     ),
+                    includeMaterial ?
                     this.createMultiSelect('Material',
                         {
-                            model: 'material'
+                            model: 'material',
                         },
-                    ),
+                    ) : {},
                     this.createMultiSelect('Keyword',
                         {
                             model: 'keyword'

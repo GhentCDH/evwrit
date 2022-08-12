@@ -133,7 +133,7 @@ export default {
             persons: null,
             schema: {
                 groups: [
-                    this.generalInformationFields(),
+                    this.generalInformationFields(true),
                     this.communicativeInformationFields(),
                     this.ancientPersonFields(),
                     this.administrativeInformationFields(),
