@@ -1,8 +1,8 @@
 <template>
-    <div class="widget" :class="{closed: !isOpen}">
+    <div class="widget" :class="{collapsed: collapsed, collapsible: collapsible}">
         <div class="sticky-block" @click="toggleOpen()">
             <div class="title">
-                <span class="toggle--open-close" >
+                <span class="toggle__collapsed" >
                     <i class="fa fa-angle-down" aria-hidden="true"></i>
                 </span>
                 <span>{{ title }}
@@ -32,15 +32,18 @@ export default {
             type: Boolean,
             default: false
         },
-        isOpen: {
+        collapsed: {
             type: Boolean,
             default: false
+        },
+        collapsible: {
+            type: Boolean,
+            default: true
         }
     },
     methods: {
         toggleOpen: function() {
-            let isOpenValue = !this.isOpen;
-            this.$emit('update:is-open', isOpenValue)
+            this.$emit('update:collapsed', !this.collapsed)
         },
     },
 }
@@ -53,6 +56,7 @@ export default {
 
   .sticky-block {
   }
+
   .title {
     text-transform: uppercase;
     font-size: 18px;
@@ -63,9 +67,8 @@ export default {
     font-family: $default-font-family, Arial, sans-serif;
     color: #777;
 
-    .toggle--open-close {
-      float: right;
-      color: #cccccc;
+    .toggle__collapsed {
+        display: none;
     }
 
     .count {
@@ -84,14 +87,12 @@ export default {
   }
 
   .body {
-
     padding: 15px 0;
 
     &.fixed {
       max-height: 200px;
       overflow-y: auto;
     }
-
   }
 
   .form-group {
@@ -102,19 +103,34 @@ export default {
       margin-bottom: 0;
     }
   }
+
+  &.collapsible {
+
+    .toggle__collapsed {
+      display: block;
+      float: right;
+      color: #cccccc;
+
+      .fa {
+        transform: rotate(180deg)
+      }
+    }
+
+    &.collapsed {
+
+      .toggle__collapsed .fa {
+        transform: none;
+      }
+
+      .body {
+        max-height: 0;
+        overflow: hidden;
+        transition: 0.2s;
+        margin: 0;
+        padding: 0;
+      }
+    }
+  }
 }
 
-.widget.closed {
-  .toggle--open-close .fa {
-    transform: rotate(-90deg);
-  }
-
-  .body {
-    max-height: 0;
-    overflow: hidden;
-    transition: 0.2s;
-    margin: 0;
-    padding: 0;
-  }
-}
 </style>

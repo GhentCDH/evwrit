@@ -103,7 +103,7 @@
         <aside class="col-sm-3 scrollable scrollable--vertical" ref="sidebar">
             <div class="padding-default">
 
-                <Widget v-if="isValidResultSet()" title="Search" :isOpen="true">
+                <Widget v-if="isValidResultSet()" title="Search" :collapsible="false">
                     <div class="row mbottom-default">
                         <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
@@ -122,11 +122,11 @@
 
 
 
-                <Widget title="Selection details" v-if="annotationId" :isOpen.sync="config.widgets.selectionDetails.isOpen">
+                <Widget title="Selection details" v-if="annotationId" :collapsed.sync="config.widgets.selectionDetails.isOpen">
                     <AnnotationDetails :annotation="annotationByTypeId[annotationId]"></AnnotationDetails>
                 </Widget>
 
-                <Widget title="Metadata" :is-open.sync="config.widgets.metadata.isOpen">
+                <Widget title="Metadata" :collapsed.sync="config.widgets.metadata.isOpen">
                     <LabelValue label="EVWRIT ID" :value="text.id"></LabelValue>
                     <LabelValue label="Trismegistos ID" :value="text.tm_id" :url="getTmTextUrl"></LabelValue>
 
@@ -149,17 +149,17 @@
 
                 </Widget>
 
-                <Widget title="Images" :count="text.image.length" :is-open.sync="config.widgets.images.isOpen">
+                <Widget title="Images" :count="text.image.length" :collapsed.sync="config.widgets.images.isOpen">
                     <Gallery :images="images" :onClick="(index,url) => (imageIndex = index)" />
                 </Widget>
 
-                <Widget title="Translations" :count="text.translation.length"  :is-open.sync="config.widgets.translations.isOpen">
+                <Widget title="Translations" :count="text.translation.length"  :collapsed.sync="config.widgets.translations.isOpen">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.translation.show" class="switch-primary" label="Show translation(s)" :disabled="text.translation.length === 0"></CheckboxSwitch>
                     </div>
                 </Widget>
 
-                <Widget title="Text options" :is-open.sync="config.widgets.textOptions.isOpen">
+                <Widget title="Text options" :collapsed.sync="config.widgets.textOptions.isOpen">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.text.showLemmas" class="switch-primary" label="Show Lemmas" :disabled="text.text_lemmas === ''"></CheckboxSwitch>
                     </div>
@@ -168,7 +168,7 @@
                     </div>
                 </Widget>
 
-                <Widget title="Materiality" :is-open.sync="config.widgets.materiality.isOpen">
+                <Widget title="Materiality" :collapsed.sync="config.widgets.materiality.isOpen">
                     <PropertyGroup>
                         <LabelValue type="id_name" label="Production stage" :value="text.production_stage" :url="urlGeneratorIdName('materiality_search','production_stage')"></LabelValue>
                         <LabelValue type="id_name" label="Material" :value="text.material" :url="urlGeneratorIdName('materiality_search','material')"></LabelValue>
@@ -186,7 +186,7 @@
                     </PropertyGroup>
                 </Widget>
 
-                <Widget title="People"  :is-open.sync="config.widgets.attestation.isOpen" :count="text.ancient_person.length">
+                <Widget title="People"  :collapsed.sync="config.widgets.attestation.isOpen" :count="text.ancient_person.length">
                     <template v-for="person in text.ancient_person">
                         <h3>{{ person.name }}</h3>
                         <LabelValue label="Trismegistos ID" :value="person.tm_id" :url="getTmPersonUrl"></LabelValue>
@@ -201,7 +201,7 @@
                     </template>
                 </Widget>
 
-                <Widget title="Annotations" :is-open.sync="config.widgets.annotations.isOpen" :count="visibleAnnotationsByContext.length">
+                <Widget title="Annotations" :collapsed.sync="config.widgets.annotations.isOpen" :count="visibleAnnotationsByContext.length">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.annotations.show" class="switch-primary" label="Show annotations in text"></CheckboxSwitch>
                     </div>
@@ -255,7 +255,7 @@
 
                 </Widget>
 
-                <Widget title="Generic Structure" :is-open.sync="config.widgets.genericTextStructure.isOpen" :count="genericTextStructure.length">
+                <Widget title="Generic Structure" :collapsed.sync="config.widgets.genericTextStructure.isOpen" :count="genericTextStructure.length">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic structure" :disabled="genericTextStructure.length === 0"></CheckboxSwitch>
                     </div>
@@ -290,7 +290,7 @@
                     </div>
                 </Widget>
 
-                <Widget title="Layout Structure" :is-open.sync="config.widgets.layoutTextStructure.isOpen" :count="layoutTextStructure.length">
+                <Widget title="Layout Structure" :collapsed.sync="config.widgets.layoutTextStructure.isOpen" :count="layoutTextStructure.length">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout structure" :disabled="layoutTextStructure.length === 0"></CheckboxSwitch>
                     </div>
@@ -325,7 +325,7 @@
                     </div>
                 </Widget>
 
-                <Widget title="Links" :count="text.link.length" :is-open.sync="config.widgets.links.isOpen">
+                <Widget title="Links" :count="text.link.length" :collapsed.sync="config.widgets.links.isOpen">
                     <div v-for="link in text.link">
                         <a :href="link.url">{{ link.title }}</a>
                     </div>
