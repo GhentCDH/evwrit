@@ -81,21 +81,29 @@ class Configs implements SearchConfigInterface
             'social_distance' => ['type' => self::FILTER_OBJECT_ID],
             'text_type' => ['type' => self::FILTER_OBJECT_ID],
             'text_subtype' => ['type' => self::FILTER_OBJECT_ID],
-            'agentive_role' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'agentive_role'
+            'agentive_role_group' => [
+                'type' => self::FILTER_NESTED_MULTIPLE,
+                'nested_path' => 'agentive_role',
+                'filters' => [
+                    'agentive_role' => [
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'generic_agentive_role' => [
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                ]
             ],
-            'communicative_goal' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'communicative_goal'
-            ],
-            'generic_agentive_role' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'agentive_role'
-            ],
-            'generic_communicative_goal' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'communicative_goal'
+            'communicative_goal_group' => [
+                'type' => self::FILTER_NESTED_MULTIPLE,
+                'nested_path' => 'communicative_goal',
+                'filters' => [
+                    'communicative_goal' => [
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'generic_communicative_goal' => [
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                ]
             ],
         ];
     }
@@ -110,28 +118,36 @@ class Configs implements SearchConfigInterface
             ],
             'text_type' => ['type' => self::AGG_OBJECT_ID_NAME],
             'text_subtype' => ['type' => self::AGG_OBJECT_ID_NAME],
-            'agentive_role' => [
-                'ignoreValue' => self::ignoreUnknownUncertain,
-                'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'agentive_role',
-                'filter' => [ 'generic_agentive_role' => 'generic_agentive_role.id' ]
-            ],
+            /* agentive role */
             'generic_agentive_role' => [
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'agentive_role',
             ],
-            /* goal */
+            'agentive_role' => [
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'type' => self::AGG_NESTED_ID_NAME,
+                'nested_path' => 'agentive_role',
+                'excludeFilter' => ['agentive_role_group'], // exclude filter of same type
+                'filter' => [
+                    'generic_agentive_role' => ['type' => self::FILTER_OBJECT_ID ]
+                ]
+            ],
+            /* communicative goal */
+            'generic_communicative_goal' => [
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'type' => self::AGG_NESTED_ID_NAME,
+                'excludeFilter' => ['communicative_goal_group'], // exclude filter of same type
+                'nested_path' => 'communicative_goal',
+            ],
             'communicative_goal' => [
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'communicative_goal',
-                'filter' => [ 'generic_communicative_goal' => 'generic_communicative_goal.id' ]
-            ],
-            'generic_communicative_goal' => [
-                'ignoreValue' => self::ignoreUnknownUncertain,
-                'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'communicative_goal',
+                'excludeFilter' => ['communicative_goal_group'], // exclude filter of same type
+                'filter' => [
+                    'generic_communicative_goal' => ['type' => self::FILTER_OBJECT_ID ]
+                ]
             ],
         ];
     }
