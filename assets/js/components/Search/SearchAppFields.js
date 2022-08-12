@@ -22,9 +22,9 @@ export default {
         SharedSearch,
         ExpertGroups,
     ],
-    data() {
-        return {
-            generalInformationFields: {
+    methods: {
+        generalInformationFields() {
+            return {
                 styleClasses: 'collapsible collapsed',
                 legend: 'General information',
                 fields: [
@@ -114,8 +114,10 @@ export default {
                         }
                     ),
                 ]
-            },
-            communicativeInformationFields: {
+            }
+        },
+        communicativeInformationFields() {
+            return {
                 styleClasses: 'collapsible collapsed',
                 legend: 'Communicative information',
                 fields: [
@@ -136,8 +138,10 @@ export default {
                     this.createSelect('Generic communicative goal', {model: 'generic_communicative_goal'}),
                     this.createSelect('Communicative goal', {model: 'communicative_goal', 'dependency': 'generic_communicative_goal'}),
                 ]
-            },
-            ancientPersonFields: {
+            }
+        },
+        ancientPersonFields() { 
+            return {
                 styleClasses: 'collapsible collapsed',
                 legend: 'Ancient persons',
                 fields: [
@@ -155,8 +159,10 @@ export default {
                     this.createMultiSelect('Honorific epithet', {model: 'ap_honorific_epithet'}),
                     this.createMultiSelect('Type graph', {model: 'ap_graph_type'}),
                 ]
-            },
-            administrativeInformationFields: {
+            }
+        },
+        administrativeInformationFields() {
+            return {
                 expertOnly: true,
                 styleClasses: 'collapsible collapsed',
                 legend: 'Administrative information',
@@ -168,8 +174,10 @@ export default {
                     ),
                     this.createMultiSelect('Collaborator', {model: 'collaborator'}),
                 ]
-            },
-            materialityFields: {
+            }
+        },
+        materialityFields() {
+            return {
                 styleClasses: 'collapsible collapsed',
                 legend: 'Materiality',
                 fields: [
@@ -218,8 +226,10 @@ export default {
                     this.createRangeSlider('width','Width',0,320,5),
                     this.createRangeSlider('height','Height',0,300,5),
                 ]
-            },
-            annotationsFields: {
+            }
+        },
+        annotationsFields() {
+            return {
                 styleClasses: 'collapsible collapsed bg-tertiary',
                 legend: 'Annotations',
                 fields: [
@@ -283,8 +293,10 @@ export default {
                     this.createMultiSelect('Relativisation content', { model: 'morpho_syntactical_orderContent' }), // todo: use to relativisationContent after schema update
                     this.createMultiSelect('Relativisation context', { model: 'morpho_syntactical_orderContext' }), // todo: use to relativisationContext after schema update
                 ]
-            },
-            handshiftFields: {
+            }
+        },
+        handshiftFields() {
+            return {
                 styleClasses: 'collapsible collapsed',
                 legend: 'Handwriting',
                 fields: [
@@ -304,8 +316,10 @@ export default {
                     this.createMultiSelect('Slope', { model: 'handshift_slope' }),
                     this.createMultiSelect('Word splitting', { model: 'handshift_wordSplitting' }),
                 ]
-            },
-            genericStructureFields: {
+            }
+        },
+        genericStructureFields() {
+            return {
                 styleClasses: 'collapsible collapsed',
                 legend: 'Generic structure',
                 fields: [
@@ -321,8 +335,10 @@ export default {
                     this.createMultiSelect('Type Attachment', { model: 'gtsa_attachmentType' }),
 
                 ]
-            },
-            layoutStructureFields: {
+            }
+        },
+        layoutStructureFields() {
+            return {
                 styleClasses: 'collapsible collapsed',
                 legend: 'Layout structure',
                 fields: [
@@ -338,13 +354,7 @@ export default {
                     this.createMultiSelect('Lineation', { model: 'ltsa_lineation' }),
                     this.createMultiSelect('Pagination', { model: 'ltsa_pagination' }),
                 ]
-            },
-        }
-    },
-    methods: {
-        
-    },
-    mounted() {
-        
-    },
+            }
+        },
+    }
 }

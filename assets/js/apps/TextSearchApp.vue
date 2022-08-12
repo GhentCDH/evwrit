@@ -133,61 +133,10 @@ export default {
             persons: null,
             schema: {
                 groups: [
-                    this.generalInformationFields,
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Communicative information',
-                        fields: [
-                            this.createMultiSelect('Archive',
-                                {
-                                    model: 'archive'
-                                },
-                            ),
-                            this.createSelect('Text type', {model: 'text_type'}),
-                            this.createSelect('Text subtype', {model: 'text_subtype', 'dependency': 'text_type'}),
-                            this.createMultiSelect('Social distance',
-                                {
-                                    model: 'social_distance'
-                                },
-                            ),
-                            this.createSelect('Generic agentive role', {model: 'generic_agentive_role'}),
-                            this.createSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
-                            this.createSelect('Generic communicative goal', {model: 'generic_communicative_goal'}),
-                            this.createSelect('Communicative goal', {model: 'communicative_goal', 'dependency': 'generic_communicative_goal'}),
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Ancient persons',
-                        fields: [
-                            this.createMultiSelect('Name', {model: 'ap_name'}),
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                label: 'Trismegistos ID',
-                                model: 'ap_tm_id',
-                            },
-                            this.createMultiSelect('Role', {model: 'ap_role'}),
-                            this.createMultiSelect('Gender', {model: 'ap_gender'}),
-                            this.createMultiSelect('Occupation', {model: 'ap_occupation'}),
-                            this.createMultiSelect('Social rank', {model: 'ap_social_rank'}),
-                            this.createMultiSelect('Honorific epithet', {model: 'ap_honorific_epithet'}),
-                            this.createMultiSelect('Type graph', {model: 'ap_graph_type'}),
-                        ]
-                    },
-                    {
-                        expertOnly: true,
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Administrative information',
-                        fields: [
-                            this.createMultiSelect('Project',
-                                {
-                                    model: 'project'
-                                },
-                            ),
-                            this.createMultiSelect('Collaborator', {model: 'collaborator'}),
-                        ]
-                    }
+                    this.generalInformationFields(),
+                    this.communicativeInformationFields(),
+                    this.ancientPersonFields(),
+                    this.administrativeInformationFields(),
                 ],
             },
             tableOptions: {

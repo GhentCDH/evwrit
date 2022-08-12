@@ -114,6 +114,7 @@ import CollapsibleGroups from '../components/Search/CollapsibleGroups'
 import ExpertGroups from '../components/Search/ExpertGroups'
 import PersistentConfig from "../components/Shared/PersistentConfig";
 import SharedSearch from "../components/Search/SharedSearch";
+import SearchAppFields from '../components/Search/SearchAppFields'
 
 import qs from "qs";
 
@@ -131,6 +132,7 @@ export default {
         AbstractSearch,
         SharedSearch,
         ExpertGroups,
+        SearchAppFields,
     ],
     props: {
     },
@@ -143,64 +145,13 @@ export default {
             },
             schema: {
                 groups: [
-                    // Generic text structure
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Generic structure',
-                        fields: [
-                            // level
-                            this.createMultiSelect('Level', { model: 'gts_textLevel' }),
-                            this.createMultiSelect('Part', { model: 'gts_part' }),
-                            this.createMultiSelect('Type', { model: 'gtsa_type' }),
-                            this.createMultiSelect('Subtype', { model: 'gtsa_subtype', 'dependency': 'gtsa_type' }),
-                            this.createMultiSelect('Speech act', { model: 'gtsa_speechAct' }),
-                            this.createMultiSelect('Information status', { model: 'gtsa_informationStatus' }),
-                            this.createMultiSelect('Standard form', { model: 'gtsa_standardForm' }),
-                            this.createMultiSelect('Attached to', { model: 'gtsa_attachedTo' }),
-                            this.createMultiSelect('Type Attachment', { model: 'gtsa_attachmentType' }),
-
-                        ]
-                    },
-                    // Layout text structure
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Layout structure',
-                        fields: [
-                            this.createMultiSelect('Part', { model: 'lts_part' }),
-                            this.createMultiSelect('Type', { model: 'ltsa_type' }),
-                            this.createMultiSelect('Subtype', { model: 'ltsa_subtype', 'dependency': 'ltsa_type' }),
-                            this.createMultiSelect('Spacing', { model: 'ltsa_spacing' }),
-                            this.createMultiSelect('Separation', { model: 'ltsa_separation' }),
-                            this.createMultiSelect('Orientation', { model: 'ltsa_orientation' }),
-                            this.createMultiSelect('Alignment', { model: 'ltsa_alignment' }),
-                            this.createMultiSelect('Indentation', { model: 'ltsa_indentation' }),
-                            this.createMultiSelect('Lectional signs', { model: 'ltsa_lectionalSigns' }),
-                            this.createMultiSelect('Lineation', { model: 'ltsa_lineation' }),
-                            this.createMultiSelect('Pagination', { model: 'ltsa_pagination' }),
-                        ]
-                    },
-                    // Handshift
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Handwriting',
-                        fields: [
-                            // handshift
-                            this.createMultiSelect('Abbreviation', { model: 'handshift_abbreviation' }),
-                            this.createMultiSelect('Accentuation', { model: 'handshift_accentuation' }),
-                            this.createMultiSelect('Connectivity', { model: 'handshift_connectivity' }),
-                            this.createMultiSelect('Correction', { model: 'handshift_correction' }),
-                            this.createMultiSelect('Curvature', { model: 'handshift_curvature' }),
-                            this.createMultiSelect('Degree of Formality', { model: 'handshift_degreeOfFormality' }),
-                            this.createMultiSelect('Expansion', { model: 'handshift_expansion' }),
-                            this.createMultiSelect('Lineation', { model: 'handshift_lineation' }),
-                            this.createMultiSelect('Orientation', { model: 'handshift_orientation' }),
-                            this.createMultiSelect('Punctuation', { model: 'handshift_punctuation' }),
-                            this.createMultiSelect('Regularity', { model: 'handshift_regularity' }),
-                            this.createMultiSelect('Script Type', { model: 'handshift_scriptType' }),
-                            this.createMultiSelect('Slope', { model: 'handshift_slope' }),
-                            this.createMultiSelect('Word splitting', { model: 'handshift_wordSplitting' }),
-                        ]
-                    },
+                    this.genericStructureFields(),
+                    this.layoutStructureFields(),
+                    this.handshiftFields(),
+                    this.generalInformationFields(),
+                    this.communicativeInformationFields(),
+                    this.materialityFields(),
+                    this.administrativeInformationFields(),
                     // General information
                     {
                         styleClasses: 'collapsible collapsed',
