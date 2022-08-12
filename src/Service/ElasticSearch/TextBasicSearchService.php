@@ -10,6 +10,8 @@ class TextBasicSearchService extends AbstractSearchService
 {
     const indexName = "texts";
 
+    const ignoreUnknownUncertain = ['unknown','uncertain', 'Unknown', 'Uncertain', 'Unknwon'];
+
     public function __construct(Client $client)
     {
         parent::__construct(

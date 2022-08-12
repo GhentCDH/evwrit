@@ -31,6 +31,14 @@ class Configs implements SearchConfigInterface
             'location_written' => ['type' => self::FILTER_OBJECT_ID],
             'location_found' => ['type' => self::FILTER_OBJECT_ID],
             'form' => ['type' => self::FILTER_OBJECT_ID],
+            'has_translation' => [
+                'type' => self::FILTER_EXISTS,
+                'field' => 'translation',
+            ],
+            'has_image' => [
+                'type' => self::FILTER_EXISTS,
+                'field' => 'image',
+            ],
         ];
     }
 
@@ -151,6 +159,7 @@ class Configs implements SearchConfigInterface
             'material' => ['type' => self::FILTER_OBJECT_ID],
             'text_format' => ['type' => self::FILTER_OBJECT_ID],
             'writing_direction' => ['type' => self::FILTER_OBJECT_ID],
+            'kollesis' => ['type' => self::FILTER_NUMERIC],
 
             'is_recto' => ['type' => self::FILTER_BOOLEAN],
             'is_verso' => ['type' => self::FILTER_BOOLEAN],
@@ -182,6 +191,26 @@ class Configs implements SearchConfigInterface
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
                 'ignore' => [-1, 10000]
             ],
+            'interlinear_space' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'margin_left' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'margin_right' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'margin_top' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'margin_bottom' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
         ];
     }
 
@@ -192,6 +221,7 @@ class Configs implements SearchConfigInterface
             'material'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'text_format' => ['type' => self::AGG_OBJECT_ID_NAME],
             'writing_direction' => ['type' => self::AGG_OBJECT_ID_NAME],
+            'kollesis' => ['type' => self::AGG_NUMERIC],
 
             'is_recto' => ['type' => self::AGG_BOOLEAN],
             'is_verso' => ['type' => self::AGG_BOOLEAN],
@@ -205,47 +235,55 @@ class Configs implements SearchConfigInterface
             'letters_per_line_max' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'letters_per_line.max'],
             'width' => ['type' => self::AGG_GLOBAL_STATS],
             'height' => ['type' => self::AGG_GLOBAL_STATS],
+            'interlinear_space' => ['type' => self::AGG_GLOBAL_STATS],
+            'margin_left' => ['type' => self::AGG_GLOBAL_STATS],
+            'margin_right' => ['type' => self::AGG_GLOBAL_STATS],
+            'margin_top' => ['type' => self::AGG_GLOBAL_STATS],
+            'margin_bottom' => ['type' => self::AGG_GLOBAL_STATS],
         ];
     }
 
     public static function filterAncientPerson(): array
     {
         return [
-            'ap_tm_id' => [
-                'type' => self::FILTER_NUMERIC,
+            'ancient_person' => [
+                'type' => self::FILTER_NESTED_MULTIPLE,
                 'nested_path' => 'ancient_person',
-                'field' => 'tm_id'
-            ],
-            'ap_role' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'ancient_person',
-                'field' => 'role'
-            ],
-            'ap_gender' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'ancient_person',
-                'field' => 'gender'
-            ],
-            'ap_occupation' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'ancient_person',
-                'field' => 'occupation'
-            ],
-            'ap_social_rank' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'ancient_person',
-                'field' => 'social_rank'
-            ],
-            'ap_honorific_epithet' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'ancient_person',
-                'field' => 'honorific_epithet'
-            ],
-            'ap_graph_type' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'ancient_person',
-                'field' => 'graph_type'
-            ],
+                'filters' => [
+                    'ap_name' => [
+                        'field' => 'name',
+                        'type' => self::FILTER_KEYWORD,
+                    ],
+                    'ap_tm_id' => [
+                        'field' => 'tm_id',
+                        'type' => self::FILTER_NUMERIC,
+                    ],
+                    'ap_role' => [
+                        'field' => 'role',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_gender' => [
+                        'field' => 'gender',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_occupation' => [
+                        'field' => 'occupation',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_social_rank' => [
+                        'field' => 'social_rank',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_honorific_epithet' => [
+                        'field' => 'honorific_epithet',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_graph_type' => [
+                        'field' => 'graph_type',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                ]
+            ]
         ];
     }
 
@@ -253,47 +291,59 @@ class Configs implements SearchConfigInterface
     {
         return [
             'ap_name' => [
-                'type' => self::AGG_NESTED_ID_NAME,
+                'type' => self::AGG_KEYWORD, 
+                'field' => 'name',
                 'nested_path' => 'ancient_person',
-                'field' => ''
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_name'])),
+            ],
+            'ap_tm_id' => [
+                'type' => self::AGG_NUMERIC, 
+                'field' => 'tm_id',
+                'nested_path' => 'ancient_person',
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['tm_id'])),
             ],
             'ap_role' => [
-                'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'ancient_person',
+                'type' => self::AGG_NESTED_ID_NAME, 
                 'field' => 'role',
+                'nested_path' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_role'])),
             ],
             'ap_gender' => [
-                'ignoreValue' => self::ignoreUnknownUncertain,
-                'type' => self::AGG_NESTED_ID_NAME,
+                'type' => self::AGG_NESTED_ID_NAME, 
+                'field' => 'gender',
                 'nested_path' => 'ancient_person',
-                'field' => 'gender'
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_gender'])),
             ],
             'ap_occupation' => [
-                'ignoreValue' => self::ignoreUnknownUncertain,
-                'type' => self::AGG_NESTED_ID_NAME,
+                'type' => self::AGG_NESTED_ID_NAME, 
+                'field' => 'occupation',
                 'nested_path' => 'ancient_person',
-                'field' => 'occupation'
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_occupation'])),
             ],
             'ap_social_rank' => [
-                'ignoreValue' => self::ignoreUnknownUncertain,
-                'type' => self::AGG_NESTED_ID_NAME,
+                'type' => self::AGG_NESTED_ID_NAME, 
+                'field' => 'social_rank',
                 'nested_path' => 'ancient_person',
-                'field' => 'social_rank'
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_social_rank'])),
             ],
             'ap_honorific_epithet' => [
-                'ignoreValue' => self::ignoreUnknownUncertain,
-                'type' => self::AGG_NESTED_ID_NAME,
+                'type' => self::AGG_NESTED_ID_NAME, 
+                'field' => 'honorific_epithet',
                 'nested_path' => 'ancient_person',
-                'field' => 'honorific_epithet'
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_honorific_epithet'])),
             ],
             'ap_graph_type' => [
-                'ignoreValue' => self::ignoreUnknownUncertain,
-                'type' => self::AGG_NESTED_ID_NAME,
+                'type' => self::AGG_NESTED_ID_NAME, 
+                'field' => 'graph_type',
                 'nested_path' => 'ancient_person',
-                'field' => 'graph_type'
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'filter' => array_diff_key(Configs::filterAncientPerson()['ancient_person']['filters'], array_flip(['ap_graph_type'])),
             ],
         ];
     }
-
 }

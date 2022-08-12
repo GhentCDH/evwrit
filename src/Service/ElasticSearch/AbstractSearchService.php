@@ -107,6 +107,12 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 if ($filterValue === null) break;
                 $ret['value'] = ($filterValue === '1' || $filterValue === 'true');
                 break;
+            case self::FILTER_EXISTS:
+                if ($filterValue === null) break;
+                if ($filterValue === 'true') {
+                    $ret['value'] = true;
+                }
+                break;
             case self::FILTER_DATE_RANGE:
                 $rangeFilter = [];
 
@@ -448,6 +454,12 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     }
                 }
 
+                break;
+            case self::FILTER_EXISTS:
+                if ( $filterValue ) {
+                    $filterQuery = new Query\Exists($filterField);               
+                    $query->addMust($filterQuery);
+                }
                 break;
             case self::FILTER_BOOLEAN:
                 if ($filterConfig['only_filter_on_true'] ?? false) {

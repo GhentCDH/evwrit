@@ -181,11 +181,17 @@ export default {
                             this.createMultiSelect('Recto', { model: 'is_recto' } ),
                             this.createMultiSelect('Verso', { model: 'is_verso' } ),
                             this.createMultiSelect('Transversa charta', { model: 'is_transversa_charta' } ),
+                            this.createMultiSelect('Kollesis', { model: 'kollesis' } ),
                             this.createRangeSlider('lines','Text lines',0,160,5),
                             this.createRangeSlider('columns','Text columns',0,10,1),
                             this.createRangeSlider('letters_per_line','Letters per line',0,220,5),
                             this.createRangeSlider('width','Width',0,320,5),
                             this.createRangeSlider('height','Height',0,300,5),
+                            this.createRangeSlider('interlinear_space','Interlinear space',0,22,0),
+                            this.createRangeSlider('margin_left','Margin Left',0,410,5),
+                            this.createRangeSlider('margin_right','Margin Right',0,410,5),
+                            this.createRangeSlider('margin_top','Margin Top',0,350,5),
+                            this.createRangeSlider('margin_bottom','Margin Bottom',0,1050,5),
                         ]
                     },
                     {
@@ -244,6 +250,16 @@ export default {
                                     model: 'era'
                                 }
                             ),
+                            this.createMultiSelect('Location found',
+                                {
+                                    model: 'location_found'
+                                }
+                            ),
+                            this.createMultiSelect('Location written',
+                                {
+                                    model: 'location_written'
+                                }
+                            ),
                             this.createMultiSelect('Language',
                                 {
                                     model: 'language'
@@ -263,6 +279,20 @@ export default {
                                     closeOnSelect: false,
                                 }
                             ),
+                            {
+                                type: 'switch',
+                                label: 'Translated',
+                                model: 'has_translation',
+                                textOff: ' ',
+                                textOn: ' ',
+                            },
+                            {
+                                type: 'switch',
+                                label: 'Has image(s)',
+                                model: 'has_image',
+                                textOff: ' ',
+                                textOn: ' ',
+                            },
                         ]
                     },
                     {

@@ -7,6 +7,7 @@ interface SearchConfigInterface
     const FILTER_BOOLEAN = "boolean"; // boolean term filter
     const FILTER_KEYWORD = "keyword"; // term filter
     const FILTER_WILDCARD = "wildcard"; // wildcard term filter
+    const FILTER_EXISTS = "exists"; 
 
     const FILTER_TEXT = "text";
     const FILTER_TEXT_MULTIPLE = "text_multiple";

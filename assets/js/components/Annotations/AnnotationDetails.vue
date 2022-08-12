@@ -1,6 +1,6 @@
 <template>
     <div class="annotation__details">
-        <LabelValue label="Original" :value="annotation.text_selection.text" :inline="false" value-class="greek" valueClass="greek" class="mbottom-small"></LabelValue>
+        <LabelValue label="Edited" v-if="annotation.text_selection.text_edited" :value="annotation.text_selection.text_edited" :inline="false" value-class="greek" valueClass="greek" class="mbottom-small"></LabelValue>
         <LabelValue label="Annotation Type" :value="annotationType" :inline="false" class="mbottom-small"></LabelValue>
         <LabelValue v-for="(value, label) in propertiesLabelValue" v-bind:key="label" :label="label" :value="value" :inline="true"></LabelValue>
     </div>
