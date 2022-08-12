@@ -144,6 +144,7 @@ export default {
                     this.generalInformationFields(),
                     this.communicativeInformationFields(),
                     this.administrativeInformationFields(),
+                    this.ancientPersonFields(),
                 ],
             },
             tableOptions: {
