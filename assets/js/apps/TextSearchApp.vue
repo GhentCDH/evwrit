@@ -98,6 +98,7 @@
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
+import SearchAppFields from '../components/Search/SearchAppFields'
 import AbstractField from '../components/FormFields/AbstractField'
 import AbstractSearch from '../components/Search/AbstractSearch'
 import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
@@ -120,6 +121,7 @@ export default {
         AbstractSearch,
         SharedSearch,
         ExpertGroups,
+        SearchAppFields,
     ],
     props: {
     },
@@ -131,110 +133,7 @@ export default {
             persons: null,
             schema: {
                 groups: [
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'General information',
-                        fields: [
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                label: 'Title',
-                                model: 'title',
-                            },
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                label: 'Text ID',
-                                model: 'id',
-                            },
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                label: 'Trismegistos ID',
-                                model: 'tm_id',
-                            },
-                            {
-                                type: 'input',
-                                inputType: 'number',
-                                label: 'Year from',
-                                model: 'year_begin',
-                                min: AbstractSearch.YEAR_MIN,
-                                max: AbstractSearch.YEAR_MAX,
-                                validator: VueFormGenerator.validators.number,
-                            },
-                            {
-                                type: 'input',
-                                inputType: 'number',
-                                label: 'Year to',
-                                model: 'year_end',
-                                min: AbstractSearch.YEAR_MIN,
-                                max: AbstractSearch.YEAR_MAX,
-                                validator: VueFormGenerator.validators.number,
-                            },
-                            {
-                                type: 'radio',
-                                label: 'The text date interval must ... the search date interval:',
-                                labelClasses: 'control-label',
-                                model: 'date_search_type',
-                                values: [
-                                    {value: 'exact', name: 'exactly match'},
-                                    {value: 'included', name: 'be included in'},
-                                    {value: 'overlap', name: 'overlap with'},
-                                ],
-                            },
-                            this.createMultiSelect('Era',
-                                {
-                                    model: 'era'
-                                },
-                            ),
-                            this.createMultiSelect('Location found',
-                                {
-                                    model: 'location_found'
-                                }
-                            ),
-                            this.createMultiSelect('Location written',
-                                {
-                                    model: 'location_written',
-                                }
-                            ),
-                            this.createOperators('language_op'),
-                            this.createMultiSelect('Language',
-                                {
-                                    model: 'language'
-                                },
-                            ),
-                            this.createOperators('script_op'),
-                            this.createMultiSelect('Script',
-                                {
-                                    model: 'script'
-                                },
-                            ),
-                            this.createMultiSelect('Material',
-                                {
-                                    model: 'material'
-                                },
-                            ),
-                            this.createMultiSelect('Keyword',
-                                {
-                                    model: 'keyword'
-                                }
-                            ),
-                            {
-                                type: 'switch',
-                                label: 'Translated',
-                                model: 'has_translation',
-                                textOff: ' ',
-                                textOn: ' ',
-                            },
-                            {
-                                type: 'switch',
-                                label: 'Has image(s)',
-                                model: 'has_image',
-                                textOff: ' ',
-                                textOn: ' ',
-                            },
-                        ]
-                    },
+                    this.generalInformationFields,
                     {
                         styleClasses: 'collapsible collapsed',
                         legend: 'Communicative information',
