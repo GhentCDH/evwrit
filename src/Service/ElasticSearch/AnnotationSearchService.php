@@ -65,7 +65,7 @@ class AnnotationSearchService extends AbstractSearchService
                 'orderForm', 'orderContent', 'orderContext', // todo: replace by relativisation fields after reimport
                 'typeFormulaicity'
             ],
-            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting'],
+            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
         ];
 
         foreach( $annotationProperties as $type => $properties ) {
@@ -106,7 +106,7 @@ class AnnotationSearchService extends AbstractSearchService
                 'orderForm', 'orderContent', 'orderContext', // todo: remove after schema update
                 'typeFormulaicity'
             ],
-            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting'],
+            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
         ];
 
         // create aggregation filter keys (typography_wordSplitting, typography_correction ...)
