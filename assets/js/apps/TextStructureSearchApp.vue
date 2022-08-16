@@ -199,6 +199,7 @@ export default {
                             this.createMultiSelect('Script Type', { model: 'handshift_scriptType' }),
                             this.createMultiSelect('Slope', { model: 'handshift_slope' }),
                             this.createMultiSelect('Word splitting', { model: 'handshift_wordSplitting' }),
+                            this.createMultiSelect('Status', { model: 'handshift_status' }),
                         ]
                     },
                     // General information

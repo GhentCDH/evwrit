@@ -284,6 +284,7 @@ export default {
                             this.createMultiSelect('Word splitting', { model: 'handshift_wordSplitting' }),
                             this.createMultiSelect('Abbreviation', { model: 'handshift_abbreviation' }),
                             this.createMultiSelect('Correction', { model: 'handshift_correction' }),
+                            this.createMultiSelect('Status', { model: 'handshift_status' }),
                         ]
                     },
 
