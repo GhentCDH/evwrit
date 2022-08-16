@@ -98,6 +98,7 @@
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
+import SearchAppFields from '../components/Search/SearchAppFields'
 import AbstractField from '../components/FormFields/AbstractField'
 import AbstractSearch from '../components/Search/AbstractSearch'
 import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
@@ -120,6 +121,7 @@ export default {
         AbstractSearch,
         SharedSearch,
         ExpertGroups,
+        SearchAppFields,
     ],
     props: {
     },
@@ -131,164 +133,10 @@ export default {
             persons: null,
             schema: {
                 groups: [
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'General information',
-                        fields: [
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                label: 'Title',
-                                model: 'title',
-                            },
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                label: 'Text ID',
-                                model: 'id',
-                            },
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                label: 'Trismegistos ID',
-                                model: 'tm_id',
-                            },
-                            {
-                                type: 'input',
-                                inputType: 'number',
-                                label: 'Year from',
-                                model: 'year_begin',
-                                min: AbstractSearch.YEAR_MIN,
-                                max: AbstractSearch.YEAR_MAX,
-                                validator: VueFormGenerator.validators.number,
-                            },
-                            {
-                                type: 'input',
-                                inputType: 'number',
-                                label: 'Year to',
-                                model: 'year_end',
-                                min: AbstractSearch.YEAR_MIN,
-                                max: AbstractSearch.YEAR_MAX,
-                                validator: VueFormGenerator.validators.number,
-                            },
-                            {
-                                type: 'radio',
-                                label: 'The text date interval must ... the search date interval:',
-                                labelClasses: 'control-label',
-                                model: 'date_search_type',
-                                values: [
-                                    {value: 'exact', name: 'exactly match'},
-                                    {value: 'included', name: 'be included in'},
-                                    {value: 'overlap', name: 'overlap with'},
-                                ],
-                            },
-                            this.createMultiSelect('Era',
-                                {
-                                    model: 'era'
-                                },
-                            ),
-                            this.createMultiSelect('Location found',
-                                {
-                                    model: 'location_found'
-                                }
-                            ),
-                            this.createMultiSelect('Location written',
-                                {
-                                    model: 'location_written',
-                                }
-                            ),
-                            this.createOperators('language_op'),
-                            this.createMultiSelect('Language',
-                                {
-                                    model: 'language'
-                                },
-                            ),
-                            this.createOperators('script_op'),
-                            this.createMultiSelect('Script',
-                                {
-                                    model: 'script'
-                                },
-                            ),
-                            this.createMultiSelect('Material',
-                                {
-                                    model: 'material'
-                                },
-                            ),
-                            this.createMultiSelect('Keyword',
-                                {
-                                    model: 'keyword'
-                                }
-                            ),
-                            {
-                                type: 'switch',
-                                label: 'Translated',
-                                model: 'has_translation',
-                                textOff: ' ',
-                                textOn: ' ',
-                            },
-                            {
-                                type: 'switch',
-                                label: 'Has image(s)',
-                                model: 'has_image',
-                                textOff: ' ',
-                                textOn: ' ',
-                            },
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Communicative information',
-                        fields: [
-                            this.createMultiSelect('Archive',
-                                {
-                                    model: 'archive'
-                                },
-                            ),
-                            this.createSelect('Text type', {model: 'text_type'}),
-                            this.createSelect('Text subtype', {model: 'text_subtype', 'dependency': 'text_type'}),
-                            this.createMultiSelect('Social distance',
-                                {
-                                    model: 'social_distance'
-                                },
-                            ),
-                            this.createSelect('Generic agentive role', {model: 'generic_agentive_role'}),
-                            this.createSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
-                            this.createSelect('Generic communicative goal', {model: 'generic_communicative_goal'}),
-                            this.createSelect('Communicative goal', {model: 'communicative_goal', 'dependency': 'generic_communicative_goal'}),
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Ancient persons',
-                        fields: [
-                            this.createMultiSelect('Name', {model: 'ap_name'}),
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                label: 'Trismegistos ID',
-                                model: 'ap_tm_id',
-                            },
-                            this.createMultiSelect('Role', {model: 'ap_role'}),
-                            this.createMultiSelect('Gender', {model: 'ap_gender'}),
-                            this.createMultiSelect('Occupation', {model: 'ap_occupation'}),
-                            this.createMultiSelect('Social rank', {model: 'ap_social_rank'}),
-                            this.createMultiSelect('Honorific epithet', {model: 'ap_honorific_epithet'}),
-                            this.createMultiSelect('Type graph', {model: 'ap_graph_type'}),
-                        ]
-                    },
-                    {
-                        expertOnly: true,
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Administrative information',
-                        fields: [
-                            this.createMultiSelect('Project',
-                                {
-                                    model: 'project'
-                                },
-                            ),
-                            this.createMultiSelect('Collaborator', {model: 'collaborator'}),
-                        ]
-                    }
+                    this.generalInformationFields(true),
+                    this.communicativeInformationFields(),
+                    this.ancientPersonFields(),
+                    this.administrativeInformationFields(),
                 ],
             },
             tableOptions: {
