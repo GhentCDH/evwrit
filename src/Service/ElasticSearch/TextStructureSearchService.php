@@ -58,7 +58,7 @@ class TextStructureSearchService extends AbstractSearchService
             'lts' => ['part'],
             'ltsa' => ['type', 'subtype', 'spacing', 'separation', 'orientation', 'alignment', 'indentation', 'lectionalSigns', 'lineation', 'pagination'],
             'gtsa' => ['type', 'subtype', 'standardForm', 'attachedTo', 'attachmentType','speechAct','informationStatus'],
-            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting'],
+            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
         ];
 
         foreach( $annotationProperties as $type => $properties ) {
@@ -89,7 +89,7 @@ class TextStructureSearchService extends AbstractSearchService
             'lts' => ['part'],
             'ltsa' => ['type', 'subtype', 'spacing', 'separation', 'orientation', 'alignment', 'indentation', 'lectionalSigns', 'lineation', 'pagination'],
             'gtsa' => ['type', 'subtype', 'standardForm', 'attachedTo', 'attachmentType','speechAct','informationStatus'],
-            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting'],
+            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
         ];
 
         // create aggregation filter keys (typography_wordSplitting, typography_correction ...)
@@ -127,22 +127,13 @@ class TextStructureSearchService extends AbstractSearchService
             }
         }
 
-        // add annotation type aggretation
+        // add gts level aggretation
         $filter_name = 'gts_textLevel';
         $aggregationFilters[$filter_name] = [
-            'type' => self::AGG_KEYWORD,
-            'field' => 'type',
+            'type' => self::AGG_NUMERIC,
+            'field' => 'properties.gts_textLevel.number',
             'nested_path' => "annotations",
-            'excludeFilter' => ['annotations'], // exclude filter of same type
-            'filter' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($filter_name) {
-                if ( $subfilter_name != $filter_name ) {
-                    $carry[$subfilter_name] = [
-                        'field' => "properties.{$subfilter_name}",
-                        'type' => self::FILTER_OBJECT_ID
-                    ];
-                }
-                return $carry;
-            }, []),
+            'excludeFilter' => ['annotations'], // exclude filter of same type,
         ];
         // filter annotation_type
         $aggregationFilters[$filter_name]['filter']['annotation_type'] = [

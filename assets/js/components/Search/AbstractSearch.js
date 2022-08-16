@@ -19,7 +19,7 @@ Vue.use(VueTables.ServerTable)
 Vue.component('multiselect', VueMultiselect)
 Vue.component('fieldMultiselectClear', fieldMultiselectClear)
 Vue.component('fieldCustomNoUiSlider', fieldNoUiSlider)
-
+Vue.component('fieldCheckboxes', fieldCheckboxes)
 
 const YEAR_MIN = 1
 const YEAR_MAX = (new Date()).getFullYear()
