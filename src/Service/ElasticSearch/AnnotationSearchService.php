@@ -224,6 +224,8 @@ class AnnotationSearchService extends AbstractSearchService
                     $params['orderBy'] = ['title.keyword'];
 
                     break;
+                case 'id':
+                case 'tm_id':
                 case 'year_begin':
                 case 'year_end':
                     $params['orderBy'] = [ $params['orderBy'] ];

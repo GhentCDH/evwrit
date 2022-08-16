@@ -159,7 +159,7 @@ export default {
                 },
                 'perPage': 25,
                 'perPageValues': [25, 50, 100],
-                'sortable': ['title', 'year_begin', 'year_end'],
+                'sortable': ['id','tm_id','title', 'year_begin', 'year_end'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
