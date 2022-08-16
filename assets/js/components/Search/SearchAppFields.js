@@ -13,15 +13,6 @@ import SharedSearch from "./SharedSearch"
 Vue.component('fieldRadio', fieldRadio);
 
 export default {
-    components: {
-        CheckboxSwitch
-    },
-    mixins: [
-        AbstractField,
-        AbstractSearch,
-        SharedSearch,
-        ExpertGroups,
-    ],
     methods: {
         generalInformationFields(includeMaterial = false) {
             return {
