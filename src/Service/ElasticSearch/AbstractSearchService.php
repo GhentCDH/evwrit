@@ -15,6 +15,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     const SEARCH_RAW_MAX_RESULTS = 500;
     private const DEFAULT_FILTER_TYPE = self::FILTER_KEYWORD;
 
+    private const ANY_LABEL = 'any';
+    private const ANY_KEY = -2;
+    private const NONE_LABEL = 'none';
+    private const NONE_KEY = -1;
+
     protected function sanitizeSearchParameters(array $params, bool $merge_defaults = true): array
     {
         // Set default parameters
@@ -248,6 +253,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $config['filters'][$sub_name] = $this->sanitizeSearchFilterConfig($sub_name, $sub_config);
             }
         }
+        $config['anyKey'] = $config['anyKey'] ?? self::ANY_KEY;
+        $config['noneKey'] = $config['noneKey'] ?? self::NONE_KEY;
         return $config;
     }
 
@@ -264,6 +271,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $config['filters'][$sub_name] = $this->sanitizeSearchFilterConfig($sub_name, $sub_config);
             }
         }
+
+        $config['anyKey'] = $config['anyKey'] ?? self::ANY_KEY;
+        $config['anyLabel'] = $config['anyLabel'] ?? self::ANY_LABEL;
+        $config['noneKey'] = $config['noneKey'] ?? self::NONE_KEY;
+        $config['noneLabel'] = $config['noneLabel'] ?? self::NONE_LABEL;
         return $config;
     }
 
@@ -403,6 +415,37 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $filterFieldCount = $filterField . '_count';
                 $filterOperator = $filters[$filterName]['operator'];
 
+                $boolIsNone = in_array((int) $filterConfig['noneKey'], $filterValue, true)
+                    || in_array($filterConfig['noneKey'], $filterValue, true)
+                    || in_array('none', $filterOperator, true);
+
+                if ($boolIsNone) {
+                    if ($boolIsNestedFilter) {
+                        $queryNested = self::createNestedQuery($filterNestedPath, $filterConfig);
+                        $query_filters = $queryNested->getParam('query');
+                        $query->addFilter($queryNested);
+                    } else {
+                        $query_filters = $query;
+                    }
+                    $query_filters->addMustNot(new Query\Exists($filterFieldId));
+                    break;
+                }
+
+                $boolIsAny = in_array((int) $filterConfig['anyKey'], $filterValue, true)
+                    || in_array($filterConfig['anyKey'], $filterValue, true)
+                    || in_array('any', $filterOperator, true);
+                if ($boolIsAny) {
+                    if ($boolIsNestedFilter) {
+                        $queryNested = self::createNestedQuery($filterNestedPath, $filterConfig);
+                        $query_filters = $queryNested->getParam('query');
+                        $query->addFilter($queryNested);
+                    } else {
+                        $query_filters = $query;
+                    }
+                    $query_filters->addMust(new Query\Exists($filterFieldId));
+                    break;
+                }
+
                 // AND operator? or default OR operator?
                 if (in_array('and', $filterOperator, true)) {
                     $query = new Query\BoolQuery();
@@ -419,12 +462,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                             $query_filters = $query;
                         }
 
-                        // If value == -1, select all entries without a value for a specific field
-                        if ($value === -1) {
-                            $query_filters->addMustNot(new Query\Exists($filterFieldId));
-                        } else {
-                            $query_filters->addMust(self::createTermQuery($filterFieldId, $value));
-                        }
+                        $query_filters->addMust(self::createTermQuery($filterFieldId, $value));
                     }
                     if ($query->count()) {
                         in_array('not', $filterOperator, true) ? $query_top->addMustNot($query) : $query_top->addFilter($query);
@@ -444,15 +482,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         $query_filters = $query = new Query\BoolQuery();
                     }
 
-                    $query_filters_count = 0;
-                    foreach ($filterValue as $value) {
-                        if ($value === -1) {
-                            $query_filters->addShould((new Query\BoolQuery())->addMustNot(new Query\Exists($filterFieldId)));
-                        } else {
-                            $query_filters->addShould(self::createTermQuery($filterFieldId, $value));
-                            $query_filters_count++;
-                        }
-                    }
+                    $query_filters->addShould(new Query\Terms($filterFieldId, $filterValue));
 
                     if ($query_filters->count()) {
                         in_array('not', $filterOperator, true) ? $query_top->addMustNot($query) : $query_top->addFilter($query);
@@ -1101,17 +1131,19 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             if (!$aggIsGlobal) {
                 $aggSearchFilters = array_diff_key($aggFilterConfigs, array_flip($aggConfig['excludeFilter'] ?? []));
                 unset($aggSearchFilters[$aggName]);
-
                 if (count($aggSearchFilters)) {
                     $filterQuery = $this->createSearchQuery($filterValues, [], $aggSearchFilters);
-                    if ($filterQuery->count()) {
-                        $aggSubQuery = new Aggregation\Filter($aggName);
-                        $aggSubQuery->setFilter($filterQuery);
-
-                        $aggParentQuery->addAggregation($aggSubQuery);
-                        $aggParentQuery = $aggSubQuery;
-                    }
+                } else {
+                    $filterQuery = new Query\BoolQuery();
                 }
+
+//                if ($filterQuery->count()) {
+                    $aggSubQuery = new Aggregation\Filter($aggName);
+                    $aggSubQuery->setFilter($filterQuery);
+
+                    $aggParentQuery->addAggregation($aggSubQuery);
+                    $aggParentQuery = $aggSubQuery;
+//                }
             }
 
             // nested aggregation?
@@ -1216,8 +1248,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     }
 
                     $aggParentQuery->addAggregation($aggTerm);
-
-                    break;
+                    $aggParentQuery->addAggregation(new Aggregation\Missing('count_missing', $aggField));
+                    $aggParentQuery->addAggregation((new Aggregation\Filters('count_any'))->addFilter(new Query\Exists($aggField)));
+                break;
             }
 
             // count top documents?
@@ -1227,34 +1260,37 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         }
 
-        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
+//        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
 
         // parse query result
         $searchResult = $this->getIndex()->search($query);
         $results = [];
 
         $arrAggData = $searchResult->getAggregations();
-//        dump($arrAggData);
+        dump($arrAggData);
 
         foreach ($aggConfigs as $aggName => $aggConfig) {
             $aggType = $aggConfig['type'];
 
             // get aggregation results
-            $aggResults = $arrAggData['global_aggregation'][$aggName] ?? $arrAggData[$aggName] ?? [];
+            $aggData = $arrAggData['global_aggregation'][$aggName] ?? $arrAggData[$aggName] ?? [];
+            dump($aggName);
 
             // local/global filtered?
-            while (isset($aggResults[$aggName])) {
-                $aggResults = $aggResults[$aggName];
-            }
-            $aggResults = $aggResults['buckets'] ?? $aggResults;
+//            while (isset($aggResults[$aggName])) {
+//                $aggResults = $aggResults[$aggName];
+//            }
+//            $aggResults = $aggResults['buckets'] ?? $aggResults;
 
             switch ($aggType) {
                 case self::AGG_GLOBAL_STATS:
+                    $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
                     $results[$aggName] = $aggResults;
                     break;
                 case self::AGG_NUMERIC:
                 case self::AGG_KEYWORD:
-                    foreach ($aggResults as $result) {
+                    $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
+                    foreach ($aggResults['buckets'] ?? [] as $result) {
                         if (!isset($result['key'])) continue;
                         if (count($aggConfig['limitValue'] ?? []) && !in_array($result['key'], $aggConfig['limitValue'], true)) {
                             continue;
@@ -1269,8 +1305,31 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     break;
                 case self::AGG_OBJECT_ID_NAME:
                 case self::AGG_NESTED_ID_NAME:
+                    // get none count
+                    $aggResults = $this->getAggregationData($aggData, $aggName, 'count_missing');
+                    if ( $aggResults['doc_count'] ?? null) {
+                        $results[$aggName][] = [
+                            'id' => $aggConfig['noneKey'],
+                            'name' => $aggConfig['noneLabel'],
+                            'count' => $aggResults['doc_count']
+                        ];
+                    }
+
+                    // get any count
+                    $aggResults = $this->getAggregationData($aggData, $aggName, 'count_any');
+                    dump($aggResults);
+                    if ( $aggResults['buckets'][0]['doc_count'] ?? null) {
+                        $results[$aggName][] = [
+                            'id' => $aggConfig['anyKey'],
+                            'name' => $aggConfig['anyLabel'],
+                            'count' => $aggResults['buckets'][0]['doc_count']
+                        ];
+                    }
+
+                    // get values
                     $aggFilterValues = $filterValues[$aggName]['value'] ?? [];
-                    foreach ($aggResults as $result) {
+                    $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
+                    foreach ($aggResults['buckets'] ?? [] as $result) {
                         if (!isset($result['key'])) continue;
                         $parts = explode('_', $result['key'], 2);
                         $count = (int) ($result['top_reverse_nested']['doc_count'] ?? $result['doc_count']);
@@ -1302,7 +1361,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 //                    $this->sortAggregationResult($results[$aggName]);
                     break;
                 case self::AGG_BOOLEAN:
-                    foreach ($aggResults as $result) {
+                    $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
+                    foreach ($aggResults['buckets'] ?? [] as $result) {
                         if (!isset($result['key'])) continue;
                         $results[$aggName][] = [
                             'id' => $result['key'],
@@ -1317,6 +1377,14 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $results;
     }
 
+    private function getAggregationData(array $data, string $top_agg_name, string $agg_name): ?array
+    {
+        $results = $data;
+        while($results[$agg_name] ?? $results[$top_agg_name] ?? null) {
+            $results = $results[$agg_name] ?? $results[$top_agg_name];
+        }
+        return $results;
+    }
 
     /**
      * Return filters that are used in aggregations
