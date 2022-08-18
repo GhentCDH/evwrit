@@ -664,24 +664,18 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
                 // create nested query
                 $queryNested = self::createNestedQuery($filterNestedPath, $filterConfig);
-                $subquery = $queryNested->getParam('query');
+                $subQuery = $queryNested->getParam('query');
 
-                $query->addMust($queryNested);
-                $query = $subquery;
-
-                // subfilters with values
+                // add subfilters with values
                 $subFilters = array_intersect_key($filterConfig['filters'] ?? [], $filters);
-
-                // add subfilters
                 if (count($subFilters)) {
                     foreach ($subFilters as $subFilterName => $subFilterConfig) {
-//                        $subFilterConfig['name'] = $subFilterName;
-//                        $subFilterConfig['field'] = $subFilterConfig['field'] ?? $subFilterName;
-//                        $subFilterConfig['fieldPrefix'] = $filterPath;
-//                        $subFilterConfig['type'] = $subFilterConfig['type'] ?? self::FILTER_KEYWORD; // legacy?
-
-                        $this->addFieldQuery($query, $subFilterConfig, $filters);
+                        $this->addFieldQuery($subQuery, $subFilterConfig, $filters);
                     }
+                }
+
+                if ($subQuery->count()) {
+                    $query->addMust($queryNested);
                 }
                 break;
         }
