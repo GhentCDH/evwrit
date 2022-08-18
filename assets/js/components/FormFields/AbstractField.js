@@ -27,7 +27,11 @@ export default {
                     trackBy: 'id',
                 },
                 // Will be enabled by enableField
-                disabled: true
+                disabled: true,
+                anyKey: -2,
+                allowAny: true,
+                noneKey: -1,
+                allowNone: true
             }
             if (extra != null) {
                 for (let key of Object.keys(extra)) {
@@ -83,7 +87,6 @@ export default {
                     { name: "AND", value: "and", toggleGroup: "and_or", disabled: this.operatorIsDisabled },
                     { name: "NOT", value: "not", disabled: this.operatorIsDisabled },
                     { name: "ONLY", value: "only", disabled: this.operatorIsDisabled },
-                    { name: "ANY", value: "any", disabled: this.operatorIsDisabled },
                 ]
             }
             if (extra != null) {
@@ -98,15 +101,22 @@ export default {
             return result;
         },
         operatorIsDisabled(model, schema, item) {
-            let parentCount = model[schema.parentModel] === undefined ? 0 : model[schema.parentModel].length;
+            let parentValues = model[schema.parentModel] === undefined ? [] : model[schema.parentModel]
+            let parentCount = parentValues.length;
+            let globalKeys = [ model[schema.parentModel]?.noneKey ?? -1, model[schema.parentModel]?.anyKey ?? -2 ]
 
-            if ( ['and', 'or', 'only'].includes(item.value) ) {
+            // any/none selected? disable all
+            if ( parentValues.length === 1 && globalKeys.includes(parentValues[0].id) ) {
+                return true
+            }
+
+            if ( ['and', 'or'].includes(item.value) ) {
                 if ( parentCount < 2 ) {
                     return true
                 }
             }
-            if (item.value === 'not') {
-                if ( model[schema.model] === undefined || model[schema.model].filter( v => ['and', 'or', 'any'].includes(v)).length === 0) {
+            if ( ['not', 'only'].includes(item.value) ) {
+                if ( parentCount < 1 ) {
                     return true
                 }
             }
