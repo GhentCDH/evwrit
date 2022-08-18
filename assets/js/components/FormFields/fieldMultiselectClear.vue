@@ -55,8 +55,9 @@
                     @mousedown.prevent.stop="props.toggle()"
                 )
             template(slot="option", slot-scope="props")
-                span.option__title {{ props.option.name }}
-                span.option__count {{ props.option.count }}
+                div(:class="optionClass(props.option)")
+                    span.option__title {{ props.option.name }}
+                    span.option__count {{ props.option.count }}
 </template>
 <script>
 import { abstractField } from 'vue-form-generator';
@@ -67,16 +68,15 @@ export default {
         selectOptions() {
             return this.schema.selectOptions || {};
         },
-
         options() {
             let values = this.schema.values;
             if (typeof(values) == 'function') {
                 return values.apply(this, [this.model, this.schema]);
             } else {
-                return values;
+                return values
             }
         },
-        customLabel(){
+        customLabel() {
             if (typeof this.schema.selectOptions !== 'undefined' && typeof this.schema.selectOptions.customLabel !== 'undefined' && typeof this.schema.selectOptions.customLabel === 'function') {
                 return this.schema.selectOptions.customLabel;
             } else {
@@ -84,6 +84,18 @@ export default {
                 return undefined;
             }
         },
+        valueKeys() {
+            return this.getKeys(Array.isArray(this.value) ? this.value : [])
+        },
+        noneKey() {
+            return this.schema?.noneKey ?? -1
+        },
+        anyKey() {
+            return this.schema?.anyKey ?? -2
+        },
+        globalKeys() {
+            return [ this.noneKey, this.anyKey ]
+        }
     },
     created() {
         // Check if the component is loaded globally
@@ -92,8 +104,32 @@ export default {
         }
     },
     methods: {
+        getKeys(values) {
+            return values.map( item => item.id )
+        },
+        getValueKeys(keys) {
+            return keys.filter( key => !this.globalKeys.includes(key) )
+        },
+        getGlobalKeys(keys) {
+            return this.globalKeys.filter(value => keys.includes(value))
+        },
+        optionClass(option) {
+            return {
+                'multiselect__option--none': option.id === this.noneKey,
+                'multiselect__option--any': option.id === this.anyKey
+            }
+        },
         updateSelected(value/*, id*/) {
-            this.value = value;
+            // get new values
+            let new_values = value.filter( item => !this.valueKeys.includes(item.id))
+            // check if values contain global keys
+            let selected_global_keys = this.getGlobalKeys(this.getKeys(new_values));
+            // if global, only global key allowed, if not, only value keys allowed
+            if (selected_global_keys.length) {
+                this.value = value.filter( item => selected_global_keys[0] === item.id )
+            } else {
+                this.value = value.filter( item => !this.globalKeys.includes(item.id) )
+            }
         },
         addTag(newTag, id) {
             let onNewTag = this.selectOptions.onNewTag;
