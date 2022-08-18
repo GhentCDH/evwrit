@@ -17,7 +17,7 @@ export default {
 
 	watch: {
 		value: function() {
-            console.log(this.value)
+            // console.log(this.value)
             // console.log(this.value)
 
 			if (window.noUiSlider && this.slider && this.slider.noUiSlider) {
@@ -44,7 +44,7 @@ export default {
 				// Single value
 				this.value = parseFloat(value);
 			}
-            console.log(value)
+            // console.log(value)
 		},
 		formatValueToField(value) {
 			if (this.slider !== null && typeof this.slider.noUiSlider !== "undefined") {
