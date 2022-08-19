@@ -120,15 +120,19 @@ export default {
             }
         },
         updateSelected(value/*, id*/) {
-            // get new values
-            let new_values = value.filter( item => !this.valueKeys.includes(item.id))
-            // check if values contain global keys
-            let selected_global_keys = this.getGlobalKeys(this.getKeys(new_values));
-            // if global, only global key allowed, if not, only value keys allowed
-            if (selected_global_keys.length) {
-                this.value = value.filter( item => selected_global_keys[0] === item.id )
+            if (this.schema?.multiple) {
+                // get new values
+                let new_values = value.filter( item => !this.valueKeys.includes(item.id))
+                // check if values contain global keys
+                let selected_global_keys = this.getGlobalKeys(this.getKeys(new_values));
+                // if global, only global key allowed, if not, only value keys allowed
+                if (selected_global_keys.length) {
+                    this.value = value.filter( item => selected_global_keys[0] === item.id )
+                } else {
+                    this.value = value.filter( item => !this.globalKeys.includes(item.id) )
+                }
             } else {
-                this.value = value.filter( item => !this.globalKeys.includes(item.id) )
+                this.value = value
             }
         },
         addTag(newTag, id) {
