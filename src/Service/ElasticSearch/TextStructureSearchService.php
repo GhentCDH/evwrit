@@ -109,7 +109,7 @@ class TextStructureSearchService extends AbstractSearchService
                     'field' => $field_name,
                     'nested_path' => "annotations",
                     'excludeFilter' => ['annotations'], // exclude filter of same type
-                    'filter' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($filter_name) {
+                    'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($filter_name) {
                         if ( $subfilter_name != $filter_name ) {
                             $carry[$subfilter_name] = [
                                 'field' => "properties.{$subfilter_name}",
@@ -120,7 +120,7 @@ class TextStructureSearchService extends AbstractSearchService
                     }, [])
                 ];
                 // filter on text level
-                $aggregationFilters[$filter_name]['filter']['gts_textLevel'] = [
+                $aggregationFilters[$filter_name]['filters']['gts_textLevel'] = [
                     "properties.gts_textLevel.number",
                     'type' => self::FILTER_NUMERIC
                 ];
@@ -136,7 +136,7 @@ class TextStructureSearchService extends AbstractSearchService
             'excludeFilter' => ['annotations'], // exclude filter of same type,
         ];
         // filter annotation_type
-        $aggregationFilters[$filter_name]['filter']['annotation_type'] = [
+        $aggregationFilters[$filter_name]['filters']['annotation_type'] = [
             'field' => 'type',
             'type' => self::FILTER_KEYWORD
         ];

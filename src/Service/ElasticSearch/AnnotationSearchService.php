@@ -127,7 +127,7 @@ class AnnotationSearchService extends AbstractSearchService
                     'field' => $field_name,
                     'nested_path' => "annotations",
                     'excludeFilter' => ['annotations'], // exclude filter of same type
-                    'filter' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
+                    'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
                         if ( $subfilter_name != $filter_name ) {
                             $carry[$subfilter_name] = [
                                 'field' => "properties.{$subfilter_name}",
@@ -137,10 +137,21 @@ class AnnotationSearchService extends AbstractSearchService
                         return $carry;
                     }, [])
                 ];
-                $aggregationFilters[$filter_name]['filter']['annotation_type'] = "type"; // filter on type
-                $aggregationFilters[$filter_name]['filter']['generic_text_structure_part'] = "properties.gts_part.id"; // filter on generic text structure part
-                $aggregationFilters[$filter_name]['filter']['text_level'] = "properties.gts_textLevel.number"; // filter on text level
-            }
+                // filter on type
+                $aggregationFilters[$filter_name]['filters']['annotation_type'] = [
+                    'field' => 'type',
+                    'type' => self::FILTER_KEYWORD
+                ];
+                // filter on generic text structure part
+                $aggregationFilters[$filter_name]['filters']['generic_text_structure_part'] = [
+                    'field' => 'properties.gts_part',
+                    'type' => self::FILTER_OBJECT_ID
+                ];
+                // filter on text level
+                $aggregationFilters[$filter_name]['filters']['text_level'] = [
+                    'field' => 'properties.gts_textLevel.number',
+                    'type' => self::FILTER_NUMERIC
+                ];            }
         }
 
         // add annotation type filter
@@ -149,7 +160,7 @@ class AnnotationSearchService extends AbstractSearchService
             'field' => 'type',
             'nested_path' => "annotations",
             'excludeFilter' => ['annotations'], // exclude filter of same type
-            'filter' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
+            'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
                 if ( $subfilter_name != $filter_name ) {
                     $carry[$subfilter_name] = [
                         'field' => "properties.{$subfilter_name}",
@@ -158,9 +169,11 @@ class AnnotationSearchService extends AbstractSearchService
                 }
                 return $carry;
             }, []),
+            'replaceLabel' => [
+                'search' => 'morpho_syntactical',
+                'replace' => 'syntax'
+            ]
         ];
-        $aggregationFilters[$filter_name]['filter']['generic_text_structure_part'] = "properties.gts_part.id"; // filter on generic text structure part
-        $aggregationFilters[$filter_name]['filter']['text_level'] = "properties.gts_textLevel.number"; // filter on text level
 
         // add annotation type filter
         $aggregationFilters['text_level'] = [
@@ -168,7 +181,7 @@ class AnnotationSearchService extends AbstractSearchService
             'field' => 'properties.gts_textLevel.number',
             'nested_path' => "annotations",
 //            'excludeFilter' => ['annotations'], // exclude filter of same type
-//            'filter' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
+//            'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
 //                if ( $subfilter_name != $filter_name ) {
 //                    $carry[$subfilter_name] = "properties.{$subfilter_name}.id";
 //                }
@@ -181,7 +194,7 @@ class AnnotationSearchService extends AbstractSearchService
             'field' => 'properties.gts_part',
             'nested_path' => "annotations",
 //            'excludeFilter' => ['annotations'], // exclude filter of same type
-//            'filter' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
+//            'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
 //                if ( $subfilter_name != $filter_name ) {
 //                    $carry[$subfilter_name] = "properties.{$subfilter_name}.id";
 //                }
