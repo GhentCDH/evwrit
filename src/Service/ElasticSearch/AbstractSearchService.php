@@ -110,7 +110,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 break;
             case self::FILTER_BOOLEAN:
                 if ($filterValue === null) break;
-                $ret['value'] = ($filterValue === '1' || $filterValue === 'true');
+                $ret['value'] = ($filterValue === '1'
+                    || $filterValue === 'true'
+                    || is_array($filterValue) && (in_array('1', $filterValue, true) || in_array('true', $filterValue, true) )
+                );
                 break;
             case self::FILTER_EXISTS:
                 if ($filterValue === null) break;
@@ -277,6 +280,40 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $config['noneKey'] = $config['noneKey'] ?? self::NONE_KEY;
         $config['noneLabel'] = $config['noneLabel'] ?? self::NONE_LABEL;
         return $config;
+    }
+
+    private final function sanitizeTermAggregationItems(array $items, array $aggConfig, array $aggFilterValues): array
+    {
+        $output = [];
+        foreach($items as $item) {
+            $count = $item['count'];
+            $value = $item['id'];
+            $label = $item['name'];
+
+            // limitValue?
+            if (count($aggConfig['allowedValue'] ?? []) && !in_array($value, $aggConfig['allowedValue'], true)) {
+                continue;
+            }
+            // ignoreValue?
+            if (count($aggConfig['ignoreValue'] ?? []) && in_array($value, $aggConfig['ignoreValue'], true)) {
+                continue;
+            }
+            // zero doc count? only allow if value in search filter values
+            if ( $count === 0 && ( !count($aggFilterValues) || !in_array($value, $aggFilterValues, true) ) ) {
+                continue;
+            }
+            // replace label?
+            if ( $aggConfig['replaceLabel'] ?? null ) {
+                $label = str_replace($aggConfig['replaceLabel']['search'], $aggConfig['replaceLabel']['replace'], $label);
+            }
+
+            $output[] = [
+                'id' => $value,
+                'name' => $label,
+                'count' => $count
+            ];
+        }
+        return $output;
     }
 
     protected function getDefaultSearchFilters(): array
@@ -833,10 +870,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $query->setTrackTotalHits();
 
         // Filtering
-//        dump($params);
+        dump($params);
         $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
         if (count($searchFilters)) {
-//            dump($searchFilters);
+            dump($searchFilters);
             $query->setQuery($this->createSearchQuery($searchFilters));
             $query->setHighlight($this->createHighlight($searchFilters));
             dump(json_encode($query->toArray(), JSON_PRETTY_PRINT));
@@ -1195,7 +1232,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             }
 
             // add aggregation
-            $aggTerm = null;
             switch ($aggType) {
                 case self::AGG_GLOBAL_STATS:
                     $aggParentQuery->addAggregation(
@@ -1216,16 +1252,20 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         $aggTerm->setMinimumDocumentCount(0);
                     }
 
-                    $aggParentQuery->addAggregation($aggTerm);
+                    // count top documents?
+                    $aggIsNested && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
 
+                    $aggParentQuery->addAggregation($aggTerm);
                     break;
                 case self::AGG_BOOLEAN:
                 case self::AGG_NUMERIC:
                     $aggTerm = (new Aggregation\Terms($aggName))
                         ->setSize(self::MAX_AGG)
                         ->setField($aggField);
-                    $aggParentQuery->addAggregation($aggTerm);
+                    // count top documents?
+                    $aggIsNested && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
 
+                    $aggParentQuery->addAggregation($aggTerm);
                     break;
                 case self::AGG_OBJECT_ID_NAME:
                 case self::AGG_NESTED_ID_NAME:
@@ -1236,25 +1276,31 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         ->setSize(self::MAX_AGG)
                         ->setField($aggField);
 
+                    // count top documents?
+                    $aggIsNested && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+
                     // allow 0 doc count if aggregation is filtered
                     if ( count($aggFilterValues) ) {
                         $aggTerm->setMinimumDocumentCount(0);
                     }
 
                     $aggParentQuery->addAggregation($aggTerm);
-                    $aggParentQuery->addAggregation(new Aggregation\Missing('count_missing', $aggField));
-                    $aggParentQuery->addAggregation((new Aggregation\Filters('count_any'))->addFilter(new Query\Exists($aggField)));
-                break;
-            }
 
-            // count top documents?
-            if ($aggIsNested && $aggTerm) {
-                $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
-            }
+                    // count missing
+                    $aggCountMissing = new Aggregation\Missing('count_missing', $aggField);
+                    $aggIsNested && $aggCountMissing->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+                    $aggParentQuery->addAggregation($aggCountMissing);
+                    // count any
+                    $aggCountAny = new Aggregation\Filters('count_any');
+                    $aggIsNested && $aggCountAny->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+                    $aggCountAny->addFilter(new Query\Exists($aggField));
 
+                    $aggParentQuery->addAggregation($aggCountAny);
+                    break;
+            }
         }
 
-//        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
+        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
 
         // parse query result
         $searchResult = $this->getIndex()->search($query);
@@ -1268,7 +1314,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
             // get aggregation results
             $aggData = $arrAggData['global_aggregation'][$aggName] ?? $arrAggData[$aggName] ?? [];
-            // dump($aggName);
+//            dump($aggName);
+//            dump($aggData);
 
             // local/global filtered?
 //            while (isset($aggResults[$aggName])) {
@@ -1283,40 +1330,43 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     break;
                 case self::AGG_NUMERIC:
                 case self::AGG_KEYWORD:
+                    $aggFilterValues = $filterValues[$aggName]['value'] ?? [];
                     $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
+
+                    $items = [];
                     foreach ($aggResults['buckets'] ?? [] as $result) {
                         if (!isset($result['key'])) continue;
-                        if (count($aggConfig['limitValue'] ?? []) && !in_array($result['key'], $aggConfig['limitValue'], true)) {
-                            continue;
-                        }
-                        $results[$aggName][] = [
+
+                        $items[] = [
                             'id' => $result['key'],
-                            'name' => str_replace("morpho_syntactical", "syntax", $result['key']), // todo: DIRTY QUICK FIX!!
-                            'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
+                            'name' => $result['key'],
+                            'count' => (int) $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
                         ];
+
                     }
-//                    $this->sortAggregationResult($results[$aggName]);
+                    $results[$aggName] = $this->sanitizeTermAggregationItems($items, $aggConfig, $aggSearchFilters);
                     break;
                 case self::AGG_OBJECT_ID_NAME:
                 case self::AGG_NESTED_ID_NAME:
+                    $items = [];
+
                     // get none count
                     $aggResults = $this->getAggregationData($aggData, $aggName, 'count_missing');
                     if ( $aggResults['doc_count'] ?? null) {
-                        $results[$aggName][] = [
+                        $items[] = [
                             'id' => $aggConfig['noneKey'],
                             'name' => $aggConfig['noneLabel'],
-                            'count' => $aggResults['doc_count']
+                            'count' => (int) ($aggResults['top_reverse_nested']['doc_count'] ?? $aggResults['doc_count'])
                         ];
                     }
 
                     // get any count
                     $aggResults = $this->getAggregationData($aggData, $aggName, 'count_any');
-                    dump($aggResults);
                     if ( $aggResults['buckets'][0]['doc_count'] ?? null) {
-                        $results[$aggName][] = [
+                        $items[] = [
                             'id' => $aggConfig['anyKey'],
                             'name' => $aggConfig['anyLabel'],
-                            'count' => $aggResults['buckets'][0]['doc_count']
+                            'count' => $aggResults['buckets'][0]['top_reverse_nested']['doc_count'] ?? $aggResults['buckets'][0]['doc_count']
                         ];
                     }
 
@@ -1326,44 +1376,27 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     foreach ($aggResults['buckets'] ?? [] as $result) {
                         if (!isset($result['key'])) continue;
                         $parts = explode('_', $result['key'], 2);
-                        $count = (int) ($result['top_reverse_nested']['doc_count'] ?? $result['doc_count']);
-                        $id = (int) $parts[0];
-                        $name = $parts[1];
 
-                        // limitValue/limitId?
-                        if (count($aggConfig['limitId'] ?? []) && !in_array((int)$parts[0], $aggConfig['limitId'], true)) {
-                            continue;
-                        }
-                        if (count($aggConfig['limitValue'] ?? []) && !in_array((int)$parts[1], $aggConfig['limitValue'], true)) {
-                            continue;
-                        }
-                        // ignoreValue?
-                        if (count($aggConfig['ignoreValue'] ?? []) && in_array($parts[1], $aggConfig['ignoreValue'], true)) {
-                            continue;
-                        }
-                        // zero doc count?
-                        if ( $count === 0 && ( !count($aggFilterValues) || !in_array($id, $aggFilterValues, true) ) ) {
-                            continue;
-                        }
-
-                        $results[$aggName][] = [
-                            'id' => $id,
-                            'name' => $name,
-                            'count' => $count
+                        $items[] = [
+                            'id' => (int) $parts[0],
+                            'name' => $parts[1],
+                            'count' => (int) ($result['top_reverse_nested']['doc_count'] ?? $result['doc_count'])
                         ];
                     }
-//                    $this->sortAggregationResult($results[$aggName]);
+                    $results[$aggName] = $this->sanitizeTermAggregationItems($items, $aggConfig, $aggSearchFilters);
                     break;
                 case self::AGG_BOOLEAN:
                     $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
+                    $items = [];
                     foreach ($aggResults['buckets'] ?? [] as $result) {
                         if (!isset($result['key'])) continue;
-                        $results[$aggName][] = [
+                        $items[] = [
                             'id' => $result['key'],
                             'name' => $result['key_as_string'],
                             'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
                         ];
                     }
+                    $results[$aggName] = $this->sanitizeTermAggregationItems($items, $aggConfig, $aggSearchFilters);
                     break;
             }
         }
