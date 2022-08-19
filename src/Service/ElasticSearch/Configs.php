@@ -69,7 +69,7 @@ class Configs implements SearchConfigInterface
             'collaborator'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'project'  => [
                 'type' => self::AGG_OBJECT_ID_NAME,
-                'limitId' => [2,3,4,9] //todo: fix this!!
+                'allowedValue' => [2,3,4,9] //todo: fix this!!
             ],
         ];
     }
