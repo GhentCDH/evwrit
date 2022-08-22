@@ -207,7 +207,7 @@ export default {
 
             field.disabled = true
             field.selectOptions.loading = false
-            field.placeholder = 'No ' + field.label.toLowerCase() + 's available'
+            field.placeholder = 'No ' + field.label.toLowerCase() + ' available'
         },
         removeGreekAccents(input) {
             let encoded = encodeURIComponent(input.normalize('NFD'));
