@@ -123,7 +123,7 @@ export default {
             }
         },
         updateSelected(value/*, id*/) {
-            if (this.schema?.multiple) {
+            if (this.selectOptions?.multiple) {
                 // get new values
                 let new_values = value.filter( item => !this.valueKeys.includes(item.id))
                 // check if values contain global keys
