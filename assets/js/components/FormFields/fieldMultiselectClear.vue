@@ -46,12 +46,12 @@
         )
             template(slot="clear")
                 div.multiselect__clear(
-                    v-if="!disabled && (value !== undefined && value !== null)",
+                    v-if="!disabled && !empty",
                     @mousedown.prevent.stop="clearAll()"
                 )
             template(slot="caret", slot-scope="props")
                 div.multiselect__select(
-                    v-if="!disabled && (value === undefined || value === null)",
+                    v-if="!disabled && empty",
                     @mousedown.prevent.stop="props.toggle()"
                 )
             template(slot="option", slot-scope="props")
@@ -95,6 +95,9 @@ export default {
         },
         globalKeys() {
             return [ this.noneKey, this.anyKey ]
+        },
+        empty() {
+            return this?.value === undefined || this.value === null || (Array.isArray(this.value) && this.value.length === 0);
         }
     },
     created() {
