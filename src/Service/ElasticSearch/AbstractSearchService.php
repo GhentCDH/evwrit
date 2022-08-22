@@ -1156,9 +1156,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             // query root
             $aggParentQuery = $aggIsGlobal ? $aggGlobalQuery : $query;
 
-            // add aggregation filter (if not global)
-            // - remove excludeFilter
-            // - don't filter myself
+            // always add aggregation filter (if not global)
+            // - easier to parse results
+            // + remove excludeFilter
+            // + don't filter myself
             if (!$aggIsGlobal) {
                 $aggSearchFilters = array_diff_key($aggFilterConfigs, array_flip($aggConfig['excludeFilter'] ?? []));
                 unset($aggSearchFilters[$aggName]);
@@ -1168,13 +1169,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $filterQuery = new Query\BoolQuery();
                 }
 
-//                if ($filterQuery->count()) {
-                    $aggSubQuery = new Aggregation\Filter($aggName);
-                    $aggSubQuery->setFilter($filterQuery);
+                $aggSubQuery = new Aggregation\Filter($aggName);
+                $aggSubQuery->setFilter($filterQuery);
 
-                    $aggParentQuery->addAggregation($aggSubQuery);
-                    $aggParentQuery = $aggSubQuery;
-//                }
+                $aggParentQuery->addAggregation($aggSubQuery);
+                $aggParentQuery = $aggSubQuery;
             }
 
             // nested aggregation?
@@ -1191,7 +1190,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
                 // prepare possible aggregation filter
                 $filterQuery = new Query\BoolQuery();
-                $filterCount = 0;
 
                 // aggregation has filter config?
                 $aggNestedFilter = $aggConfig['filters'] ?? [];
@@ -1200,29 +1198,20 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
                 if ($aggNestedFilter) {
                     foreach ($aggNestedFilter as $queryFilterField => $aggFilterConfig) {
-                        $filterCount++;
                         self::addFieldQuery($filterQuery, $aggFilterConfig, $filterValues);
                     }
                 }
 
                 // aggregation has a limit on allowed values?
                 if ($aggConfig['allowedValue'] ?? false) {
-                    $filterCount++;
-                    $allowedValue = $aggConfig['allowedValue'];
-                    if (is_array($allowedValue)) {
-                        $filterQuery->addFilter(
-                            new Query\Terms($aggField, $allowedValue)
-                        );
-                    } else {
-                        $filterQuery->addFilter(
-                            (new Query\Term())
-                                ->setTerm($aggField, $allowedValue)
-                        );
-                    }
+                    $allowedValue = is_array($aggConfig['allowedValue']) ? $aggConfig['allowedValue'] : [ $aggConfig['allowedValue'] ];
+                    $filterQuery->addFilter(
+                        new Query\Terms($aggField, $allowedValue)
+                    );
                 }
 
-                // filter aggregation?
-                if ($filterCount) {
+                // filter aggretation (if valid subquery)
+                if ($filterQuery->count()) {
                     $aggSubQuery = new Aggregation\Filter($aggName);
                     $aggSubQuery->setFilter($filterQuery);
 
@@ -1317,12 +1306,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 //            dump($aggName);
 //            dump($aggData);
 
-            // local/global filtered?
-//            while (isset($aggResults[$aggName])) {
-//                $aggResults = $aggResults[$aggName];
-//            }
-//            $aggResults = $aggResults['buckets'] ?? $aggResults;
-
             switch ($aggType) {
                 case self::AGG_GLOBAL_STATS:
                     $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
@@ -1340,7 +1323,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         $items[] = [
                             'id' => $result['key'],
                             'name' => $result['key'],
-                            'count' => (int) $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
+                            'count' => (int) ($result['top_reverse_nested']['doc_count'] ?? $result['doc_count'])
                         ];
 
                     }
@@ -1366,7 +1349,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         $items[] = [
                             'id' => $aggConfig['anyKey'],
                             'name' => $aggConfig['anyLabel'],
-                            'count' => $aggResults['buckets'][0]['top_reverse_nested']['doc_count'] ?? $aggResults['buckets'][0]['doc_count']
+                            'count' => (int) ($aggResults['buckets'][0]['top_reverse_nested']['doc_count'] ?? $aggResults['buckets'][0]['doc_count'])
                         ];
                     }
 
@@ -1393,7 +1376,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         $items[] = [
                             'id' => $result['key'],
                             'name' => $result['key_as_string'],
-                            'count' => $result['top_reverse_nested']['doc_count'] ?? $result['doc_count']
+                            'count' => (int) ($result['top_reverse_nested']['doc_count'] ?? $result['doc_count'])
                         ];
                     }
                     $results[$aggName] = $this->sanitizeTermAggregationItems($items, $aggConfig, $aggSearchFilters);
