@@ -94,12 +94,12 @@ export default {
                             model: 'script'
                         },
                     ),
-                    includeMaterial ?
                     this.createMultiSelect('Material',
                         {
                             model: 'material',
+                            styleClasses: includeMaterial ? '' : 'hidden',
                         },
-                    ) : {},
+                    ),
                     this.createMultiSelect('Keyword',
                         {
                             model: 'keyword'
