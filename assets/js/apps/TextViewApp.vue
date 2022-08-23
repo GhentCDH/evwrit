@@ -122,11 +122,11 @@
 
 
 
-                <Widget title="Selection details" v-if="annotationId" :collapsed.sync="config.widgets.selectionDetails.isOpen">
+                <Widget title="Selection details" v-if="annotationId" :collapsed.sync="config.widgets.selectionDetails.isCollapsed">
                     <AnnotationDetails :annotation="annotationByTypeId[annotationId]"></AnnotationDetails>
                 </Widget>
 
-                <Widget title="Metadata" :collapsed.sync="config.widgets.metadata.isOpen">
+                <Widget title="Metadata" :collapsed.sync="config.widgets.metadata.isCollapsed">
                     <LabelValue label="EVWRIT ID" :value="text.id"></LabelValue>
                     <LabelValue label="Trismegistos ID" :value="text.tm_id" :url="getTmTextUrl"></LabelValue>
 
@@ -149,17 +149,17 @@
 
                 </Widget>
 
-                <Widget title="Images" :count="text.image.length" :collapsed.sync="config.widgets.images.isOpen">
+                <Widget title="Images" :count="text.image.length" :collapsed.sync="config.widgets.images.isCollapsed">
                     <Gallery :images="images" :onClick="(index,url) => (imageIndex = index)" />
                 </Widget>
 
-                <Widget title="Translations" :count="text.translation.length"  :collapsed.sync="config.widgets.translations.isOpen">
+                <Widget title="Translations" :count="text.translation.length"  :collapsed.sync="config.widgets.translations.isCollapsed">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.translation.show" class="switch-primary" label="Show translation(s)" :disabled="text.translation.length === 0"></CheckboxSwitch>
                     </div>
                 </Widget>
 
-                <Widget title="Text options" :collapsed.sync="config.widgets.textOptions.isOpen">
+                <Widget title="Text options" :collapsed.sync="config.widgets.textOptions.isCollapsed">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.text.showLemmas" class="switch-primary" label="Show Lemmas" :disabled="text.text_lemmas === ''"></CheckboxSwitch>
                     </div>
@@ -168,7 +168,7 @@
                     </div>
                 </Widget>
 
-                <Widget title="Materiality" :collapsed.sync="config.widgets.materiality.isOpen">
+                <Widget title="Materiality" :collapsed.sync="config.widgets.materiality.isCollapsed">
                     <PropertyGroup>
                         <LabelValue type="id_name" label="Production stage" :value="text.production_stage" :url="urlGeneratorIdName('materiality_search','production_stage')"></LabelValue>
                         <LabelValue type="id_name" label="Material" :value="text.material" :url="urlGeneratorIdName('materiality_search','material')"></LabelValue>
@@ -186,7 +186,7 @@
                     </PropertyGroup>
                 </Widget>
 
-                <Widget title="People"  :collapsed.sync="config.widgets.attestation.isOpen" :count="text.ancient_person.length">
+                <Widget title="People"  :collapsed.sync="config.widgets.attestation.isCollapsed" :count="text.ancient_person.length">
                     <template v-for="person in text.ancient_person">
                         <h3>{{ person.name }}</h3>
                         <LabelValue label="Trismegistos ID" :value="person.tm_id" :url="getTmPersonUrl"></LabelValue>
@@ -201,7 +201,7 @@
                     </template>
                 </Widget>
 
-                <Widget title="Annotations" :collapsed.sync="config.widgets.annotations.isOpen" :count="visibleAnnotationsByContext.length">
+                <Widget title="Annotations" :collapsed.sync="config.widgets.annotations.isCollapsed" :count="visibleAnnotationsByContext.length">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.annotations.show" class="switch-primary" label="Show annotations in text"></CheckboxSwitch>
                     </div>
@@ -255,7 +255,7 @@
 
                 </Widget>
 
-                <Widget title="Generic Structure" :collapsed.sync="config.widgets.genericTextStructure.isOpen" :count="genericTextStructure.length">
+                <Widget title="Generic Structure" :collapsed.sync="config.widgets.genericTextStructure.isCollapsed" :count="genericTextStructure.length">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic structure" :disabled="genericTextStructure.length === 0"></CheckboxSwitch>
                     </div>
@@ -290,7 +290,7 @@
                     </div>
                 </Widget>
 
-                <Widget title="Layout Structure" :collapsed.sync="config.widgets.layoutTextStructure.isOpen" :count="layoutTextStructure.length">
+                <Widget title="Layout Structure" :collapsed.sync="config.widgets.layoutTextStructure.isCollapsed" :count="layoutTextStructure.length">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout structure" :disabled="layoutTextStructure.length === 0"></CheckboxSwitch>
                     </div>
@@ -325,7 +325,7 @@
                     </div>
                 </Widget>
 
-                <Widget title="Links" :count="text.link.length" :collapsed.sync="config.widgets.links.isOpen">
+                <Widget title="Links" :count="text.link.length" :collapsed.sync="config.widgets.links.isCollapsed">
                     <div v-for="link in text.link">
                         <a :href="link.url">{{ link.title }}</a>
                     </div>
@@ -434,17 +434,17 @@ export default {
                     showModifier: true
                 },
                 widgets: {
-                    selectionDetails: { isOpen: false },
-                    metadata: { isOpen: false },
-                    translations: { isOpen: false },
-                    textOptions: { isOpen: false },
-                    materiality: { isOpen: false },
-                    attestation: { isOpen: false },
-                    annotations: { isOpen: false },
-                    genericTextStructure: { isOpen: false },
-                    layoutTextStructure: { isOpen: false },
-                    images: { isOpen: false },
-                    links: { isOpen: false },
+                    selectionDetails: { isCollapsed: true },
+                    metadata: { isCollapsed: true },
+                    translations: { isCollapsed: true },
+                    textOptions: { isCollapsed: true },
+                    materiality: { isCollapsed: true },
+                    attestation: { isCollapsed: true },
+                    annotations: { isCollapsed: true },
+                    genericTextStructure: { isCollapsed: true },
+                    layoutTextStructure: { isCollapsed: true },
+                    images: { isCollapsed: true },
+                    links: { isCollapsed: true },
                 }
             },
             imageIndex: null,
@@ -805,7 +805,7 @@ export default {
             if ( typeId ) {
                 this.annotationId = typeId
                 // open selection details widget
-                this.config.widgets.selectionDetails.isOpen = true
+                this.config.widgets.selectionDetails.isCollapsed = false
             }
             this.$refs.sidebar.scrollTop = 0;
         },
