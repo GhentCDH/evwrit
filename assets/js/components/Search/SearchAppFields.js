@@ -330,6 +330,18 @@ export default {
                 ]
             }
         },
+        genericStructureFieldsAnnotations() {
+            return {
+                styleClasses: 'collapsible collapsed',
+                legend: 'Generic structure',
+                fields: [
+                    // level
+                    this.createMultiSelect('Level', { model: 'text_level' }),
+                    this.createMultiSelect('Part', { model: 'generic_text_structure_part' }),
+
+                ]
+            }
+        },
         layoutStructureFields() {
             return {
                 styleClasses: 'collapsible collapsed',
