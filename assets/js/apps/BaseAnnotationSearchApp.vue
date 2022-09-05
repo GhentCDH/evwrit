@@ -189,7 +189,7 @@ export default {
             schema: {
                 groups: [
                     this.annotationsFields(),
-                    this.genericStructureFields(),
+                    this.genericStructureFieldsAnnotations(),
                     this.handshiftFields(),
                     this.generalInformationFields(),
                     this.communicativeInformationFields(),

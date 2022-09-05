@@ -94,12 +94,12 @@ export default {
                             model: 'script'
                         },
                     ),
-                    includeMaterial ?
                     this.createMultiSelect('Material',
                         {
                             model: 'material',
+                            styleClasses: includeMaterial ? '' : 'hidden',
                         },
-                    ) : {},
+                    ),
                     this.createMultiSelect('Keyword',
                         {
                             model: 'keyword'
@@ -326,6 +326,18 @@ export default {
                     this.createMultiSelect('Standard form', { model: 'gtsa_standardForm' }),
                     this.createMultiSelect('Attached to', { model: 'gtsa_attachedTo' }),
                     this.createMultiSelect('Type Attachment', { model: 'gtsa_attachmentType' }),
+
+                ]
+            }
+        },
+        genericStructureFieldsAnnotations() {
+            return {
+                styleClasses: 'collapsible collapsed',
+                legend: 'Generic structure',
+                fields: [
+                    // level
+                    this.createMultiSelect('Level', { model: 'text_level' }),
+                    this.createMultiSelect('Part', { model: 'generic_text_structure_part' }),
 
                 ]
             }
