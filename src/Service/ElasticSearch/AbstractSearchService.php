@@ -870,13 +870,13 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $query->setTrackTotalHits();
 
         // Filtering
-        dump($params);
+//        dump($params);
         $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
         if (count($searchFilters)) {
-            dump($searchFilters);
+//            dump($searchFilters);
             $query->setQuery($this->createSearchQuery($searchFilters));
             $query->setHighlight($this->createHighlight($searchFilters));
-            dump(json_encode($query->toArray(), JSON_PRETTY_PRINT));
+//            dump(json_encode($query->toArray(), JSON_PRETTY_PRINT));
         }
 
         // Search
@@ -1289,7 +1289,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             }
         }
 
-        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
+//        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
 
         // parse query result
         $searchResult = $this->getIndex()->search($query);
