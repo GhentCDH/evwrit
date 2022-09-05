@@ -46,7 +46,7 @@ use ReflectionException;
  */
 class HandshiftAnnotation extends AbstractAnnotationModel
 {
-    protected $with = ['textSelection', 'textSelection.sourceText', 'abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'];
+    protected $with = ['textSelection', 'textSelection.sourceText', 'abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting'];
 
     public function getAnnotationType(): string
     {
