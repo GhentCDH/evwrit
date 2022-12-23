@@ -3,14 +3,11 @@
 namespace App\Controller;
 
 use App\Helper\StreamedCsvResponse;
-use App\Service\ElasticSearch\TextBasicSearchService;
-use App\Service\ElasticSearch\TextMaterialitySearchService;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use App\Service\ElasticSearch\Search\TextMaterialitySearchService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MaterialityController extends BaseController

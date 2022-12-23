@@ -1,13 +1,10 @@
 <?php
 namespace App\Controller;
 
-use App\Service\ElasticSearch\AbstractSearchService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-
 
 
 class BaseController extends AbstractController

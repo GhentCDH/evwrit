@@ -3,19 +3,11 @@
 namespace App\Controller;
 
 use App\Helper\StreamedCsvResponse;
-use App\Service\ElasticSearch\AnnotationSearchService;
-
-use App\Service\ElasticSearch\LanguageTypographyAnnotationSearchService;
-use App\Service\ElasticSearch\LinguisticAnnotationSearchService;
-use App\Service\ElasticSearch\TextBasicSearchService;
+use App\Service\ElasticSearch\Search\LinguisticAnnotationSearchService;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LinguisticAnnotationController extends BaseController
 {
