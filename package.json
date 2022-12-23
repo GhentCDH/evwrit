@@ -2,6 +2,7 @@
   "devDependencies": {
     "@firstandthird/toc": "^1.4.1",
     "@symfony/webpack-encore": "^0.24.0",
+    "articles": "^0.2.2",
     "axios": "^0.18.0",
     "bootstrap-sass": "~3.3.7",
     "ckeditor": "^4.11.3",
@@ -32,7 +33,9 @@
     "vuedraggable": "^2.19.1",
     "webpack-shell-plugin": "^0.5.0",
     "wnumb": "^1.2.0",
-    "yargs": "^17.5.1",
-    "articles": "^0.2.2"
+    "yargs": "^17.5.1"
+  },
+  "dependencies": {
+    "case": "^1.6.3"
   }
 }
