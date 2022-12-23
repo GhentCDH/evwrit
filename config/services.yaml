@@ -36,40 +36,47 @@ services:
     App\Service\ElasticSearch\Client: '@elastic_search_client'
 
     text_basic_search_service:
-        class: App\Service\ElasticSearch\TextBasicSearchService
+        class: App\Service\ElasticSearch\Search\TextBasicSearchService
         arguments: ['@elastic_search_client']
         public: true
-    App\Service\ElasticSearch\TextBasicSearchService: '@text_basic_search_service'
+    App\Service\ElasticSearch\Search\TextBasicSearchService: '@text_basic_search_service'
 
     text_materiality_search_service:
-        class: App\Service\ElasticSearch\TextMaterialitySearchService
+        class: App\Service\ElasticSearch\Search\TextMaterialitySearchService
         arguments: ['@elastic_search_client']
         public: true
-    App\Service\ElasticSearch\TextMaterialitySearchService: '@text_materiality_search_service'
+    App\Service\ElasticSearch\Search\TextMaterialitySearchService: '@text_materiality_search_service'
 
     linguistic_annotation_search_service:
-        class: App\Service\ElasticSearch\LinguisticAnnotationSearchService
+        class: App\Service\ElasticSearch\Search\LinguisticAnnotationSearchService
         arguments: ['@elastic_search_client']
         public: true
-    App\Service\ElasticSearch\LinguisticAnnotationSearchService: '@linguistic_annotation_search_service'
+    App\Service\ElasticSearch\Search\LinguisticAnnotationSearchService: '@linguistic_annotation_search_service'
 
     language_typography_annotation_search_service:
-        class: App\Service\ElasticSearch\LanguageTypographyAnnotationSearchService
+        class: App\Service\ElasticSearch\Search\LanguageTypographyAnnotationSearchService
         arguments: ['@elastic_search_client']
         public: true
-    App\Service\ElasticSearch\LanguageTypographyAnnotationSearchService: '@language_typography_annotation_search_service'
+    App\Service\ElasticSearch\Search\LanguageTypographyAnnotationSearchService: '@language_typography_annotation_search_service'
 
     text_structure_search_service:
-        class: App\Service\ElasticSearch\TextStructureSearchService
+        class: App\Service\ElasticSearch\Search\TextStructureSearchService
         arguments: ['@elastic_search_client']
         public: true
-    App\Service\ElasticSearch\TextStructureSearchService: '@text_structure_search_service'
+    App\Service\ElasticSearch\Search\TextStructureSearchService: '@text_structure_search_service'
 
     text_index_service:
-        class: App\Service\ElasticSearch\TextIndexService
+        class: App\Service\ElasticSearch\Index\TextIndexService
         arguments: ['@elastic_search_client']
         public: true
-    App\Service\ElasticSearch\TextIndexService: '@text_index_service'
+    App\Service\ElasticSearch\Index\TextIndexService: '@text_index_service'
+
+    level_index_service:
+        class: App\Service\ElasticSearch\Index\LevelIndexService
+        arguments: ['@elastic_search_client']
+        public: true
+    App\Service\ElasticSearch\Index\LevelIndexService: '@level_index_service'
+
 
     text_repository:
         class: App\Repository\TextRepository

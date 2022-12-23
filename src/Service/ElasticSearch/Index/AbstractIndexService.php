@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Index;
 
 use App\Resource\BaseResource;
+use App\Service\ElasticSearch\AbstractService;
+use App\Service\ElasticSearch\Search\SearchServiceInterface;
+use Elastica\Document;
 use Elastica\Mapping;
 use Illuminate\Http\Resources\Json\ResourceCollection;
-
-use Elastica\Document;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 abstract class AbstractIndexService extends AbstractService implements SearchServiceInterface
 {
