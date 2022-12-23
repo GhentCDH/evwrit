@@ -1,16 +1,18 @@
-<?php
+<?php /** @noinspection ALL */
 
 
 namespace App\Resource;
 
 
-use App\Model\TextLevel;
+use App\Model\Level;
 
 /**
- * @mixin TextLevel
+ * @mixin Level
  */
-class ElasticTextLevelResource extends BaseResource
+class ElasticTextLevelResource extends ElasticBaseResource
 {
+    use TraitTextSelectionIntersect;
+
     /**
      * Transform the resource into an array.
      *
@@ -19,13 +21,26 @@ class ElasticTextLevelResource extends BaseResource
      */
     public function toArray($request=null): array
     {
-        /** @var TextLevel $resource */
-        $resource = $this->resource;
-        $ret = [
-            'number' => $resource->number,
-            'type' => $resource->type,
+        /** @var Level $level */
+        $level = $this->resource;
+        $text = $level->text;
+
+        $levelProperties = [
+            // level properties
+            'number' => $level->number,
+            'level_category' => ElasticLevelCategoryResource::collection($level->levelCategories)->toArray(),
+
+            'agentive_role' => ElasticAgentiveRoleResource::collection($level->agentiveRoles)->toArray(),
+            'communicative_goal' => ElasticCommunicativeGoalResource::collection($level->communicativeGoals)->toArray(),
+
+            'production_stage' => ElasticIdNameResource::collection($level->productionStages)->toArray(),
+
+            'attestations' => ElasticAttestationResource::collection($level->attestations)->toArray(),
+
+//            'physical_objects' => ElasticIdNameResource::collection($level->physicalObjects)->toArray(),
+//            'greek_latins' => ElasticIdNameResource::collection($level->greekLatins)->toArray(),
         ];
 
-        return $ret;
+        return $levelProperties;
     }
 }

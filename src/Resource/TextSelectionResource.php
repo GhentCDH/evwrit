@@ -22,6 +22,9 @@ class TextSelectionResource extends BaseResource
      */
     public function toArray($request=null): array
     {
+        if (!$this->resource) {
+            return [];
+        }
         $ret = $this->resource->attributesToArray();
         $keyName = $this->resource->getKeyName();
         if ( isset($ret[$keyName]) ) {
@@ -30,9 +33,14 @@ class TextSelectionResource extends BaseResource
         }
 
         // convert newlines
-        $ret['text'] = $this->convertNewlines($ret['text']);
+        $ret['text'] = TextSelectionResource::convertNewlines($ret['text']);
 
         return $ret;
+    }
+
+    public static function convertNewlines(?string $text): ?string
+    {
+        return $text ? str_replace("\v", "\n", $text) : $text;
     }
 
 }

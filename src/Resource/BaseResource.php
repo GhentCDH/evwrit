@@ -23,7 +23,7 @@ class BaseResource extends AbstractResource
      */
     public function resolve($request = null): array
     {
-        $data = $this->toArray(null);
+        $data = $this->toArray();
 
         if ($data instanceof Arrayable) {
             $data = $data->toArray();
@@ -34,16 +34,11 @@ class BaseResource extends AbstractResource
         return $this->filter((array) $data);
     }
 
-    protected function convertNewlines($text)
-    {
-        return str_replace("\v", "\n", $text);
-    }
-
     /**
      * Create a new anonymous resource collection.
      *
      * @param  mixed  $resource
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return BaseResourceCollection
      */
     public static function collection($resource)
     {

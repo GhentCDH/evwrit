@@ -36,10 +36,10 @@ class AttestationResource extends BaseResource
             'education' => new IdNameResource($this->education),
             'age' => new IdNameResource($this->age),
             'graph_type' => new IdNameResource($this->graphType),
-            'role' => IdNameResource::collection($this->roles)->toArray(0),
-            'social_rank' => IdNameResource::collection($this->socialRanks)->toArray(0),
-            'occupation' => IdNameResource::collection($this->occupations)->toArray(0),
-            'honorific_epithet' => IdNameResource::collection($this->honorificEpithets)->toArray(0),
+            'role' => IdNameResource::collection($this->roles)->toArray(),
+            'social_rank' => IdNameResource::collection($this->socialRanks)->toArray(),
+            'occupation' => IdNameResource::collection($this->occupations)->toArray(),
+            'honorific_epithet' => IdNameResource::collection($this->honorificEpithets)->toArray(),
         ];
     }
 }

@@ -17,4 +17,12 @@ class ElasticLayoutTextStructureAnnotationResource extends BaseElasticAnnotation
 {
     protected $includeAttributes = ['part','partNumber'];
     protected $generateContext = false;
+
+    public function toArray($request=null): array
+    {
+        $ret = parent::toArray($request);
+        $ret['layout_text_structure_id'] = $this->layout_text_structure_id;
+
+        return $ret;
+    }
 }

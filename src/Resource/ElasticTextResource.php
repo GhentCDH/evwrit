@@ -11,6 +11,8 @@ use App\Model\Text;
  */
 class ElasticTextResource extends ElasticBaseResource
 {
+    use TraitTextSelectionIntersect;
+
     const CACHENAME = "text_elastic";
 
     /**
@@ -24,112 +26,105 @@ class ElasticTextResource extends ElasticBaseResource
         /** @var Text $text */
         $text = $this->resource;
 
-        $ret = [
+        $attributes = $text->attributesToArray();
+
+        $ret = array_merge($attributes, [
             /* properties */
-            'id' => $this->getId(),
-            'tm_id' => $this->tm_id,
-            'title' => $this->title,
-            'text' => $this->convertNewlines($text->text),
-            'text_lemmas' => $this->convertNewlines($text->text_lemmas),
-            'apparatus' => $this->convertNewlines($text->apparatus),
+            'id' => $text->getId(),
+            'text' => TextSelectionResource::convertNewlines($text->text),
+            'text_lemmas' => TextSelectionResource::convertNewlines($text->text_lemmas),
+            'apparatus' => TextSelectionResource::convertNewlines($text->apparatus),
 
-            'translation' => TranslationResource::collection($text->translations)->toArray(null),
+            'translation' => TranslationResource::collection($text->translations)->toArray(),
 
-            'year_begin' => $this->year_begin,
-            'year_end' => $this->year_end,
+            'era' => new ElasticIdNameResource($text->era),
 
-            'era' => new ElasticIdNameResource($this->era),
+            'archive' => new ElasticIdNameResource($text->archive),
 
-            'archive' => new ElasticIdNameResource($this->archive),
+            'language' => ElasticIdNameResource::collection($text->languages)->toArray(),
+            'language_count' => count($text->languages),
+            'script' => ElasticIdNameResource::collection($text->scripts)->toArray(),
+            'script_count' => count($text->scripts),
 
-            'language' => ElasticIdNameResource::collection($this->languages)->toArray(null),
-            'language_count' => count($this->languages),
-            'script' => ElasticIdNameResource::collection($this->scripts)->toArray(null),
-            'script_count' => count($this->scripts),
+            'collaborator' => ElasticIdNameResource::collection($text->collaborators)->toArray(),
+            'social_distance' => ElasticIdNameResource::collection($text->socialDistances)->toArray(),
+            'project' => ElasticIdNameResource::collection($text->projects)->toArray(),
+            'keyword' => ElasticIdNameResource::collection($text->keywords)->toArray(),
 
-            'text_type' => new ElasticIdNameResource($this->textType),
-            'text_subtype' => new ElasticIdNameResource($this->textSubtype),
+            'location_found' => ElasticIdNameResource::collection($text->locationsFound)->toArray(),
+            'location_written' => ElasticIdNameResource::collection($text->locationsWritten)->toArray(),
 
-            'collaborator' => ElasticIdNameResource::collection($this->collaborators)->toArray(null),
-            'social_distance' => ElasticIdNameResource::collection($this->socialDistances)->toArray(null),
-            'project' => ElasticIdNameResource::collection($this->projects)->toArray(null),
-            'keyword' => ElasticIdNameResource::collection($this->keywords)->toArray(null),
-
-            'location_found' => ElasticIdNameResource::collection($this->locationsFound)->toArray(null),
-            'location_written' => ElasticIdNameResource::collection($this->locationsWritten)->toArray(null),
-
-            'agentive_role' => ElasticAgentiveRoleResource::collection($this->agentiveRoles)->toArray(null),
-            'communicative_goal' => ElasticCommunicativeGoalResource::collection($this->communicativeGoals)->toArray(null),
+//            'agentive_role' => ElasticAgentiveRoleResource::collection($text->agentiveRoles)->toArray(),
+//            'communicative_goal' => ElasticCommunicativeGoalResource::collection($text->communicativeGoals)->toArray(),
 
             /* links */
-            'image' => ImageResource::collection($text->images)->toArray(null),
-            'link' => LinkResource::collection($text->links)->toArray(null),
+            'image' => ImageResource::collection($text->images)->toArray(),
+            'link' => LinkResource::collection($text->links)->toArray(),
 
             /* attestation */
-            'ancient_person' => ElasticAttestationResource::collection($this->attestations)->toArray(null),
+//            'attestations' => ElasticAttestationResource::collection($text->attestations)->toArray(),
 
             /* materiality */
-            'width' => $this->width,
-            'height' => $this->height,
 
-            'margin_left' => $this->margin_left,
-            'margin_right' => $this->margin_right,
-            'margin_top' => $this->margin_top,
-            'margin_bottom' => $this->margin_bottom,
+            'is_recto' => self::boolean($text->is_recto),
+            'is_verso' => self::boolean($text->is_verso),
+            'is_transversa_charta' => self::boolean($text->is_transversa_charta),
 
-            'is_recto' => self::boolean($this->is_recto),
-            'is_verso' => self::boolean($this->is_verso),
-            'is_transversa_charta' => self::boolean($this->is_transversa_charta),
-            'kollesis' => $text->kollesis,
-
-            'lines' => is_null($text->lines_min) ? null : [ 'min' => $text->lines_min, 'max' => $text->lines_max ],
+            'lines' => !is_null($text->count_lines) ? [ 'min' => $text->count_lines, 'max' => $text->count_lines ] : ( is_null($text->lines_min) ? null : [ 'min' => $text->lines_min, 'max' => $text->lines_max ] ),
             'columns' => is_null($text->columns_min) ? null : [ 'min' => $text->columns_min, 'max' => $text->columns_max ],
             'letters_per_line' => is_null($text->letters_per_line_min) ? null : [ 'min' => $text->letters_per_line_min, 'max' => $text->letters_per_line_max ],
-            'interlinear_space' => $text->interlinear_space,
+//            'interlinear_space' => $text->interlinear_space,
 
-            'production_stage' =>ElasticIdNameResource::collection($this->productionStages)->toArray(null),
-            'writing_direction' => ElasticIdNameResource::collection($this->writingDirections)->toArray(null),
-            'text_format' => new ElasticIdNameResource($this->textFormat),
-            'material' => ElasticIdNameResource::collection($this->materials)->toArray(null),
+            'writing_direction' => ElasticIdNameResource::collection($text->writingDirections)->toArray(),
+            'text_format' => new ElasticIdNameResource($text->textFormat),
+            'material' => ElasticIdNameResource::collection($text->materials)->toArray(),
 
             // annotations placeholder
             'annotations' => []
-        ];
+        ]);
 
+        // flatten level properties
+        // todo: fix legacy 'ancient_person'
+        $textLevels = ElasticTextLevelResource::collection($text->textLevels)->toArray();
+        $textLevelProperties = array_merge_recursive(...$textLevels);
+        unset($textLevelProperties['number']);
+        $textLevelProperties['ancient_person'] = $textLevelProperties['attestations'] ?? null;
+        unset($textLevelProperties['attestations']);
 
+        $ret = array_merge($ret, $textLevelProperties);
 
         // base annotations
         $ret['annotations'] = array_merge(
-            BaseElasticAnnotationResource::collection($this->languageAnnotations)->toArray(),
-            BaseElasticAnnotationResource::collection($this->typographyAnnotations)->toArray(),
-            BaseElasticAnnotationResource::collection($this->lexisAnnotations)->toArray(),
-            BaseElasticAnnotationResource::collection($this->orthographyAnnotations)->toArray(),
-            BaseElasticAnnotationResource::collection($this->morphologyAnnotations)->toArray(),
-            BaseElasticAnnotationResource::collection($this->morphoSyntacticalAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection($text->languageAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection($text->typographyAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection($text->lexisAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection($text->orthographyAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection($text->morphologyAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection($text->morphoSyntacticalAnnotations)->toArray(),
         );
 
         // handshift annotations
-        $handshiftAnnotations = ElasticHandshiftAnnotationResource::collection($this->handshiftAnnotations)->toArray();
+        $handshiftAnnotations = ElasticHandshiftAnnotationResource::collection($text->handshiftAnnotations)->toArray();
 
         // generic/layout text structure
-        $genericTextStructure = ElasticGenericTextStructureResource::collection($this->genericTextStructure)->toArray();
+        $genericTextStructure = ElasticGenericTextStructureResource::collection($text->genericTextStructures)->toArray();
         $ret['has_generic_text_structure'] = self::boolean(count($genericTextStructure) > 0);
-        $layoutTextStructure = ElasticLayoutTextStructureResource::collection($this->layoutTextStructure)->toArray();
+        $layoutTextStructure = ElasticLayoutTextStructureResource::collection($text->layoutTextStructures)->toArray();
         $ret['has_layout_text_structure'] = self::boolean(count($layoutTextStructure) > 0);
 
         // text levels
-        $ret['text_level'] = BaseResource::collection($this->textLevels)->toArray();
+        $ret['text_level'] = ElasticTextLevelResource::collection($text->textLevels)->toArray();
 
         // calculate base annotations intersect with text_structure and handshift
         foreach($ret['annotations'] as &$annotationSource) {
-            $this->annotationIntersect($annotationSource, $genericTextStructure ?? [], ['gts_part', 'gts_textLevel']);
-            $this->annotationIntersect($annotationSource, $layoutTextStructure ?? [], ['gts_part', 'gts_textLevel']);
+            $this->annotationIntersect($annotationSource, $genericTextStructure ?? [], ['gts_part', 'textLevel']);
+            $this->annotationIntersect($annotationSource, $layoutTextStructure ?? [], ['gts_part', 'textLevel']);
             $this->annotationIntersect($annotationSource, $handshiftAnnotations);
         }
 
         // generic/layout text structure annotations
-        $gtsAnnotations = ElasticGenericTextStructureAnnotationResource::collection($this->genericTextStructureAnnotations)->toArray();
-        $ltsAnnotations = ElasticLayoutTextStructureAnnotationResource::collection($this->layoutTextStructureAnnotations)->toArray();
+        $gtsAnnotations = ElasticGenericTextStructureAnnotationResource::collection($text->genericTextStructureAnnotations)->toArray();
+        $ltsAnnotations = ElasticLayoutTextStructureAnnotationResource::collection($text->layoutTextStructureAnnotations)->toArray();
 
         // intersect generic text structure annotations with lts, gts, ltsa, handshift
         foreach( $gtsAnnotations as &$annotationSource ) {
@@ -168,36 +163,5 @@ class ElasticTextResource extends ElasticBaseResource
         );
 
         return $ret;
-    }
-
-    private function annotationIntersect(&$annotationSource, $annotations, $limitProperties= []) {
-        $additionalProperties = [];
-        foreach( $annotations as $annotationTest ) {
-            $type = $annotationTest['type'];
-            if ($this->textSelectionIntersect($annotationSource['text_selection'], $annotationTest['text_selection'])) {
-                $properties = array_filter($annotationTest['properties'], fn($v,$k) => $v && strpos( $k , $type ) === 0, ARRAY_FILTER_USE_BOTH);
-                foreach ($properties as $propertyKey => $propertyValue) {
-                    if ( $propertyValue['id'] ?? $propertyValue['number'] ?? null) { // todo: dirty!
-                        $additionalProperties[$propertyKey][$propertyValue['id'] ?? $propertyValue['number']] = $propertyValue;
-                    }
-                }
-            }
-        }
-        // remove keys of additional properties
-        foreach ($additionalProperties as $propertyKey => $propertyValues) {
-            $additionalProperties[$propertyKey] = array_values($propertyValues);
-        }
-        // merge additional properties with existing properties
-        $annotationSource['properties'] += $additionalProperties;
-    }
-
-    private function textSelectionIntersect($a, $b) {
-            $min = $a['selection_start'] < $b['selection_start'] ? $a : $b;
-            $max = $min['id'] == $a['id'] ? $b : $a;
-
-            //min ends before max starts -> no intersection
-            if ($min['selection_end'] < $max['selection_start']) return false; //the ranges don't intersect
-
-            return [$max['selection_start'], $min['selection_end'] < $max['selection_end'] ? $min['selection_end'] : $max['selection_end']];
     }
 }

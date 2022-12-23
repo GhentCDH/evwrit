@@ -2,7 +2,11 @@
 
 namespace App\Resource;
 
+use App\Model\CommunicativeGoal;
 
+/**
+ * @property CommunicativeGoal $resource
+ */
 class ElasticCommunicativeGoalResource extends BaseResource
 {
     /**
@@ -14,8 +18,8 @@ class ElasticCommunicativeGoalResource extends BaseResource
     public function toArray($request=null)
     {
         return [
-            'generic_communicative_goal' => new ElasticIdNameResource($this->genericCommunicativeGoal),
-            'communicative_goal' => new ElasticIdNameResource($this->communicativeGoal),
+            'communicative_goal_subtype' => new ElasticIdNameResource($this->resource->communicativeGoalSubtype),
+            'communicative_goal_type' => new ElasticIdNameResource($this->resource->communicativeGoalType),
         ];
     }
 }

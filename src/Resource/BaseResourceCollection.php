@@ -37,7 +37,7 @@ class BaseResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousRe
      */
     public function resolve($request = null): array
     {
-        $data = $this->toArray(null);
+        $data = $this->toArray();
 
         if ($data instanceof Arrayable) {
             $data = $data->toArray();

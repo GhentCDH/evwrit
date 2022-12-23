@@ -3,6 +3,8 @@
 namespace App\Resource;
 
 
+use App\Model\IdNameModelInterface;
+
 class ElasticIdNameResource extends BaseResource
 {
     /**
@@ -13,13 +15,17 @@ class ElasticIdNameResource extends BaseResource
      */
     public function toArray($request = null): ?array
     {
+        /** @var IdNameModelInterface $resource */
+        $resource = $this->resource;
+
         if ($this->resource) {
             return [
-                'id' => $this->getId(),
-                'name' => $this->name,
-                'id_name' => $this->getId()."_".$this->name,
+                'id' => $resource->getId(),
+                'name' => $resource->getName(),
+                'id_name' => $resource->getId()."_".$resource->getName(),
             ];
         }
         return null;
     }
+
 }

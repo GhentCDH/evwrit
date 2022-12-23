@@ -21,25 +21,32 @@ class ElasticAttestationResource extends BaseResource
      */
     public function toArray($request=null)
     {
-        /** @var AncientPerson $ap */
-        $ap = $this->ancientPerson;
+        /** @var Attestation $attestation */
+        $attestation = $this->resource;
+
+        $person = $attestation->ancientPerson;
+        $level = $attestation->level;
 
         return [
-            'id' => $this->ancient_person_id,
-            'id_name' => $this->ancient_person_id."_".$ap->getName(),
+            /* ancient person properties */
+            'id' => $person->getId(),
+            'id_name' => $person->getId()."_".$person->getName(),
 
+            'tm_id' => $person->getTmId(),
+            'name' => $person->getName(),
+            'gender' => new ElasticIdNameResource($person->gender),
+            'patronimic' => $person->patronymic,
 
-            'tm_id' => $ap->getTmId(),
-            'name' => $ap->getName(),
-            'gender' => new ElasticIdNameResource($ap->gender),
+//            'textLevel' => new ElasticTextLevelResourceLite($level),
 
+            /* attestation properties */
             'education' => new ElasticIdNameResource($this->education),
             'age' => new ElasticIdNameResource($this->age),
             'graph_type' => new ElasticIdNameResource($this->graphType),
-            'role' => ElasticIdNameResource::collection($this->roles)->toArray(0),
-            'social_rank' => ElasticIdNameResource::collection($this->socialRanks)->toArray(0),
-            'occupation' => ElasticIdNameResource::collection($this->occupations)->toArray(0),
-            'honorific_epithet' => ElasticIdNameResource::collection($this->honorificEpithets)->toArray(0),
+            'role' => ElasticIdNameResource::collection($this->roles)->toArray(),
+            'social_rank' => ElasticIdNameResource::collection($this->socialRanks)->toArray(),
+            'occupation' => ElasticIdNameResource::collection($this->occupations)->toArray(),
+            'honorific_epithet' => ElasticIdNameResource::collection($this->honorificEpithets)->toArray(),
         ];
     }
 }

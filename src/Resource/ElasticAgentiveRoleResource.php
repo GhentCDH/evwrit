@@ -3,6 +3,8 @@
 namespace App\Resource;
 
 
+use App\Model\AgentiveRole;
+
 class ElasticAgentiveRoleResource extends BaseResource
 {
     /**
@@ -13,9 +15,11 @@ class ElasticAgentiveRoleResource extends BaseResource
      */
     public function toArray($request=null)
     {
+        /** @var AgentiveRole $resource */
+        $resource = $this->resource;
         return [
-            'generic_agentive_role' => new ElasticIdNameResource($this->genericAgentiveRole),
-            'agentive_role' => new ElasticIdNameResource($this->agentiveRole),
+            'generic_agentive_role' => new ElasticIdNameResource($resource->genericAgentiveRole),
+            'agentive_role' => new ElasticIdNameResource($resource),
         ];
     }
 }

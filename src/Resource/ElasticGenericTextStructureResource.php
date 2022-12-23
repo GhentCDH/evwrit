@@ -33,7 +33,7 @@ class ElasticGenericTextStructureResource extends BaseResource
                 'gts_part' => (new ElasticIdNameResource($resource->part))->toArray(),
                 'gts_partNumber' => $resource->partNumber,
 //            'components' => IdNameResource::collection($resource->components),
-                'gts_textLevel' => $resource->textLevel ? (new ElasticTextLevelResource($resource->textLevel))->toArray() : null
+                'textLevel' => $resource->textLevel ? (new ElasticTextLevelResourceLite($resource->textLevel))->toArray() : null
             ]
         ];
 
