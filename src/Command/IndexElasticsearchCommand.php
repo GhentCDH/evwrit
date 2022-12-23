@@ -3,9 +3,9 @@
 namespace App\Command;
 
 use App\Repository\TextRepository;
-
+use App\Resource\ElasticTextLevelResource;
 use App\Resource\ElasticTextResource;
-use App\Service\ElasticSearch\TextIndexService;
+use App\Service\ElasticSearch\Index\TextIndexService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
@@ -21,6 +21,10 @@ class IndexElasticsearchCommand extends Command
 
     protected $container = [];
     protected $di = [];
+
+    protected $projects = [
+        'ERC (main corpus)', 'Post-doc Bentein', 'Serena', 'Emmanuel'
+    ];
 
     public function __construct(ContainerInterface $container)
     {
@@ -51,12 +55,12 @@ class IndexElasticsearchCommand extends Command
                     $service = $this->container->get('text_index_service');
                     $service->setup();
 
-                    $total = $repository->findByProjectNames(['ERC (main corpus)', 'Post-doc Bentein', 'Serena', 'Emmanuel'])->count();
+                    $total = $repository->findByProjectNames($this->projects)->count();
 
                     $progressBar = new ProgressBar($output, $total);
                     $progressBar->start();
 
-                    $repository->findByProjectNames(['ERC (main corpus)', 'Post-doc Bentein', 'Serena', 'Emmanuel'])->chunk(100,
+                    $repository->findByProjectNames($this->projects)->chunk(100,
                         function($res) use ($service, &$count, $progressBar) {
                             foreach ($res as $text) {
                                 $res = new ElasticTextResource($text);
@@ -69,6 +73,75 @@ class IndexElasticsearchCommand extends Command
                     $progressBar->finish();
 
                     break;
+                case "level": {
+                    /** @var $repository TextRepository */
+                    $repository = $this->container->get('text_repository' );
+
+                    /** @var $service TextIndexService */
+                    $service = $this->container->get('level_index_service');
+                    $service->setup();
+
+                    $total = $repository->findByProjectNames($this->projects)->count();
+
+                    $progressBar = new ProgressBar($output, $total);
+                    $progressBar->start();
+
+                    $repository->findByProjectNames($this->projects)->chunk(100,
+                        function($res) use ($service, &$count, $progressBar) {
+                            foreach ($res as $text) {
+                                foreach( $text->textLevels as $level ) {
+                                    $res = new ElasticTextLevelResource($level);
+                                    $service->add($res);
+                                }
+                                $count++;
+                            }
+                            $progressBar->advance(100);
+                        });
+
+                    $progressBar->finish();
+
+//                    $text_id = 3768;
+//                    $text_ids = [
+//                        55571, 48907,
+//                        13305,
+//                        60762,
+//                        54666,
+//                        31663,
+//                        6230,
+//                        66083,
+//                        31136,
+//                        55979,
+//                        65622,
+//                        53135,
+//                        10490,
+//                        9199,
+//                        10449,
+//                        13306,
+//                        10639,
+//                        5169,
+//                        8701,
+//                        10369,
+//                        58372,
+//                        3285,
+//                        9299,
+//                        250
+//                    ];
+//
+//                    /** @var $repository TextRepository */
+//                    $repository = $this->container->get('text_repository' );
+//
+//                    /** @var $service TextIndexService */
+//                    $service = $this->container->get('level_index_service');
+//                    $service->setup();
+//
+//                    foreach( $text_ids as $text_id ) {
+//                        $text = $repository->find($text_id);
+//                        foreach( $text->textLevels as $level ) {
+//                            $res = new ElasticTextLevelResource($level);
+//                            $service->add($res);
+//                        }
+//                    }
+                }
             }
         }
 
