@@ -10,6 +10,8 @@ import fieldRadio from '../FormFields/fieldRadio'
 import ExpertGroups from './ExpertGroups'
 import SharedSearch from "./SharedSearch"
 
+import Case from 'case'
+
 Vue.component('fieldRadio', fieldRadio);
 
 export default {
@@ -118,8 +120,8 @@ export default {
                             model: 'archive'
                         },
                     ),
-                    this.createSelect('Text type', {model: 'text_type'}),
-                    this.createSelect('Text subtype', {model: 'text_subtype', 'dependency': 'text_type'}),
+                    this.createSelect('Text type', {model: 'level_category_category'}),
+                    this.createSelect('Text subtype', {model: 'level_category_subcategory', 'dependency': 'level_category_category'}),
                     this.createMultiSelect('Social distance',
                         {
                             model: 'social_distance'
@@ -127,8 +129,8 @@ export default {
                     ),
                     this.createSelect('Generic agentive role', {model: 'generic_agentive_role'}),
                     this.createSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
-                    this.createSelect('Generic communicative goal', {model: 'generic_communicative_goal'}),
-                    this.createSelect('Communicative goal', {model: 'communicative_goal', 'dependency': 'generic_communicative_goal'}),
+                    this.createSelect('Communicative goal type', {model: 'communicative_goal_type'}),
+                    this.createSelect('Communicative goal subtype', {model: 'communicative_goal_subtype', 'dependency': 'communicative_goal_type'}),
                 ]
             }
         },
@@ -159,11 +161,20 @@ export default {
                 styleClasses: 'collapsible collapsed',
                 legend: 'Administrative information',
                 fields: [
+                    this.createOperators('project_op'),
                     this.createMultiSelect('Project',
                         {
                             model: 'project'
                         },
                     ),
+
+                    this.createOperators('project_extra_op'),
+                    this.createMultiSelect('Project (additional filter)',
+                        {
+                            model: 'project_extra'
+                        },
+                    ),
+
                     this.createMultiSelect('Collaborator', {model: 'collaborator'}),
                 ]
             }
@@ -225,65 +236,117 @@ export default {
                 styleClasses: 'collapsible collapsed bg-tertiary',
                 legend: 'Annotations',
                 fields: [
-                    this.createSelect('Type', { model: 'annotation_type' } ),
+                    this.createSelect('Type', { model: 'annotation_type', styleClasses:'mbottom-large' } ),
+
                     // language
-                    this.createMultiSelect('Codeswitching', { model: 'language_codeswitchingType' }),
-                    this.createMultiSelect('Codeswitching rank', { model: 'language_codeswitchingRank' }),
-                    this.createMultiSelect('Codeswitching domain', { model: 'language_codeswitchingDomain' }),
-                    this.createMultiSelect('Codeswitching formulaicity', { model: 'language_codeswitchingFormulaicity' }),
-                    this.createMultiSelect('Transliteration', { model: 'language_bigraphismType' }),
-                    this.createMultiSelect('Transliteration rank', { model: 'language_bigraphismRank' }),
-                    this.createMultiSelect('Transliteration domain', { model: 'language_bigraphismDomain' }),
-                    this.createMultiSelect('Transliteration formulaicity', { model: 'language_bigraphismFormulaicity' }),
+                    ...['language_codeswitchingType', 'language_codeswitchingRank', 'language_codeswitchingDomain', 'language_codeswitchingFormulaicity',
+                        'language_bigraphismType', 'language_bigraphismRank', 'language_bigraphismDomain', 'language_bigraphismFormulaicity'].map(
+                        field => [
+                            this.createOperators(field + '_op'),
+                            this.createMultiSelect(this.formatPropertyLabel(field, 'language'), { model: field }),
+                        ]
+                    ).flat(Infinity),
+
+                    // this.createMultiSelect('Codeswitching', { model: 'language_codeswitchingType' }),
+                    // this.createMultiSelect('Codeswitching rank', { model: 'language_codeswitchingRank' }),
+                    // this.createMultiSelect('Codeswitching domain', { model: 'language_codeswitchingDomain' }),
+                    // this.createMultiSelect('Codeswitching formulaicity', { model: 'language_codeswitchingFormulaicity' }),
+                    // this.createMultiSelect('Transliteration', { model: 'language_bigraphismType' }),
+                    // this.createMultiSelect('Transliteration rank', { model: 'language_bigraphismRank' }),
+                    // this.createMultiSelect('Transliteration domain', { model: 'language_bigraphismDomain' }),
+                    // this.createMultiSelect('Transliteration formulaicity', { model: 'language_bigraphismFormulaicity' }),
+
                     // typography
-                    this.createMultiSelect('Punctuation', { model: 'typography_punctuation' }),
-                    this.createMultiSelect('Accentuation', { model: 'typography_accentuation' }),
-                    this.createMultiSelect('Symbol', { model: 'typography_symbol'}),
-                    this.createMultiSelect('Acronym', { model: 'typography_accronym' }),
-                    this.createMultiSelect('Vacat', { model: 'typography_vacat', styleClasses:'mbottom-large' }),
-                    this.createMultiSelect('Correction', { model: 'typography_correction' }),
-                    this.createMultiSelect('Insertion', { model: 'typography_insertion' }),
-                    this.createMultiSelect('Deletion', { model: 'typography_deletion' }),
-                    this.createMultiSelect('Word splitting', { model: 'typography_wordSplitting' }),
-                    this.createMultiSelect('Abbreviation', { model: 'typography_abbreviation', styleClasses:'mbottom-large' }),
-                    this.createMultiSelect('Position in text', { model: 'typography_positionInText' }),
-                    this.createMultiSelect('Word class', { model: 'typography_wordClass' }),
+                    ...[
+                        'typography_punctuation', 'typography_accentuation', 'typography_symbol', 'typography_accronym', 'typography_vacat',
+                        'typography_correction', 'typography_insertion', 'typography_deletion', 'typography_wordSplitting', 'typography_abbreviation',
+                        'typography_positionInText', 'typography_wordClass'
+                    ].map(
+                        field => [
+                            this.createOperators(field + '_op'),
+                            this.createMultiSelect(this.formatPropertyLabel(field, 'typography'), { model: field }),
+                        ]
+                    ).flat(Infinity),
+
+                    // this.createMultiSelect('Punctuation', { model: 'typography_punctuation' }),
+                    // this.createMultiSelect('Accentuation', { model: 'typography_accentuation' }),
+                    // this.createMultiSelect('Symbol', { model: 'typography_symbol'}),
+                    // this.createMultiSelect('Acronym', { model: 'typography_accronym' }),
+                    // this.createMultiSelect('Vacat', { model: 'typography_vacat', styleClasses:'mbottom-large' }),
+
+                    // this.createMultiSelect('Correction', { model: 'typography_correction' }),
+                    // this.createMultiSelect('Insertion', { model: 'typography_insertion' }),
+                    // this.createMultiSelect('Deletion', { model: 'typography_deletion' }),
+                    // this.createMultiSelect('Word splitting', { model: 'typography_wordSplitting' }),
+                    // this.createMultiSelect('Abbreviation', { model: 'typography_abbreviation', styleClasses:'mbottom-large' }),
+
+                    // this.createMultiSelect('Position in text', { model: 'typography_positionInText' }),
+                    // this.createMultiSelect('Word class', { model: 'typography_wordClass' }),
+
                     // lexis
-                    this.createMultiSelect('Standard form', { model: 'lexis_standardForm' }),
-                    this.createMultiSelect('Type', { model: 'lexis_type' }),
-                    this.createMultiSelect('Subtype', { model: 'lexis_subtype' }),
-                    this.createMultiSelect('Wordclass', { model: 'lexis_wordclass' }),
-                    this.createMultiSelect('Formulaicity', { model: 'lexis_formulaicity' }),
-                    this.createMultiSelect('Prescription', { model: 'lexis_prescription' }),
-                    this.createMultiSelect('Proscription', { model: 'lexis_proscription' }),
-                    this.createMultiSelect('Identifier', { model: 'lexis_identifier' }),
+                    ...['lexis_standardForm', 'lexis_type', 'lexis_subtype', 'lexis_wordclass', 'lexis_formulaicity',
+                        'lexis_prescription', 'lexis_proscription', 'lexis_identifier'].map(
+                        field => [
+                            this.createOperators(field + '_op'),
+                            this.createMultiSelect(
+                                this.formatPropertyLabel(field, 'lexis'),
+                                { model: field, styleClasses: 'field__' + field}
+                            ),
+                        ]
+                    ).flat(Infinity),
+                    // this.createMultiSelect('Standard form', { model: 'lexis_standardForm' }),
+                    // this.createMultiSelect('Type', { model: 'lexis_type' }),
+                    // this.createMultiSelect('Subtype', { model: 'lexis_subtype' }),
+                    // this.createMultiSelect('Wordclass', { model: 'lexis_wordclass' }),
+                    // this.createMultiSelect('Formulaicity', { model: 'lexis_formulaicity' }),
+                    // this.createMultiSelect('Prescription', { model: 'lexis_prescription' }),
+                    // this.createMultiSelect('Proscription', { model: 'lexis_proscription' }),
+                    // this.createMultiSelect('Identifier', { model: 'lexis_identifier' }),
                     // orthography
-                    this.createMultiSelect('Standard form', { model: 'orthography_standardForm' }),
-                    this.createMultiSelect('Type', { model: 'orthography_type' }),
-                    this.createMultiSelect('Subtype', { model: 'orthography_subtype' }),
-                    this.createMultiSelect('Wordclass', { model: 'orthography_wordclass' }),
-                    this.createMultiSelect('Formulaicity', { model: 'orthography_formulaicity' }),
-                    this.createMultiSelect('Position in word', { model: 'orthography_positionInWord' }),
+                    ...['orthography_standardForm', 'orthography_type', 'orthography_subtype', 'orthography_wordclass', 'orthography_formulaicity', 'orthography_positionInWord'].map(
+                        field => [
+                            this.createOperators(field + '_op'),
+                            this.createMultiSelect(this.formatPropertyLabel(field, 'orthography'), { model: field }),
+                        ]
+                    ).flat(Infinity),
+
                     // morphology
-                    this.createMultiSelect('Standard form', { model: 'morphology_standardForm' }),
-                    this.createMultiSelect('Type', { model: 'morphology_type' }),
-                    this.createMultiSelect('Subtype', { model: 'morphology_subtype' }),
-                    this.createMultiSelect('Wordclass', { model: 'morphology_wordclass' }),
-                    this.createMultiSelect('Formulaicity', { model: 'morphology_formulaicity' }),
-                    this.createMultiSelect('Position in word', { model: 'morphology_positionInWord' }),
+                    ...['morphology_standardForm', 'morphology_type', 'morphology_subtype', 'morphology_wordclass', 'morphology_formulaicity', 'morphology_positionInWord'].map(
+                        field => [
+                            this.createOperators(field + '_op'),
+                            this.createMultiSelect(this.formatPropertyLabel(field, 'morphology'), { model: field }),
+                        ]
+                    ).flat(Infinity),
+                    // this.createMultiSelect('Standard form', { model: 'morphology_standardForm' }),
+                    // this.createMultiSelect('Type', { model: 'morphology_type' }),
+                    // this.createMultiSelect('Subtype', { model: 'morphology_subtype' }),
+                    // this.createMultiSelect('Wordclass', { model: 'morphology_wordclass' }),
+                    // this.createMultiSelect('Formulaicity', { model: 'morphology_formulaicity' }),
+                    // this.createMultiSelect('Position in word', { model: 'morphology_positionInWord' }),
                     // morpho-syntactical
-                    this.createMultiSelect('Coherence form', { model: 'morpho_syntactical_coherenceForm' }),
-                    this.createMultiSelect('Coherence content', { model: 'morpho_syntactical_coherenceContent' }),
-                    this.createMultiSelect('Coherence context', { model: 'morpho_syntactical_coherenceContext' }),
-                    this.createMultiSelect('Complementation form', { model: 'morpho_syntactical_complementationForm' }),
-                    this.createMultiSelect('Complementation content', { model: 'morpho_syntactical_complementationContent' }),
-                    this.createMultiSelect('Complementation context', { model: 'morpho_syntactical_complementationContext' }),
-                    this.createMultiSelect('Subordination form', { model: 'morpho_syntactical_subordinationForm' }),
-                    this.createMultiSelect('Subordination content', { model: 'morpho_syntactical_subordinationContent' }),
-                    this.createMultiSelect('Subordination context', { model: 'morpho_syntactical_subordinationContext' }),
-                    this.createMultiSelect('Relativisation form', { model: 'morpho_syntactical_orderForm' }), // todo: use to relativisationForm after schema update
-                    this.createMultiSelect('Relativisation content', { model: 'morpho_syntactical_orderContent' }), // todo: use to relativisationContent after schema update
-                    this.createMultiSelect('Relativisation context', { model: 'morpho_syntactical_orderContext' }), // todo: use to relativisationContext after schema update
+                    ...['morpho_syntactical_coherenceForm', 'morpho_syntactical_coherenceContent', 'morpho_syntactical_coherenceContext',
+                        'morpho_syntactical_complementationForm', 'morpho_syntactical_complementationContent', 'morpho_syntactical_complementationContext',
+                        'morpho_syntactical_subordinationForm', 'morpho_syntactical_subordinationContent', 'morpho_syntactical_subordinationContext',
+                        'morpho_syntactical_orderForm', 'morpho_syntactical_orderContent', 'morpho_syntactical_orderContext'
+                    ].map(
+                        field => [
+                            this.createOperators(field + '_op'),
+                            this.createMultiSelect(this.formatPropertyLabel(field, 'morpho_syntactical'), { model: field }),
+                        ]
+                    ).flat(Infinity),
+
+                    // this.createMultiSelect('Coherence form', { model: 'morpho_syntactical_coherenceForm' }),
+                    // this.createMultiSelect('Coherence content', { model: 'morpho_syntactical_coherenceContent' }),
+                    // this.createMultiSelect('Coherence context', { model: 'morpho_syntactical_coherenceContext' }),
+                    // this.createMultiSelect('Complementation form', { model: 'morpho_syntactical_complementationForm' }),
+                    // this.createMultiSelect('Complementation content', { model: 'morpho_syntactical_complementationContent' }),
+                    // this.createMultiSelect('Complementation context', { model: 'morpho_syntactical_complementationContext' }),
+                    // this.createMultiSelect('Subordination form', { model: 'morpho_syntactical_subordinationForm' }),
+                    // this.createMultiSelect('Subordination content', { model: 'morpho_syntactical_subordinationContent' }),
+                    // this.createMultiSelect('Subordination context', { model: 'morpho_syntactical_subordinationContext' }),
+                    // this.createMultiSelect('Relativisation form', { model: 'morpho_syntactical_orderForm' }), // todo: use to relativisationForm after schema update
+                    // this.createMultiSelect('Relativisation content', { model: 'morpho_syntactical_orderContent' }), // todo: use to relativisationContent after schema update
+                    // this.createMultiSelect('Relativisation context', { model: 'morpho_syntactical_orderContext' }), // todo: use to relativisationContext after schema update
                 ]
             }
         },
@@ -317,7 +380,7 @@ export default {
                 legend: 'Generic structure',
                 fields: [
                     // level
-                    this.createMultiSelect('Level', { model: 'gts_textLevel' }),
+                    this.createMultiSelect('Level', { model: 'textLevel' }),
                     this.createMultiSelect('Part', { model: 'gts_part' }),
                     this.createMultiSelect('Type', { model: 'gtsa_type' }),
                     this.createMultiSelect('Subtype', { model: 'gtsa_subtype', 'dependency': 'gtsa_type' }),
@@ -361,5 +424,11 @@ export default {
                 ]
             }
         },
+
+        /* helpers */
+        formatPropertyLabel(field, prefix) {
+            field = prefix ? field.replace(prefix + '_','') : field
+            return Case.sentence(field)
+        }
     }
 }

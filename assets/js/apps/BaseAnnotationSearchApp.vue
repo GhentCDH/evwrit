@@ -57,6 +57,11 @@
                             </li>
                             <li>
                                 <div class="form-group">
+                                    <CheckboxSwitch v-model="config.showAnnotationTypeOnlyProperties" class="switch-primary" label="Limit visible annotation properties to own type"></CheckboxSwitch>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="form-group">
                                     <CheckboxSwitch v-model="config.limitVisibleAnnotations" class="switch-primary" label="Show maximum 3 annotations per text"></CheckboxSwitch>
                                 </div>
                             </li>
@@ -105,15 +110,15 @@
                                 v-show="!config.showAnnotationContext"
                                 :text="annotation.text_selection.text">
                         </GreekText>
-                        <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation"></AnnotationDetailsFlat>
+                        <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation" :type-only-properties="config.showAnnotationTypeOnlyProperties"></AnnotationDetailsFlat>
                     </div>
                     <div class="annotation-count" v-if="config.limitVisibleAnnotations && props.row.annotations.length > 3">
                         <span class="bg-tertiary small">Showing 3 of {{ props.row.annotations.length }} annotations found in text.</span>
                     </div>
                 </template>
-                <template slot="text_type" slot-scope="props">
+                <template slot="level_category" slot-scope="props">
                     <td>
-                        {{ props.row.text_type.name }}
+                        {{ formatLevelCategory(props.row.level_category) }}
                     </td>
                 </template>
                 <template slot="location_found" slot-scope="props">
@@ -135,6 +140,7 @@
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
+import SearchAppFields from '../components/Search/SearchAppFields'
 import AbstractField from '../components/FormFields/AbstractField'
 import AbstractSearch from '../components/Search/AbstractSearch'
 import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
@@ -149,7 +155,6 @@ import CollapsibleGroups from '../components/Search/CollapsibleGroups'
 import ExpertGroups from '../components/Search/ExpertGroupsAnnotations'
 import PersistentConfig from "../components/Shared/PersistentConfig";
 import SharedSearch from "../components/Search/SharedSearch";
-import SearchAppFields from '../components/Search/SearchAppFields'
 
 import qs from "qs";
 
@@ -176,6 +181,7 @@ export default {
             defaultConfig: {
                 showAnnotationContext: true,
                 showAnnotationDetails: false,
+                showAnnotationTypeOnlyProperties: true,
                 limitVisibleAnnotations: true,
             },
             model: {
@@ -194,8 +200,8 @@ export default {
                     this.generalInformationFields(),
                     this.communicativeInformationFields(),
                     this.materialityFields(),
+                    this.ancientPersonFields(),
                     this.administrativeInformationFields(),
-                    this.ancientPersonFields()
                 ],
             },
             tableOptions: {
@@ -236,7 +242,7 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['id', 'tm_id', 'title', 'annotations', 'text_type', 'location_found']
+            let columns = ['id', 'tm_id', 'title', 'annotations', 'level_category', 'location_found']
             return columns
         },
     },
@@ -259,7 +265,12 @@ export default {
         },
         limitAnnotations(annotations) {
             return this.config.limitVisibleAnnotations ? annotations.slice(0,3) : annotations
-        }
+        },
+        formatLevelCategory(data) {
+            if (!data) return 'None';
+
+            return data.map( item => item.level_category_category.name ).join(', ')
+        },
 
     },
 }

@@ -74,9 +74,9 @@
                         {{ props.row.tm_id }}
                     </a>
                 </template>
-                <template slot="text_type" slot-scope="props">
+                <template slot="level_category" slot-scope="props">
                     <td>
-                        {{ props.row.text_type.name }}
+                        {{ formatLevelCategory(props.row.level_category) }}
                     </td>
                 </template>
                 <template slot="location_found" slot-scope="props">
@@ -174,12 +174,18 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['id', 'tm_id', 'title', 'text_type', 'location_found', 'year_begin', 'year_end']
+            let columns = ['id', 'tm_id', 'title', 'level_category', 'location_found', 'year_begin', 'year_end']
             return columns
         },
     },
     watch: {},
     methods: {
+        formatLevelCategory(data) {
+            console.log(data)
+            if (!data) return 'None';
+
+            return data.map( item => item.level_category_category.name ).join(', ')
+        },
         update() {
             // Don't create a new history item
             this.noHistory = true;

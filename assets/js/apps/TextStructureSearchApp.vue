@@ -62,30 +62,30 @@
                     </div>
                 </template>
                 <template slot="title" slot-scope="props">
-                    <a :href="getTextUrl(props.row.id, props.index)">
+                    <a :href="getTextUrl(props.row.text_id, props.index)">
                         {{ props.row.title }}
                     </a>
                 </template>
-                <template slot="id" slot-scope="props">
-                    <a :href="getTextUrl(props.row.id, props.index)">
-                        {{ props.row.id }}
+                <template slot="text_id" slot-scope="props">
+                    <a :href="getTextUrl(props.row.text_id, props.index)">
+                        {{ props.row.text_id }}
                     </a>
                 </template>
-                <template slot="tm_id" slot-scope="props">
-                    <a :href="getTextUrl(props.row.id, props.index)">
-                        {{ props.row.tm_id }}
-                    </a>
-                </template>
-                <template slot="text_type" slot-scope="props">
-                    <td>
-                        {{ props.row.text_type.name }}
-                    </td>
-                </template>
-                <template slot="location_found" slot-scope="props">
-                    <td>
-                        {{ props.row.location_found[0]?.name }}
-                    </td>
-                </template>
+<!--                <template slot="tm_id" slot-scope="props">-->
+<!--                    <a :href="getTextUrl(props.row.id, props.index)">-->
+<!--                        {{ props.row.tm_id }}-->
+<!--                    </a>-->
+<!--                </template>-->
+<!--                <template slot="text_type" slot-scope="props">-->
+<!--                    <td>-->
+<!--                        {{ props.row.text_type.name }}-->
+<!--                    </td>-->
+<!--                </template>-->
+<!--                <template slot="location_found" slot-scope="props">-->
+<!--                    <td>-->
+<!--                        {{ props.row.location_found[0]?.name }}-->
+<!--                    </td>-->
+<!--                </template>-->
             </v-server-table>
         </article>
         <div
@@ -151,18 +151,18 @@ export default {
                     this.generalInformationFields(),
                     this.communicativeInformationFields(),
                     this.materialityFields(),
-                    this.administrativeInformationFields(),
-                    this.ancientPersonFields()
+                    this.ancientPersonFields(),
+                    this.administrativeInformationFields()
                 ],
             },
             tableOptions: {
                 headings: {
-                    id: 'ID',
+                    text_id: 'ID',
                     tm_id: 'Tm ID ',
                     title: 'Title',
                 },
                 columnsClasses: {
-                    id: 'vue-tables__col vue-tables__col--id',
+                    text_id: 'vue-tables__col vue-tables__col--id',
                     tm_id: 'vue-tables__col vue-tables__col--tm-id',
                     title: 'vue-tables__col vue-tables__col--title'
                 },
@@ -172,7 +172,7 @@ export default {
                 },
                 'perPage': 25,
                 'perPageValues': [25, 50, 100],
-                'sortable': ['id', 'tm_id', 'title'],
+                'sortable': ['text_id', 'tm_id', 'title'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
@@ -192,7 +192,7 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['id', 'tm_id', 'title', 'text_type', 'location_found']
+            let columns = ['text_id', 'tm_id', 'title', 'text_type', 'location_found']
             return columns
         },
     },
