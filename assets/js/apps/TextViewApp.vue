@@ -590,8 +590,8 @@ export default {
             let ret = {}
 
             this.genericTextStructure.forEach( function(annotation) {
-                    let level_number =  String(annotation?.properties?.gts_textLevel?.number || 0);
-                    let level_properties = annotation?.properties?.gts_textLevel?.number ? annotation?.properties?.gts_textLevel : { number: 0, type: "" }
+                    let level_number =  String(annotation?.properties?.textLevel?.number || 0);
+                    let level_properties = annotation?.properties?.textLevel?.number ? annotation?.properties?.textLevel : { number: 0, type: "" }
                     if (!(level_number in ret)) {
                         ret[level_number] = { ...level_properties, ...{ children: [] } }
                     }
