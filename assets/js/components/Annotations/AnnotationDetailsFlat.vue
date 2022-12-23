@@ -29,13 +29,19 @@ export default {
                 'morpho_syntactical_aspectForm','morpho_syntactical_aspectContent','morpho_syntactical_aspectContext',
                 'morpho_syntactical_modalityForm','morpho_syntactical_modalityContent','morpho_syntactical_modalityContext',
             ] }
+        },
+        typeOnlyProperties: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     computed: {
         propertyKeys() {
-            return Object.keys(this.annotation.properties)
-                .filter(k => k.startsWith(this.annotation.type + '_'))
+            const keys = Object.keys(this.annotation.properties).sort()
                 .filter(k => !this.ignoreProperties.includes(k))
+
+            return this.typeOnlyProperties ? keys.filter(k => k.startsWith(this.annotation.type + '_')) : keys
         },
         details() {
             let ret = {};
@@ -43,10 +49,10 @@ export default {
             //ret['selectionStart'] = this.annotation.text_selection.selection_start
             //ret['selectionEnd'] = this.annotation.text_selection.selection_end
 
-            for (const prop of this.propertyKeys) {
+            for (let prop of this.propertyKeys) {
                 if (this.annotation.properties.hasOwnProperty(prop)) {
                     // remove boolean property
-                    if (prop === 'has_handshift') {
+                    if ( ['has_handshift', 'textLevel'].includes(prop) ) {
                         continue;
                     }
 
