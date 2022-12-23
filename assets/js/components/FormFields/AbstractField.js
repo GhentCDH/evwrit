@@ -144,6 +144,11 @@ export default {
                 model = this.model
             }
 
+            if ( ! (field.dependencyName ?? this.fields[field.dependency]) ) {
+                console.error('VFG config error: dependency field not found for field ' + field.model)
+                return
+            }
+
             // get everything after last '.'
             let modelName = field.model.split('.').pop()
 
