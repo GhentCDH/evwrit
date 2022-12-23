@@ -21,8 +21,9 @@ use App\Model\Lookup\AnnotationModalityContent;
 use App\Model\Lookup\AnnotationModalityContext;
 use App\Model\Lookup\AnnotationModalityForm;
 use App\Model\Lookup\AnnotationOrderContent;
-use App\Model\Lookup\AnnotationOrderContext;
-use App\Model\Lookup\AnnotationOrderForm;
+use App\Model\Lookup\AnnotationRelativisationContent;
+use App\Model\Lookup\AnnotationRelativisationContext;
+use App\Model\Lookup\AnnotationRelativisationForm;
 use App\Model\Lookup\AnnotationSubordinationContent;
 use App\Model\Lookup\AnnotationSubordinationContext;
 use App\Model\Lookup\AnnotationSubordinationForm;
@@ -49,7 +50,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
         'cliticContent','cliticContext','cliticForm',
         'caseContent','caseContext','caseForm',
         'subordinationContent','subordinationForm','subordinationContext',
-        'orderContent','orderContext','orderForm',
+        'relativisationContent','relativisationContext','relativisationForm',
         'typeFormulaicity', 'typeReconstruction'
     ];
 
@@ -59,7 +60,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function aspectContent(): belongsTo
@@ -68,7 +69,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function aspectContext(): belongsTo
@@ -77,7 +78,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function aspectForm(): belongsTo
@@ -86,7 +87,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function complementationContent(): belongsTo
@@ -95,7 +96,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function complementationContext(): belongsTo
@@ -104,7 +105,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function complementationForm(): belongsTo
@@ -113,7 +114,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function modalityContent(): belongsTo
@@ -122,7 +123,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function modalityContext(): belongsTo
@@ -131,7 +132,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function modalityForm(): belongsTo
@@ -140,7 +141,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function coherenceContent(): belongsTo
@@ -149,7 +150,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function coherenceContext(): belongsTo
@@ -158,7 +159,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function coherenceForm(): belongsTo
@@ -167,7 +168,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function cliticContent(): belongsTo
@@ -176,7 +177,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function cliticContext(): belongsTo
@@ -185,7 +186,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function cliticForm(): belongsTo
@@ -194,7 +195,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function caseContent(): belongsTo
@@ -203,7 +204,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function caseContext(): belongsTo
@@ -212,7 +213,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function caseForm(): belongsTo
@@ -221,7 +222,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function subordinationContent(): belongsTo
@@ -230,7 +231,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function subordinationForm(): belongsTo
@@ -239,7 +240,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function subordinationContext(): belongsTo
@@ -248,34 +249,34 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
-    public function orderContent(): belongsTo
+    public function relativisationContent(): belongsTo
     {
-        return $this->belongsTo(AnnotationOrderContent::class);
+        return $this->belongsTo(AnnotationRelativisationContent::class);
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
-    public function orderContext(): belongsTo
+    public function relativisationContext(): belongsTo
     {
-        return $this->belongsTo(AnnotationOrderContext::class);
+        return $this->belongsTo(AnnotationRelativisationContext::class);
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
-    public function orderForm(): belongsTo
+    public function relativisationForm(): belongsTo
     {
-        return $this->belongsTo(AnnotationOrderForm::class);
+        return $this->belongsTo(AnnotationRelativisationForm::class);
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function typeFormulaicity(): belongsTo
@@ -284,7 +285,7 @@ class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function typeReconstruction(): belongsTo

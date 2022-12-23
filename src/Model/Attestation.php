@@ -3,9 +3,12 @@
 namespace App\Model;
 
 use App\Model\Lookup\Age;
+use App\Model\Lookup\AttestationHypertype;
+use App\Model\Lookup\Domicile;
 use App\Model\Lookup\Education;
 use App\Model\Lookup\GraphType;
 use App\Model\Lookup\HonorificEpithet;
+use App\Model\Lookup\LocationType;
 use App\Model\Lookup\Occupation;
 use App\Model\Lookup\Role;
 use App\Model\Lookup\SocialRank;
@@ -16,12 +19,25 @@ use ReflectionException;
 /**
  * Class Attestation
  *
- * @property int $ancient_person_id
- * @property string $name
- * @property string $alias
- * @property string $patronymic
- * @property int $tm_id
- * @property int $gender_id
+ * @property int $attestation_id
+ * @property string remark_social_background
+ * @property string comment
+ * @property bool occupation_is_overt
+ * @property bool occupation_is_former
+ * @property bool occupation_is_collective
+ *
+ * @property AncientPerson ancientPerson
+ * @property Level level
+ * @property Age $age
+ * @property Education $education
+ * @property GraphType $graphType
+ * @property Domicile $domicile
+ * @property LocationType $locationType
+ * @property AttestationHypertype $attestationHypertype
+ * @property Role[] roles
+ * @property Occupation[] occupations
+ * @property SocialRank[] $socialRanks
+ * @property HonorificEpithet[] $honorificEpithets
  * @package App\Model
  */
 class Attestation extends AbstractModel
@@ -34,12 +50,12 @@ class Attestation extends AbstractModel
     protected $fillable = [];
 
     /**
-     * @return BelongsTo|Text
+     * @return BelongsTo|Level
      * @throws ReflectionException
      */
-    public function text(): belongsTo
+    public function level(): belongsTo
     {
-        return $this->belongsTo(Text::class);
+        return $this->belongsTo(Level::class);
     }
 
     /**
@@ -50,6 +66,8 @@ class Attestation extends AbstractModel
     {
         return $this->belongsTo(AncientPerson::class);
     }
+
+    /* many 2 many */
 
     /**
      * @return BelongsToMany|Role
@@ -87,6 +105,8 @@ class Attestation extends AbstractModel
         return $this->belongsToMany(HonorificEpithet::class);
     }
 
+    /* properties */
+
     public function age(): BelongsTo
     {
         return $this->belongsTo( Age::class);
@@ -101,4 +121,20 @@ class Attestation extends AbstractModel
     {
         return $this->belongsTo( GraphType::class);
     }
+
+    public function domicile(): BelongsTo
+    {
+        return $this->belongsTo( Domicile::class);
+    }
+
+    public function locationType(): BelongsTo
+    {
+        return $this->belongsTo( LocationType::class);
+    }
+
+    public function attestationHypertype(): BelongsTo
+    {
+        return $this->belongsTo( AttestationHypertype::class);
+    }
+
 }

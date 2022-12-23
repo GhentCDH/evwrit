@@ -3,13 +3,13 @@
 namespace App\Model\Lookup;
 
 
-use App\Model\IdNameModel;
+use App\Model\IdNameModelModel;
 
 /**
  * Class SocialRank
  *
  * @package App\Model
  */
-class SocialRank extends IdNameModel
+class SocialRank extends IdNameModelModel
 {
 }

@@ -54,9 +54,9 @@ class GenericTextStructureAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return TextLevel
+     * @return Level
      */
-    public function getTextLevelAttribute(): ?TextLevel
+    public function getTextLevelAttribute(): ?Level
     {
         return $this->genericTextStructure->textLevel;
     }

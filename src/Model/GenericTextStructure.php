@@ -22,7 +22,7 @@ use ReflectionException;
  * @property TextSelection $textSelection
  * @property GenericTextStructurePart part
  * @property GenericTextStructureComponents components
- * @property TextLevel textLevel
+ * @property Level textLevel
  * @property string partNumber*
  * @package App\Model
  */
@@ -40,12 +40,12 @@ class GenericTextStructure extends AbstractModel
     }
 
     /**
-     * @return BelongsTo|TextLevel
+     * @return BelongsTo|Level
      * @throws ReflectionException
      */
     public function textLevel(): belongsTo
     {
-        return $this->belongsTo(TextLevel::class);
+        return $this->belongsTo(Level::class);
     }
 
     /**

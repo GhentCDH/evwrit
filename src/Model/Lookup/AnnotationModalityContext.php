@@ -2,8 +2,8 @@
 
 namespace App\Model\Lookup;
 
-use App\Model\IdNameModel;
+use App\Model\IdNameModelModel;
 
-class AnnotationModalityContext extends IdNameModel
+class AnnotationModalityContext extends IdNameModelModel
 {
 }

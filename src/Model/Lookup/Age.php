@@ -3,13 +3,13 @@
 namespace App\Model\Lookup;
 
 
-use App\Model\IdNameModel;
+use App\Model\IdNameModelModel;
 
 /**
  * Class AgentiveRole
  *
  * @package App\Model
  */
-class Age extends IdNameModel
+class Age extends IdNameModelModel
 {
 }

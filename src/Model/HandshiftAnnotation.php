@@ -54,7 +54,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function abbreviation(): belongsTo
@@ -63,7 +63,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function accentuation(): belongsTo
@@ -72,7 +72,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function connectivity(): belongsTo
@@ -81,7 +81,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function correction(): belongsTo
@@ -90,7 +90,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function curvature(): belongsTo
@@ -99,7 +99,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function degreeOfFormality(): belongsTo
@@ -108,7 +108,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function expansion(): belongsTo
@@ -117,7 +117,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function lineation(): belongsTo
@@ -126,7 +126,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function orientation(): belongsTo
@@ -136,7 +136,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
 
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function punctuation(): belongsTo
@@ -145,7 +145,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function regularity(): belongsTo
@@ -154,7 +154,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function scriptType(): belongsTo
@@ -163,7 +163,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function slope(): belongsTo
@@ -172,7 +172,7 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModel
+     * @return BelongsTo|IdNameModelModel
      * @throws ReflectionException
      */
     public function wordSplitting(): belongsTo

@@ -2,8 +2,8 @@
 
 namespace App\Model\Lookup;
 
-use App\Model\IdNameModel;
+use App\Model\IdNameModelModel;
 
-class AnnotationCliticContext extends IdNameModel
+class AnnotationCliticContext extends IdNameModelModel
 {
 }

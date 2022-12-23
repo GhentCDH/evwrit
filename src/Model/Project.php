@@ -8,6 +8,6 @@ namespace App\Model;
  *
  * @package App\Model
  */
-class Project extends IdNameModel
+class Project extends IdNameModelModel
 {
 }

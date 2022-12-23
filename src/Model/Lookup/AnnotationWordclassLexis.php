@@ -2,8 +2,8 @@
 
 namespace App\Model\Lookup;
 
-use App\Model\IdNameModel;
+use App\Model\IdNameModelModel;
 
-class AnnotationWordclassLexis extends IdNameModel
+class AnnotationWordclassLexis extends IdNameModelModel
 {
 }

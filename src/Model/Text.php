@@ -8,6 +8,7 @@ use App\Model\Lookup\Form;
 use App\Model\Lookup\Language;
 use App\Model\Lookup\Material;
 use App\Model\Lookup\ProductionStage;
+use App\Model\Lookup\RevisionStatus;
 use App\Model\Lookup\Script;
 use App\Model\Lookup\SocialDistance;
 use App\Model\Lookup\TextFormat;
@@ -29,6 +30,19 @@ use ReflectionException;
  * @property string $text
  * @property string $text_lemmas
  * @property string $text_scrubbed
+
+ * @property string comment
+ * @property string note
+ * @property string remark
+ *
+ * @property string archeoogical_context
+ * @property string summary
+ * @property string content
+ * @property string inventory
+ * @property string apparatus
+
+ * @property string no_known_translation
+
  * @property int $year_begin
  * @property int $year_end
  *
@@ -37,7 +51,6 @@ use ReflectionException;
  * @property Language[] languages
  * @property Material[] materials
  * @property SocialDistance[] socialDistances
- * @property ProductionStage[] productionStages
  * @property Project[] projects
  * @property Keyword[] keywords
  * @property Archive[] archive
@@ -53,8 +66,6 @@ use ReflectionException;
  * @property TextTranslation[] translations
  * @property Location[] locationsFound
  * @property Location[] locationsWritten
- * @property Text_AgentiveRole[] agentiveRoles
- * @property Text_CommunicativeGoal[] communicativeGoals
  * @property LexisAnnotation[] lexisAnnotations
  * @property LanguageAnnotation[] languageAnnotations
  * @property TypographyAnnotation[] typographyAnnotations
@@ -65,21 +76,30 @@ use ReflectionException;
  * @property GenericTextStructureAnnotation[] genericTextStructureAnnotations
  * @property LayoutTextStructureAnnotation[] layoutTextStructureAnnotations
  *
- * @property GenericTextStructure[] genericTextStructure
- * @property LayoutTextStructure[] layoutTextStructure
- * @property TextLevel[] textLevels
+ * @property GenericTextStructure[] genericTextStructures
+ * @property LayoutTextStructure[] layoutTextStructures
+ * @property Level[] textLevels
  *
  * @package App\Model
  */
 class Text extends AbstractModel
 {
     /**
+     * @return BelongsTo|RevisionStatus
+     * @throws ReflectionException
+     */
+    public function revisionStatus(): BelongsTo
+    {
+        return $this->belongsTo( RevisionStatus::class);
+    }
+
+    /**
      * @return BelongsTo|Era
      * @throws ReflectionException
      */
     public function era(): BelongsTo
     {
-        return $this->belongsTo( Era::class, 'era_id', 'era_id');
+        return $this->belongsTo( Era::class);
     }
 
     /**
@@ -125,15 +145,6 @@ class Text extends AbstractModel
     public function socialDistances(): BelongsToMany
     {
         return $this->belongsToMany(SocialDistance::class);
-    }
-
-    /**
-     * @return BelongsToMany|Collection|ProductionStage[]
-     * @throws ReflectionException
-     */
-    public function productionStages(): BelongsToMany
-    {
-        return $this->belongsToMany(ProductionStage::class);
     }
 
     /**
@@ -236,11 +247,11 @@ class Text extends AbstractModel
     }
 
     /**
-     * @return HasMany|Attestation[]
+     * @return HasManyThrough|Attestation[]
      */
-    public function attestations(): HasMany
+    public function attestations(): HasManyThrough
     {
-        return $this->hasMany(Attestation::class, 'text_id', 'text_id');
+        return $this->hasManyThrough(Attestation::class, Level::class);
     }
 
     /**
@@ -270,21 +281,6 @@ class Text extends AbstractModel
         return $this->locations()->wherePivot('is_written',1);
     }
 
-    /**
-     * @return HasMany
-     */
-    public function agentiveRoles(): HasMany
-    {
-        return $this->hasMany(Text_AgentiveRole::class);
-    }
-
-    /**
-     * @return HasMany
-     */
-    public function communicativeGoals(): HasMany
-    {
-        return $this->hasMany(Text_CommunicativeGoal::class);
-    }
 
     /**
      * @return HasMany|TextSelection[]
@@ -352,7 +348,7 @@ class Text extends AbstractModel
     /**
      * @return HasManyThrough|GenericTextStructure[]
      */
-    public function genericTextStructure()
+    public function genericTextStructures()
     {
         return $this->hasManyThrough(GenericTextStructure::class, TextSelection::class);
     }
@@ -368,7 +364,7 @@ class Text extends AbstractModel
     /**
      * @return HasManyThrough|LayoutTextStructure[]
      */
-    public function layoutTextStructure()
+    public function layoutTextStructures()
     {
         return $this->hasManyThrough(LayoutTextStructure::class, TextSelection::class);
     }
@@ -381,12 +377,9 @@ class Text extends AbstractModel
         return $this->hasManyThrough(LayoutTextStructureAnnotation::class, TextSelection::class);
     }
 
-    /**
-     * @return HasMany|TextLevel[]
-     */
-    public function textLevels()
+    public function textLevels(): HasMany
     {
-        return $this->hasMany(TextLevel::class);
+        return $this->hasMany(Level::class);
     }
 
 }

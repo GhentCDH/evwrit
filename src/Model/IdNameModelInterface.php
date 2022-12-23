@@ -2,7 +2,7 @@
 
 namespace App\Model;
 
-interface IdNameInterface
+interface IdNameModelInterface
 {
     public function getId(): int;
     public function getName(): string;

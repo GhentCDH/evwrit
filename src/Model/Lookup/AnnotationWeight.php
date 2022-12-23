@@ -2,8 +2,8 @@
 
 namespace App\Model\Lookup;
 
-use App\Model\IdNameModel;
+use App\Model\IdNameModelModel;
 
-class AnnotationWeight extends IdNameModel
+class AnnotationWeight extends IdNameModelModel
 {
 }

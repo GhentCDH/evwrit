@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionException;
 use function Symfony\Component\String\u;
@@ -35,6 +36,26 @@ abstract class AbstractModel extends Model
         if ( !$this->primaryKey ) {
             $this->primaryKey = $this->table . '_id';
         }
+    }
+
+    /**
+     * Get the table associated with the model.
+     *
+     * @return string
+     */
+    public function getTable(): string
+    {
+        return $this->table ?? Str::snake(class_basename($this));
+    }
+
+    /**
+     * Get the default foreign key name for the model.
+     *
+     * @return string
+     */
+    public function getForeignKey(): string
+    {
+        return $this->getKeyName();
     }
 
     /**
@@ -81,20 +102,16 @@ abstract class AbstractModel extends Model
      */
     public function belongsToMany($related, $table = NULL, $foreignPivotKey = NULL, $relatedPivotKey = NULL, $parentKey = NULL, $relatedKey = NULL, $relation = NULL): BelongsToMany
     {
-        $related_table = u((new ReflectionClass($related))->getShortName())->snake();
-        $related_pk = $related_table.'_id';
-
-        if (is_null($table)) {
-            $table = $this->table . '__' . $related_table;
+        if (is_null($relation)) {
+            $relation = $this->guessBelongsToManyRelation();
         }
+        $instance = $this->newRelatedInstance($related);
 
-        if (is_null($foreignPivotKey)) {
-            $foreignPivotKey = $this->getKeyName();
-        }
+        $foreignPivotKey = $foreignPivotKey ?: $this->getForeignKey();
+        $relatedPivotKey = $relatedPivotKey ?: $instance->getForeignKey();
 
-        if (is_null($relatedPivotKey)) {
-            $relatedPivotKey = $related_pk;
-        }
+        $table = $table ?: $this->getTable().'__'.$instance->getTable();
+
         return parent::belongsToMany($related, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $relation);
     }
 

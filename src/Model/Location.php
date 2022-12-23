@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @package App\Model
  */
-class Location extends IdNameModel
+class Location extends IdNameModelModel
 {
 
     /**

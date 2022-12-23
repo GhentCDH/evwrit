@@ -3,13 +3,13 @@
 namespace App\Model\Lookup;
 
 
-use App\Model\IdNameModel;
+use App\Model\IdNameModelModel;
 
 /**
  * Class WritingDirection
  *
  * @package App\Model
  */
-class WritingDirection extends IdNameModel
+class WritingDirection extends IdNameModelModel
 {
 }
