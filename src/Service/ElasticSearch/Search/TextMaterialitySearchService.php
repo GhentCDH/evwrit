@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Search;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use App\Service\ElasticSearch\Client;
 
 class TextMaterialitySearchService extends AbstractSearchService
 {
@@ -20,6 +20,7 @@ class TextMaterialitySearchService extends AbstractSearchService
             Configs::filterPhysicalInfo(),
             Configs::filterCommunicativeInfo(),
             Configs::filterMateriality(),
+            Configs::filterAncientPerson(),
             Configs::filterAdministrative(),
         );
 
@@ -34,6 +35,7 @@ class TextMaterialitySearchService extends AbstractSearchService
             Configs::aggregatePhysicalInfo(),
             Configs::aggregateCommunicativeInfo(),
             Configs::aggregateMateriality(),
+            Configs::aggregateAncientPerson(),
             Configs::aggregateAdministrative(),
         );
 
@@ -54,7 +56,7 @@ class TextMaterialitySearchService extends AbstractSearchService
 
     protected function sanitizeSearchResult(array $result): array
     {
-        $returnProps = ['id', 'tm_id', 'title', 'year_begin', 'year_end', 'text_type', 'location_found'];
+        $returnProps = ['id', 'tm_id', 'title', 'year_begin', 'year_end', 'level_category', 'location_found'];
 
         $result = array_intersect_key($result, array_flip($returnProps));
 

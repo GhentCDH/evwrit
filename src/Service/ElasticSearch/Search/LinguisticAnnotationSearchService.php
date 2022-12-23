@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Search;
 
 class LinguisticAnnotationSearchService extends AnnotationSearchService
 {

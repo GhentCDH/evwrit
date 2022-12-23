@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Search;
 
-use Elastica\Mapping;
+use App\Service\ElasticSearch\Client;
 use Elastica\Settings;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class TextStructureSearchService extends AbstractSearchService
 {
-    const indexName = "texts";
+    const indexName = "level";
 
     const ignoreUnknownUncertain = ['unknown','uncertain', 'Unknown', 'Uncertain', 'Unknwon'];
-
 
     public function __construct(Client $client)
     {
@@ -25,11 +23,18 @@ class TextStructureSearchService extends AbstractSearchService
             Configs::filterPhysicalInfo(),
             Configs::filterCommunicativeInfo(),
             Configs::filterMateriality(),
+            Configs::filterAttestations(),
             Configs::filterAdministrative(),
         );
 
+        $searchFilters['textLevel'] = [
+            'field' => 'number',
+            'type' => self::FILTER_NUMERIC,
+            'aggregationFilter' => true,
+        ];
+
         $searchFilters['annotation_type'] = [
-            'field' => 'type',
+            'field' => 'annotations.type',
             'nested_path' => 'annotations',
             'type' => self::FILTER_KEYWORD,
             'defaultValue' => ['gts', 'gtsa', 'lts', 'ltsa'],
@@ -43,10 +48,6 @@ class TextStructureSearchService extends AbstractSearchService
             'type' => self::FILTER_NESTED_MULTIPLE,
             'nested_path' => 'annotations',
             'filters' => [
-                'gts_textLevel' => [
-                    'field' => 'properties.gts_textLevel.number',
-                    'type' => self::FILTER_NUMERIC,
-                ],
             ],
             'innerHits' => [
                 'size' => 100,
@@ -66,7 +67,7 @@ class TextStructureSearchService extends AbstractSearchService
                 $subfilter_name = "{$type}_{$property}";
                 $subfilter_field = "{$type}_{$property}";
                 $searchFilters['annotations']['filters'][$subfilter_name] = [
-                    'field' => "properties.{$subfilter_field}",
+                    'field' => "annotations.properties.{$subfilter_field}",
                     'type' => self::FILTER_OBJECT_ID
                 ];
             }
@@ -80,6 +81,7 @@ class TextStructureSearchService extends AbstractSearchService
             Configs::aggregatePhysicalInfo(),
             Configs::aggregateCommunicativeInfo(),
             Configs::aggregateMateriality(),
+            Configs::aggregateAttestations(),
             Configs::aggregateAdministrative(),
         );
 
@@ -103,41 +105,35 @@ class TextStructureSearchService extends AbstractSearchService
         foreach( $annotationProperties as $type => $properties ) {
             foreach( $properties as $property ) {
                 $filter_name = "{$type}_{$property}";
-                $field_name = "properties.{$type}_{$property}";
+                $field_name = "annotations.properties.{$type}_{$property}";
                 $aggregationFilters[$filter_name] = [
                     'type' => self::AGG_NESTED_ID_NAME,
                     'field' => $field_name,
                     'nested_path' => "annotations",
-                    'excludeFilter' => ['annotations'], // exclude filter of same type
-                    'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($filter_name) {
-                        if ( $subfilter_name != $filter_name ) {
-                            $carry[$subfilter_name] = [
-                                'field' => "properties.{$subfilter_name}",
-                                'type' => self::FILTER_OBJECT_ID
-                            ];
-                        }
-                        return $carry;
-                    }, [])
-                ];
-                // filter on text level
-                $aggregationFilters[$filter_name]['filters']['gts_textLevel'] = [
-                    "properties.gts_textLevel.number",
-                    'type' => self::FILTER_NUMERIC
+//                    'excludeFilter' => ['annotations'], // exclude filter of same type
+//                    'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($filter_name) {
+//                        if ( $subfilter_name != $filter_name ) {
+//                            $carry[$subfilter_name] = [
+//                                'field' => "annotations.properties.{$subfilter_name}",
+//                                'type' => self::FILTER_OBJECT_ID
+//                            ];
+//                        }
+//                        return $carry;
+//                    }, [])
                 ];
             }
         }
 
-        // add gts level aggretation
-        $filter_name = 'gts_textLevel';
+        // add level number aggretation
+        $filter_name = 'textLevel';
         $aggregationFilters[$filter_name] = [
             'type' => self::AGG_NUMERIC,
-            'field' => 'properties.gts_textLevel.number',
-            'nested_path' => "annotations",
-            'excludeFilter' => ['annotations'], // exclude filter of same type,
+            'field' => 'number',
         ];
+
         // filter annotation_type
         $aggregationFilters[$filter_name]['filters']['annotation_type'] = [
-            'field' => 'type',
+            'field' => 'annotations.type',
             'type' => self::FILTER_KEYWORD
         ];
 
@@ -155,7 +151,7 @@ class TextStructureSearchService extends AbstractSearchService
 
     protected function sanitizeSearchResult(array $result): array
     {
-        $returnProps = ['id', 'tm_id', 'title', 'year_begin', 'year_end', 'inner_hits', 'annotations', 'text_type', 'location_found'];
+        $returnProps = ['id', 'text_id', 'tm_id', 'title', 'year_begin', 'year_end', 'inner_hits', 'annotations', 'level_category', 'location_found'];
 
         $result = array_intersect_key($result, array_flip($returnProps));
         $result['annotations'] = $result['annotations'] ?? [];
@@ -177,6 +173,7 @@ class TextStructureSearchService extends AbstractSearchService
 
                     break;
                 case 'id':
+                case 'text_id':
                 case 'tm_id':
                 case 'year_begin':
                 case 'year_end':

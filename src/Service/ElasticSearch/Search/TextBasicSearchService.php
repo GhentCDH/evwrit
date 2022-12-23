@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Search;
 
-use Elastica\Mapping;
+use App\Service\ElasticSearch\Client;
 use Elastica\Settings;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class TextBasicSearchService extends AbstractSearchService
 {
@@ -57,7 +56,7 @@ class TextBasicSearchService extends AbstractSearchService
 
     protected function sanitizeSearchResult(array $result): array
     {
-        $returnProps = ['id', 'tm_id', 'title', 'year_begin', 'year_end', 'text_type', 'location_found'];
+        $returnProps = ['id', 'tm_id', 'title', 'year_begin', 'year_end', 'level_category', 'location_found'];
 
         $result = array_intersect_key($result, array_flip($returnProps));
 

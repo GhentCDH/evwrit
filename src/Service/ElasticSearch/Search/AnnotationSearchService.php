@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Search;
 
-use Elastica\Mapping;
+use App\Service\ElasticSearch\Client;
 use Elastica\Settings;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AnnotationSearchService extends AbstractSearchService
 {
@@ -22,6 +21,7 @@ class AnnotationSearchService extends AbstractSearchService
             Configs::filterPhysicalInfo(),
             Configs::filterCommunicativeInfo(),
             Configs::filterMateriality(),
+            Configs::filterAncientPerson(),
             Configs::filterAdministrative(),
         );
 
@@ -38,7 +38,7 @@ class AnnotationSearchService extends AbstractSearchService
                     'type' => self::FILTER_KEYWORD
                 ],
                 'text_level' => [
-                    'field' => 'properties.gts_textLevel.number',
+                    'field' => 'properties.textLevel.number',
                     'type' => self::FILTER_NUMERIC
                 ],
                 'generic_text_structure_part' => [
@@ -87,6 +87,7 @@ class AnnotationSearchService extends AbstractSearchService
             Configs::aggregatePhysicalInfo(),
             Configs::aggregateCommunicativeInfo(),
             Configs::aggregateMateriality(),
+            Configs::aggregateAncientPerson(),
             Configs::aggregateAdministrative(),
         );
 
@@ -126,16 +127,16 @@ class AnnotationSearchService extends AbstractSearchService
                     'type' => self::AGG_NESTED_ID_NAME,
                     'field' => $field_name,
                     'nested_path' => "annotations",
-                    'excludeFilter' => ['annotations'], // exclude filter of same type
-                    'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
-                        if ( $subfilter_name != $filter_name ) {
-                            $carry[$subfilter_name] = [
-                                'field' => "properties.{$subfilter_name}",
-                                'type' => self::FILTER_OBJECT_ID
-                            ];
-                        }
-                        return $carry;
-                    }, [])
+//                    'excludeFilter' => ['annotations'], // exclude filter of same type
+//                    'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
+//                        if ( $subfilter_name != $filter_name ) {
+//                            $carry[$subfilter_name] = [
+//                                'field' => "properties.{$subfilter_name}",
+//                                'type' => self::FILTER_OBJECT_ID
+//                            ];
+//                        }
+//                        return $carry;
+//                    }, [])
                 ];
                 // filter on type
                 $aggregationFilters[$filter_name]['filters']['annotation_type'] = [
@@ -149,7 +150,7 @@ class AnnotationSearchService extends AbstractSearchService
                 ];
                 // filter on text level
                 $aggregationFilters[$filter_name]['filters']['text_level'] = [
-                    'field' => 'properties.gts_textLevel.number',
+                    'field' => 'properties.textLevel.number',
                     'type' => self::FILTER_NUMERIC
                 ];            }
         }
@@ -178,7 +179,7 @@ class AnnotationSearchService extends AbstractSearchService
         // add annotation type filter
         $aggregationFilters['text_level'] = [
             'type' => self::AGG_NUMERIC,
-            'field' => 'properties.gts_textLevel.number',
+            'field' => 'properties.textLevel.number',
             'nested_path' => "annotations",
 //            'excludeFilter' => ['annotations'], // exclude filter of same type
 //            'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
@@ -216,7 +217,7 @@ class AnnotationSearchService extends AbstractSearchService
 
     protected function sanitizeSearchResult(array $result): array
     {
-        $returnProps = ['id', 'tm_id', 'title', 'year_begin', 'year_end', 'inner_hits', 'annotations', 'text_type', 'location_found'];
+        $returnProps = ['id', 'tm_id', 'title', 'year_begin', 'year_end', 'inner_hits', 'annotations', 'level_category', 'location_found'];
 
         $result = array_intersect_key($result, array_flip($returnProps));
         $result['annotations'] = $result['annotations'] ?? [];

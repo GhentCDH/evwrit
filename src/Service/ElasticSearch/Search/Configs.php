@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Search;
 
 class Configs implements SearchConfigInterface
 {
@@ -59,6 +59,10 @@ class Configs implements SearchConfigInterface
     {
         return [
             'project' => ['type' => self::FILTER_OBJECT_ID],
+            'project_extra' => [
+                'type' => self::FILTER_OBJECT_ID,
+                'field' => 'project',
+            ],
             'collaborator' => ['type' => self::FILTER_OBJECT_ID],
         ];
     }
@@ -71,6 +75,12 @@ class Configs implements SearchConfigInterface
                 'type' => self::AGG_OBJECT_ID_NAME,
                 'allowedValue' => [2,3,4,9] //todo: fix this!!
             ],
+            'project_extra'  => [
+                'field' => 'project',
+                'type' => self::AGG_OBJECT_ID_NAME,
+                'allowedValue' => [2,3,4,9] //todo: fix this!!
+            ],
+
         ];
     }
 
@@ -79,8 +89,20 @@ class Configs implements SearchConfigInterface
         return [
             'archive' => ['type' => self::FILTER_OBJECT_ID],
             'social_distance' => ['type' => self::FILTER_OBJECT_ID],
-            'text_type' => ['type' => self::FILTER_OBJECT_ID],
-            'text_subtype' => ['type' => self::FILTER_OBJECT_ID],
+            'level_category_group' => [
+                'type' => self::FILTER_NESTED_MULTIPLE,
+                'nested_path' => 'level_category',
+                'filters' => [
+                    'level_category_category' => [
+                        'type' => self::FILTER_OBJECT_ID
+                    ],
+                    'level_category_subcategory' => [
+                        'type' => self::FILTER_OBJECT_ID
+                    ],
+                ]
+            ],
+
+
             'agentive_role_group' => [
                 'type' => self::FILTER_NESTED_MULTIPLE,
                 'nested_path' => 'agentive_role',
@@ -97,10 +119,10 @@ class Configs implements SearchConfigInterface
                 'type' => self::FILTER_NESTED_MULTIPLE,
                 'nested_path' => 'communicative_goal',
                 'filters' => [
-                    'communicative_goal' => [
+                    'communicative_goal_type' => [
                         'type' => self::FILTER_OBJECT_ID,
                     ],
-                    'generic_communicative_goal' => [
+                    'communicative_goal_subtype' => [
                         'type' => self::FILTER_OBJECT_ID,
                     ],
                 ]
@@ -116,35 +138,44 @@ class Configs implements SearchConfigInterface
                 'type' => self::AGG_OBJECT_ID_NAME,
                 'ignoreValue' => self::ignoreUnknownUncertain,
             ],
-            'text_type' => ['type' => self::AGG_OBJECT_ID_NAME],
-            'text_subtype' => ['type' => self::AGG_OBJECT_ID_NAME],
+            'level_category_category' => [
+                'nested_path' => 'level_category',
+                'type' => self::AGG_NESTED_ID_NAME,
+//                'excludeFilter' => ['level_category_group'], // exclude filter of same type
+            ],
+            'level_category_subcategory' => [
+                'nested_path' => 'level_category',
+                'type' => self::AGG_NESTED_ID_NAME,
+//                'excludeFilter' => ['level_category_group'], // exclude filter of same type
+//                'filters' => self::filterCommunicativeInfo()['level_category_group']['filters']
+            ],
             /* agentive role */
             'generic_agentive_role' => [
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'agentive_role',
-                'excludeFilter' => ['agentive_role_group'], // exclude filter of same type
+//                'excludeFilter' => ['agentive_role_group'], // exclude filter of same type
             ],
             'agentive_role' => [
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'agentive_role',
-                'excludeFilter' => ['agentive_role_group'], // exclude filter of same type
-                'filters' => self::filterCommunicativeInfo()['agentive_role_group']['filters']
+//                'excludeFilter' => ['agentive_role_group'], // exclude filter of same type
+//                'filters' => self::filterCommunicativeInfo()['agentive_role_group']['filters']
             ],
             /* communicative goal */
-            'generic_communicative_goal' => [
+            'communicative_goal_type' => [
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
-                'excludeFilter' => ['communicative_goal_group'], // exclude filter of same type
+//                'excludeFilter' => ['communicative_goal_group'], // exclude filter of same type
                 'nested_path' => 'communicative_goal',
             ],
-            'communicative_goal' => [
+            'communicative_goal_subtype' => [
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
                 'nested_path' => 'communicative_goal',
-                'excludeFilter' => ['communicative_goal_group'], // exclude filter of same type
-                'filters' => self::filterCommunicativeInfo()['communicative_goal_group']['filters']
+//                'excludeFilter' => ['communicative_goal_group'], // exclude filter of same type
+//                'filters' => self::filterCommunicativeInfo()['communicative_goal_group']['filters']
             ],
         ];
     }
@@ -279,10 +310,68 @@ class Configs implements SearchConfigInterface
                         'field' => 'graph_type',
                         'type' => self::FILTER_OBJECT_ID,
                     ],
+// todo: add attestation level filter
+//                    'ap_level' => [
+//                        'field' => 'level.number',
+//                        'type' => self::FILTER_NUMERIC,
+//                        'param_name' => 'textLevel'
+//                    ]
                 ]
             ]
         ];
     }
+
+    public static function filterAttestations(): array
+    {
+        return [
+            'attestations' => [
+                'type' => self::FILTER_NESTED_MULTIPLE,
+                'nested_path' => 'attestations',
+                'filters' => [
+                    'ap_name' => [
+                        'field' => 'attestations.name',
+                        'type' => self::FILTER_KEYWORD,
+                    ],
+                    'ap_tm_id' => [
+                        'field' => 'attestations.tm_id',
+                        'type' => self::FILTER_NUMERIC,
+                    ],
+                    'ap_gender' => [
+                        'field' => 'attestations.gender',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_graph_type' => [
+                        'field' => 'attestations.graph_type',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+
+                    'ap_role' => [
+                        'field' => 'attestations.role',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_occupation' => [
+                        'field' => 'attestations.occupation',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_social_rank' => [
+                        'field' => 'attestations.social_rank',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_honorific_epithet' => [
+                        'field' => 'attestations.honorific_epithet',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+// todo: add attestation level filter
+//                    'ap_level' => [
+//                        'field' => 'level.number',
+//                        'type' => self::FILTER_NUMERIC,
+//                        'param_name' => 'textLevel'
+//                    ]
+                ]
+            ]
+        ];
+    }
+
 
     public static function aggregateAncientPerson(): array
     {
@@ -351,4 +440,73 @@ class Configs implements SearchConfigInterface
             ],
         ];
     }
+
+    public static function aggregateAttestations(): array
+    {
+        return [
+            'ap_name' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'attestations.name',
+                'nested_path' => 'attestations',
+                'excludeFilter' => ['attestations'],
+                'filters' => Configs::filterAttestations()['attestations']['filters'],
+            ],
+            'ap_tm_id' => [
+                'type' => self::AGG_NUMERIC,
+                'field' => 'attestations.tm_id',
+                'nested_path' => 'attestations',
+                'excludeFilter' => ['attestations'],
+                'filters' => Configs::filterAttestations()['attestations']['filters'],
+            ],
+            'ap_role' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'field' => 'attestations.role',
+                'nested_path' => 'attestations',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'excludeFilter' => ['attestations'],
+                'filters' => Configs::filterAttestations()['attestations']['filters'],
+            ],
+            'ap_gender' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'field' => 'attestations.gender',
+                'nested_path' => 'attestations',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'excludeFilter' => ['attestations'],
+                'filters' => Configs::filterAttestations()['attestations']['filters'],
+            ],
+            'ap_occupation' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'field' => 'attestations.occupation',
+                'nested_path' => 'attestations',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'excludeFilter' => ['attestations'],
+                'filters' => Configs::filterAttestations()['attestations']['filters'],
+            ],
+            'ap_social_rank' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'field' => 'attestations.social_rank',
+                'nested_path' => 'attestations',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'excludeFilter' => ['attestations'],
+                'filters' => Configs::filterAttestations()['attestations']['filters'],
+            ],
+            'ap_honorific_epithet' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'field' => 'attestations.honorific_epithet',
+                'nested_path' => 'attestations',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'excludeFilter' => ['attestations'],
+                'filters' => Configs::filterAttestations()['attestations']['filters'],
+            ],
+            'ap_graph_type' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'field' => 'attestations.graph_type',
+                'nested_path' => 'attestations',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'excludeFilter' => ['attestations'],
+                'filters' => Configs::filterAttestations()['attestations']['filters'],
+            ],
+        ];
+    }
+
 }

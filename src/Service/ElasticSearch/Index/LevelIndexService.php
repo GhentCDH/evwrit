@@ -1,10 +1,13 @@
 <?php
 
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Index;
 
-class TextIndexService extends AbstractIndexService
+use App\Service\ElasticSearch\Analysis;
+use App\Service\ElasticSearch\Client;
+
+class LevelIndexService extends AbstractIndexService
 {
-    const indexName = "texts";
+    const indexName = "level";
 
     public function __construct(Client $client)
     {
@@ -27,27 +30,8 @@ class TextIndexService extends AbstractIndexService
                     ],
                 ],
             ],
-            'text' => [
-                'type' => 'text',
-                'analyzer' => 'custom_greek_original',
-            ],
-            'text_lemmas' => [
-                'type' => 'text',
-                'analyzer' => 'custom_greek_original',
-            ],
-//            'keyword' => ['type' => 'nested'],
             'year_begin' => ['type' => 'short'],
             'year_end' => ['type' => 'short'],
-//            'era' => ['type' => 'object'],
-//            'location_found' => ['type' => 'nested'],
-//            'location_written' => ['type' => 'nested'],
-//            'language' => ['type' => 'nested'],
-//            'script' => ['type' => 'nested'],
-//            'material' => ['type' => 'nested'],
-
-            // admin info
-//            'project' => ['type' => 'nested'],
-
 
             // com info
 //            'archive' => ['type' => 'object'],
@@ -84,14 +68,30 @@ class TextIndexService extends AbstractIndexService
             'is_verso' => ['type' => 'boolean'],
             'is_transversa_charta' => ['type' => 'boolean'],
 
-            'annotations' => ['type' => 'nested']
+            'annotations' => ['type' => 'nested'],
+
+            // level
+            'level_category' => [ 'type' => 'nested' ],
+//            'physical_objects' => ['type' => 'nested'],
+//            'greek_latins' => ['type' => 'nested'],
+
+            'attestations' => [
+                'type' => 'nested',
+            ],
         ];
     }
 
     protected function getIndexProperties(): array {
         return [
             'settings' => [
-                'analysis' => Analysis::ANALYSIS
+                'analysis' => Analysis::ANALYSIS,
+                'index' => [
+                    'mapping' => [
+                        'total_fields' => [
+                            'limit' => 2000
+                        ]
+                    ]
+                ]
             ]
         ];
     }
