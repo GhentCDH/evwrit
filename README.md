@@ -88,6 +88,10 @@ Site is available on these addresses:
     http://evwrit.vagrant:8000/
     http://localhost:8000/
 
+### Watch frontend code
+
+    yarn encore dev --watch
+
 ## Misc
 
 ### Pull qas build
