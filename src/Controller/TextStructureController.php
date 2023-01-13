@@ -54,7 +54,7 @@ class TextStructureController extends BaseController
     public function paginate(
         Request $request
     ) {
-        return $this->_paginate($request);
+        return $this->_paginate($request, 'text_id');
     }
 
 }

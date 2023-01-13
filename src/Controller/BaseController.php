@@ -70,19 +70,19 @@ class BaseController extends AbstractController
     }
 
 
-    protected function _paginate(Request $request) {
+    protected function _paginate(Request $request, $returnField = 'id') {
         $elasticService = $this->getContainer()->get(static::searchServiceName);
 
         // search
         $data = $elasticService->searchRAW(
             $request->query->all(),
-            ['id']
+            [$returnField]
         );
 
         // return array of id's
         $result = [];
         foreach($data['data'] as $item) {
-            $result[] = $item['id'];
+            $result[] = $item[$returnField];
         }
 
         return new JsonResponse($result);
