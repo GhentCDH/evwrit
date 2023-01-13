@@ -2,50 +2,50 @@
   "entrypoints": {
     "main": {
       "css": [
-        "/build/main.274201f0.css"
+        "/build/main.429339c3.css"
       ],
       "js": [
-        "/build/main.6fd33769.js"
+        "/build/main.1caade91.js"
       ]
     },
     "text-search": {
       "css": [
-        "/build/text-search.7f4a6176.css"
+        "/build/text-search.607a9d31.css"
       ],
       "js": [
-        "/build/text-search.2cc69c19.js"
+        "/build/text-search.2f56e3c5.js"
       ]
     },
     "materiality-search": {
       "css": [
-        "/build/materiality-search.ca88a9e7.css"
+        "/build/materiality-search.5fa11ea3.css"
       ],
       "js": [
-        "/build/materiality-search.79249317.js"
+        "/build/materiality-search.9b8746f5.js"
       ]
     },
     "base-annotation-search": {
       "css": [
-        "/build/base-annotation-search.21c88bb2.css"
+        "/build/base-annotation-search.2861b15a.css"
       ],
       "js": [
-        "/build/base-annotation-search.0acae062.js"
+        "/build/base-annotation-search.b08e966c.js"
       ]
     },
     "text-structure-search": {
       "css": [
-        "/build/text-structure-search.25ebff2f.css"
+        "/build/text-structure-search.765eab01.css"
       ],
       "js": [
-        "/build/text-structure-search.d0cbd686.js"
+        "/build/text-structure-search.063808b3.js"
       ]
     },
     "text-view": {
       "css": [
-        "/build/text-view.43b077dd.css"
+        "/build/text-view.55e2eed3.css"
       ],
       "js": [
-        "/build/text-view.e93fd5d9.js"
+        "/build/text-view.c4a11b2d.js"
       ]
     }
   }
