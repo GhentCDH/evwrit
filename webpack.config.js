@@ -1,21 +1,19 @@
 var Encore = require('@symfony/webpack-encore');
-var WebpackShellPlugin = require('webpack-shell-plugin');
+var WebpackShellPluginNext = require('webpack-shell-plugin-next');
 
 Encore
     // the project directory where all compiled assets will be stored
     .setOutputPath('public/build/')
 
     // enable asset versioning, so browser caches don't need to be cleared
-    .enableVersioning()
+    .enableVersioning(Encore.isProduction())
+    // .enableVersioning()
 
     // the public path used by the web server to access the previous directory
     .setPublicPath(Encore.isProduction() ? '/build/' : '/build/')
 
     // allow pug templates in vue components
-    .enableVueLoader()
-    // .enableVueLoader( () => {}, {
-    //     compiler: require('vue-template-babel-compiler')
-    // })
+    .enableVueLoader(() => {}, { runtimeCompilerBuild: false })
 
     // Add javascripts
     .autoProvidejQuery()
@@ -28,9 +26,6 @@ Encore
 
     // allow sass/scss files to be processed
     .enableSassLoader()
-
-    // Add stylesheets
-    //.addStyleEntry('screen', './assets/scss/screen.scss')
 
     // provide source maps for dev environment
     .enableSourceMaps(!Encore.isProduction())
@@ -46,6 +41,11 @@ Encore
         test: /\.pug$/,
         loader: 'pug-plain-loader'
     })
+
+    .configureDevServerOptions(options => {
+        options.allowedHosts = 'all';
+        // options.port = '9000';
+    })
 ;
 
 Encore.addAliases({ vue$: 'vue/dist/vue.esm.js' });
@@ -54,10 +54,12 @@ Encore.addAliases({ vue$: 'vue/dist/vue.esm.js' });
 const config = Encore.getWebpackConfig();
 
 // Create symlinks using shell plugin
-config.plugins.push(new WebpackShellPlugin({
-    onBuildEnd: [
-        './copy_assets.sh',
-    ]
+config.plugins.push(new WebpackShellPluginNext({
+    onBuildEnd: {
+        scripts: [
+            './copy_assets.sh',
+        ]
+    }
 }));
 
 
