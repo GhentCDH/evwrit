@@ -19,8 +19,10 @@ export default {
         }
     },
     methods: {
-        generalInformationFields(includeMaterial = false) {
+        generalInformationFields(includeMaterial = false, expertOnly = false) {
             return {
+                expertOnly: expertOnly,
+                visible: this.fieldVisible,
                 collapsible: true,
                 collapsed: this.groupCollapsed,
                 legend: 'General information',
@@ -121,12 +123,14 @@ export default {
                 ]
             }
         },
-        communicativeInformationFields() {
+        communicativeInformationFields(expertOnly = false) {
             return {
                 collapsible: true,
                 collapsed: this.groupCollapsed,
                 legend: 'Communicative information',
                 id: 'communicativeInformation',
+                expertOnly: expertOnly,
+                visible: this.fieldVisible,
                 fields: [
                     this.createMultiSelect('Archive',
                         {
@@ -153,8 +157,10 @@ export default {
                 ]
             }
         },
-        ancientPersonFields() {
+        ancientPersonFields(expertOnly = false) {
             return {
+                expertOnly: expertOnly,
+                visible: this.fieldVisible,
                 collapsible: true,
                 collapsed: this.groupCollapsed,
                 legend: 'Ancient persons',
@@ -176,12 +182,12 @@ export default {
                 ]
             }
         },
-        administrativeInformationFields() {
+        administrativeInformationFields(expertOnly = true) {
             return {
-                expertOnly: true,
+                expertOnly: expertOnly,
+                visible: this.fieldVisible,
                 collapsible: true,
                 collapsed: this.groupCollapsed,
-                visible: this.fieldVisible,
                 id: 'administrativeInformation',
                 legend: 'Administrative information',
                 fields: [
@@ -209,8 +215,10 @@ export default {
                 ]
             }
         },
-        materialityFields() {
+        materialityFields(expertOnly = false) {
             return {
+                expertOnly: expertOnly,
+                visible: this.fieldVisible,
                 collapsible: true,
                 collapsed: this.groupCollapsed,
                 legend: 'Materiality',
@@ -263,8 +271,10 @@ export default {
                 ]
             }
         },
-        annotationsFields() {
+        annotationsFields(expertOnly = false) {
             return {
+                expertOnly: expertOnly,
+                visible: this.fieldVisible,
                 legend: 'Annotations',
                 collapsible: true,
                 collapsed: this.groupCollapsed,
@@ -379,8 +389,10 @@ export default {
                 ]
             }
         },
-        handshiftFields() {
+        handshiftFields(expertOnly = false) {
             return {
+                expertOnly: expertOnly,
+                visible: this.fieldVisible,
                 collapsible: true,
                 collapsed: this.groupCollapsed,
                 legend: 'Handwriting',
@@ -405,8 +417,10 @@ export default {
                 ]
             }
         },
-        genericStructureFields() {
+        genericStructureFields(expertOnly = false) {
             return {
+                expertOnly: expertOnly,
+                visible: this.fieldVisible,
                 collapsible: true,
                 collapsed: this.groupCollapsed,
                 legend: 'Generic structure',
@@ -426,8 +440,10 @@ export default {
                 ]
             }
         },
-        genericStructureFieldsAnnotations() {
+        genericStructureFieldsAnnotations(expertOnly = false) {
             return {
+                expertOnly: expertOnly,
+                visible: this.fieldVisible,
                 collapsible: true,
                 collapsed: this.groupCollapsed,
                 legend: 'Generic structure',
@@ -440,8 +456,10 @@ export default {
                 ]
             }
         },
-        layoutStructureFields() {
+        layoutStructureFields(expertOnly = false) {
             return {
+                expertOnly: expertOnly,
+                visible: this.fieldVisible,
                 collapsible: true,
                 collapsed: this.groupCollapsed,
                 legend: 'Layout structure',

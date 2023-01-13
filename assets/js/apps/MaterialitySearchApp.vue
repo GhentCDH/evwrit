@@ -140,9 +140,9 @@ export default {
                 groups: [
                     this.materialityFields(),
                     this.generalInformationFields(),
-                    this.communicativeInformationFields(),
-                    this.ancientPersonFields(),
-                    this.administrativeInformationFields(),
+                    this.ancientPersonFields(true),
+                    this.communicativeInformationFields(true),
+                    this.administrativeInformationFields(true),
                 ],
             },
             tableOptions: {

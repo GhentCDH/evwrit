@@ -193,13 +193,13 @@ export default {
             schema: {
                 groups: [
                     this.annotationsFields(),
-                    this.genericStructureFieldsAnnotations(),
-                    this.handshiftFields(),
                     this.generalInformationFields(),
-                    this.communicativeInformationFields(),
-                    this.materialityFields(),
-                    this.ancientPersonFields(),
-                    this.administrativeInformationFields(),
+                    this.materialityFields(true),
+                    this.ancientPersonFields(true),
+                    this.communicativeInformationFields(true),
+                    this.handshiftFields(true),
+                    this.genericStructureFieldsAnnotations(true),
+                    this.administrativeInformationFields(true),
                 ],
             },
             tableOptions: {
