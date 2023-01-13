@@ -20,6 +20,7 @@
                         :schema="schema"
                         @validated="onValidated"
                         @model-updated="modelUpdated"
+                        @toggle-collapsed="onToggleCollapsed"
                 />
             </div>
         </aside>

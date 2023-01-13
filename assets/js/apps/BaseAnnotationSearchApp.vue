@@ -19,7 +19,8 @@
                         :options="formOptions"
                         :schema="schema"
                         @validated="onValidated"
-                        @model-updated="modelUpdated"
+                        @model-updated="onAnnotationTypeUpdate"
+                        @toggle-collapsed="onToggleCollapsed"
                 />
             </div>
         </aside>
@@ -151,8 +152,6 @@ import AnnotationDetailsFlat from '../components/Annotations/AnnotationDetailsFl
 import fieldRadio from '../components/FormFields/fieldRadio'
 import GreekText from '../components/Text/GreekText'
 
-import CollapsibleGroups from '../components/Search/CollapsibleGroups'
-import ExpertGroups from '../components/Search/ExpertGroupsAnnotations'
 import PersistentConfig from "../components/Shared/PersistentConfig";
 import SharedSearch from "../components/Search/SharedSearch";
 
@@ -263,6 +262,17 @@ export default {
 
             return data.map( item => item.level_category_category.name ).join(', ')
         },
+        onAnnotationTypeUpdate(newVal, schema) {
+            this.modelUpdated(newVal, schema);
+
+            if ( schema === 'annotation_type' ) {
+                const field_prefix = newVal.id
+
+                this.schema.groups.filter( group => group?.id === 'annotations')[0].fields
+                    .filter( field => field.model != 'annotation_type' )
+                    .map( field => delete this.model[field.model] );
+            }
+        }
 
     },
 }
