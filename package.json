@@ -1,7 +1,6 @@
 {
   "devDependencies": {
-    "@firstandthird/toc": "^1.4.1",
-    "@symfony/webpack-encore": "^0.24.0",
+    "@symfony/webpack-encore": "1.6.1",
     "articles": "^0.2.2",
     "axios": "^0.18.0",
     "bootstrap-sass": "~3.3.7",
@@ -12,30 +11,29 @@
     "jquery": "^3.2.1",
     "lodash.merge": "^4.6.2",
     "mark.js": "^8.11.1",
-    "node-sass": "^4.14.1",
+    "node-sass": "^8.0.0",
     "nouislider": "^15.6.0",
     "pug": "^2.0.0-rc.4",
     "pug-plain-loader": "^1.0.0",
     "qs": "^6.6.0",
     "regenerator-runtime": "^0.13.7",
-    "sass-loader": "^7.1.0",
-    "uiv": "^0.31.2",
+    "sass-loader": "^12",
     "vue": "^2.6.8",
     "vue-ckeditor2": "^2.1.4",
     "vue-cookies": "^1.7.4",
     "vue-cool-lightbox": "^2.7.4",
-    "vue-form-generator": "~2.3.4",
+    "vue-form-generator": "git+ssh://git@github.com/flamsens/vue-form-generator.git",
     "vue-loader": "^15.7.0",
     "vue-multiselect": "^2.1.4",
     "vue-tables-2": "^1.0.10",
     "vue-template-compiler": "^2.6.8",
     "vue2-dropzone": "^3.5.2",
     "vuedraggable": "^2.19.1",
-    "webpack-shell-plugin": "^0.5.0",
     "wnumb": "^1.2.0",
     "yargs": "^17.5.1"
   },
   "dependencies": {
-    "case": "^1.6.3"
+    "case": "^1.6.3",
+    "webpack-shell-plugin-next": "^2.3.1"
   }
 }
