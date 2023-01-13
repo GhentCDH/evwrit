@@ -3,7 +3,7 @@
 namespace App\Command;
 
 use App\Repository\TextRepository;
-use App\Resource\ElasticTextLevelResource;
+use App\Resource\ElasticTextLevelIndexResource;
 use App\Resource\ElasticTextResource;
 use App\Service\ElasticSearch\Index\TextIndexService;
 use Symfony\Component\Console\Command\Command;
@@ -90,7 +90,7 @@ class IndexElasticsearchCommand extends Command
                         function($res) use ($service, &$count, $progressBar) {
                             foreach ($res as $text) {
                                 foreach( $text->textLevels as $level ) {
-                                    $res = new ElasticTextLevelResource($level);
+                                    $res = new ElasticTextLevelIndexResource($level);
                                     $service->add($res);
                                 }
                                 $count++;
