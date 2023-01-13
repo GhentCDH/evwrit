@@ -1,0 +1,67 @@
+// include huisstijl fonts
+// this fixes the resolver for relative urls in the original huisstijl2016 repo
+@import 'fonts';
+@import 'generic-elements';
+
+// external
+//@import '~huisstijl2016/node_modules/ekko-lightbox/dist/ekko-lightbox';
+@import '~bootstrap-grid-ms/scss/bootstrap-grid-ms';
+
+//base
+@import '~huisstijl2016/sass/base/typography';
+@import '~huisstijl2016/sass/base/layout';
+
+// partials
+@import '~huisstijl2016/sass/partials/baseline';
+@import '~huisstijl2016/sass/partials/bootstrap-select';
+@import '~huisstijl2016/sass/partials/bootstrap-checkbox';
+// @import '~huisstijl2016/sass/partials/datepicker';
+@import '~huisstijl2016/sass/partials/footer';
+@import '~huisstijl2016/sass/partials/form';
+@import '~huisstijl2016/sass/partials/table';
+
+@import '~huisstijl2016/sass/partials/generic-elements';
+
+@import '~huisstijl2016/sass/partials/icons';
+@import '~huisstijl2016/sass/partials/pageheader';
+@import '~huisstijl2016/sass/partials/breadcrumb';
+@import '~huisstijl2016/sass/partials/linklist';
+@import '~huisstijl2016/sass/partials/content-header';
+@import '~huisstijl2016/sass/partials/content-header-home';
+@import '~huisstijl2016/sass/partials/content-header-subhome';
+@import '~huisstijl2016/sass/partials/content-text';
+@import '~huisstijl2016/sass/partials/content-list';
+@import '~huisstijl2016/sass/partials/content-image';
+@import '~huisstijl2016/sass/partials/content-text-image';
+@import '~huisstijl2016/sass/partials/content-contact';
+@import '~huisstijl2016/sass/partials/content-types';
+@import '~huisstijl2016/sass/partials/buttons';
+@import '~huisstijl2016/sass/partials/lightbox';
+@import '~huisstijl2016/sass/partials/result-item';
+@import '~huisstijl2016/sass/partials/result-header';
+@import '~huisstijl2016/sass/partials/pagination';
+@import '~huisstijl2016/sass/partials/inpage-nav-container';
+@import '~huisstijl2016/sass/partials/panels';
+@import '~huisstijl2016/sass/partials/example-layout';
+@import '~huisstijl2016/sass/partials/quote';
+@import '~huisstijl2016/sass/partials/news-aside';
+@import '~huisstijl2016/sass/partials/newsitem';
+@import '~huisstijl2016/sass/partials/linklist-events';
+@import '~huisstijl2016/sass/partials/linklist-news';
+@import '~huisstijl2016/sass/partials/linklist-newsoverview';
+@import '~huisstijl2016/sass/partials/modal';
+@import '~huisstijl2016/sass/partials/share';
+@import '~huisstijl2016/sass/partials/typeahead';
+@import '~huisstijl2016/sass/partials/banner';
+@import '~huisstijl2016/sass/partials/image-panel';
+@import '~huisstijl2016/sass/partials/date';
+
+// helpers
+@import '~huisstijl2016/sass/base/helpers';
+
+// Bootstrap overwrites
+@import '~huisstijl2016/sass/partials/thumbnail';
+@import '~huisstijl2016/sass/partials/alert';
+@import '~huisstijl2016/sass/partials/bootstrap-overwrites';
+@import '~huisstijl2016/sass/partials/print-overwrites';
+@import '~huisstijl2016/sass/partials/tooltip';
