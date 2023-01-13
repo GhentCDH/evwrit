@@ -87,16 +87,21 @@ export default {
                     this.createMultiSelect('Location written',
                         {
                             model: 'location_written',
-                            styleClasses: "collapsible collapsed",
                         }
                     ),
-                    this.createOperators('language_op'),
+                    this.createOperators('language_op', {
+                        collapsible: true,
+                        collapsed: this.groupCollapsed,
+                    }),
                     this.createMultiSelect('Language',
                         {
                             model: 'language'
                         },
                     ),
-                    this.createOperators('script_op'),
+                    this.createOperators('script_op', {
+                        collapsible: true,
+                        collapsed: this.groupCollapsed,
+                    }),
                     this.createMultiSelect('Script',
                         {
                             model: 'script'
@@ -260,7 +265,6 @@ export default {
         },
         annotationsFields() {
             return {
-                // styleClasses: 'collapsible collapsed bg-tertiary',
                 legend: 'Annotations',
                 collapsible: true,
                 collapsed: this.groupCollapsed,
