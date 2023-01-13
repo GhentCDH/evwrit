@@ -4,10 +4,10 @@ export default {
     data() {
         return {
             config: {
-                groupIsOpen: {},
+                groupCollapsed: {},
             },
             defaultConfig: {
-                groupIsOpen: {
+                groupCollapsed: {
                 },
             }
         }
@@ -15,11 +15,11 @@ export default {
     
     methods: {
         groupCollapsed(model, field) {
-            return this.config.groupIsOpen[this.fieldId(field)] ?? true;
+            return this.config.groupCollapsed[this.fieldId(field)] ?? true;
         },
         onToggleCollapsed({field, collapsed}) {
             let id = this.fieldId(field)
-            this.$set(this.config.groupIsOpen, id, collapsed);
+            this.$set(this.config.groupCollapsed, id, collapsed);
         },
         fieldId(field) {
             return field.model ?? field.id ?? null
