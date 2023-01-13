@@ -104,11 +104,9 @@ import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
 
 import fieldRadio from '../components/FormFields/fieldRadio'
 
-import CollapsibleGroups from '../components/Search/CollapsibleGroups'
-import ExpertGroups from '../components/Search/ExpertGroups'
 import PersistentConfig from "../components/Shared/PersistentConfig";
 import SharedSearch from "../components/Search/SharedSearch";
-import SearchAppFields from '../components/Search/SearchAppFields'
+import SearchAppFields from '../components/Search/Config'
 
 
 Vue.component('fieldRadio', fieldRadio);
@@ -122,7 +120,6 @@ export default {
         AbstractField,
         AbstractSearch,
         SharedSearch,
-        ExpertGroups,
         SearchAppFields,
     ],
     props: {
@@ -194,7 +191,7 @@ export default {
             this.$refs.resultTable.refresh();
         },
         formatLevelCategory(data) {
-            console.log(data)
+            // console.log(data)
             if (!data) return 'None';
 
             return data.map( item => item.level_category_category.name ).join(', ')

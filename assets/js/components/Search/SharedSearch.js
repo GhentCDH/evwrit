@@ -3,14 +3,12 @@ import qs from "qs";
 import SearchSession from "./SearchSession";
 import SearchContext from "./SearchContext";
 import CollapsibleGroups from "./CollapsibleGroups";
-import CollapsibleFields from "./CollapsibleFields";
 
 export default {
     mixins: [
         SearchSession,
         SearchContext,
         CollapsibleGroups,
-        CollapsibleFields,
     ],
     methods: {
         onData(data) {

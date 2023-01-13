@@ -4,33 +4,25 @@ export default {
     data() {
         return {
             config: {
-                groupIsOpen: [],
+                groupIsOpen: {},
             },
             defaultConfig: {
-                groupIsOpen: [],
+                groupIsOpen: {
+                },
             }
         }
     },
+    
     methods: {
-        collapseGroup(e) {
-            const group = e.target.parentElement;
-            // get element index
-            let index = Array.from(group.parentNode.children).indexOf(group)
-            Vue.set(this.config.groupIsOpen, index, this.config.groupIsOpen[index] !== undefined ? !this.config.groupIsOpen[index] : true)
+        groupCollapsed(model, field) {
+            return this.config.groupIsOpen[this.fieldId(field)] ?? true;
         },
-    },
-    mounted() {
-        // make legends clickable
-        const collapsableLegends = this.$el.querySelectorAll('.vue-form-generator .collapsible legend');
-        collapsableLegends.forEach(legend => legend.onclick = this.collapseGroup);
-
-        // update group visibility on config change
-        this.$on('config-changed', function(config) {
-            if (config) {
-                this.schema.groups.forEach(function (group, index) {
-                    group.styleClasses = group.styleClasses.replace(' collapsed','') + ((config.groupIsOpen[index] !== undefined && config.groupIsOpen[index]) ? '' : ' collapsed')
-                })
-            }
-        })
+        onToggleCollapsed({field, collapsed}) {
+            let id = this.fieldId(field)
+            this.$set(this.config.groupIsOpen, id, collapsed);
+        },
+        fieldId(field) {
+            return field.model ?? field.id ?? null
+        }
     },
 }

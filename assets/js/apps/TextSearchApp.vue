@@ -98,14 +98,13 @@
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
-import SearchAppFields from '../components/Search/SearchAppFields'
+import SearchAppFields from '../components/Search/Config'
 import AbstractField from '../components/FormFields/AbstractField'
 import AbstractSearch from '../components/Search/AbstractSearch'
 import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
 
 import fieldRadio from '../components/FormFields/fieldRadio'
 
-import ExpertGroups from '../components/Search/ExpertGroups'
 import SharedSearch from "../components/Search/SharedSearch"
 import PersistentConfig from "../components/Shared/PersistentConfig"
 
@@ -120,7 +119,6 @@ export default {
         AbstractField,
         AbstractSearch,
         SharedSearch,
-        ExpertGroups,
         SearchAppFields,
     ],
     props: {
@@ -181,7 +179,7 @@ export default {
     watch: {},
     methods: {
         formatLevelCategory(data) {
-            console.log(data)
+            // console.log(data)
             if (!data) return 'None';
 
             return data.map( item => item.level_category_category.name ).join(', ')

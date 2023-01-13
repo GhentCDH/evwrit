@@ -110,11 +110,9 @@ import AnnotationDetailsFlat from '../components/Annotations/AnnotationDetailsFl
 import fieldRadio from '../components/FormFields/fieldRadio'
 import GreekText from '../components/Text/GreekText'
 
-import CollapsibleGroups from '../components/Search/CollapsibleGroups'
-import ExpertGroups from '../components/Search/ExpertGroups'
 import PersistentConfig from "../components/Shared/PersistentConfig";
 import SharedSearch from "../components/Search/SharedSearch";
-import SearchAppFields from '../components/Search/SearchAppFields'
+import SearchAppFields from '../components/Search/Config'
 
 import qs from "qs";
 
@@ -131,7 +129,6 @@ export default {
         AbstractField,
         AbstractSearch,
         SharedSearch,
-        ExpertGroups,
         SearchAppFields,
     ],
     props: {

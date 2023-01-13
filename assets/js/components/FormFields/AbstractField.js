@@ -78,7 +78,7 @@ export default {
         {
             let result = {
                 type: "checkboxes",
-                styleClasses: "field-inline-options field-checkboxes-labels-only collapsible collapsed",
+                styleClasses: "field-inline-options field-checkboxes-labels-only",
                 label: 'options',
                 model: model,
                 parentModel: model.replace('_op',''),

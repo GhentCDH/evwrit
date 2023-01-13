@@ -140,7 +140,7 @@
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
-import SearchAppFields from '../components/Search/SearchAppFields'
+import SearchAppFields from '../components/Search/Config'
 import AbstractField from '../components/FormFields/AbstractField'
 import AbstractSearch from '../components/Search/AbstractSearch'
 import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
@@ -171,7 +171,6 @@ export default {
         AbstractField,
         AbstractSearch,
         SharedSearch,
-        ExpertGroups,
         SearchAppFields,
     ],
     props: {
@@ -248,13 +247,6 @@ export default {
     },
     watch: {
         defaultOrdering: function(val) {
-        },
-        // watch model changes
-        model: {
-            handler: function(current) {
-                this.updateFieldVisibility();
-            },
-            deep: true
         },
     },
     methods: {
