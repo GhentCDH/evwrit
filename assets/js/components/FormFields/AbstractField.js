@@ -25,6 +25,7 @@ export default {
                     showLabels: false,
                     loading: true,
                     trackBy: 'id',
+                    optionsLimit: 10000
                 },
                 // Will be enabled by enableField
                 disabled: true,
