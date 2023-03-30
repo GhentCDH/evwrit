@@ -47,10 +47,8 @@ export default {
             return result
         },
         createMultiSelect(label, extra = null, extraSelectOptions) {
-            let result = this.createSelect(label, extra, extraSelectOptions)
-            result.selectOptions.multiple = true;
-            result.selectOptions.closeOnSelect = false;
-            return result;
+            const selectOptions = { multiple: true, closeOnSelect: false, ...extraSelectOptions }
+            return this.createSelect(label, extra, selectOptions)
         },
         createRangeSlider(model, label, min, max, step, extra = null) {
             let result = {
