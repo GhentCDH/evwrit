@@ -20,10 +20,12 @@ export default {
         },
         value: {
             required: true,
-            type: Boolean
+            type: Boolean,
+            default: false
         },
         label: {
-            type: String
+            type: String,
+            default: ''
         },
         disabled: {
             type: Boolean,
