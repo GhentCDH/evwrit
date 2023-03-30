@@ -4,6 +4,10 @@ COMPACT LAYOUT
 - hidden footer
 */
 
+.fluid-container {
+
+}
+
 body.layout--compact {
 
   @media (min-width: 768px) {
@@ -33,6 +37,22 @@ body.layout--compact {
   .page__footer {
     display: none;
   }
+}
+
+body.layout--compact-footer {
+
+  .page__footer {
+    max-height: 30px;
+
+    .banner-img {
+      padding: 7px 20px;
+    }
+
+    .branding-container * {
+      display: none;
+    }
+  }
+
 }
 
 /*
@@ -71,5 +91,7 @@ body.layout--fullscreen {
     flex-grow: 1;
     overflow: hidden;
   }
+
+
 
 }

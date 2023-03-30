@@ -1,6 +1,6 @@
 <template>
-    <div class="row">
-        <aside class="col-sm-3">
+    <section class="row search-app">
+        <aside class="col-sm-3 search-app__filters scrollable">
             <div class="bg-tertiary padding-default">
                 <div
                         v-if="showReset"
@@ -24,68 +24,86 @@
                 />
             </div>
         </aside>
-        <article class="col-sm-9 search-page">
-            <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
-            <v-server-table
-                    ref="resultTable"
-                    :columns="tableColumns"
-                    :options="tableOptions"
-                    :url="getUrl('search_api')"
-                    @data="onData"
-                    @loaded="onLoaded"
-                    class="form-group-sm"
-            >
-                <template slot="afterFilter">
-                    <b v-if="countRecords">{{ countRecords }}</b>
-                </template>
-                <template slot="afterLimit">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-cog"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right" onclick="event.stopPropagation()">
-                            <li>
-                                <div class="form-group">
-                                    <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Advanced mode"></CheckboxSwitch>
-                                </div>
-                            </li>
-                        </ul>
+        <article class="col-sm-9 search-app__search-page">
+            <header>
+                <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
+                <div class="search-page__actions">
+                    <div class="form-inline form-group">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-cog"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" onclick="event.stopPropagation()">
+                                <li>
+                                    <div class="form-group">
+                                        <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Advanced mode"></CheckboxSwitch>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-download"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a :href="getUrl('export_csv') + '?' + querystring">Export as CSV</a></li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-download"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li><a :href="getUrl('export_csv') + '?' + querystring">Export as CSV</a></li>
-                        </ul>
-                    </div>
-                </template>
-                <template slot="title" slot-scope="props">
-                    <a :href="getTextUrl(props.row.id, props.index)">
-                        {{ props.row.title }}
-                    </a>
-                </template>
-                <template slot="id" slot-scope="props">
-                    <a :href="getTextUrl(props.row.id, props.index)">
-                        {{ props.row.id }}
-                    </a>
-                </template>
-                <template slot="tm_id" slot-scope="props">
-                    <a :href="getTextUrl(props.row.id, props.index)">
-                        {{ props.row.tm_id }}
-                    </a>
-                </template>
-                <template slot="level_category" slot-scope="props">
-                    <td>
-                        {{ formatLevelCategory(props.row.level_category) }}
-                    </td>
-                </template>
-                <template slot="location_found" slot-scope="props">
-                    <td>
-                        {{ props.row.location_found[0]?.name }}
-                    </td>
-                </template>
-            </v-server-table>
+                </div>
+            </header>
+            <section>
+                <v-server-table
+
+                        ref="resultTable"
+                        :columns="tableColumns"
+                        :options="tableOptions"
+                        :url="getUrl('search_api')"
+                        @data="onData"
+                        @loaded="onLoaded"
+                        class="form-group-sm"
+                >
+                    <template #beforeTable>
+                        <div class="VueTables__beforeTable row form-group form-inline">
+                            <div class="VueTables__pagination col-xs-4">
+                                <vt-pagination v-bind="props"></vt-pagination>
+                            </div>
+                            <div class="VueTables__count col-xs-4">
+                                <vt-pagination-count v-bind="props"></vt-pagination-count>
+                            </div>
+                            <div class="VueTables__limit col-xs-4">
+                                <vt-per-page-selector v-bind="props"></vt-per-page-selector>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template v-slot:title="props">
+                        <a :href="getTextUrl(props.row.id, props.index)">
+                            {{ props.row.title }}
+                        </a>
+                    </template>
+                    <template v-slot:id="props">
+                        <a :href="getTextUrl(props.row.id, props.index)">
+                            {{ props.row.id }}
+                        </a>
+                    </template>
+                    <template v-slot:tm_id="props">
+                        <a :href="getTextUrl(props.row.id, props.index)">
+                            {{ props.row.tm_id }}
+                        </a>
+                    </template>
+                    <template v-slot:level_category="props">
+                        <td>
+                            {{ formatLevelCategory(props.row.level_category) }}
+                        </td>
+                    </template>
+                    <template v-slot:location_found="props">
+                        <td>
+                            {{ props.row.location_found[0]?.name }}
+                        </td>
+                    </template>
+                </v-server-table>
+            </section>
         </article>
         <div
                 v-if="openRequests"
@@ -93,27 +111,34 @@
         >
             <div class="spinner"/>
         </div>
-    </div>
+    </section>
 </template>
 <script>
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
-import SearchAppFields from '../components/Search/Config'
 import AbstractField from '../components/FormFields/AbstractField'
 import AbstractSearch from '../components/Search/AbstractSearch'
 import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
 
 import fieldRadio from '../components/FormFields/fieldRadio'
 
-import SharedSearch from "../components/Search/SharedSearch"
 import PersistentConfig from "../components/Shared/PersistentConfig"
+import SharedSearch from "../components/Search/SharedSearch"
+import SearchAppFields from '../components/Search/Config'
+
+import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
+import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";
+import VtPaginationCount from "vue-tables-2-premium/compiled/components/VtPaginationCount";
 
 Vue.component('fieldRadio', fieldRadio);
 
 export default {
     components: {
-        CheckboxSwitch
+        CheckboxSwitch,
+        VtPerPageSelector,
+        VtPagination,
+        VtPaginationCount
     },
     mixins: [
         PersistentConfig('TextSearchConfig'),
@@ -139,24 +164,29 @@ export default {
                 ],
             },
             tableOptions: {
+                filterByColumn: false,
+                filterable: false,
                 headings: {
                 },
                 columnsClasses: {
                     name: 'no-wrap',
                 },
-                'filterable': false,
-                'orderBy': {
+                orderBy: {
                     'column': 'title'
                 },
-                'perPage': 25,
-                'perPageValues': [25, 50, 100],
-                'sortable': ['id', 'tm_id','title', 'year_begin', 'year_end'],
+                perPage: 25,
+                perPageValues: [25, 50, 100],
+                sortable: ['id', 'tm_id','title', 'year_begin', 'year_end'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
                     return '';
                     // return (row.public == null || row.public) ? '' : 'warning'
                 },
+                pagination: {
+                    show: false,
+                    chunk: 5
+                }
             },
             submitModel: {
                 submitType: 'text',

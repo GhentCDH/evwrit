@@ -1,6 +1,6 @@
 <template>
-    <div class="row">
-        <aside class="col-sm-3">
+    <section class="row search-app">
+        <aside class="col-sm-3 search-app__filters scrollable">
             <div class="bg-tertiary padding-default">
                 <div
                         v-if="showReset"
@@ -24,110 +24,125 @@
                 />
             </div>
         </aside>
-        <article class="col-sm-9 search-page">
-            <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
-            <v-server-table
-                    ref="resultTable"
-                    :columns="tableColumns"
-                    :options="tableOptions"
-                    :url="getUrl('search_api')"
-                    @data="onData"
-                    @loaded="onLoaded"
-                    class="form-group-sm"
-            >
-                <template slot="afterFilter">
-                    <b v-if="countRecords">{{ countRecords }}</b>
-                </template>
-                <template slot="beforeLimit">
-                </template>
-                <template slot="afterLimit">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-cog"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right" onclick="event.stopPropagation()">
-                            <li>
-                                <div class="form-group">
-                                    <CheckboxSwitch v-model="config.showAnnotationContext" class="switch-primary" label="Show annotation context"></CheckboxSwitch>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-group">
-                                    <CheckboxSwitch v-model="config.showAnnotationDetails" class="switch-primary" label="Show annotation details"></CheckboxSwitch>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-group">
-                                    <CheckboxSwitch v-model="config.showAnnotationTypeOnlyProperties" class="switch-primary" label="Limit visible annotation properties to own type"></CheckboxSwitch>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-group">
-                                    <CheckboxSwitch v-model="config.limitVisibleAnnotations" class="switch-primary" label="Show maximum 3 annotations per text"></CheckboxSwitch>
-                                </div>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <div class="form-group">
-                                    <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Advanced mode"></CheckboxSwitch>
-                                </div>
-                            </li>
-                        </ul>
+        <article class="col-sm-9 search-app__search-page">
+            <header>
+                <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
+                <div class="search-page__actions">
+                    <div class="form-inline form-group">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-cog"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" onclick="event.stopPropagation()">
+                                <li>
+                                    <div class="form-group">
+                                        <CheckboxSwitch v-model="config.showAnnotationContext" class="switch-primary" label="Show annotation context"></CheckboxSwitch>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="form-group">
+                                        <CheckboxSwitch v-model="config.showAnnotationDetails" class="switch-primary" label="Show annotation details"></CheckboxSwitch>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="form-group">
+                                        <CheckboxSwitch v-model="config.showAnnotationTypeOnlyProperties" class="switch-primary" label="Limit visible annotation properties to own type"></CheckboxSwitch>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="form-group">
+                                        <CheckboxSwitch v-model="config.limitVisibleAnnotations" class="switch-primary" label="Show maximum 3 annotations per text"></CheckboxSwitch>
+                                    </div>
+                                </li>
+                                <li role="separator" class="divider"></li>
+                                <li>
+                                    <div class="form-group">
+                                        <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Advanced mode"></CheckboxSwitch>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-download"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a :href="urls.export_csv + '?' + querystring">Export as CSV</a></li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-download"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li><a :href="urls.export_csv + '?' + querystring">Export as CSV</a></li>
-                        </ul>
-                    </div>
-                </template>
-                <template slot="title" slot-scope="props">
-                    <a :href="getTextUrl(props.row.id, props.index)">
-                        {{ props.row.title }}
-                    </a>
-                </template>
-                <template slot="id" slot-scope="props">
-                    <a :href="getTextUrl(props.row.id, props.index)">
-                        {{ props.row.id }}
-                    </a>
-                </template>
-                <template slot="tm_id" slot-scope="props">
-                    <a :href="getTextUrl(props.row.id, props.index)">
-                        {{ props.row.tm_id }}
-                    </a>
-                </template>
-                <template slot="annotations" slot-scope="props">
-                    <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)">
-                        <GreekText
-                                v-show="config.showAnnotationContext"
-                                :text="annotation.context.text"
-                                :annotations="[ [annotation.text_selection.selection_start, annotation.text_selection.selection_end - 1, { id: annotation.id, type: annotation.type, class: 'annotation annotation-' + annotation.type }] ]"
-                                :annotationOffset="annotation.context.start + 1"
-                                :compact="true">
-                        </GreekText>
-                        <GreekText
-                                v-show="!config.showAnnotationContext"
-                                :text="annotation.text_selection.text">
-                        </GreekText>
-                        <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation" :type-only-properties="config.showAnnotationTypeOnlyProperties"></AnnotationDetailsFlat>
-                    </div>
-                    <div class="annotation-count" v-if="config.limitVisibleAnnotations && props.row.annotations.length > 3">
-                        <span class="bg-tertiary small">Showing 3 of {{ props.row.annotations.length }} annotations found in text.</span>
-                    </div>
-                </template>
-                <template slot="level_category" slot-scope="props">
-                    <td>
-                        {{ formatLevelCategory(props.row.level_category) }}
-                    </td>
-                </template>
-                <template slot="location_found" slot-scope="props">
-                    <td>
-                        {{ props.row.location_found[0]?.name }}
-                    </td>
-                </template>
-            </v-server-table>
+                </div>
+            </header>
+            <section>
+                <v-server-table
+                        ref="resultTable"
+                        :columns="tableColumns"
+                        :options="tableOptions"
+                        :url="getUrl('search_api')"
+                        @data="onData"
+                        @loaded="onLoaded"
+                        class="form-group-sm"
+                >
+                    <template #beforeTable>
+                        <div class="VueTables__beforeTable row form-group form-inline">
+                            <div class="VueTables__pagination col-xs-4">
+                                <vt-pagination v-bind="props"></vt-pagination>
+                            </div>
+                            <div class="VueTables__count col-xs-4">
+                                <vt-pagination-count v-bind="props"></vt-pagination-count>
+                            </div>
+                            <div class="VueTables__limit col-xs-4">
+                                <vt-per-page-selector v-bind="props"></vt-per-page-selector>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template v-slot:title="props">
+                        <a :href="getTextUrl(props.row.id, props.index)">
+                            {{ props.row.title }}
+                        </a>
+                    </template>
+                    <template v-slot:id="props">
+                        <a :href="getTextUrl(props.row.id, props.index)">
+                            {{ props.row.id }}
+                        </a>
+                    </template>
+                    <template v-slot:tm_id="props">
+                        <a :href="getTextUrl(props.row.id, props.index)">
+                            {{ props.row.tm_id }}
+                        </a>
+                    </template>
+                    <template v-slot:annotations="props">
+                        <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)">
+                            <GreekText
+                                    v-show="config.showAnnotationContext"
+                                    :text="annotation.context.text"
+                                    :annotations="[ [annotation.text_selection.selection_start, annotation.text_selection.selection_end - 1, { id: annotation.id, type: annotation.type, class: 'annotation annotation-' + annotation.type }] ]"
+                                    :annotationOffset="annotation.context.start + 1"
+                                    :compact="true">
+                            </GreekText>
+                            <GreekText
+                                    v-show="!config.showAnnotationContext"
+                                    :text="annotation.text_selection.text">
+                            </GreekText>
+                            <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation" :type-only-properties="config.showAnnotationTypeOnlyProperties"></AnnotationDetailsFlat>
+                        </div>
+                        <div class="annotation-count" v-if="config.limitVisibleAnnotations && props.row.annotations.length > 3">
+                            <span class="bg-tertiary small">Showing 3 of {{ props.row.annotations.length }} annotations found in text.</span>
+                        </div>
+                    </template>
+                    <template slot="level_category" slot-scope="props">
+                        <td>
+                            {{ formatLevelCategory(props.row.level_category) }}
+                        </td>
+                    </template>
+                    <template slot="location_found" slot-scope="props">
+                        <td>
+                            {{ props.row.location_found[0]?.name }}
+                        </td>
+                    </template>
+                </v-server-table>
+            </section>
         </article>
         <div
                 v-if="openRequests"
@@ -135,27 +150,29 @@
         >
             <div class="spinner"/>
         </div>
-    </div>
+    </section>
 </template>
 <script>
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
-import SearchAppFields from '../components/Search/Config'
 import AbstractField from '../components/FormFields/AbstractField'
 import AbstractSearch from '../components/Search/AbstractSearch'
 import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
 
+import fieldRadio from '../components/FormFields/fieldRadio'
 
 import AnnotationDetailsFlat from '../components/Annotations/AnnotationDetailsFlat'
 
-import fieldRadio from '../components/FormFields/fieldRadio'
 import GreekText from '../components/Text/GreekText'
 
 import PersistentConfig from "../components/Shared/PersistentConfig";
 import SharedSearch from "../components/Search/SharedSearch";
+import SearchAppFields from '../components/Search/Config'
 
-import qs from "qs";
+import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
+import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";
+import VtPaginationCount from "vue-tables-2-premium/compiled/components/VtPaginationCount";
 
 Vue.component('fieldRadio', fieldRadio);
 
@@ -163,7 +180,10 @@ export default {
     components: {
         GreekText,
         AnnotationDetailsFlat,
-        CheckboxSwitch
+        CheckboxSwitch,
+        VtPerPageSelector,
+        VtPagination,
+        VtPaginationCount
     },
     mixins: [
         PersistentConfig('BaseAnnotationSearchConfig'),
@@ -203,6 +223,8 @@ export default {
                 ],
             },
             tableOptions: {
+                filterByColumn: false,
+                filterable: false,
                 headings: {
                     id: 'ID',
                     tm_id: 'Tm ID ',
@@ -214,19 +236,22 @@ export default {
                     tm_id: 'vue-tables__col vue-tables__col--tm-id',
                     title: 'vue-tables__col vue-tables__col--title'
                 },
-                'filterable': false,
-                'orderBy': {
+                orderBy: {
                     'column': 'title'
                 },
-                'perPage': 25,
-                'perPageValues': [25, 50, 100],
-                'sortable': ['id', 'tm_id', 'title'],
+                perPage: 25,
+                perPageValues: [25, 50, 100],
+                sortable: ['id', 'tm_id', 'title'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
                     return '';
                     // return (row.public == null || row.public) ? '' : 'warning'
                 },
+                pagination: {
+                    show: false,
+                    chunk: 5
+                }
             },
             submitModel: {
                 submitType: 'text',

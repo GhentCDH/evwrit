@@ -42,9 +42,9 @@
         <meta property="og:url" content="{{ app.request.uri }}">
     </head>
     <body class="{% block body_class %}{% endblock %}">
-        <div class="fluid-container page__header">
+        <header class="fluid-container page__header">
             <div class="row">
-                <header class="pageheader col-xs-12 ">
+                <div class="pageheader col-xs-12 ">
                     <nav class="navbar navbar-default">
                         <div class="row">
                             <div class="navbar-header col-xs-12 col-sm-2">
@@ -139,11 +139,11 @@
                             </a>
                         </div>
                     </div>
-                </header>
+                </div>
             </div>
-        </div>
+        </header>
 
-        <div class="fluid-container page__content">
+        <main class="fluid-container page__content">
             {% if app.request.hasPreviousSession %}
                 {% for type, messages in app.session.flashbag.all() %}
                     {% for message in messages %}
@@ -155,7 +155,7 @@
                 {% endfor %}
             {% endif %}
             {% block content %}{% endblock %}
-        </div>
+        </main>
 
         <footer class="fluid-container page-footer page__footer">
             <div class="row">

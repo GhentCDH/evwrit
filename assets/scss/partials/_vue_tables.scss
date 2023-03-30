@@ -1,18 +1,48 @@
-.VueTables .form-inline {
-  display: flex;
-  justify-items: center;
-  align-content: center;
+.VueTables {
 
-  & > div {
-    margin-right: 10px;
+  .VueTables__sort-icon {
+    color: #aaa;
   }
 
-  &.pull-right > div {
-    margin-left: 10px;
-    margin-right: 0;
+  // style navigation row
+  .VueTables__beforeTable {
+    display: flex;
+    flex-wrap: nowrap;
+
+    .VueTables__count {
+      flex: 1;
+      text-align: center;
+    }
+
+    .VueTables__limit {
+      text-align: right;
+    }
+
+    .VueTables__pagination .pagination {
+      margin: 0;
+    }
   }
 
-  label {
-    margin-right: 0.3em;
+
+
+  .form-inline {
+    display: flex;
+    justify-items: center;
+    align-content: center;
+
+    //& > div {
+    //  margin-right: 10px;
+    //}
+    //
+    //&.pull-right > div {
+    //  margin-left: 10px;
+    //  margin-right: 0;
+    //}
+
+    label {
+      margin-right: 0.3em;
+    }
+
+
   }
 }

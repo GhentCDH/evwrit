@@ -7,6 +7,10 @@
 @import '~huisstijl2016/sass/bootstrap-custom';
 @import '~bootstrap-sass/assets/stylesheets/bootstrap/panels';
 
+$maxwidth-container: 1440px;
+
+
+
 // huisstijl2016 theme
 @import 'huisstijl2016/huisstijl2016';
 
