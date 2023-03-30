@@ -109,18 +109,17 @@ export default {
                             model: 'script'
                         },
                     ),
-                    this.createMultiSelect('Material',
+                    includeMaterial ? this.createMultiSelect('Material',
                         {
                             model: 'material',
-                            styleClasses: includeMaterial ? '' : 'hidden',
                         },
-                    ),
+                    ) : null,
                     this.createMultiSelect('Keyword',
                         {
                             model: 'keyword'
                         }
                     ),
-                ]
+                ].filter( item => item !== null )
             }
         },
         communicativeInformationFields(expertOnly = false) {
@@ -227,37 +226,21 @@ export default {
                     this.createMultiSelect('Production stage',
                         {
                             model: 'production_stage'
-                        },
-                        {
-                            multiple: true,
-                            closeOnSelect: false,
                         }
                     ),
                     this.createMultiSelect('Material',
                         {
                             model: 'material'
-                        },
-                        {
-                            multiple: true,
-                            closeOnSelect: false,
                         }
                     ),
                     this.createMultiSelect('Format',
                         {
                             model: 'text_format'
-                        },
-                        {
-                            multiple: true,
-                            closeOnSelect: false,
                         }
                     ),
                     this.createMultiSelect('Writing direction',
                         {
                             model: 'writing_direction'
-                        },
-                        {
-                            multiple: true,
-                            closeOnSelect: false,
                         }
                     ),
                     this.createMultiSelect('Recto', {model: 'is_recto'}),
