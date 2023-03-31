@@ -21,6 +21,8 @@ node_modules
 .idea/
 .env.local
 .env.*.local
+test*.*
+temp*.*
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
 npm-debug.log
@@ -29,3 +31,7 @@ yarn-error.log
 src/Controller/TestController.php
 src/Command/TestElasticsearchCommand.php
 /public/build/
+todo.txt
+*.sh
+phpunit.xml.dist
+.run
