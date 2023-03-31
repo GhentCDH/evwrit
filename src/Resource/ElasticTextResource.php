@@ -115,16 +115,19 @@ class ElasticTextResource extends ElasticBaseResource
         // text levels
         $ret['text_level'] = ElasticTextLevelResource::collection($text->textLevels)->toArray();
 
+        // generic/layout text structure annotations
+        $gtsAnnotations = ElasticGenericTextStructureAnnotationResource::collection($text->genericTextStructureAnnotations)->toArray();
+        $ltsAnnotations = ElasticLayoutTextStructureAnnotationResource::collection($text->layoutTextStructureAnnotations)->toArray();
+
         // calculate base annotations intersect with text_structure and handshift
         foreach($ret['annotations'] as &$annotationSource) {
             $this->annotationIntersect($annotationSource, $genericTextStructure ?? [], ['gts_part', 'textLevel']);
+            $this->annotationIntersect($annotationSource, $gtsAnnotations ?? [], ['gtsa_type', 'gtsa_subtype', 'gtsa_speechAct']);
             $this->annotationIntersect($annotationSource, $layoutTextStructure ?? [], ['gts_part', 'textLevel']);
             $this->annotationIntersect($annotationSource, $handshiftAnnotations);
         }
 
-        // generic/layout text structure annotations
-        $gtsAnnotations = ElasticGenericTextStructureAnnotationResource::collection($text->genericTextStructureAnnotations)->toArray();
-        $ltsAnnotations = ElasticLayoutTextStructureAnnotationResource::collection($text->layoutTextStructureAnnotations)->toArray();
+        //        dump($gtsAnnotations);
 
         // intersect generic text structure annotations with lts, gts, ltsa, handshift
         foreach( $gtsAnnotations as &$annotationSource ) {

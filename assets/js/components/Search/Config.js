@@ -434,8 +434,11 @@ export default {
                 fields: [
                     // level
                     this.createMultiSelect('Level', {model: 'text_level'}),
-                    this.createMultiSelect('Part', {model: 'generic_text_structure_part'}),
+                    this.createMultiSelect('Part', {model: 'gts_part'}),
 
+                    this.createMultiSelect('Type', {model: 'gtsa_type'}),
+                    this.createMultiSelect('Subtype', {model: 'gtsa_subtype', 'dependency': 'gtsa_type'}),
+                    this.createMultiSelect('Speech act', {model: 'gtsa_speechAct'}),
                 ]
             }
         },
