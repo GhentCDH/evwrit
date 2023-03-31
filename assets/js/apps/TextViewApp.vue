@@ -103,7 +103,7 @@
         <aside class="col-sm-3 scrollable scrollable--vertical" ref="sidebar">
             <div class="padding-default">
 
-                <Widget v-if="isValidResultSet()" title="Search" :collapsible="false">
+                <Widget v-if="isValidResultSet()" title="Search" :collapsible="false" class="widget--sticky">
                     <div class="row mbottom-default">
                         <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
@@ -897,9 +897,15 @@ export default {
   aside {
     background-color: #fafafa !important;
 
-
     .widget {
       border-bottom: 1px solid #e9ecef;
+    }
+
+    .widget--sticky {
+      position: sticky;
+      top: 0;
+      background-color: #fafafa;
+      z-index: 1;
     }
   }
 }
