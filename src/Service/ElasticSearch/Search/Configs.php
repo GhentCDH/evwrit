@@ -27,7 +27,11 @@ class Configs implements SearchConfigInterface
             'era' => ['type' => self::FILTER_OBJECT_ID],
             'keyword' => ['type' => self::FILTER_OBJECT_ID],
             'language' => ['type' => self::FILTER_OBJECT_ID],
+            'language_count' => [
+                'type' => self::FILTER_NUMERIC,
+            ],
             'script' => ['type' => self::FILTER_OBJECT_ID],
+            'script_count' => ['type' => self::FILTER_NUMERIC],
             'location_written' => ['type' => self::FILTER_OBJECT_ID],
             'location_found' => ['type' => self::FILTER_OBJECT_ID],
             'form' => ['type' => self::FILTER_OBJECT_ID],
@@ -48,7 +52,25 @@ class Configs implements SearchConfigInterface
             'era' => ['type' => self::AGG_OBJECT_ID_NAME],
             'keyword' => ['type' => self::AGG_OBJECT_ID_NAME],
             'language' => ['type' => self::AGG_OBJECT_ID_NAME],
+            'language_count' => [
+                'type' => self::AGG_NUMERIC,
+                'mapLabel' => [
+                    '0' => 'no languages specified',
+                    '1' => 'monolingual',
+                    '2' => 'bilingual',
+                    '3' => 'trilingual'
+                ]
+            ],
             'script' => ['type' => self::AGG_OBJECT_ID_NAME],
+            'script_count' => [
+                'type' => self::AGG_NUMERIC,
+                'mapLabel' => [
+                    '0' => 'no scripts specified',
+                    '1' => 'monoscriptal',
+                    '2' => 'biscriptal',
+                    '3' => 'triscriptal'
+                ]
+            ],
             'location_written' => ['type' => self::AGG_OBJECT_ID_NAME],
             'location_found' => ['type' => self::AGG_OBJECT_ID_NAME],
             'form'  => ['type' => self::AGG_OBJECT_ID_NAME],

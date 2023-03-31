@@ -100,6 +100,11 @@ export default {
                             model: 'language'
                         },
                     ),
+                    this.createMultiSelect('Language count',
+                        {
+                            model: 'language_count'
+                        },
+                    ),
                     this.createOperators('script_op', {
                         collapsible: true,
                         collapsed: this.groupCollapsed,
@@ -107,6 +112,11 @@ export default {
                     this.createMultiSelect('Script',
                         {
                             model: 'script'
+                        },
+                    ),
+                    this.createMultiSelect('Script count',
+                        {
+                            model: 'script_count'
                         },
                     ),
                     includeMaterial ? this.createMultiSelect('Material',
