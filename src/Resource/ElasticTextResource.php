@@ -83,6 +83,9 @@ class ElasticTextResource extends ElasticBaseResource
             'annotations' => []
         ]);
 
+        // add line count
+        $ret['line_count'] = $ret['text'] ? count(explode("\n",$ret['text'])) : 0;
+
         // flatten level properties
         // todo: fix legacy 'ancient_person'
         $textLevels = ElasticTextLevelResource::collection($text->textLevels)->toArray();
