@@ -25,7 +25,7 @@
     "vue-form-generator": "git+ssh://git@github.com/flamsens/vue-form-generator.git",
     "vue-loader": "^15.7.0",
     "vue-multiselect": "^2.1.4",
-    "vue-tables-2": "^1.0.10",
+    "vue-tables-2-premium": "^2.3.6",
     "vue-template-compiler": "^2.6.8",
     "vue2-dropzone": "^3.5.2",
     "vuedraggable": "^2.19.1",

@@ -5,14 +5,20 @@ import qs from 'qs'
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 import VueMultiselect from 'vue-multiselect'
-import VueTables from 'vue-tables-2'
+// import VueTables from 'vue-tables-2'
 
 import fieldMultiselectClear from '../FormFields/fieldMultiselectClear'
 import fieldCheckboxes from '../FormFields/fieldCheckboxes'
 import fieldNoUiSlider from '../FormFields/fieldNoUiSlider'
 
+
 Vue.use(VueFormGenerator)
-Vue.use(VueTables.ServerTable)
+// Vue.use(VueTables.ServerTable)
+
+import {ServerTable, ClientTable, Event} from 'vue-tables-2-premium';
+Vue.use(ClientTable, {}, false, require('../../theme/vue-tables-2/bootstrap3'), {});
+Vue.use(ServerTable, {}, false, require('../../theme/vue-tables-2/bootstrap3'), {});
+
 
 Vue.component('multiselect', VueMultiselect)
 Vue.component('fieldMultiselectClear', fieldMultiselectClear)
@@ -185,7 +191,7 @@ export default {
                 // filters are always in the same order, so we can compare serialization
                 if (JSON.stringify(filterValues) !== JSON.stringify(this.oldFilterValues)) {
                     this.oldFilterValues = JSON.parse(JSON.stringify(filterValues))
-                    VueTables.Event.$emit('vue-tables.filter::filters', filterValues)
+                    Event.$emit('vue-tables.filter::filters', filterValues) // todo: fix!
                 }
             }, timeoutValue)
         },
@@ -222,6 +228,7 @@ export default {
         },
         onData(data) {
             this.aggregation = data.aggregation
+            console.log('event onData')
         },
         onLoaded(data) {
             // Update model and ordering if not initialized or history request
@@ -238,7 +245,8 @@ export default {
             for (let fieldName of Object.keys(this.fields)) {
                 let field = this.fields[fieldName]
                 if (field.type === 'multiselectClear') {
-                    let values = this.aggregation[fieldName] == null ? [] : this.aggregation[fieldName].sort(this.sortByName)
+                    // let values = this.aggregation[fieldName] == null ? [] : this.aggregation[fieldName].sort(this.sortByName)
+                    let values = this.aggregation[fieldName] ?? []
                     field.values = values
                     if (field.dependency != null && this.model[field.dependency] == null) {
                         this.dependencyField(field)
@@ -308,7 +316,7 @@ export default {
             }
         },
         updateCountRecords() {
-            let table = this.$refs.resultTable
+            let table = this.$refs.resultTable.$refs.table
             if (!table.count) {
                 this.countRecords = ''
                 return
@@ -337,23 +345,23 @@ export default {
             delete data['ascending']
         }
         // Add filter values if necessary
-        data['filters'] = this.$parent.constructFilterValues()
+        data['filters'] = this.$parent.$parent.constructFilterValues()
         if (data['filters'] == null || data['filters'] == '') {
             delete data['filters']
         }
-        this.$parent.openRequests++
-        if (!this.$parent.initialized) {
+        this.$parent.$parent.openRequests++
+        if (!this.$parent.$parent.initialized) {
             return new Promise((resolve, reject) => {
-                this.$emit('data', this.$parent.data)
+                this.$parent.$emit('data', this.$parent.$parent.data)
                 resolve({
                     data : {
-                        data: this.$parent.data.data,
-                        count: this.$parent.data.count
+                        data: this.$parent.$parent.data.data,
+                        count: this.$parent.$parent.data.count
                     }
                 })
             })
         }
-        if (!this.$parent.actualRequest) {
+        if (!this.$parent.$parent.actualRequest) {
             return new Promise((resolve, reject) => {
                 resolve({
                     data : {
@@ -363,24 +371,24 @@ export default {
                 })
             })
         }
-        if (this.$parent.historyRequest) {
-            if (this.$parent.openRequests > 1 && this.$parent.tableCancel != null) {
-                this.$parent.tableCancel('Operation canceled by newer request')
+        if (this.$parent.$parent.historyRequest) {
+            if (this.$parent.$parent.openRequests > 1 && this.$parent.$parent.tableCancel != null) {
+                this.$parent.$parent.tableCancel('Operation canceled by newer request')
             }
             let url = this.url
-            if (this.$parent.historyRequest !== 'init') {
-                url += '?' + this.$parent.historyRequest
+            if (this.$parent.$parent.historyRequest !== 'init') {
+                url += '?' + this.$parent.$parent.historyRequest
             }
             return axios.get(url, {
-                cancelToken: new axios.CancelToken((c) => {this.$parent.tableCancel = c})
+                cancelToken: new axios.CancelToken((c) => {this.$parent.$parent.tableCancel = c})
             })
                 .then( (response) => {
-                    this.$emit('data', response.data)
+                    this.$parent.$emit('data', response.data)
                     return response
                 })
                 .catch(function (error) {
-                    this.$parent.historyRequest = false
-                    this.$parent.openRequests--
+                    this.$parent.$parent.historyRequest = false
+                    this.$parent.$parent.openRequests--
                     if (axios.isCancel(error)) {
                         // Return the current data if the request is cancelled
                         return {
@@ -393,22 +401,22 @@ export default {
                     this.dispatch('error', error)
                 }.bind(this))
         }
-        if (!this.$parent.noHistory) {
-            this.$parent.pushHistory(data)
+        if (!this.$parent.$parent.noHistory) {
+            this.$parent.$parent.pushHistory(data)
         } else {
-            this.$parent.noHistory = false;
+            this.$parent.$parent.noHistory = false;
         }
 
-        if (this.$parent.openRequests > 1 && this.$parent.tableCancel != null) {
-            this.$parent.tableCancel('Operation canceled by newer request')
+        if (this.$parent.$parent.openRequests > 1 && this.$parent.$parent.tableCancel != null) {
+            this.$parent.$parent.tableCancel('Operation canceled by newer request')
         }
         return axios.get(this.url, {
             params: data,
             paramsSerializer: qs.stringify,
-            cancelToken: new axios.CancelToken((c) => {this.$parent.tableCancel = c})
+            cancelToken: new axios.CancelToken((c) => {this.$parent.$parent.tableCancel = c})
         })
             .then( (response) => {
-                this.$emit('data', response.data)
+                this.$parent.$emit('data', response.data)
                 return response
             })
             .catch(function (error) {
