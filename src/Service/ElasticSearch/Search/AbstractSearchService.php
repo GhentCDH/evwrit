@@ -343,6 +343,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $label = str_replace($aggConfig['replaceLabel']['search'], $aggConfig['replaceLabel']['replace'], $label);
             }
 
+            if ($aggConfig['mapLabel'] ?? null ) {
+                $label = $aggConfig['mapLabel'][$label] ?? $label;
+            }
+
             $output[] = [
                 'id' => $value,
                 'name' => $label,
