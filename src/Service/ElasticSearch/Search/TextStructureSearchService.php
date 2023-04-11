@@ -157,7 +157,8 @@ class TextStructureSearchService extends AbstractSearchService
         $result = array_intersect_key($result, array_flip($returnProps));
         $result['annotations'] = $result['annotations'] ?? [];
         if ( isset($result['inner_hits']['annotations']) ) {
-            $result['annotations'] = $result['inner_hits']['annotations'];
+            $result['annotations'] = $result['inner_hits']['annotations']['data'];
+            $result['annotations_hits_count'] = $result['inner_hits']['annotations']['count'];
         }
         unset($result['inner_hits']);
 

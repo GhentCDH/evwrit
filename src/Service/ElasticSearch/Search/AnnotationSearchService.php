@@ -6,6 +6,7 @@ use App\Service\ElasticSearch\Client;
 use App\Service\ElasticSearch\Index\TextIndexService;
 use Elastica\Query;
 use Elastica\Settings;
+use Elastica\Script;
 
 class AnnotationSearchService extends AbstractSearchService
 {
@@ -209,12 +210,17 @@ class AnnotationSearchService extends AbstractSearchService
 
     protected function sanitizeSearchResult(array $result): array
     {
-        $returnProps = ['id', 'tm_id', 'title', 'year_begin', 'year_end', 'inner_hits', 'annotations', 'level_category', 'location_found'];
+        $returnProps = [
+            '_score',
+            'id', 'tm_id', 'title', 'year_begin', 'year_end', 'line_count',
+            'inner_hits', 'annotations',
+            'level_category', 'location_found'];
 
         $result = array_intersect_key($result, array_flip($returnProps));
         $result['annotations'] = $result['annotations'] ?? [];
         if ( isset($result['inner_hits']['annotations']) ) {
-            $result['annotations'] = $result['inner_hits']['annotations'];
+            $result['annotations'] = $result['inner_hits']['annotations']['data'];
+            $result['annotations_hits_count'] = $result['inner_hits']['annotations']['count'];
         }
         unset($result['inner_hits']);
 
@@ -234,6 +240,8 @@ class AnnotationSearchService extends AbstractSearchService
                 case 'tm_id':
                 case 'year_begin':
                 case 'year_end':
+                case 'frequency_per_line':
+                case 'instances_in_text':
                     $params['orderBy'] = [ $params['orderBy'] ];
                     break;
                 default:
@@ -245,5 +253,23 @@ class AnnotationSearchService extends AbstractSearchService
         return parent::sanitizeSearchParameters($params, $merge_defaults);
     }
 
+    protected function onBeforeSearch(array &$searchParams, Query $query, Query\FunctionScore $queryFS)
+    {
+//        dump($searchParams);
+        foreach ($searchParams['orderBy'] ?? [] as $index => $field) {
+            // Use different score for annotation frequencies
+            if ($field === 'frequency_per_line') {
+                $script = new Script\Script("(_score)/doc['line_count'].value");
+                $queryFS->addScriptScoreFunction($script);
+                $queryFS->setParam('boost_mode', 'replace');
+
+                $searchParams['orderBy'][$index] = '_score';
+            }
+            if ($field === 'instances_in_text') {
+                $searchParams['orderBy'][$index] = '_score';
+            }
+        }
+
+    }
 
 }
