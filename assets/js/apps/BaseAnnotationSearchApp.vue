@@ -128,15 +128,25 @@
                             <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation" :type-only-properties="config.showAnnotationTypeOnlyProperties"></AnnotationDetailsFlat>
                         </div>
                         <div class="annotation-count" v-if="config.limitVisibleAnnotations && props.row.annotations.length > 3">
-                            <span class="bg-tertiary small">Showing 3 of {{ props.row.annotations.length }} annotations found in text.</span>
+                            <span class="bg-tertiary small">Showing 3 of {{ props.row.annotations.length }} annotations.</span>
                         </div>
                     </template>
-                    <template slot="level_category" slot-scope="props">
+                    <template v-slot:instances_in_text="props">
+                        <td>
+                            {{ props.row.annotations_hits_count }}
+                        </td>
+                    </template>
+                    <template v-slot:frequency_per_line="props">
+                        <td>
+                            {{ (props.row.annotations_hits_count / props.row.line_count).toFixed(2) }}
+                        </td>
+                    </template>
+                    <template v-slot:level_category="props">
                         <td>
                             {{ formatLevelCategory(props.row.level_category) }}
                         </td>
                     </template>
-                    <template slot="location_found" slot-scope="props">
+                    <template v-slot:location_found="props">
                         <td>
                             {{ props.row.location_found[0]?.name }}
                         </td>
@@ -234,14 +244,15 @@ export default {
                 columnsClasses: {
                     id: 'vue-tables__col vue-tables__col--id',
                     tm_id: 'vue-tables__col vue-tables__col--tm-id',
-                    title: 'vue-tables__col vue-tables__col--title'
+                    title: 'vue-tables__col vue-tables__col--title',
+                    annotations: 'vue-tables__col vue-tables__col--annotations'
                 },
                 orderBy: {
                     'column': 'title'
                 },
                 perPage: 25,
                 perPageValues: [25, 50, 100],
-                sortable: ['id', 'tm_id', 'title'],
+                sortable: ['id', 'tm_id', 'title', 'instances_in_text', 'frequency_per_line'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
@@ -265,7 +276,7 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['id', 'tm_id', 'title', 'annotations', 'level_category', 'location_found']
+            let columns = ['id', 'tm_id', 'title', 'annotations', 'instances_in_text', 'frequency_per_line', 'level_category', 'location_found']
             return columns
         },
     },
