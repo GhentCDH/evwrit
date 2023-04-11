@@ -366,6 +366,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return [];
     }
 
+    protected function onBeforeSearch(array &$searchParams, Query $query, Query\FunctionScore $queryFS)
+    {
+        return null;
+    }
+
     /**
      * Add search filter details to search service
      * Return array of search_field => [
@@ -781,6 +786,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $queryNested = self::createNestedQuery($filterNestedPath, $filterConfig);
                 $subQuery = $this->createSearchQuery($filterValues, $filterConfig['filters']);
 
+                // count number of inner hits
+                if ($filterConfig['boost'] ?? 1) {
+                    $subQuery->addMust( new Query\MatchAll() );
+                }
+
                 if ($subQuery->count()) {
                     $queryNested->setQuery($subQuery);
                     $query->addMust($queryNested);
@@ -800,7 +810,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         // create nested query
         $queryNested = (new Query\Nested())
             ->setPath($filterNestedPath)
-            ->setQuery(new Query\BoolQuery());
+            ->setQuery($query = new Query\BoolQuery());
 
         // add inner hits?
         if ($filterConfig['innerHits'] ?? false) {
@@ -809,6 +819,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $innerHits->setSize($filterConfig['innerHits']['size']);
             }
             $queryNested->setInnerHits($innerHits);
+        }
+
+        // score mode
+        if ($filterConfig['scoreMode'] ?? false) {
+            $queryNested->setParam('score_mode', $filterConfig['scoreMode']);
         }
 
         return $queryNested;
@@ -872,7 +887,13 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $searchParams = $this->sanitizeSearchParameters($params);
 
         // Construct query
-        $query = new Query();
+        $queryFS = new Query\FunctionScore();
+        $query = new Query($queryFS);
+
+        // onBeforeSearch
+        $this->onBeforeSearch($searchParams, $query, $queryFS);
+//        dump($searchParams);
+
         // Number of results
         if (isset($searchParams['limit']) && is_numeric($searchParams['limit'])) {
             $query->setSize($searchParams['limit']);
@@ -907,7 +928,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
         if (count($searchFilters)) {
 //            dump($searchFilters);
-            $query->setQuery($this->createSearchQuery($searchFilters));
+            $queryFS->setQuery($this->createSearchQuery($searchFilters));
             $query->setHighlight($this->createHighlight($searchFilters));
 //            dump(json_encode($query->toArray(), JSON_PRETTY_PRINT));
         }
@@ -948,6 +969,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         }
         foreach (($data['hits']['hits'] ?? []) as $result) {
             $part = $result['_source'];
+            $part['_score'] = $result['_score'];
             if (isset($result['highlight'])) {
                 foreach ($result['highlight'] as $key => $value) {
                     $part['original_' . $key] = $part[$key];
@@ -976,7 +998,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                             $values[] = $hit['_source'];
                         }
                     }
-                    $part['inner_hits'][$field_name] = $values;
+                    $count = $inner_hit['hits']['total']['value'] ?? null;
+                    $part['inner_hits'][$field_name] = [ 'data' => $values, 'count' => $count ];
                 }
             }
 
@@ -1070,6 +1093,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         }
         foreach (($data['hits']['hits'] ?? []) as $result) {
             $part = $result['_source'];
+            $part['_score'] = $result['_score'];
+
             // Remove _stemmer or _original
             foreach ($rename as $key => $value) {
                 if (isset($part[$key])) {
