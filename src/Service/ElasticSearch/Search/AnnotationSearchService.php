@@ -3,6 +3,8 @@
 namespace App\Service\ElasticSearch\Search;
 
 use App\Service\ElasticSearch\Client;
+use App\Service\ElasticSearch\Index\TextIndexService;
+use Elastica\Query;
 use Elastica\Settings;
 
 class AnnotationSearchService extends AbstractSearchService
@@ -43,8 +45,10 @@ class AnnotationSearchService extends AbstractSearchService
                 ],
             ],
             'innerHits' => [
-                'size' => 100
-            ]
+                'size' => TextIndexService::INNER_HITS_SIZE_MAX
+            ],
+            'scoreMode' => 'sum',
+            'boost' => 1
         ];
 
         $annotationProperties = [

@@ -8,6 +8,7 @@ use App\Service\ElasticSearch\Client;
 class LevelIndexService extends AbstractIndexService
 {
     const indexName = "level";
+    const INNER_HITS_SIZE_MAX = 100;
 
     public function __construct(Client $client)
     {
@@ -90,7 +91,8 @@ class LevelIndexService extends AbstractIndexService
                         'total_fields' => [
                             'limit' => 2000
                         ]
-                    ]
+                    ],
+                    'max_inner_result_window' => self::INNER_HITS_SIZE_MAX
                 ]
             ]
         ];

@@ -3,6 +3,7 @@
 namespace App\Service\ElasticSearch\Search;
 
 use App\Service\ElasticSearch\Client;
+use App\Service\ElasticSearch\Index\LevelIndexService;
 use Elastica\Settings;
 
 class TextStructureSearchService extends AbstractSearchService
@@ -50,7 +51,7 @@ class TextStructureSearchService extends AbstractSearchService
             'filters' => [
             ],
             'innerHits' => [
-                'size' => 100,
+                'size' => LevelIndexService::INNER_HITS_SIZE_MAX,
             ],
         ];
 

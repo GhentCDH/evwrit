@@ -8,6 +8,7 @@ use App\Service\ElasticSearch\Client;
 class TextIndexService extends AbstractIndexService
 {
     const indexName = "texts";
+    const INNER_HITS_SIZE_MAX = 100;
 
     public function __construct(Client $client)
     {
@@ -87,7 +88,8 @@ class TextIndexService extends AbstractIndexService
                         'total_fields' => [
                             'limit' => 2000
                         ]
-                    ]
+                    ],
+                    'max_inner_result_window' => self::INNER_HITS_SIZE_MAX
                 ]
             ]
         ];
