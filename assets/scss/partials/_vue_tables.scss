@@ -1,5 +1,9 @@
 .VueTables {
 
+  .VueTables__sortable {
+    cursor: pointer;
+  }
+
   .VueTables__sort-icon {
     color: #aaa;
   }
