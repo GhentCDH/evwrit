@@ -6,9 +6,26 @@ class Configs implements SearchConfigInterface
 {
     const ignoreUnknownUncertain = ['unknown','uncertain', 'Unknown', 'Uncertain', 'Unknwon'];
 
-    public static function filterPhysicalInfo(): array
+    public static function filterDefaults(): array
     {
         return [
+            'boost' => 0
+        ];
+    }
+
+    private static function mergeFilterDefaults($filters): array
+    {
+        $defaults = self::filterDefaults();
+        foreach($filters as $index => $config) {
+            $filters[$index] = array_merge($defaults, $config);
+        }
+
+        return $filters;
+    }
+
+    public static function filterPhysicalInfo(): array
+    {
+        $filters = [
             'id' => ['type' => self::FILTER_NUMERIC],
             'tm_id' => ['type' => self::FILTER_NUMERIC],
             'title' => [
@@ -44,6 +61,8 @@ class Configs implements SearchConfigInterface
                 'field' => 'image',
             ],
         ];
+
+        return self::mergeFilterDefaults($filters);
     }
 
     public static function aggregatePhysicalInfo(): array
@@ -79,7 +98,7 @@ class Configs implements SearchConfigInterface
 
     public static function filterAdministrative(): array
     {
-        return [
+        $filters = [
             'project' => ['type' => self::FILTER_OBJECT_ID],
             'project_extra' => [
                 'type' => self::FILTER_OBJECT_ID,
@@ -87,6 +106,7 @@ class Configs implements SearchConfigInterface
             ],
             'collaborator' => ['type' => self::FILTER_OBJECT_ID],
         ];
+        return self::mergeFilterDefaults($filters);
     }
 
     public static function aggregateAdministrative(): array
@@ -108,7 +128,7 @@ class Configs implements SearchConfigInterface
 
     public static function filterCommunicativeInfo(): array
     {
-        return [
+        $filters = [
             'archive' => ['type' => self::FILTER_OBJECT_ID],
             'social_distance' => ['type' => self::FILTER_OBJECT_ID],
             'level_category_group' => [
@@ -150,6 +170,7 @@ class Configs implements SearchConfigInterface
                 ]
             ],
         ];
+        return self::mergeFilterDefaults($filters);
     }
 
     public static function aggregateCommunicativeInfo(): array
@@ -204,7 +225,7 @@ class Configs implements SearchConfigInterface
 
     public static function filterMateriality(): array
     {
-        return [
+        $filters = [
             'production_stage' => ['type' => self::FILTER_OBJECT_ID],
             'material' => ['type' => self::FILTER_OBJECT_ID],
             'text_format' => ['type' => self::FILTER_OBJECT_ID],
@@ -262,6 +283,7 @@ class Configs implements SearchConfigInterface
                 'ignore' => [-1, 10000]
             ],
         ];
+        return self::mergeFilterDefaults($filters);
     }
 
     public static function aggregateMateriality(): array
@@ -295,7 +317,7 @@ class Configs implements SearchConfigInterface
 
     public static function filterAncientPerson(): array
     {
-        return [
+        $filters = [
             'ancient_person' => [
                 'type' => self::FILTER_NESTED_MULTIPLE,
                 'nested_path' => 'ancient_person',
@@ -341,11 +363,12 @@ class Configs implements SearchConfigInterface
                 ]
             ]
         ];
+        return self::mergeFilterDefaults($filters);
     }
 
     public static function filterAttestations(): array
     {
-        return [
+        $filters = [
             'attestations' => [
                 'type' => self::FILTER_NESTED_MULTIPLE,
                 'nested_path' => 'attestations',
@@ -392,6 +415,7 @@ class Configs implements SearchConfigInterface
                 ]
             ]
         ];
+        return self::mergeFilterDefaults($filters);
     }
 
 
