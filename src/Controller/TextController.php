@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Helper\StreamedCsvResponse;
+use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -132,18 +133,20 @@ class TextController extends BaseController
             }
             return new JsonResponse($resource);
         } else {
-            // Let the 404 page handle the not found exception
-            $resource = $elasticService->get($id);
-
-            return $this->render(
-                $this->templateFolder. '/detail.html.twig',
-                [
-                    'urls' => json_encode($this->getSharedAppUrls()),
-                    'data' => json_encode([
-                        'text' => $resource
-                    ])
-                ]
-            );
+            try {
+                $resource = $elasticService->get($id);
+                return $this->render(
+                    $this->templateFolder. '/detail.html.twig',
+                    [
+                        'urls' => json_encode($this->getSharedAppUrls()),
+                        'data' => json_encode([
+                            'text' => $resource
+                        ])
+                    ]
+                );
+            } catch(Exception $e) {
+                throw $this->createNotFoundException('The text does not exist');
+            }
         }
     }
 

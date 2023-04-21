@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Helper\StreamedCsvResponse;
-use App\Service\ElasticSearch\Search\LinguisticAnnotationSearchService;
+use App\Service\ElasticSearch\Search\LexicogrammerAnnotationSearchService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +19,7 @@ class LinguisticAnnotationController extends BaseController
     /**
      * @Route("/annotation/linguistic/search", name="linguistic_annotation_search", methods={"GET"})
      * @param Request $request
-     * @param LinguisticAnnotationSearchService $elasticService
+     * @param LexicogrammerAnnotationSearchService $elasticService
      * @return Response
      */
     public function search(
@@ -28,7 +28,8 @@ class LinguisticAnnotationController extends BaseController
         return $this->_search(
             $request,
             [
-                'title' => 'Lexicogrammar'
+                'title' => 'Lexicogrammar',
+                'defaultAnnotationType' => null
             ],
             [
                 'search_api' => 'linguistic_annotation_search_api',

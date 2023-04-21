@@ -38,7 +38,8 @@ class MaterialityController extends BaseController
         return $this->_search(
             $request,
             [
-                'title' => 'Materiality'
+                'title' => 'Materiality',
+                'defaultAnnotationType' => null
             ],
             [
                 'search_api' => 'materiality_search_api',

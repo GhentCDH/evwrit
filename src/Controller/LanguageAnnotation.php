@@ -12,25 +12,25 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Json;
 
 
-class LanguageTypographyAnnotation extends BaseController
+class LanguageAnnotation extends BaseController
 {
     protected $templateFolder = 'BaseAnnotation';
 
-    protected const searchServiceName = "language_typography_annotation_search_service";
+    protected const searchServiceName = "language_annotation_search_service";
     protected const indexServiceName = "text_index_service";
 
     /**
-     * @Route("/annotation", name="annotation", methods={"GET"})
+     * @Route("/annotation/language", name="annotation", methods={"GET"})
      * @param Request $request
      * @return RedirectResponse
      */
     public function index(Request $request)
     {
-        return $this->redirectToRoute('linguistic_annotation_search', ['request' =>  $request], 301);
+        return $this->redirectToRoute('language_annotation_search', ['request' =>  $request], 301);
     }
 
     /**
-     * @Route("/annotation/languagetypography/search", name="languagetypography_annotation_search", methods={"GET"})
+     * @Route("/annotation/language/search", name="language_annotation_search", methods={"GET"})
      * @param Request $request
      * @return Response
      */
@@ -40,18 +40,19 @@ class LanguageTypographyAnnotation extends BaseController
         return $this->_search(
             $request,
             [
-                'title' => 'Languages and Typography'
+                'title' => 'Languages and Typography',
+                'defaultAnnotationType' => 'language'
             ],
             [
-                'search_api' => 'languagetypography_annotation_search_api',
-                'paginate' => 'languagetypography_annotation_paginate',
-                'export_csv' => 'languagetypography_annotation_export_csv'
+                'search_api' => 'language_annotation_search_api',
+                'paginate' => 'language_annotation_paginate',
+                'export_csv' => 'language_annotation_export_csv'
             ]
         );
     }
 
     /**
-     * @Route("/annotation/languagetypography/search_api", name="languagetypography_annotation_search_api", methods={"GET"})
+     * @Route("/annotation/language/search_api", name="language_annotation_search_api", methods={"GET"})
      * @param Request $request
      * @return JsonResponse
      */
@@ -60,7 +61,7 @@ class LanguageTypographyAnnotation extends BaseController
     }
 
     /**
-     * @Route("/annotation/languagetypography/paginate", name="languagetypography_annotation_paginate", methods={"GET"})
+     * @Route("/annotation/language/paginate", name="language_annotation_paginate", methods={"GET"})
      * @param Request $request
      * @return JsonResponse
      */
@@ -69,7 +70,7 @@ class LanguageTypographyAnnotation extends BaseController
     }
 
     /**
-     * @Route("/annotation/languagetypography/export/csv", name="languagetypography_annotation_export_csv", methods={"GET"})
+     * @Route("/annotation/language/export/csv", name="language_annotation_export_csv", methods={"GET"})
      * @param Request $request
      * @return StreamedCsvResponse
      */
@@ -87,7 +88,7 @@ class LanguageTypographyAnnotation extends BaseController
         $csvData = $this->renderCsvData($data);
 
         // csv response
-        $response = new StreamedCsvResponse($csvData, $csvData[0], 'linguistic-annotations.csv');
+        $response = new StreamedCsvResponse($csvData, $csvData[0], 'language-annotations.csv');
         return $response;
     }
 
