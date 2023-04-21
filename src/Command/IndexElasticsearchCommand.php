@@ -24,6 +24,7 @@ class IndexElasticsearchCommand extends Command
 
     protected $projects = [
         'ERC (main corpus)', 'Post-doc Bentein', 'Serena', 'Emmanuel'
+//        'Serena'
     ];
 
     public function __construct(ContainerInterface $container)
@@ -53,7 +54,7 @@ class IndexElasticsearchCommand extends Command
 
                     /** @var $service TextIndexService */
                     $service = $this->container->get('text_index_service');
-                    $service->setup();
+                    $indexName = $service->createNewIndex();
 
                     $total = $repository->findByProjectNames($this->projects)->count();
 
@@ -70,6 +71,8 @@ class IndexElasticsearchCommand extends Command
                             $progressBar->advance(100);
                         });
 
+                    $service->switchToNewIndex($indexName);
+
                     $progressBar->finish();
 
                     break;
@@ -79,7 +82,7 @@ class IndexElasticsearchCommand extends Command
 
                     /** @var $service TextIndexService */
                     $service = $this->container->get('level_index_service');
-                    $service->setup();
+                    $indexName = $service->createNewIndex();
 
                     $total = $repository->findByProjectNames($this->projects)->count();
 
@@ -98,49 +101,9 @@ class IndexElasticsearchCommand extends Command
                             $progressBar->advance(100);
                         });
 
-                    $progressBar->finish();
+                    $service->switchToNewIndex($indexName);
 
-//                    $text_id = 3768;
-//                    $text_ids = [
-//                        55571, 48907,
-//                        13305,
-//                        60762,
-//                        54666,
-//                        31663,
-//                        6230,
-//                        66083,
-//                        31136,
-//                        55979,
-//                        65622,
-//                        53135,
-//                        10490,
-//                        9199,
-//                        10449,
-//                        13306,
-//                        10639,
-//                        5169,
-//                        8701,
-//                        10369,
-//                        58372,
-//                        3285,
-//                        9299,
-//                        250
-//                    ];
-//
-//                    /** @var $repository TextRepository */
-//                    $repository = $this->container->get('text_repository' );
-//
-//                    /** @var $service TextIndexService */
-//                    $service = $this->container->get('level_index_service');
-//                    $service->setup();
-//
-//                    foreach( $text_ids as $text_id ) {
-//                        $text = $repository->find($text_id);
-//                        foreach( $text->textLevels as $level ) {
-//                            $res = new ElasticTextLevelResource($level);
-//                            $service->add($res);
-//                        }
-//                    }
+                    $progressBar->finish();
                 }
             }
         }
