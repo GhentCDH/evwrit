@@ -31,19 +31,19 @@ services:
     # please note that last definitions always *replace* previous ones
     elastic_search_client:
         class: App\Service\ElasticSearch\Client
-        arguments: ['%elasticsearch.config%','%elasticsearch.index_prefix%']
+        arguments: ['%elasticsearch.config%']
         public: true
     App\Service\ElasticSearch\Client: '@elastic_search_client'
 
     text_basic_search_service:
         class: App\Service\ElasticSearch\Search\TextBasicSearchService
-        arguments: ['@elastic_search_client']
+        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%']
         public: true
     App\Service\ElasticSearch\Search\TextBasicSearchService: '@text_basic_search_service'
 
     text_materiality_search_service:
         class: App\Service\ElasticSearch\Search\TextMaterialitySearchService
-        arguments: ['@elastic_search_client']
+        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%']
         public: true
     App\Service\ElasticSearch\Search\TextMaterialitySearchService: '@text_materiality_search_service'
 
@@ -96,8 +96,8 @@ services:
         public: true
     App\Repository\LanguageAnnotationRepository: '@language_annotation_repository'
 
-    typography_annotation_repository:
+    orthotypo_annotation_repository:
         class: App\Repository\TypographyAnnotationRepository
         arguments: []
         public: true
-    App\Repository\TypographyAnnotationRepository: '@typography_annotation_repository'
+    App\Repository\TypographyAnnotationRepository: '@orthotypo_annotation_repository'
