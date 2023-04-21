@@ -256,15 +256,24 @@ export default {
                     this.createMultiSelect('Recto', {model: 'is_recto'}),
                     this.createMultiSelect('Verso', {model: 'is_verso'}),
                     this.createMultiSelect('Transversa charta', {model: 'is_transversa_charta'}),
+                    this.createRangeSlider('kollesis', 'Kollesis', 0, 50, 1),
                     this.createRangeSlider('lines', 'Text lines', 0, 160, 5),
                     this.createRangeSlider('columns', 'Text columns', 0, 10, 1),
                     this.createRangeSlider('letters_per_line', 'Letters per line', 0, 220, 5),
                     this.createRangeSlider('width', 'Width', 0, 320, 5),
                     this.createRangeSlider('height', 'Height', 0, 300, 5),
+
+                    this.createRangeSlider('interlinear_space','Interlinear space',0,22,0),
+                    this.createRangeSlider('margin_left','Margin Left',0,410,5),
+                    this.createRangeSlider('margin_right','Margin Right',0,410,5),
+                    this.createRangeSlider('margin_top','Margin Top',0,350,5),
+                    this.createRangeSlider('margin_bottom','Margin Bottom',0,1050,5),
                 ]
             }
         },
-        annotationsFields(expertOnly = false) {
+        annotationsFields(expertOnly = false, defaultAnnotationType = null) {
+            console.log(defaultAnnotationType)
+
             return {
                 expertOnly: expertOnly,
                 visible: this.fieldVisible,
@@ -273,7 +282,20 @@ export default {
                 collapsed: this.groupCollapsed,
                 id: 'annotations',
                 fields: [
-                    this.createSelect('Type', {model: 'annotation_type', styleClasses: 'mbottom-large'}),
+                    defaultAnnotationType !== 'language' ? this.createSelect('Type',
+                        {
+                            model: 'annotation_type',
+                            styleClasses: 'mbottom-large',
+                            default: (defaultAnnotationType === 'language' ? defaultAnnotationType : null )
+                            // selectOptions: defaultType === 'language' ? { name: 'language' } : {}
+                        }
+                    ) : {
+                        type: 'input',
+                        inputType: 'hidden',
+                        value: defaultAnnotationType,
+                        default: defaultAnnotationType,
+                        model: 'annotation_type'
+                    },
 
                     // language
                     ...['language_codeswitchingType', 'language_codeswitchingRank', 'language_codeswitchingDomain', 'language_codeswitchingFormulaicity',
@@ -286,9 +308,9 @@ export default {
                             }),
                             this.createMultiSelect(this.formatPropertyLabel(field, 'language'), {
                                 model: field,
-                                visible: this.annotationFieldVisible
+                                visible: defaultAnnotationType === 'language' ? true : this.annotationFieldVisible
                             }),
-                        ]
+                        ].filter( item => item !== null)
                     ).flat(Infinity),
 
                     // typography
@@ -379,7 +401,7 @@ export default {
                         ]
                     ).flat(Infinity),
 
-                ]
+                ].filter( item => item !== null)
             }
         },
         handshiftFields(expertOnly = false) {
