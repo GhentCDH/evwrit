@@ -110,14 +110,20 @@
                                                     <span>Materiality</span>
                                                 </a>
                                             </li>
+                                            <li class="{{ app.request.get('_route') == 'text_structure_search' ? 'active' }}">
+                                                <a href="{{ path('text_structure_search') }}"><span>Text structure</span></a>
+                                            </li>
                                             <li class="{{ app.request.get('_route') == 'languagetypography_annotation_search' ? 'active' }}">
-                                                <a href="{{ path('languagetypography_annotation_search') }}"><span>Languages and Typography</span></a>
+                                                <a href="{{ path('language_annotation_search') }}"><span>Languages</span></a>
+                                            </li>
+                                            <li class="{{ app.request.get('_route') == 'orthotypo_annotation_search' ? 'active' }}">
+                                                <a href="{{ path('orthotypo_annotation_search') }}"><span>Orthograpy and Typography</span></a>
                                             </li>
                                             <li class="{{ app.request.get('_route') == 'linguistic_annotation_search' ? 'active' }}">
                                                 <a href="{{ path('linguistic_annotation_search') }}"><span>Lexicogrammar</span></a>
                                             </li>
-                                            <li class="{{ app.request.get('_route') == 'text_structure_search' ? 'active' }}">
-                                                <a href="{{ path('text_structure_search') }}"><span>Text structure</span></a>
+                                            <li>
+                                                <a href="https://yousayr.com/content/f5eb6eb4-b988-4682-9eb5-ab3dd7da2e30/" target="_blank"><span>Visualisations</span></a>
                                             </li>
                                         </ul>
                                     </div>
