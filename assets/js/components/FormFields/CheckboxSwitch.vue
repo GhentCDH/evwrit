@@ -1,7 +1,7 @@
 <template>
     <div class="checkbox checkbox-switch">
         <label>
-            <input type="checkbox" :name="name" v-bind:checked="value" v-on:change="$emit('input', $event.target.checked)" :disabled="disabled"/>
+            <input type="checkbox" :name="name" v-bind:checked="!disabled && value" v-on:change="$emit('input', $event.target.checked)" :disabled="disabled"/>
             <span></span>
             {{ label }}
         </label>
