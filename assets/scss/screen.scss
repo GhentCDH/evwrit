@@ -40,13 +40,16 @@ $maxwidth-container: 1600px;
 @import 'partials/thumbnail';
 @import 'partials/type';
 @import 'partials/nouislider';
-@import 'partials/annotations';
 @import 'partials/vue_tables';
 @import 'partials/text_structure';
 @import 'partials/scrollable';
 @import 'partials/layouts';
 @import 'partials/switch';
+@import 'partials/widgets';
 
+
+@import 'partials/annotations';
+@import 'partials/selection_details';
 //
 @import 'partials/vue-form-generator/fieldset';
 @import 'partials/vue-form-generator/multiselect';
