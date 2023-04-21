@@ -69,6 +69,7 @@ class ElasticTextResource extends ElasticBaseResource
             'is_recto' => self::boolean($text->is_recto),
             'is_verso' => self::boolean($text->is_verso),
             'is_transversa_charta' => self::boolean($text->is_transversa_charta),
+            'tomos_synkollesimos' => self::boolean($text->tomos_synkollesimos),
 
             'lines' => !is_null($text->count_lines) ? [ 'min' => $text->count_lines, 'max' => $text->count_lines ] : ( is_null($text->lines_min) ? null : [ 'min' => $text->lines_min, 'max' => $text->lines_max ] ),
             'columns' => is_null($text->columns_min) ? null : [ 'min' => $text->columns_min, 'max' => $text->columns_max ],
