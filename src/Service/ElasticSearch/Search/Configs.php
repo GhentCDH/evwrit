@@ -2,6 +2,9 @@
 
 namespace App\Service\ElasticSearch\Search;
 
+use App\Service\ElasticSearch\Index\LevelIndexService;
+use App\Service\ElasticSearch\Index\TextIndexService;
+
 class Configs implements SearchConfigInterface
 {
     const ignoreUnknownUncertain = ['unknown','uncertain', 'Unknown', 'Uncertain', 'Unknwon'];
@@ -230,11 +233,16 @@ class Configs implements SearchConfigInterface
             'material' => ['type' => self::FILTER_OBJECT_ID],
             'text_format' => ['type' => self::FILTER_OBJECT_ID],
             'writing_direction' => ['type' => self::FILTER_OBJECT_ID],
-            'kollesis' => ['type' => self::FILTER_NUMERIC],
 
             'is_recto' => ['type' => self::FILTER_BOOLEAN],
             'is_verso' => ['type' => self::FILTER_BOOLEAN],
             'is_transversa_charta' => ['type' => self::FILTER_BOOLEAN],
+            'tomos_synkollesimos' => ['type' => self::FILTER_BOOLEAN],
+
+            'kollesis' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
 
             'lines' => [
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
@@ -293,11 +301,12 @@ class Configs implements SearchConfigInterface
             'material'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'text_format' => ['type' => self::AGG_OBJECT_ID_NAME],
             'writing_direction' => ['type' => self::AGG_OBJECT_ID_NAME],
-            'kollesis' => ['type' => self::AGG_NUMERIC],
+            'kollesis' => ['type' => self::AGG_GLOBAL_STATS],
 
             'is_recto' => ['type' => self::AGG_BOOLEAN],
             'is_verso' => ['type' => self::AGG_BOOLEAN],
             'is_transversa_charta' => ['type' => self::AGG_BOOLEAN],
+            'tomos_synkollesimos' => ['type' => self::AGG_BOOLEAN],
 
             'lines_max' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'lines.max'],
             'lines_min' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'lines.min'],
@@ -417,7 +426,6 @@ class Configs implements SearchConfigInterface
         ];
         return self::mergeFilterDefaults($filters);
     }
-
 
     public static function aggregateAncientPerson(): array
     {
@@ -553,6 +561,224 @@ class Configs implements SearchConfigInterface
                 'filters' => Configs::filterAttestations()['attestations']['filters'],
             ],
         ];
+    }
+
+    public static function filterBaseAnnotations(): array
+    {
+
+        // build annotation filters
+        // 1. add annotation type filter
+        // 2. add property filters
+
+        $searchFilters['annotations'] = [
+            'type' => self::FILTER_NESTED_MULTIPLE,
+            'nested_path' => 'annotations',
+            'filters' => [
+                'annotation_type' => [
+                    'field' => 'type',
+                    'type' => self::FILTER_KEYWORD
+                ],
+                'text_level' => [
+                    'field' => 'properties.textLevel.number',
+                    'type' => self::FILTER_NUMERIC
+                ],
+            ],
+            'innerHits' => [
+                'size' => TextIndexService::INNER_HITS_SIZE_MAX
+            ],
+            'scoreMode' => 'sum',
+            'boost' => 1
+        ];
+
+        $annotationProperties = [
+            'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation', 'vacat', 'accronym', 'positionInText', 'wordClass'],
+            'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
+            'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
+            'morphology' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
+            'language' => ['bigraphismDomain', 'bigraphismRank', 'bigraphismFormulaicity', 'bigraphismType', 'codeswitchingType' ],
+            'morpho_syntactical' => [
+                'coherenceForm', 'coherenceContent', 'coherenceContext',
+                'complementationForm', 'complementationContent', 'complementationContext',
+                'subordinationForm', 'subordinationContent', 'subordinationContext',
+//                'relativisationForm', 'relativisationContent', 'relativisationContext',
+                'orderForm', 'orderContent', 'orderContext', // todo: replace by relativisation fields after reimport
+                'typeFormulaicity'
+            ],
+            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
+            'gts' => ['part'],
+            'gtsa' => ['type', 'subtype', 'speechAct'],
+        ];
+
+        foreach( $annotationProperties as $type => $properties ) {
+            foreach( $properties as $property ) {
+                $subfilter_name = "{$type}_{$property}";
+                $subfilter_field = "{$type}_{$property}";
+                $searchFilters['annotations']['filters'][$subfilter_name] = [
+                    'field' => "properties.{$subfilter_field}",
+                    'type' => self::FILTER_OBJECT_ID
+                ];
+            }
+        }
+
+        return $searchFilters;
+    }
+
+    public static function aggregateBaseAnnotations(): array
+    {
+        // annotation aggregations
+        $annotationProperties = [
+            'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation', 'vacat', 'accronym', 'positionInText', 'wordClass'],
+            'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
+            'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
+            'morphology' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
+            // rank opsplitsen
+            'language' => ['bigraphismDomain', 'bigraphismRank', 'bigraphismFormulaicity', 'bigraphismType', 'codeswitchingType' ],
+            'morpho_syntactical' => [
+                'coherenceForm', 'coherenceContent', 'coherenceContext',
+                'complementationForm', 'complementationContent', 'complementationContext',
+                'subordinationForm', 'subordinationContent', 'subordinationContext',
+//                'relativisationForm', 'relativisationContent', 'relativisationContext', // todo: enable after schema update
+                'orderForm', 'orderContent', 'orderContext', // todo: remove after schema update
+                'typeFormulaicity'
+            ],
+            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
+            'gts' => ['part'],
+            'gtsa' => ['type', 'subtype', 'speechAct'],
+        ];
+
+        // create aggregation filter keys (typography_wordSplitting, typography_correction ...)
+        $annotationFilterKeys = array_reduce(
+            array_keys($annotationProperties),
+            function($carry, $type) use ($annotationProperties) { return array_merge($carry, preg_filter('/^/', "{$type}_", $annotationProperties[$type])); },
+            []
+        );
+        //$annotationFilterKeys[] = "annotation_type";
+
+        // add annotation property filters
+        foreach( $annotationProperties as $type => $properties ) {
+            foreach( $properties as $property ) {
+                $filter_name = "{$type}_{$property}";
+                $field_name = "properties.{$type}_{$property}";
+                $aggregationFilters[$filter_name] = [
+                    'type' => self::AGG_NESTED_ID_NAME,
+                    'field' => $field_name,
+                    'nested_path' => "annotations",
+//                    'excludeFilter' => ['annotations'], // exclude filter of same type
+//                    'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
+//                        if ( $subfilter_name != $filter_name ) {
+//                            $carry[$subfilter_name] = [
+//                                'field' => "properties.{$subfilter_name}",
+//                                'type' => self::FILTER_OBJECT_ID
+//                            ];
+//                        }
+//                        return $carry;
+//                    }, [])
+                ];
+//                // filter on type
+//                $aggregationFilters[$filter_name]['filters']['annotation_type'] = [
+//                    'field' => 'type',
+//                    'type' => self::FILTER_KEYWORD
+//                ];
+//                // filter on generic text structure part
+//                $aggregationFilters[$filter_name]['filters']['generic_text_structure_part'] = [
+//                    'field' => 'properties.gts_part',
+//                    'type' => self::FILTER_OBJECT_ID
+//                ];
+//                // filter on text level
+//                $aggregationFilters[$filter_name]['filters']['text_level'] = [
+//                    'field' => 'properties.textLevel.number',
+//                    'type' => self::FILTER_NUMERIC
+//                ];
+            }
+        }
+
+        // add annotation type filter
+        $aggregationFilters['annotation_type'] = [
+            'type' => self::AGG_KEYWORD,
+            'field' => 'type',
+            'nested_path' => "annotations",
+//            'excludeFilter' => ['annotations'], // exclude filter of same type
+//            'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
+//                if ( $subfilter_name != $filter_name ) {
+//                    $carry[$subfilter_name] = [
+//                        'field' => "properties.{$subfilter_name}",
+//                        'type' => self::FILTER_OBJECT_ID
+//                    ];
+//                }
+//                return $carry;
+//            }, []),
+            'replaceLabel' => [
+                'search' => 'morpho_syntactical',
+                'replace' => 'syntax'
+            ]
+        ];
+
+        // add annotation type filter
+        $aggregationFilters['text_level'] = [
+            'type' => self::AGG_NUMERIC,
+            'field' => 'properties.textLevel.number',
+            'nested_path' => "annotations",
+//            'excludeFilter' => ['annotations'], // exclude filter of same type
+//            'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
+//                if ( $subfilter_name != $filter_name ) {
+//                    $carry[$subfilter_name] = "properties.{$subfilter_name}.id";
+//                }
+//                return $carry;
+//            }, []),
+        ];
+
+        return $aggregationFilters;
+    }
+
+    public static function filterTextStructure(): array
+    {
+        $searchFilters['textLevel'] = [
+            'field' => 'number',
+            'type' => self::FILTER_NUMERIC,
+            'aggregationFilter' => true,
+        ];
+
+        $searchFilters['annotation_type'] = [
+            'field' => 'annotations.type',
+            'nested_path' => 'annotations',
+            'type' => self::FILTER_KEYWORD,
+            'defaultValue' => ['gts', 'gtsa', 'lts', 'ltsa'],
+        ];
+
+        // build annotation filters
+        // 1. add annotation type filter
+        // 2. add property filters
+
+        $searchFilters['annotations'] = [
+            'type' => self::FILTER_NESTED_MULTIPLE,
+            'nested_path' => 'annotations',
+            'filters' => [
+            ],
+            'innerHits' => [
+                'size' => LevelIndexService::INNER_HITS_SIZE_MAX,
+            ],
+        ];
+
+        $annotationProperties = [
+            'gts' => ['part'],
+            'lts' => ['part'],
+            'ltsa' => ['type', 'subtype', 'spacing', 'separation', 'orientation', 'alignment', 'indentation', 'lectionalSigns', 'lineation', 'pagination'],
+            'gtsa' => ['type', 'subtype', 'standardForm', 'attachedTo', 'attachmentType','speechAct','informationStatus'],
+            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
+        ];
+
+        foreach( $annotationProperties as $type => $properties ) {
+            foreach( $properties as $property ) {
+                $subfilter_name = "{$type}_{$property}";
+                $subfilter_field = "{$type}_{$property}";
+                $searchFilters['annotations']['filters'][$subfilter_name] = [
+                    'field' => "annotations.properties.{$subfilter_field}",
+                    'type' => self::FILTER_OBJECT_ID
+                ];
+            }
+        }
+
+        return $searchFilters;
     }
 
 }

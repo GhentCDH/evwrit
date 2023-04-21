@@ -7,7 +7,7 @@ use App\Service\ElasticSearch\Client;
 
 class LevelIndexService extends AbstractIndexService
 {
-    const indexName = "level";
+    protected const indexName = "level";
     const INNER_HITS_SIZE_MAX = 100;
 
     public function __construct(Client $client)

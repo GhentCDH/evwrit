@@ -3,40 +3,48 @@
 namespace App\Service\ElasticSearch;
 
 use Elastica\Index;
+use Exception;
 
 abstract class AbstractService
 {
-    protected $client;
-    protected $indexName;
-    protected $index;
+    protected Client $client;
+    protected ?Index $index = null;
 
-    protected function __construct(
+    protected string $indexPrefix;
+
+    public function __construct(
         Client $client,
-        string $indexName
+        string $indexPrefix
     ) {
         $this->client = $client;
-        $this->indexName = $indexName;
-        $this->index = $this->client->getIndex($indexName);
+        $this->indexPrefix = $indexPrefix;
+
+        if (!defined('static::indexName')) {
+            throw new Exception('Constant indexName is not defined on subclass ' . get_class($this));
+        }
     }
 
-    /**
-     * Return Elasticsearch Client
-     *
-     * @return Index
-     */
     protected function getClient(): Client
     {
         return $this->client;
     }
 
-    /**
-     * Return Elasticsearch Index
-     *
-     * @return Index
-     */
     protected function getIndex(): Index
     {
+        if ( !$this->index ) {
+            $this->index = $this->client->getIndex($this->getIndexName());
+        }
+
         return $this->index;
     }
 
+    public function removeIndex(string $indexName): void
+    {
+        $this->client->getIndex($indexName)->delete();
+    }
+
+    protected function getIndexName(): string
+    {
+        return $this->indexPrefix.'_'.static::indexName;
+    }
 }

@@ -930,8 +930,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 //            dump($searchFilters);
             $queryFS->setQuery($this->createSearchQuery($searchFilters));
             $query->setHighlight($this->createHighlight($searchFilters));
-//            dump(json_encode($query->toArray(), JSON_PRETTY_PRINT));
+        } else {
+            $queryFS->setQuery( new Query\MatchAll() );
         }
+
+//        dump(json_encode($query->toArray(), JSON_PRETTY_PRINT));
 
         // Search
         $data = $this->getIndex()->search($query)->getResponse()->getData();

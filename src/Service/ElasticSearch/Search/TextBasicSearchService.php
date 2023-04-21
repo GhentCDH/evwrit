@@ -7,16 +7,9 @@ use Elastica\Settings;
 
 class TextBasicSearchService extends AbstractSearchService
 {
-    const indexName = "texts";
+    protected const indexName = "texts";
 
     const ignoreUnknownUncertain = ['unknown','uncertain', 'Unknown', 'Uncertain', 'Unknwon'];
-
-    public function __construct(Client $client)
-    {
-        parent::__construct(
-            $client,
-            self::indexName);
-    }
 
     protected function getSearchFilterConfig(): array {
         $searchFilters = array_merge(

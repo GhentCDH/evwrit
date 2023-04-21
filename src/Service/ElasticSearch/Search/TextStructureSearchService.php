@@ -8,16 +8,9 @@ use Elastica\Settings;
 
 class TextStructureSearchService extends AbstractSearchService
 {
-    const indexName = "level";
+    protected const indexName = "level";
 
     const ignoreUnknownUncertain = ['unknown','uncertain', 'Unknown', 'Uncertain', 'Unknwon'];
-
-    public function __construct(Client $client)
-    {
-        parent::__construct(
-            $client,
-            self::indexName);
-    }
 
     protected function getSearchFilterConfig(): array {
         $searchFilters = array_merge(
@@ -26,53 +19,8 @@ class TextStructureSearchService extends AbstractSearchService
             Configs::filterMateriality(),
             Configs::filterAttestations(),
             Configs::filterAdministrative(),
+            Configs::filterTextStructure()
         );
-
-        $searchFilters['textLevel'] = [
-            'field' => 'number',
-            'type' => self::FILTER_NUMERIC,
-            'aggregationFilter' => true,
-        ];
-
-        $searchFilters['annotation_type'] = [
-            'field' => 'annotations.type',
-            'nested_path' => 'annotations',
-            'type' => self::FILTER_KEYWORD,
-            'defaultValue' => ['gts', 'gtsa', 'lts', 'ltsa'],
-        ];
-
-        // build annotation filters
-        // 1. add annotation type filter
-        // 2. add property filters
-
-        $searchFilters['annotations'] = [
-            'type' => self::FILTER_NESTED_MULTIPLE,
-            'nested_path' => 'annotations',
-            'filters' => [
-            ],
-            'innerHits' => [
-                'size' => LevelIndexService::INNER_HITS_SIZE_MAX,
-            ],
-        ];
-
-        $annotationProperties = [
-            'gts' => ['part'],
-            'lts' => ['part'],
-            'ltsa' => ['type', 'subtype', 'spacing', 'separation', 'orientation', 'alignment', 'indentation', 'lectionalSigns', 'lineation', 'pagination'],
-            'gtsa' => ['type', 'subtype', 'standardForm', 'attachedTo', 'attachmentType','speechAct','informationStatus'],
-            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
-        ];
-
-        foreach( $annotationProperties as $type => $properties ) {
-            foreach( $properties as $property ) {
-                $subfilter_name = "{$type}_{$property}";
-                $subfilter_field = "{$type}_{$property}";
-                $searchFilters['annotations']['filters'][$subfilter_name] = [
-                    'field' => "annotations.properties.{$subfilter_field}",
-                    'type' => self::FILTER_OBJECT_ID
-                ];
-            }
-        }
 
         return $searchFilters;
     }

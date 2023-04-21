@@ -4,12 +4,14 @@ namespace App\Service\ElasticSearch\Index;
 
 use App\Resource\BaseResource;
 use App\Service\ElasticSearch\AbstractService;
+use App\Service\ElasticSearch\IndexServiceInterface;
 use App\Service\ElasticSearch\Search\SearchServiceInterface;
 use Elastica\Document;
 use Elastica\Mapping;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Ramsey\Uuid\Uuid;
 
-abstract class AbstractIndexService extends AbstractService implements SearchServiceInterface
+abstract class AbstractIndexService extends AbstractService implements IndexServiceInterface
 {
     abstract protected function getIndexProperties(): array;
 
@@ -34,6 +36,37 @@ abstract class AbstractIndexService extends AbstractService implements SearchSer
             $mapping->setProperties($mapProperties);
             $mapping->send($this->getIndex());
         }
+    }
+
+    public function createNewIndex(): string
+    {
+        $newIndexName = $this->getIndexName().'_'.Uuid::uuid4()->toString();
+
+        // create index
+        $index = $this->client->getIndex($newIndexName);
+        $index->create($this->getIndexProperties());
+
+        // configure mapping
+        $mapProperties = $this->getMappingProperties();
+        if (count($mapProperties)) {
+            $mapping = new Mapping;
+            $mapping->setProperties($mapProperties);
+            $mapping->send($index);
+        }
+
+        $this->index = $index;
+
+        return $newIndexName;
+    }
+
+    public function switchToNewIndex(string $newIndexName)
+    {
+        $oldIndices = $this->client->getStatus()->getIndicesWithAlias($this->getIndexName());
+        foreach ($oldIndices as $oldIndex) {
+            $this->removeIndex($oldIndex->getName());
+        }
+
+        $this->client->getIndex($newIndexName)->addAlias($this->getIndexName());
     }
 
     public function addMultiple(ResourceCollection $resources): void

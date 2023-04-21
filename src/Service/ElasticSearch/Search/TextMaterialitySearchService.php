@@ -6,14 +6,7 @@ use App\Service\ElasticSearch\Client;
 
 class TextMaterialitySearchService extends AbstractSearchService
 {
-    const indexName = "texts";
-
-    public function __construct(Client $client)
-    {
-        parent::__construct(
-            $client,
-            self::indexName);
-    }
+    protected const indexName = "texts";
 
     protected function getSearchFilterConfig(): array {
         $searchFilters = array_merge(

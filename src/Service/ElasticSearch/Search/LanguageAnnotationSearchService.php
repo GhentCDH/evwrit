@@ -2,14 +2,14 @@
 
 namespace App\Service\ElasticSearch\Search;
 
-class LanguageTypographyAnnotationSearchService extends AnnotationSearchService
+class LanguageAnnotationSearchService extends AnnotationSearchService
 {
-    const indexName = "texts";
+    protected const indexName = "texts";
 
     protected function getSearchFilterConfig(): array
     {
         $ret = parent::getSearchFilterConfig();
-        $ret['annotations']['filters']['annotation_type']['defaultValue'] = ['language', 'typography'];
+        $ret['annotations']['filters']['annotation_type']['defaultValue'] = ['language'];
 
         return $ret;
     }
@@ -17,7 +17,7 @@ class LanguageTypographyAnnotationSearchService extends AnnotationSearchService
     protected function getAggregationConfig(): array
     {
         $ret = parent::getAggregationConfig();
-        $ret['annotation_type']['allowedValue'] = ['language', 'typography'];
+        $ret['annotation_type']['allowedValue'] = ['language'];
         return $ret;
     }
 
