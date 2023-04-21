@@ -1,7 +1,9 @@
 <template>
-    <div class="annotation__details">
-        <LabelValue label="Edited" v-if="annotation.text_selection.text_edited" :value="annotation.text_selection.text_edited" :inline="false" value-class="greek" valueClass="greek" class="mbottom-small"></LabelValue>
-        <LabelValue label="Annotation Type" :value="annotationType" :inline="false" class="mbottom-small"></LabelValue>
+    <div class="annotation-metadata">
+        <LabelValue label="Annotation ID" :value="annotation.id" :inline="true" v-if="expertMode"></LabelValue>
+        <LabelValue label="Annotation Type" :value="annotationType" :inline="true" class="mbottom-small"></LabelValue>
+        <LabelValue label="Text" v-if="expertMode && annotation.text_selection.text" :value="annotation.text_selection.text_edited" :inline="false" value-class="greek" valueClass="greek" class="mbottom-small" ></LabelValue>
+        <LabelValue label="Edited" v-if="expertMode && annotation.text_selection.text_edited" :value="annotation.text_selection.text_edited" :inline="false" value-class="greek" valueClass="greek" class="mbottom-small"></LabelValue>
         <LabelValue v-for="(value, label) in propertiesLabelValue" v-bind:key="label" :label="label" :value="value" :inline="true"></LabelValue>
     </div>
 </template>
@@ -33,6 +35,10 @@ export default {
                 'morpho_syntactical_aspectForm','morpho_syntactical_aspectContent','morpho_syntactical_aspectContext',
                 'morpho_syntactical_modalityForm','morpho_syntactical_modalityContent','morpho_syntactical_modalityContext',
             ] }
+        },
+        expertMode: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {
