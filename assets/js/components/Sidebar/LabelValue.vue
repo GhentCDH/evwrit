@@ -5,7 +5,15 @@
         </div>
         <div :class="outputValueClass">
             <template v-if="value != null">
-                <FormatValue v-if="outputValues && outputValues.length" v-for="(item, index) in outputValues" :key="index" :type="type" :value="item" :url="isCallable(url) ? url(value) : url" />
+                <FormatValue
+                        v-if="outputValues && outputValues.length"
+                        v-for="(item, index) in outputValues"
+                        :key="index"
+                        :type="type"
+                        :value="item"
+                        :url="isCallable(url) ? url(value) : url"
+                        :class="isCallable(valueClass) ? valueClass(item) : valueClass"
+                />
             </template>
             <span v-else>{{ unknown }}</span>
         </div>
@@ -36,7 +44,7 @@ export default {
             default: true
         },
         valueClass: {
-            type: String,
+            type: String|Function,
             default: null
         },
         labelClass: {
@@ -61,7 +69,7 @@ export default {
             return ['labelvalue__label', this.inline ? 'labelvalue__label--inline col-xs-5' : 'col-xs-12', this.labelClass ? this.labelClass : ''].join(' ')
         },
         outputValueClass() {
-            return ['labelvalue__value', this.inline ? 'labelvalue__value--inline col-xs-7' : 'col-xs-12', this.valueClass ? this.valueClass : ''].join(' ')
+            return ['labelvalue__value', this.inline ? 'labelvalue__value--inline col-xs-7' : 'col-xs-12'].join(' ')
         },
         outputValues() {
             let values = this.value ? ( Array.isArray(this.value) ? this.value : [ this.value ] ) : ( this.unknown ? [ this.unknown ] : [] )
@@ -96,14 +104,14 @@ export default {
 }
 
 .labelvalue__value > span {
-  padding: 4px;
-  color: black;
+  //padding: 4px;
+  //color: black;
   display: inline-block;
 }
 
 .labelvalue__value--inline > span {
-  padding: 0;
-  margin-right: 0.5em;
+  //padding: 0;
+  margin-right: 0.3em;
 
   &:last-child {
     margin-right: 0;
