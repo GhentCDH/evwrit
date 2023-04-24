@@ -203,6 +203,10 @@ export default {
         SearchAppFields,
     ],
     props: {
+        defaultAnnotationType: {
+            type: String,
+            default: null
+        }
     },
     data() {
         let data = {
@@ -222,7 +226,7 @@ export default {
             },
             schema: {
                 groups: [
-                    this.annotationsFields(),
+                    this.annotationsFields(false, this.defaultAnnotationType),
                     this.generalInformationFields(),
                     this.materialityFields(true),
                     this.ancientPersonFields(true),
