@@ -12,6 +12,7 @@
         "illuminate/http": "^8.40",
         "kirschbaum-development/eloquent-power-joins": "^2.5",
         "phpdocumentor/reflection-docblock": "^5.2",
+        "ramsey/uuid": "^4.2",
         "ruflin/elastica": "^7.1",
         "sensio/framework-extra-bundle": "^6.2",
         "symfony/apache-pack": "^1.0",
