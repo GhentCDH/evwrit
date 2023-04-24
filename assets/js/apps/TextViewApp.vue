@@ -81,7 +81,7 @@
                     <!-- Annotations -->
                     <div v-if="config.annotations.showList" class="col-xs-12">
                         <h2 v-if="showText || config.text.showLemmas || config.genericTextStructure.show">Annotations</h2>
-                        <div class="annotation-result" v-for="annotation in visibleAnnotationsByContext">
+                        <div class="annotation-result" v-for="annotation in annotationsInContext">
                             <GreekText
                                     v-if="config.annotations.showContext && annotationHasContext(annotation)"
                                     :text="annotation.context.text"
@@ -100,10 +100,10 @@
             </div>
 
         </article>
-        <aside class="col-sm-3 scrollable scrollable--vertical" ref="sidebar">
-            <div class="padding-default">
+        <aside class="col-sm-3">
+            <div class="widget-container scrollable scrollable--vertical" ref="sidebar">
 
-                <Widget v-if="isValidResultSet()" title="Search" :collapsible="false" class="widget--sticky">
+                <Widget v-if="isValidResultSet()" title="Search" :collapsible="false" class="widget--sticky widget--metadata">
                     <div class="row mbottom-default">
                         <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
@@ -118,21 +118,26 @@
                     <div v-if="hasSearchContext" class="form-group">
                         <CheckboxSwitch v-model="config.annotations.showOnlyInSearchContext" class="switch-primary" label="Limit annotations to search context"></CheckboxSwitch>
                     </div>
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Advanced mode"></CheckboxSwitch>
+                    </div>
                 </Widget>
 
-
-
-                <Widget title="Selection details" v-if="annotationId" :collapsed.sync="config.widgets.selectionDetails.isCollapsed">
-                    <AnnotationDetails :annotation="annotationByTypeId[annotationId]"></AnnotationDetails>
+                <Widget title="Selection details" class="widget--selection-details" v-if="annotationId" :collapsed.sync="config.widgets.selectionDetails.isCollapsed">
+                    <AnnotationDetails :annotation="annotationsByTypeId[annotationId]" :class="getAnnotationClass(annotationsByTypeId[annotationId])" :expertMode="config.expertMode"></AnnotationDetails>
                 </Widget>
 
                 <Widget title="Metadata" :collapsed.sync="config.widgets.metadata.isCollapsed">
                     <LabelValue label="EVWRIT ID" :value="text.id"></LabelValue>
                     <LabelValue label="Trismegistos ID" :value="text.tm_id" :url="getTmTextUrl"></LabelValue>
 
-                    <PropertyGroup>
+                    <PropertyGroup v-if="text.text_type">
                         <LabelValue label="Type" :value="text.text_type" type="id_name"></LabelValue>
                         <LabelValue label="Subtype" :value="text.text_subtype" type="id_name"></LabelValue>
+                    </PropertyGroup>
+
+                    <PropertyGroup v-if="text.archive">
+                        <LabelValue label="Archive" :value="text.archive" type="id_name"></LabelValue>
                     </PropertyGroup>
 
                     <PropertyGroup>
@@ -186,11 +191,11 @@
                     </PropertyGroup>
                 </Widget>
 
-                <Widget title="People"  :collapsed.sync="config.widgets.attestation.isCollapsed" :count="text.ancient_person.length">
-                    <template v-for="person in text.ancient_person">
+                <Widget title="People"  :collapsed.sync="config.widgets.attestation.isCollapsed" :count="people.length">
+                    <template v-for="person in people">
                         <h3>{{ person.name }}</h3>
                         <LabelValue label="Trismegistos ID" :value="person.tm_id" :url="getTmPersonUrl"></LabelValue>
-                        <LabelValue label="Role" :value="person.role"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
+                        <LabelValue label="Role" :value="person.role"  type="id_name" :ignore-value="['Unknown','unknown']" :value-class="getPersonRoleClass"></LabelValue>
                         <LabelValue label="Age" :value="person.age"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
                         <LabelValue label="Gender" :value="person.gender"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
                         <LabelValue label="Education" :value="person.education"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
@@ -201,53 +206,66 @@
                     </template>
                 </Widget>
 
-                <Widget title="Annotations" :collapsed.sync="config.widgets.annotations.isCollapsed" :count="visibleAnnotationsByContext.length">
+                <Widget title="Annotations" :collapsed.sync="config.widgets.annotations.isCollapsed" :count="countBaseAnnotations">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.show" class="switch-primary" label="Show annotations in text"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.annotations.show" class="switch-primary" label="Show annotations in text" :disabled="!countBaseAnnotations">
+                            <span class="count pull-right">{{ countBaseAnnotations }}</span>
+                        </CheckboxSwitch>
                     </div>
 
                     <div class="form-group mtop-small">
-                        <CheckboxSwitch v-model="config.annotations.showList" class="switch-primary" label="Show annotation list below text"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.annotations.showList" class="switch-primary" label="Show annotation list below text" :disabled="!countBaseAnnotations"></CheckboxSwitch>
                     </div>
                     <div v-if="config.annotations.showList" class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showContext" class="switch-primary" label="Show annotation in context"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.annotations.showContext" class="switch-primary" label="Show annotation in text context"></CheckboxSwitch>
                     </div>
                     <div v-if="config.annotations.showList" class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showDetails" class="switch-primary" label="Show annotation details"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.annotations.showDetails" class="switch-primary" label="Show annotation metadata"></CheckboxSwitch>
                     </div>
 
-                    <div v-if="showBaseAnnotations" class="mtop-small">
+                    <div v-if="showBaseAnnotations && countBaseAnnotations" class="mtop-small">
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.annotations.showTypography" class="switch-primary annotation-color-wrapper" label="Typography annotations">
-                                <span class="count pull-right annotation-typography">{{ countAnnotationType('typography') }}</span>
+                            <CheckboxSwitch v-model="config.annotations.showTypography" class="switch-primary annotation--color-wrapper" label="Typography annotations">
+                                <span class="count pull-right annotation-typography">{{
+                                        countAnnotations('typography')
+                                    }}</span>
                             </CheckboxSwitch>
                         </div>
+                        <div class="form-group">
+                            <CheckboxSwitch v-model="config.annotations.showOrthography" class="switch-primary annotation--color-wrapper" label="Orthography annotations">
+                                <span class="count pull-right annotation--orthography">{{
+                                        countAnnotations('orthography')
+                                    }}</span>
+                            </CheckboxSwitch>
+                        </div>
+                    </div>
+
+                    <div v-if="showBaseAnnotations && countBaseAnnotations" class="mtop-small">
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.annotations.showLanguage" class="switch-primary annotation-color-wrapper" label="Language annotations">
-                                <span class="count pull-right annotation-language">{{ countAnnotationType('language') }}</span>
+                                <span class="count pull-right annotation--language">{{ countAnnotations('language') }}</span>
                             </CheckboxSwitch>
                         </div>
                     </div>
 
-                    <div v-if="showBaseAnnotations" class="mtop-small">
+                    <div v-if="showBaseAnnotations && countBaseAnnotations" class="mtop-small">
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.annotations.showMorphoSyntactical" class="switch-primary annotation-color-wrapper" label="Syntax annotations">
-                                <span class="count pull-right annotation-morpho_syntactical">{{ countAnnotationType('morpho_syntactical') }}</span>
-                            </CheckboxSwitch>
-                        </div>
-                        <div class="form-group">
-                            <CheckboxSwitch v-model="config.annotations.showOrthography" class="switch-primary annotation-color-wrapper" label="Orthography annotations">
-                                <span class="count pull-right annotation-orthography">{{ countAnnotationType('orthography') }}</span>
+                                <span class="count pull-right annotation--morpho_syntactical">{{
+                                        countAnnotations('morpho_syntactical')
+                                    }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.annotations.showLexis" class="switch-primary annotation-color-wrapper" label="Lexis annotations">
-                                <span class="count pull-right annotation-lexis">{{ countAnnotationType('lexis') }}</span>
+                                <span class="count pull-right annotation--lexis">{{ countAnnotations('lexis') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.annotations.showMorphology" class="switch-primary annotation-color-wrapper" label="Morphology annotations">
-                                <span class="count pull-right annotation-morphology">{{ countAnnotationType('morphology') }}</span>
+                                <span class="count pull-right annotation--morphology">{{
+                                        countAnnotations('morphology')
+                                    }}</span>
                             </CheckboxSwitch>
                         </div>
                     </div>
@@ -257,34 +275,40 @@
 
                 <Widget title="Generic Structure" :collapsed.sync="config.widgets.genericTextStructure.isCollapsed" :count="genericTextStructure.length">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic structure" :disabled="genericTextStructure.length === 0"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic structure" :disabled="!genericTextStructure.length">
+                            <span class="count pull-right">{{ genericTextStructure.length }}</span>
+                        </CheckboxSwitch>
                     </div>
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.genericTextStructure.groupByLevel" class="switch-primary" label="Reconstruct levels"  :disabled="genericTextStructure.length === 0"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.genericTextStructure.groupByLevel" class="switch-primary" label="Reconstruct levels" :disabled="!countLevels">
+                            <span class="count pull-right">{{ countLevels }}</span>
+                        </CheckboxSwitch>
                     </div>
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.genericTextStructure.showAnnotations" class="switch-primary" label="Show generic structure annotations"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.genericTextStructure.showAnnotations" class="switch-primary" label="Show generic structure annotations" :disabled="!countAnnotations('gtsa')">
+                            <span class="count pull-right">{{ countAnnotations('gtsa') }}</span>
+                        </CheckboxSwitch>
                     </div>
 
                     <div v-if="showGTSA" class="mtop-small">
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.genericTextStructure.showUnit" class="switch-primary annotation-color-wrapper" label="Show Units">
-                                <span class="count pull-right annotation-unit">{{ countGtsType('Unit') }}</span>
+                                <span class="count pull-right annotation--unit">{{ countGtsType('Unit') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.genericTextStructure.showSubunit" class="switch-primary annotation-color-wrapper" label="Show Subunits">
-                                <span class="count pull-right annotation-subunit">{{ countGtsType('Subunit') }}</span>
+                                <span class="count pull-right annotation--subunit">{{ countGtsType('Subunit') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.genericTextStructure.showElement" class="switch-primary annotation-color-wrapper" label="Show Elements">
-                                <span class="count pull-right annotation-element">{{ countGtsType('Element') }}</span>
+                                <span class="count pull-right annotation--element">{{ countGtsType('Element') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.genericTextStructure.showModifier" class="switch-primary annotation-color-wrapper" label="Show Modifiers">
-                                <span class="count pull-right annotation-modifier">{{ countGtsType('Modifier') }}</span>
+                                <span class="count pull-right annotation--modifier">{{ countGtsType('Modifier') }}</span>
                             </CheckboxSwitch>
                         </div>
                     </div>
@@ -292,34 +316,40 @@
 
                 <Widget title="Layout Structure" :collapsed.sync="config.widgets.layoutTextStructure.isCollapsed" :count="layoutTextStructure.length">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout structure" :disabled="layoutTextStructure.length === 0"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout structure" :disabled="!layoutTextStructure.length">
+                            <span class="count pull-right">{{ countAnnotations('lts') }}</span>
+                        </CheckboxSwitch>
                     </div>
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.annotations.showHandshift" class="switch-primary" label="Show handwriting annotations"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.annotations.showHandshift" class="switch-primary" label="Show handwriting annotations" :disabled="!countAnnotations('handshift')">
+                            <span class="count pull-right">{{ countAnnotations('handshift') }}</span>
+                        </CheckboxSwitch>
                     </div>
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.layoutTextStructure.showAnnotations" class="switch-primary" label="Show layout structure annotations"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.layoutTextStructure.showAnnotations" class="switch-primary" label="Show layout structure annotations" :disabled="!countAnnotations('ltsa')">
+                            <span class="count pull-right">{{ countAnnotations('ltsa') }}</span>
+                        </CheckboxSwitch>
                     </div>
 
-                    <div v-if="showLTSA" class="mtop-small">
+                    <div v-if="showLTSA && countAnnotations('ltsa')" class="mtop-small">
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.layoutTextStructure.showUnit" class="switch-primary annotation-color-wrapper" label="Show Units">
-                                <span class="count pull-right annotation-unit">{{ countLtsType('Unit') }}</span>
+                                <span class="count pull-right annotation--unit">{{ countLtsType('Unit') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.layoutTextStructure.showSubunit" class="switch-primary annotation-color-wrapper" label="Show Subunits">
-                                <span class="count pull-right annotation-subunit">{{ countLtsType('Subunit') }}</span>
+                                <span class="count pull-right annotation--subunit">{{ countLtsType('Subunit') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.layoutTextStructure.showElement" class="switch-primary annotation-color-wrapper" label="Show Elements">
-                                <span class="count pull-right annotation-element">{{ countLtsType('Element') }}</span>
+                                <span class="count pull-right annotation--element">{{ countLtsType('Element') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.layoutTextStructure.showModifier" class="switch-primary annotation-color-wrapper" label="Show Modifiers">
-                                <span class="count pull-right annotation-modifier">{{ countLtsType('Modifier') }}</span>
+                                <span class="count pull-right annotation--modifier">{{ countLtsType('Modifier') }}</span>
                             </CheckboxSwitch>
                         </div>
                     </div>
@@ -391,6 +421,7 @@ export default {
             urls: JSON.parse(this.initUrls),
             data: JSON.parse(this.initData),
             defaultConfig: {
+                expertMode: false,
                 search: {
                     useContext: true,
                 },
@@ -470,9 +501,14 @@ export default {
             }
             return result
         },
-        annotationByTypeId() {
+        people: function() {
+            return this.text.ancient_person.filter(
+                person => person?.role && person?.role.length // && !['Unknown','unknown'].includes(person.role)
+            )
+        },
+        annotationsByTypeId() {
             let result = []
-            this.data.text.annotations.forEach( anno => result[anno.type+':'+anno.id] = anno )
+            this.text.annotations.forEach( anno => result[anno.type+':'+anno.id] = anno )
 
             return result;
         },
@@ -515,26 +551,32 @@ export default {
             this.bindEvents();
             return ret;
         },
-        visibleAnnotationsByContext() {
+        annotationsInContext() {
             let annotations = this.text.annotations
 
             // filter by search context?
             if ( this.config.annotations.showOnlyInSearchContext && (this.context.params ?? false) ) {
-                annotations = this.annotationsFilterByContext(annotations, this.context.params ?? {})
+                annotations = this.filterAnnotationsByContext(annotations, this.context.params ?? {})
             }
 
             return annotations
         },
         visibleAnnotations() {
-            let annotations = this.visibleAnnotationsByContext
+            // filter by context
+            let annotations = this.annotationsInContext
 
             // filter by config
-            annotations = this.annotationsFilterByConfig(annotations)
+            annotations = this.filterAnnotationsByConfig(annotations)
 
             // sort & return
             return annotations.sort( function(annotation_1, annotation_2) {
                     return annotation_1.text_selection.selection_start - annotation_2.text_selection.selection_start
                 });
+        },
+        annotationsInContextByType() {
+            const ret = {}
+            this.annotationsInContext.forEach( annotation => ret[annotation.type] ? ret[annotation.type].push(annotation) : ret[annotation.type] = [ annotation ] )
+            return ret
         },
         visibleAnnotationsFormatted() {
             return this.visibleAnnotations.reduce( (result, annotation) => result.concat(this.formatAnnotation(annotation)), [] );
@@ -599,6 +641,16 @@ export default {
                 });
             return ret;
         },
+        baseAnnotations() {
+            const types = ['typography', 'orthography','language','morpho_syntactical', 'lexis', 'morphology']
+            return this.annotationsInContext.filter( annotation => types.includes(annotation.type) );
+        },
+        countBaseAnnotations() {
+            return this.baseAnnotations.length
+        },
+        countLevels() {
+            return Object.keys(this.genericTextStructureGroupedByLevel).length
+        },
         textContainersOpen() {
             let conf = [
                 this.showText ? 1 : 0,
@@ -630,7 +682,7 @@ export default {
         annotationHasContext(annotation) {
            return !!annotation?.context
         },
-        annotationsFilterByConfig(annotations) {
+        filterAnnotationsByConfig(annotations) {
             let that = this
             return annotations
                 // filter by annotation type
@@ -646,7 +698,7 @@ export default {
                     return annotation.type !== "ltsa" || ( annotation.type === "ltsa" && that.visibleLTSATypes.includes(annotation.properties?.ltsa_type?.name) )
                 })
         },
-        annotationsFilterByContext(annotations, context_params) {
+        filterAnnotationsByContext(annotations, context_params) {
             let annotationTypeFilter = context_params?.annotation_type?.value ?? false
 
             let annotationPropertyPrefixes = ['language', 'typography', 'orthography', 'lexis', 'morpho_syntactical','handshift','ltsa','gtsa']
@@ -736,7 +788,7 @@ export default {
                     ]
             }
         },
-        getAnnotationClass(annotation, extra) {
+        getAnnotationClass(annotation, extra = null) {
             let classes = [];
             switch(annotation.type) {
                 case 'gtsa':
@@ -759,14 +811,26 @@ export default {
             }
             return classes.join(' ');
         },
-        countAnnotationType(type) {
-            return this.visibleAnnotationsByContext.filter( item => item.type === type ).length;
+        getPersonRoleClass(role) {
+            let ret = 'label label-default';
+            switch(role?.name) {
+                case 'initiator': ret = 'label label-success'; break;
+                case 'receiver': ret = 'label label-info'; break;
+                case 'scribe': ret = 'label label-primary'; break;
+            }
+            return ret
+        },
+        countAnnotations(type = null) {
+            if ( type ) {
+                return this.annotationsInContextByType[type]?.length ?? 0
+            }
+            return this.annotationsInContext.length
         },
         countGtsType(type) {
-            return this.visibleAnnotationsByContext.filter( item => item.properties?.gtsa_type?.name === type ).length;
+            return this.annotationsInContext.filter(item => item.properties?.gtsa_type?.name === type ).length;
         },
         countLtsType(type) {
-            return this.visibleAnnotationsByContext.filter ( item => item.properties?.ltsa_type?.name === type ).length;
+            return this.annotationsInContext.filter (item => item.properties?.ltsa_type?.name === type ).length;
         },
         urlGeneratorIdName(url, filter) {
             return (value) => ( this.getUrl(url) + '?' + qs.stringify( { filters: {[filter]: value.id } } ) )
@@ -825,6 +889,9 @@ export default {
         loadTextByIndex(index) {
             let that = this;
             if ( !this.resultSet.count ) return;
+
+            // reset selection
+            that.annotationId = null;
 
             let newIndex = Math.max(1, Math.min(index, this.resultSet.count))
             this.getResultSetIdByIndex(newIndex).then( function(id) {
@@ -892,21 +959,6 @@ export default {
 
   .inline_title {
     display: inline;
-  }
-
-  aside {
-    background-color: #fafafa !important;
-
-    .widget {
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    .widget--sticky {
-      position: sticky;
-      top: 0;
-      background-color: #fafafa;
-      z-index: 1;
-    }
   }
 }
 
