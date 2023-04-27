@@ -222,13 +222,6 @@ export default {
     watch: {
         defaultOrdering: function(val) {
         },
-        // watch model changes
-        model: {
-            handler: function(current) {
-                this.updateFieldVisibility();
-            },
-            deep: true
-        },
     },
     methods: {
         update() {
