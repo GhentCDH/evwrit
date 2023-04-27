@@ -40,7 +40,7 @@ class LanguageAnnotation extends BaseController
         return $this->_search(
             $request,
             [
-                'title' => 'Languages and Typography',
+                'title' => 'Languages',
                 'defaultAnnotationType' => 'language'
             ],
             [
