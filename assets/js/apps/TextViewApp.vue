@@ -35,7 +35,7 @@
                         <template v-if="!config.genericTextStructure.groupByLevel">
                             <div class="structure" v-for="textStructure in genericTextStructure">
                                 <label>
-                                    <span v-if="textStructure.text_level">Level {{ textStructure.text_level.number }}</span>
+                                    <span v-if="textStructure.gts_textLevel">Level {{ textStructure.gts_textLevel.number }}</span>
                                     <span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span>
                                 </label>
                                 <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormattedNoLts" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
@@ -225,15 +225,15 @@
 
                     <div v-if="showBaseAnnotations && countBaseAnnotations" class="mtop-small">
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.annotations.showTypography" class="switch-primary annotation--color-wrapper" label="Typography annotations">
+                            <CheckboxSwitch v-model="config.annotations.showTypography" class="switch-primary annotation-color-wrapper" label="Typography annotations">
                                 <span class="count pull-right annotation-typography">{{
                                         countAnnotations('typography')
                                     }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
-                            <CheckboxSwitch v-model="config.annotations.showOrthography" class="switch-primary annotation--color-wrapper" label="Orthography annotations">
-                                <span class="count pull-right annotation--orthography">{{
+                            <CheckboxSwitch v-model="config.annotations.showOrthography" class="switch-primary annotation-color-wrapper" label="Orthography annotations">
+                                <span class="count pull-right annotation-orthography">{{
                                         countAnnotations('orthography')
                                     }}</span>
                             </CheckboxSwitch>
@@ -243,7 +243,7 @@
                     <div v-if="showBaseAnnotations && countBaseAnnotations" class="mtop-small">
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.annotations.showLanguage" class="switch-primary annotation-color-wrapper" label="Language annotations">
-                                <span class="count pull-right annotation--language">{{ countAnnotations('language') }}</span>
+                                <span class="count pull-right annotation-language">{{ countAnnotations('language') }}</span>
                             </CheckboxSwitch>
                         </div>
                     </div>
@@ -251,19 +251,19 @@
                     <div v-if="showBaseAnnotations && countBaseAnnotations" class="mtop-small">
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.annotations.showMorphoSyntactical" class="switch-primary annotation-color-wrapper" label="Syntax annotations">
-                                <span class="count pull-right annotation--morpho_syntactical">{{
+                                <span class="count pull-right annotation-morpho_syntactical">{{
                                         countAnnotations('morpho_syntactical')
                                     }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.annotations.showLexis" class="switch-primary annotation-color-wrapper" label="Lexis annotations">
-                                <span class="count pull-right annotation--lexis">{{ countAnnotations('lexis') }}</span>
+                                <span class="count pull-right annotation-lexis">{{ countAnnotations('lexis') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.annotations.showMorphology" class="switch-primary annotation-color-wrapper" label="Morphology annotations">
-                                <span class="count pull-right annotation--morphology">{{
+                                <span class="count pull-right annotation-morphology">{{
                                         countAnnotations('morphology')
                                     }}</span>
                             </CheckboxSwitch>
@@ -293,22 +293,22 @@
                     <div v-if="showGTSA" class="mtop-small">
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.genericTextStructure.showUnit" class="switch-primary annotation-color-wrapper" label="Show Units">
-                                <span class="count pull-right annotation--unit">{{ countGtsType('Unit') }}</span>
+                                <span class="count pull-right annotation-unit">{{ countGtsType('Unit') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.genericTextStructure.showSubunit" class="switch-primary annotation-color-wrapper" label="Show Subunits">
-                                <span class="count pull-right annotation--subunit">{{ countGtsType('Subunit') }}</span>
+                                <span class="count pull-right annotation-subunit">{{ countGtsType('Subunit') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.genericTextStructure.showElement" class="switch-primary annotation-color-wrapper" label="Show Elements">
-                                <span class="count pull-right annotation--element">{{ countGtsType('Element') }}</span>
+                                <span class="count pull-right annotation-element">{{ countGtsType('Element') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.genericTextStructure.showModifier" class="switch-primary annotation-color-wrapper" label="Show Modifiers">
-                                <span class="count pull-right annotation--modifier">{{ countGtsType('Modifier') }}</span>
+                                <span class="count pull-right annotation-modifier">{{ countGtsType('Modifier') }}</span>
                             </CheckboxSwitch>
                         </div>
                     </div>
@@ -632,8 +632,8 @@ export default {
             let ret = {}
 
             this.genericTextStructure.forEach( function(annotation) {
-                    let level_number =  String(annotation?.properties?.textLevel?.number || 0);
-                    let level_properties = annotation?.properties?.textLevel?.number ? annotation?.properties?.textLevel : { number: 0, type: "" }
+                    let level_number =  String(annotation?.properties?.gts_textLevel?.number || 0);
+                    let level_properties = annotation?.properties?.gts_textLevel?.number ? annotation?.properties?.gts_textLevel : { number: 0, type: "" }
                     if (!(level_number in ret)) {
                         ret[level_number] = { ...level_properties, ...{ children: [] } }
                     }
