@@ -67,10 +67,13 @@
   }
 }
 
-.annotation-wrapper {
+.greek-text__gutter {
 
+  .annotation-handshift {
+    cursor: pointer;
+  }
 
-  &.annotation-handshift::before {
+  .annotation-handshift::before {
     left: 25px;
     height: 100%;
     width: 8px;
@@ -81,7 +84,7 @@
   }
 
   @each $name, $color in $handshift-annotations {
-    &.annotation-handshift-#{$name}::before {
+    .annotation-handshift-#{$name}::before {
       background-color: $color;
     }
   }

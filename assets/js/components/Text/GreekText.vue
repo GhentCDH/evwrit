@@ -86,15 +86,20 @@ export default {
         structureLine(line) {
             const regLineNumber = /^([0-9\/]+[a-z]?)\./g;
             const replaceLineNumber =
-                '<span class="greek-text__line-number">$1</span><span class="greek-text__text">';
+                '<span class="greek-text__line-number">$1</span>[GUTTER]<span class="greek-text__text">';
 
-            let result = line;
-            if (result.match(regLineNumber)) {
-                result = line.replace(regLineNumber, replaceLineNumber) + "</span>";
+            let output = ''
+
+            let text = line.text;
+            if (text.match(regLineNumber)) {
+                output = text.replace(regLineNumber, replaceLineNumber) + "</span>";
             } else {
-                result = '<span class="greek-text__line-number"></span><span class="greek-text__text">' + line + "</span>";
+                output = '<span class="greek-text__line-number"></span>[GUTTER]<span class="greek-text__text">' + text + "</span>";
             }
-            return '<div class="greek-text__line">' + result + '</div>';
+
+            output = output.replace('[GUTTER]', '<span class="greek-text__gutter">' + line.gutter + '</span>')
+
+            return '<div class="greek-text__line">' + output + '</div>';
         },
         insertBefore(text, index, replacement) {
             return text.substring(0, index) + replacement + text.substring(index);
@@ -113,6 +118,9 @@ export default {
             // line end = line start + length - 1 + 1 newline char
             const line_end = line_start + (line.length - 1) + 1;
 
+            let gutterAnnotations = []
+            let htmlGutter = ''
+
             // walk annotations and check line intersection
             let i;
             for (const annotation of annotations) {
@@ -123,32 +131,45 @@ export default {
                         [line_start, line_end - 1]
                     ))
                 ) {
-                    // let props = Object.entries(annotation[2].reduce( (prev, current) => ({...prev, ...current.data}) , {} )).map( i => `data-${i[0]}="${i[1]}"` ).join(' ')
-                    //
-                    // line = this.insertBefore(line, i[1] - line_start + 1, "</span>");
-                    // line = this.insertBefore(
-                    //     line,
-                    //     i[0] - line_start,
-                    //     '<span class="' + annotation[2].map( (i) => (i.class) ).join(" ") + '" ' + props + '>'
-                    // );
 
-                    let globalClassses = annotation[2].map( (i) => (i.class) ).join(" ");
-                    let htmlSuffix = '</span>'.repeat(annotation[2].length + 1)
-                    let htmlPrefix = '<span class="annotation-wrapper ' + globalClassses + '">'
+                    gutterAnnotations = gutterAnnotations.concat(annotation[2].filter( anno => anno.class.includes('annotation-handshift') ))
+                    let tokenAnnotations = annotation[2].filter( anno => !anno.class.includes('annotation-handshift') )
 
-                    htmlPrefix = annotation[2].reduce( function(html, i) {
-                        let props = Object.entries(i.data ?? {}).map( i => `data-${i[0]}="${i[1]}"` ).join(' ');
-                        html += '<span class="' + i.class + '" ' + props + '>'
-                        return html
-                    }, htmlPrefix);
+                    if ( tokenAnnotations.length ) {
+                        let globalClassses = tokenAnnotations.map( (i) => (i.class) ).join(" ");
+                        let htmlSuffix = '</span>'.repeat(tokenAnnotations.length + 1)
+                        let htmlPrefix = '<span class="annotation-wrapper ' + globalClassses + '">'
 
-                    line = this.insertBefore(line, i[1] - line_start + 1, htmlSuffix);
-                    line = this.insertBefore(
-                        line,
-                        i[0] - line_start,
-                        htmlPrefix
-                    );
+                        htmlPrefix = tokenAnnotations.reduce( function(html, i) {
+                            let props = Object.entries(i.data ?? {}).map( i => `data-${i[0]}="${i[1]}"` ).join(' ');
+                            html += '<span class="' + i.class + '" ' + props + '>'
+                            return html
+                        }, htmlPrefix);
+
+                        line = this.insertBefore(line, i[1] - line_start + 1, htmlSuffix);
+                        line = this.insertBefore(
+                            line,
+                            i[0] - line_start,
+                            htmlPrefix
+                        );
+                    }
+
                 }
+            }
+
+            // gutter annotations?
+            if (gutterAnnotations.length) {
+                let ret = {}
+                gutterAnnotations = Object.values(gutterAnnotations.reduce( function(ret, anno) {
+                    ret[anno.data?.id] = anno
+                    return ret
+                }, {}))
+
+                htmlGutter = gutterAnnotations.reduce( function(html, i) {
+                    let props = Object.entries(i.data ?? {}).map( i => `data-${i[0]}="${i[1]}"` ).join(' ');
+                    html += '<span class="' + i.class + '" ' + props + '></span>'
+                    return html
+                }, htmlGutter);
             }
 
             // remove (*)
@@ -156,8 +177,10 @@ export default {
 
             // remove (hand x)
 
-
-            return line;
+            return {
+                text: line,
+                gutter: htmlGutter
+            };
         },
         // create line number annotations
         // end position is next character, needed for FlattenRanges
