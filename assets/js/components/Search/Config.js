@@ -465,7 +465,7 @@ export default {
                 id: 'gtsa',
                 fields: [
                     // level
-                    this.createMultiSelect('Level', {model: 'text_level'}),
+                    this.createMultiSelect('Level', {model: 'gts_textLevel'}),
                     this.createMultiSelect('Part', {model: 'gts_part'}),
 
                     this.createMultiSelect('Type', {model: 'gtsa_type'}),

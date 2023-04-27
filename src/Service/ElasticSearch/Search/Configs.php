@@ -565,6 +565,7 @@ class Configs implements SearchConfigInterface
 
     public static function filterBaseAnnotations(): array
     {
+        $searchFilters = [];
 
         // build annotation filters
         // 1. add annotation type filter
@@ -578,8 +579,8 @@ class Configs implements SearchConfigInterface
                     'field' => 'type',
                     'type' => self::FILTER_KEYWORD
                 ],
-                'text_level' => [
-                    'field' => 'properties.textLevel.number',
+                'gts_textLevel' => [
+                    'field' => 'properties.gts_textLevel.number',
                     'type' => self::FILTER_NUMERIC
                 ],
             ],
@@ -625,6 +626,8 @@ class Configs implements SearchConfigInterface
 
     public static function aggregateBaseAnnotations(): array
     {
+        $aggregationFilters = [];
+
         // annotation aggregations
         $annotationProperties = [
             'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation', 'vacat', 'accronym', 'positionInText', 'wordClass'],
@@ -714,9 +717,9 @@ class Configs implements SearchConfigInterface
         ];
 
         // add annotation type filter
-        $aggregationFilters['text_level'] = [
+        $aggregationFilters['gts_textLevel'] = [
             'type' => self::AGG_NUMERIC,
-            'field' => 'properties.textLevel.number',
+            'field' => 'properties.gts_textLevel.number',
             'nested_path' => "annotations",
 //            'excludeFilter' => ['annotations'], // exclude filter of same type
 //            'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {

@@ -21,6 +21,8 @@ class AnnotationSearchService extends AbstractSearchService
             Configs::filterAdministrative(),
             Configs::filterBaseAnnotations(),
         );
+
+        return $searchFilters;
     }
 
     protected function getAggregationConfig(): array {
@@ -32,6 +34,8 @@ class AnnotationSearchService extends AbstractSearchService
             Configs::aggregateAdministrative(),
             Configs::aggregateBaseAnnotations(),
         );
+
+        return $aggregationFilters;
     }
 
     protected function getDefaultSearchParameters(): array {
