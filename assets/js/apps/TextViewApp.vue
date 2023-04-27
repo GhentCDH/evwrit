@@ -699,9 +699,10 @@ export default {
                 })
         },
         filterAnnotationsByContext(annotations, context_params) {
-            let annotationTypeFilter = context_params?.annotation_type?.value ?? false
+            // todo: add support for operators
+            let annotationTypeFilter = context_params?.annotation_type?.value ?? []
 
-            let annotationPropertyPrefixes = ['language', 'typography', 'orthography', 'lexis', 'morpho_syntactical','handshift','ltsa','gtsa']
+            let annotationPropertyPrefixes = ['language', 'typography', 'orthography', 'lexis', 'morpho_syntactical','handshift','ltsa','gtsa', 'gts', 'lts']
             let annotationPropertyFilters = {}
             for ( const [key, param] of Object.entries(context_params) ) {
                 for ( const prefix of annotationPropertyPrefixes ) {
@@ -711,31 +712,18 @@ export default {
                 }
             }
 
+            let that = this
             return annotations.filter( function(annotation) {
-                // filter by type
-                if ( annotationTypeFilter ) {
-                    if ( Array.isArray(annotationTypeFilter) && !annotationTypeFilter.includes(annotation.type) )
-                        return false
-                    else if ( !Array.isArray(annotationTypeFilter) && annotationTypeFilter !== annotation.type )
-                        return false
+                // filter only annotations in scope of annotationTypeFilter
+                if ( !annotationTypeFilter.includes(annotation.type) ) {
+                    return true
                 }
 
-                // filter by property
-                for ( const [filterKey, filterValues] of Object.entries(annotationPropertyFilters) ) {
-                    // check if annotation has this property
-                    if ( !annotation.properties.hasOwnProperty(filterKey) ) {
-                        return false
-                    }
-
-                    // check if property has value
-                    if ( !annotation.properties[filterKey] ) {
-                        return false
-                    }
-
-                    // check if property matches includes at least one of the filter values
-                    let propertyValues = Array.isArray(annotation.properties[filterKey]) ? annotation.properties[filterKey] : [ annotation.properties[filterKey] ];
-                    let valuesMatched = propertyValues.filter( function(propertyValue) {
-                        return filterValues.includes(propertyValue.id)
+                // filter annotations in scope
+                for (const [contextParam, values] of Object.entries(annotationPropertyFilters)) {
+                    // check if intersection exists between property values of annotation and parameter values of context
+                    let valuesMatched = values.filter( function(value) {
+                        return that.contextAnnotationMapper(annotation, contextParam).includes(value)
                     })
                     if ( valuesMatched.length === 0 ) {
                         return false
@@ -744,6 +732,23 @@ export default {
 
                 return true
             } )
+        },
+        // maps a context parameter to the corresponding values of the annotation property
+        contextAnnotationMapper(annotation, contextParam) {
+            let propertyValues = [];
+            let props = annotation.properties
+            switch(contextParam) {
+                case 'annotation_type':
+                    return [annotation.type]
+                case 'gts_textLevel':
+                    if (!Array.isArray(props?.gts_textLevel))
+                        return [props.gts_textLevel?.number]
+                    return props.gts_textLevel.map( i => i.number )
+                default:
+                    if(!Array.isArray(props[contextParam]))
+                        return [props[contextParam]?.id]
+                    return props[contextParam].map( i => i.id )
+            }
         },
         formatAnnotation(annotation) {
             switch ( annotation.text_selection.selection_start - (annotation.text_selection.selection_end -1) ) {
