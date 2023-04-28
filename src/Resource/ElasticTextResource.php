@@ -128,15 +128,10 @@ class ElasticTextResource extends ElasticBaseResource
             $this->annotationIntersect($annotationSource, $genericTextStructure ?? [], ['gts_part', 'gts_textLevel']);
             $this->annotationIntersect($annotationSource, $gtsAnnotations ?? [], ['gtsa_type', 'gtsa_subtype', 'gtsa_speechAct']);
             $this->annotationIntersect($annotationSource, $handshiftAnnotations);
-
-            // intersections below not needed for base annotation search
-            // text structure search moved to different index
-            // $this->annotationIntersect($annotationSource, $layoutTextStructure ?? []);
+            $this->annotationIntersect($annotationSource, $layoutTextStructure ?? []);
         }
 
-        /*
-        // intersections below not needed for base annotation search
-        // text structure search moved to different index
+        // intersections below not needed for search, but needed for the text viewer
 
         // intersect generic text structure annotations with lts, gts, ltsa, handshift
         foreach( $gtsAnnotations as &$annotationSource ) {
@@ -164,8 +159,6 @@ class ElasticTextResource extends ElasticBaseResource
             $this->annotationIntersect($annotationSource, $genericTextStructure);
             $this->annotationIntersect($annotationSource, $handshiftAnnotations);
         }
-
-        */
 
         $ret['annotations'] = array_merge(
             $ret['annotations'],
