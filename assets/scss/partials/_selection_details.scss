@@ -1,3 +1,5 @@
+$selection-details-border-width: 3px;
+
 .widget--selection-details {
 
   .annotation-metadata {
@@ -8,27 +10,27 @@
       content: ' ';
       position: absolute;
       height: 100%;
-      border-left: 2px solid $color-darkgray;
+      border-left: $selection-details-border-width solid $color-darkgray;
       //left: -10px;
       left: 0;
     }
 
     @each $name, $color in $base-annotations {
       &.annotation-#{$name}::before {
-        border-left: 2px solid rgba($color, $base-annotation-opacity + 0.1);
+        border-left: $selection-details-border-width solid rgba($color, $base-annotation-opacity + 0.1);
       }
     }
 
     @each $name, $color in $handshift-annotations {
-      &.annotation-handshift--#{$name}::before {
-        border-left: 2px solid $color;
+      &.annotation-handshift-#{$name}::before {
+        border-left: $selection-details-border-width solid $color;
       }
     }
 
     &.annotation-gtsa, &.annotation-ltsa {
       @each $name, $properties in $structure-annotations {
-        &--#{$name}::before {
-          border-left: 2px solid nth($properties, 1);
+        &-#{$name}::before {
+          border-left: $selection-details-border-width solid nth($properties, 1);
         }
       }
     }

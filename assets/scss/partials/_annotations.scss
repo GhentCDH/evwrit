@@ -74,13 +74,13 @@
   }
 
   .annotation-handshift::before {
-    left: 25px;
+    left: 24px;
     height: 100%;
-    width: 8px;
+    width: 11px;
     position: absolute;
     content: ' ';
-    border-left: 2px solid white;
-    border-right: 2px solid white;
+    border-left: 4px solid white;
+    border-right: 4px solid white;
   }
 
   @each $name, $color in $handshift-annotations {
