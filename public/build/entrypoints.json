@@ -2,7 +2,7 @@
   "entrypoints": {
     "main": {
       "css": [
-        "/build/main.9d950077.css"
+        "/build/main.27545abd.css"
       ],
       "js": [
         "/build/main.1caade91.js"
@@ -42,10 +42,10 @@
     },
     "text-view": {
       "css": [
-        "/build/text-view.abfa90ee.css"
+        "/build/text-view.586bc94c.css"
       ],
       "js": [
-        "/build/text-view.b1d6e82c.js"
+        "/build/text-view.c7e19134.js"
       ]
     }
   }
