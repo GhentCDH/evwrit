@@ -355,9 +355,9 @@
                     </div>
                 </Widget>
 
-                <Widget title="Links" :count="text.link.length" :collapsed.sync="config.widgets.links.isCollapsed">
-                    <div v-for="link in text.link">
-                        <a :href="link.url">{{ link.title }}</a>
+                <Widget title="Links" :count="links.length" :collapsed.sync="config.widgets.links.isCollapsed">
+                    <div v-for="link in links">
+                        <a :href="link.url" target="_blank">{{ link.title }}</a>
                     </div>
                 </Widget>
 
@@ -500,6 +500,16 @@ export default {
                 })
             }
             return result
+        },
+        links: function() {
+            let links = this.text?.link ?? []
+            if ( this.text?.tm_id ) {
+                links.push({
+                    title: "Trismegistos",
+                    url: `https://www.trismegistos.org/text/${this.text.tm_id}`
+                })
+            }
+            return links
         },
         people: function() {
             return this.text.ancient_person.filter(
