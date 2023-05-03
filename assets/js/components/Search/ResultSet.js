@@ -36,7 +36,7 @@ export default {
             if (typeof this.resultSet.params.page === 'string') {
                 this.resultSet.params.page =  Number.parseInt(this.resultSet.params.page) ?? 1
             }
-            if (typeof this.resultSet.params.page === 'string') {
+            if (typeof this.resultSet.params.count === 'string') {
                 this.resultSet.params.count =  Number.parseInt(this.resultSet.params.count) ?? 0
             }
 
