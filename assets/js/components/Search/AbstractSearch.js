@@ -228,7 +228,7 @@ export default {
         },
         onData(data) {
             this.aggregation = data.aggregation
-            console.log('event onData')
+            // console.log('event onData')
         },
         onLoaded(data) {
             // Update model and ordering if not initialized or history request

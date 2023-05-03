@@ -272,7 +272,7 @@ export default {
             }
         },
         annotationsFields(expertOnly = false, defaultAnnotationType = null) {
-            console.log(defaultAnnotationType)
+            // console.log(defaultAnnotationType)
 
             return {
                 expertOnly: expertOnly,
