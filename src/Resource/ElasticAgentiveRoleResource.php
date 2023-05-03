@@ -18,6 +18,7 @@ class ElasticAgentiveRoleResource extends BaseResource
         /** @var AgentiveRole $resource */
         $resource = $this->resource;
         return [
+            'id' => $this->resource->getId(),
             'generic_agentive_role' => new ElasticIdNameResource($resource->genericAgentiveRole),
             'agentive_role' => new ElasticIdNameResource($resource),
         ];

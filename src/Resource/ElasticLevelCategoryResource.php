@@ -19,6 +19,7 @@ class ElasticLevelCategoryResource extends BaseResource
         /** @var LevelCategory $resource */
         $resource = $this->resource;
         return [
+            'id' => $this->resource->getId(),
             'level_category_category' => new ElasticIdNameResource($resource->levelCategory),
             'level_category_subcategory' => new ElasticIdNameResource($resource->levelSubcategory),
             'level_category_hypercategory' => new ElasticIdNameResource($resource->levelHypercategory),

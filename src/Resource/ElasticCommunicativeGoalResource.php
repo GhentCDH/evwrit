@@ -18,6 +18,7 @@ class ElasticCommunicativeGoalResource extends BaseResource
     public function toArray($request=null)
     {
         return [
+            'id' => $this->resource->getId(),
             'communicative_goal_subtype' => new ElasticIdNameResource($this->resource->communicativeGoalSubtype),
             'communicative_goal_type' => new ElasticIdNameResource($this->resource->communicativeGoalType),
         ];

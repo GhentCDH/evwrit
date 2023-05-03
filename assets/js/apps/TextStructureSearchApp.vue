@@ -167,10 +167,10 @@ export default {
                     this.layoutStructureFields(),
                     this.handshiftFields(),
                     this.generalInformationFields(),
-                    this.communicativeInformationFields(),
-                    this.materialityFields(),
-                    this.ancientPersonFields(),
-                    this.administrativeInformationFields()
+                    this.communicativeInformationFields(true),
+                    this.materialityFields(true),
+                    this.ancientPersonFields(true),
+                    this.administrativeInformationFields(true)
                 ],
             },
             tableOptions: {
