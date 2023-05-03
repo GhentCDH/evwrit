@@ -15,6 +15,9 @@
                         :class="isCallable(valueClass) ? valueClass(item) : valueClass"
                 />
             </template>
+            <template v-else-if="$scopedSlots.default">
+                <slot></slot>
+            </template>
             <span v-else>{{ unknown }}</span>
         </div>
     </div>
@@ -84,7 +87,7 @@ export default {
             return values
         },
         visible() {
-            return this.outputValues.length
+            return this.outputValues.length || this.$scopedSlots.default
         }
     },
     methods: {
