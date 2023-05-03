@@ -49,18 +49,22 @@ export default {
             //ret['selectionStart'] = this.annotation.text_selection.selection_start
             //ret['selectionEnd'] = this.annotation.text_selection.selection_end
 
+            // console.log(this.propertyKeys)
+            // console.log(this.annotation)
             for (let prop of this.propertyKeys) {
                 if (this.annotation.properties.hasOwnProperty(prop)) {
                     // remove boolean property
-                    if ( ['has_handshift', 'textLevel'].includes(prop) ) {
+                    if ( ['has_handshift', 'textLevel', 'gts_textLevel', 'gts_part'].includes(prop) ) {
                         continue;
                     }
 
                     let value = this.annotation.properties[prop]
                     prop = prop.split('_').slice(-1).join('') // strip type prefix
                     if ( value && Array.isArray(value) && value.length ) {
-                        value.map( function(i) { if ( !i.name ) { /* console.log(i); console.log(value) */ } } )
-                        ret[prop] = value.map( i => i.id_name.split('_').slice(1).join('_') ).join(', ')
+                        value = value.filter( i => !i?.name) //value.map( function(i) { if ( !i.name ) { /* console.log(i); console.log(value) */ } } )
+                        if ( value.length ) {
+                            ret[prop] = value.map( i => i.id_name.split('_').slice(1).join('_') ).join(', ')
+                        }
                     } else if ( value && typeof value === 'object' && value.hasOwnProperty('id_name')) {
                         ret[prop] = value.id_name.split('_').slice(1).join('_')
                     }
