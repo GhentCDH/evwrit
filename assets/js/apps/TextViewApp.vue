@@ -3,7 +3,9 @@
         <CoolLightBox
                 :items="images"
                 :index="imageIndex"
-                @close="imageIndex = null">
+                @close="imageIndex = null"
+                overlay-color="rgba(30, 30, 30, .3)"
+        >
         </CoolLightBox>
         <article class="col-sm-9">
             <div class="scrollable scrollable--vertical">
