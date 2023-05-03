@@ -497,6 +497,22 @@ export default {
                 ]
             }
         },
+        charachterRecognitionToolFields(expertOnly = false) {
+            return{
+                expertOnly: expertOnly,
+                visible: this.fieldVisible,
+                collapsible: true,
+                collapsed: this.groupCollapsed,
+                legend: 'Character recognition',
+                id: 'crt',
+                fields: [
+                    this.createRangeSlider('arabic_relative', 'Arabic (relative)', 0, 100, 0.1, 1, '%'),
+                    this.createRangeSlider('coptic_relative', 'Coptic (relative)', 0, 100, 0.1,1, '%'),
+                    this.createRangeSlider('greek_relative', 'Greek (relative)', 0, 100, 0.1, 1, '%'),
+                    this.createRangeSlider('latin_relative', 'Latin (relative)', 0, 100, 0.1, 1, '%'),
+                ]
+            }
+        },
 
         /* helpers */
         formatPropertyLabel(field, prefix) {

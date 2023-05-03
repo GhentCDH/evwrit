@@ -20,6 +20,7 @@ class AnnotationSearchService extends AbstractSearchService
             Configs::filterAncientPerson(),
             Configs::filterAdministrative(),
             Configs::filterBaseAnnotations(),
+            Configs::filterCharacterRecognitionTool()
         );
 
         return $searchFilters;

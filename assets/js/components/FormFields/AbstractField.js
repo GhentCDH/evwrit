@@ -50,7 +50,7 @@ export default {
             const selectOptions = { multiple: true, closeOnSelect: false, ...extraSelectOptions }
             return this.createSelect(label, extra, selectOptions)
         },
-        createRangeSlider(model, label, min, max, step, extra = null) {
+        createRangeSlider(model, label, min, max, step, decimals = 0, unit = null, extra = null) {
             let result = {
                 type: "customNoUiSlider",
                 styleClasses: "field-noUiSlider",
@@ -67,7 +67,7 @@ export default {
                         'max': [RANGE_MAX_INVALID]
                     },
                     start: [-1, 10000],
-                    tooltips: { to: this.formatSliderToolTip },
+                    tooltips: { to: this.formatSliderToolTip(decimals, unit) },
                 }
             }
 
@@ -122,11 +122,13 @@ export default {
 
             return false
         },
-        formatSliderToolTip(value) {
-            if ( value > -1 && value < 10000 ) {
-                return wNumb({decimals: 0}).to(value)
-            } else {
-                return 'off';
+        formatSliderToolTip(decimals = 0, unit = null) {
+            return function(value) {
+                if ( value > -1 && value < 10000 ) {
+                    return String(wNumb({decimals: decimals}).to(value)) + String(unit ?? '')
+                } else {
+                    return 'off';
+                }
             }
         },
         disableField(field, model = null) {

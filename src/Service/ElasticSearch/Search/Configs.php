@@ -99,6 +99,17 @@ class Configs implements SearchConfigInterface
         ];
     }
 
+    public static function filterCharacterRecognitionTool(): array
+    {
+        $filters = [
+            'arabic_coptic' => ['type' => self::FILTER_NUMERIC_RANGE_SLIDER],
+            'greek_coptic' => ['type' => self::FILTER_NUMERIC_RANGE_SLIDER],
+            'latic_coptic' => ['type' => self::FILTER_NUMERIC_RANGE_SLIDER],
+            'coptic_coptic' => ['type' => self::FILTER_NUMERIC_RANGE_SLIDER],
+        ];
+        return self::mergeFilterDefaults($filters);
+    }
+
     public static function filterAdministrative(): array
     {
         $filters = [
