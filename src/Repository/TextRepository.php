@@ -11,15 +11,15 @@ use Illuminate\Database\Eloquent\Builder;
 class TextRepository extends AbstractRepository
 {
     protected $relations = [
+        'era',
         'scripts',
         'forms',
         'languages',
         'materials',
         'socialDistances',
-        'era',
         'projects',
-        'archive',
         'keywords',
+        'archive',
         'textFormat',
         'collaborators',
         'locations',

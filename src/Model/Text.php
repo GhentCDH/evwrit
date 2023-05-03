@@ -175,24 +175,6 @@ class Text extends AbstractModel
     }
 
     /**
-     * @return BelongsTo|TextType
-     * @throws ReflectionException
-     */
-    public function textType(): BelongsTo
-    {
-        return $this->belongsTo( TextType::class, 'text_type_id', 'text_type_id');
-    }
-
-    /**
-     * @return BelongsTo|TextSubtype
-     * @throws ReflectionException
-     */
-    public function textSubtype(): BelongsTo
-    {
-        return $this->belongsTo( TextSubtype::class);
-    }
-
-    /**
      * @return BelongsTo|TextFormat
      * @throws ReflectionException
      */
@@ -244,14 +226,6 @@ class Text extends AbstractModel
     public function writingDirections(): BelongsToMany
     {
         return $this->belongsToMany(WritingDirection::class);
-    }
-
-    /**
-     * @return HasManyThrough|Attestation[]
-     */
-    public function attestations(): HasManyThrough
-    {
-        return $this->hasManyThrough(Attestation::class, Level::class);
     }
 
     /**
