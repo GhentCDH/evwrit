@@ -22,6 +22,7 @@ class ElasticTextLevelResourceLite extends BaseResource
         /** @var Level $resource */
         $resource = $this->resource;
         $ret = [
+            'id' => $resource->getId(),
             'number' => $resource->number,
         ];
 

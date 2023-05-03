@@ -92,6 +92,7 @@ class ElasticTextResource extends ElasticBaseResource
         $textLevels = ElasticTextLevelResource::collection($text->textLevels)->toArray();
         $textLevelProperties = array_merge_recursive(...$textLevels);
         unset($textLevelProperties['number']);
+        unset($textLevelProperties['id']);
         $textLevelProperties['ancient_person'] = $textLevelProperties['attestations'] ?? null;
         unset($textLevelProperties['attestations']);
 

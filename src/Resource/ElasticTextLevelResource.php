@@ -27,7 +27,9 @@ class ElasticTextLevelResource extends ElasticBaseResource
 
         $levelProperties = [
             // level properties
+            'id' => $level->getId(),
             'number' => $level->number,
+
             'level_category' => ElasticLevelCategoryResource::collection($level->levelCategories)->toArray(),
 
             'agentive_role' => ElasticAgentiveRoleResource::collection($level->agentiveRoles)->toArray(),
