@@ -24,17 +24,18 @@
                     <div v-if="config.genericTextStructure.show && genericTextStructure.length" :class="textContainerClass" class="text-structure">
                         <h2>Generic structure</h2>
                         <template v-if="config.genericTextStructure.groupByLevel">
-                            <div class="level" v-for="level in genericTextStructureGroupedByLevel">
-                                <label><span>Level {{ level.number }} {{ level.type}}</span></label>
-                                <div class="structure" v-for="textStructure in level.children">
-                                    <label><span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span></label>
+                            <div :class="getLevelClass(getTextLevel(level.id))" v-for="level in genericTextStructureGroupedByLevel">
+                                <label class="level__number" @click.stop="onClickLevel(getTextLevel(level.id))"><span>Level {{ level.number }} {{ level.type }}</span></label>
+                                <label class="level__category" @click.stop="onClickLevel(getTextLevel(level.id))" v-if="level.id" v-for="category in formatLevelCategory(getTextLevel(level.id))"><span>{{ category }}</span></label>
+                                <div :class="getGtsClass(textStructure)" v-for="textStructure in level.genericTextStructure">
+                                    <label @click="onClickAnnotation(textStructure)"><span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span></label>
                                     <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
                                 </div>
                             </div>
                         </template>
                         <template v-if="!config.genericTextStructure.groupByLevel">
-                            <div class="structure" v-for="textStructure in genericTextStructure">
-                                <label>
+                            <div :class="getGtsClass(textStructure)" v-for="textStructure in genericTextStructure">
+                                <label @click="onClickAnnotation(textStructure)">
                                     <span v-if="textStructure.gts_textLevel">Level {{ textStructure.gts_textLevel.number }}</span>
                                     <span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span>
                                 </label>
@@ -47,7 +48,7 @@
                     <div v-if="config.layoutTextStructure.show && layoutTextStructure.length" :class="textContainerClass" class="text-structure">
                         <h2>Layout structure</h2>
                         <div class="structure" v-for="textStructure in layoutTextStructure">
-                            <label>
+                            <label @click="onClickAnnotation(textStructure)">
                                 <span>{{ textStructure.properties.lts_part.name }}</span>
                             </label>
                             <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormattedNoGts" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
@@ -103,8 +104,8 @@
         <aside class="col-sm-3">
             <div class="widget-container scrollable scrollable--vertical" ref="sidebar">
 
-                <Widget v-if="isValidResultSet()" title="Search" :collapsible="false" class="widget--sticky widget--metadata">
-                    <div class="row mbottom-default">
+                <Widget  title="Context" :collapsible="false" class="widget--sticky widget--metadata">
+                    <div v-if="isValidResultSet()" class="row mbottom-default">
                         <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex - 1)">&lt;</span>
@@ -123,8 +124,9 @@
                     </div>
                 </Widget>
 
-                <Widget title="Selection details" class="widget--selection-details" v-if="annotationId" :collapsed.sync="config.widgets.selectionDetails.isCollapsed">
-                    <AnnotationDetails :annotation="annotationsByTypeId[annotationId]" :class="getAnnotationClass(annotationsByTypeId[annotationId])" :expertMode="config.expertMode"></AnnotationDetails>
+                <Widget title="Selection details" class="widget--selection-details" v-if="hasSelection" :collapsed.sync="config.widgets.selectionDetails.isCollapsed">
+                    <AnnotationDetails v-if="selection.annotationId" :annotation="annotationsByTypeId[selection.annotationId]" :class="getAnnotationClass(annotationsByTypeId[selection.annotationId])" :expertMode="config.expertMode"></AnnotationDetails>
+                    <LevelDetails v-if="selection.levelId" :level="getTextLevel(selection.levelId)" :expertMode="config.expertMode" class="level-metadata"></LevelDetails>
                 </Widget>
 
                 <Widget title="Metadata" :collapsed.sync="config.widgets.metadata.isCollapsed">
@@ -155,7 +157,7 @@
                 </Widget>
 
                 <Widget title="Images" :count="text.image.length" :collapsed.sync="config.widgets.images.isCollapsed">
-                    <Gallery :images="images" :onClick="(index,url) => (imageIndex = index)" />
+                    onClick="(index,url) => (imageIndex = index)" />
                 </Widget>
 
                 <Widget title="Translations" :count="text.translation.length"  :collapsed.sync="config.widgets.translations.isCollapsed">
@@ -192,18 +194,7 @@
                 </Widget>
 
                 <Widget title="People"  :collapsed.sync="config.widgets.attestation.isCollapsed" :count="people.length">
-                    <template v-for="person in people">
-                        <h3>{{ person.name }}</h3>
-                        <LabelValue label="Trismegistos ID" :value="person.tm_id" :url="getTmPersonUrl"></LabelValue>
-                        <LabelValue label="Role" :value="person.role"  type="id_name" :ignore-value="['Unknown','unknown']" :value-class="getPersonRoleClass"></LabelValue>
-                        <LabelValue label="Age" :value="person.age"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
-                        <LabelValue label="Gender" :value="person.gender"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
-                        <LabelValue label="Education" :value="person.education"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
-                        <LabelValue label="Occupation" :value="person.occupation"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
-                        <LabelValue label="Social Rank" :value="person.social_rank"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
-                        <LabelValue label="Graph Type" :value="person.graph_type"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
-                        <LabelValue label="Honorific Epithet" :value="person.honorific_epithet"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
-                    </template>
+                    <ancient-person-details v-for="person in people" :key="person.id" :person="person" :export-mode="config.expertMode"></ancient-person-details>
                 </Widget>
 
                 <Widget title="Annotations" :collapsed.sync="config.widgets.annotations.isCollapsed" :count="countBaseAnnotations">
@@ -334,22 +325,22 @@
                     <div v-if="showLTSA && countAnnotations('ltsa')" class="mtop-small">
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.layoutTextStructure.showUnit" class="switch-primary annotation-color-wrapper" label="Show Units">
-                                <span class="count pull-right annotation--unit">{{ countLtsType('Unit') }}</span>
+                                <span class="count pull-right annotation-unit">{{ countLtsType('Unit') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.layoutTextStructure.showSubunit" class="switch-primary annotation-color-wrapper" label="Show Subunits">
-                                <span class="count pull-right annotation--subunit">{{ countLtsType('Subunit') }}</span>
+                                <span class="count pull-right annotation-subunit">{{ countLtsType('Subunit') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.layoutTextStructure.showElement" class="switch-primary annotation-color-wrapper" label="Show Elements">
-                                <span class="count pull-right annotation--element">{{ countLtsType('Element') }}</span>
+                                <span class="count pull-right annotation-element">{{ countLtsType('Element') }}</span>
                             </CheckboxSwitch>
                         </div>
                         <div class="form-group">
                             <CheckboxSwitch v-model="config.layoutTextStructure.showModifier" class="switch-primary annotation-color-wrapper" label="Show Modifiers">
-                                <span class="count pull-right annotation--modifier">{{ countLtsType('Modifier') }}</span>
+                                <span class="count pull-right annotation-modifier">{{ countLtsType('Modifier') }}</span>
                             </CheckboxSwitch>
                         </div>
                     </div>
@@ -383,6 +374,8 @@ import Gallery from '../components/Sidebar/Gallery'
 import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
 import AnnotationDetailsFlat from '../components/Annotations/AnnotationDetailsFlat'
 import AnnotationDetails from '../components/Annotations/AnnotationDetails'
+import AncientPersonDetails from "../components/Sidebar/AncientPersonDetails.vue";
+import LevelDetails from "../components/Sidebar/LevelDetails.vue";
 
 import PersistentConfig from "../components/Shared/PersistentConfig";
 import ResultSet from "../components/Search/ResultSet";
@@ -398,7 +391,8 @@ import qs from 'qs'
 export default {
     name: "TextViewApp",
     components: {
-        Widget, LabelValue, PageMetrics, GreekText, CoolLightBox, PropertyGroup, Gallery, CheckboxSwitch, AnnotationDetailsFlat, AnnotationDetails
+        Widget, LabelValue, PageMetrics, GreekText, CoolLightBox, PropertyGroup, Gallery, CheckboxSwitch, AnnotationDetailsFlat, AnnotationDetails,
+        AncientPersonDetails, LevelDetails
     },
     mixins: [
         PersistentConfig('TextViewConfig'),
@@ -478,8 +472,8 @@ export default {
                     links: { isCollapsed: true },
                 }
             },
+            selection: {},
             imageIndex: null,
-            annotationId: null,
             openRequests: false,
             indexNumberInputValue: null,
         }
@@ -626,7 +620,7 @@ export default {
         },
         // get layout text structure annotations
         layoutTextStructure() {
-            let ret = {}
+            let ret = []
 
             ret = this.data.text.annotations
                 .filter( function(annotation) {
@@ -642,14 +636,18 @@ export default {
             let ret = {}
 
             this.genericTextStructure.forEach( function(annotation) {
-                    let level_number =  String(annotation?.properties?.gts_textLevel?.number || 0);
-                    let level_properties = annotation?.properties?.gts_textLevel?.number ? annotation?.properties?.gts_textLevel : { number: 0, type: "" }
-                    if (!(level_number in ret)) {
-                        ret[level_number] = { ...level_properties, ...{ children: [] } }
-                    }
-                    ret[level_number].children.push(annotation)
-                });
-            return ret;
+                if ( !annotation?.properties?.gts_textLevel?.id ) {
+                    return
+                }
+                let level_number =  String(annotation.properties.gts_textLevel.number)
+                let level_properties = annotation.properties.gts_textLevel
+                if (!(level_number in ret)) {
+                    ret[level_number] = { ...level_properties, ...{ genericTextStructure: [] } }
+                }
+                ret[level_number].genericTextStructure.push(annotation)
+            });
+
+            return Object.values(ret).sort( (a,b) => a.number - b.number );
         },
         baseAnnotations() {
             const types = ['typography', 'orthography','language','morpho_syntactical', 'lexis', 'morphology']
@@ -686,9 +684,57 @@ export default {
                     break;
             }
             return strClass;
-        }
+        },
+        hasSelection() {
+            return Object.values(this.selection).filter(item => item).length !== 0
+        },
     },
     methods: {
+        openSelectionWidget() {
+            this.config.widgets.selectionDetails.isCollapsed = false
+            this.$refs.sidebar.scrollTop = 0;
+        },
+        resetSelection() {
+            Object.keys(this.selection).map( key =>
+                this.$set(this.selection, key, null)
+            )
+        },
+        onClickAnnotation(annotation) {
+            if (this.selection?.annotationId === this.getAnnotationTypeId(annotation) )
+                this.$set(this.selection, 'annotationId', null)
+            else {
+                this.resetSelection()
+                this.$set(this.selection, 'annotationId', this.getAnnotationTypeId(annotation))
+                this.openSelectionWidget()
+            }
+        },
+        onClickLevel(level) {
+            if (this.selection.levelId === level.id )
+                this.$set(this.selection, 'levelId', null)
+            else {
+                this.resetSelection()
+                this.$set(this.selection, 'levelId', level.id)
+                this.openSelectionWidget()
+            }
+        },
+        clickAnnotation(e) {
+            e.stopPropagation()
+
+            // get annotation id
+            let typeId = e.target?.dataset?.id;
+            if ( typeId ) {
+                if (this.selection?.annotationId === typeId )
+                    this.$set(this.selection, 'annotationId', null)
+                else {
+                    this.resetSelection()
+                    this.$set(this.selection, 'annotationId', typeId)
+                    this.openSelectionWidget()
+                }
+            }
+        },
+        getAnnotationTypeId(annotation) {
+            return annotation.type+':'+annotation.id
+        },
         annotationHasContext(annotation) {
            return !!annotation?.context
         },
@@ -722,6 +768,9 @@ export default {
                 }
             }
 
+            // console.log(annotationTypeFilter)
+            // console.log(annotationPropertyFilters)
+
             let that = this
             return annotations.filter( function(annotation) {
                 // filter only annotations in scope of annotationTypeFilter
@@ -729,10 +778,14 @@ export default {
                     return true
                 }
 
+                // console.log(annotation)
+
                 // filter annotations in scope
                 for (const [contextParam, values] of Object.entries(annotationPropertyFilters)) {
+
                     // check if intersection exists between property values of annotation and parameter values of context
                     let valuesMatched = values.filter( function(value) {
+                        // console.log([contextParam, values, that.contextAnnotationMapper(annotation, contextParam)])
                         return that.contextAnnotationMapper(annotation, contextParam).includes(value)
                     })
                     if ( valuesMatched.length === 0 ) {
@@ -751,6 +804,7 @@ export default {
                 case 'annotation_type':
                     return [annotation.type]
                 case 'gts_textLevel':
+                case 'textLevel':
                     if (!Array.isArray(props?.gts_textLevel))
                         return [props.gts_textLevel?.number]
                     return props.gts_textLevel.map( i => i.number )
@@ -821,19 +875,40 @@ export default {
                 default:
                     classes = classes.concat(['annotation', 'annotation-' + annotation.type, 'annotation-' + annotation.type + '-' + annotation.id]);
             }
+            // annotation active?
+            if ( this.selection?.annotationId ) {
+                if ( this.getAnnotationTypeId(annotation) === this.selection?.annotatonId ) {
+                    classes.push('annotation--active')
+                }
+            }
+            // extra's?
             if ( extra ) {
                 classes.push(extra)
             }
-            return classes.join(' ');
+            return classes.join(' ')
         },
-        getPersonRoleClass(role) {
-            let ret = 'label label-default';
-            switch(role?.name) {
-                case 'initiator': ret = 'label label-success'; break;
-                case 'receiver': ret = 'label label-info'; break;
-                case 'scribe': ret = 'label label-primary'; break;
+        getLevelClass(level) {
+            let classes = ['level']
+            if (this.selection?.levelId && this.selection.levelId === level.id ) {
+                classes.push('level--active')
             }
-            return ret
+            return classes.join(' ')
+        },
+        getGtsClass(annotation) {
+            let classes = ['structure']
+            if (this.selection?.annotationId && this.selection.annotationId === this.getAnnotationTypeId(annotation) ) {
+                classes.push('structure--active')
+            }
+            return classes.join(' ')
+        },
+        getTextLevel(level_id) {
+            return this.text?.text_level?.find(level => level.id === level_id )
+        },
+        formatLevelCategory(level) {
+            if (!level) {
+                return []
+            }
+            return (this.getTextLevel(level.id)?.level_category ?? []).map( category => [ category?.level_category_category?.name ].filter(name => name).join(', ') ).filter( label => label )
         },
         countAnnotations(type = null) {
             if ( type ) {
@@ -856,9 +931,6 @@ export default {
         getTmTextUrl(id) {
             return 'https://www.trismegistos.org/text/' + id
         },
-        getTmPersonUrl(id) {
-            return 'https://www.trismegistos.org/person/' + id
-        },
         getTextUrl(id) {
             let url = this.urls['text_get_single'].replace('text_id', id);
             if (this.isValidContext()) {
@@ -876,18 +948,7 @@ export default {
                 this.openRequests -= 1
             })
         },
-        clickAnnotation(e) {
-            e.stopPropagation()
 
-            // get annotation id
-            let typeId = e.target?.dataset?.id;
-            if ( typeId ) {
-                this.annotationId = typeId
-                // open selection details widget
-                this.config.widgets.selectionDetails.isCollapsed = false
-            }
-            this.$refs.sidebar.scrollTop = 0;
-        },
         bindEvents() {
             this.$nextTick(function () {
                 const annotations = this.$el.querySelectorAll('.annotation')
@@ -906,7 +967,7 @@ export default {
             if ( !this.resultSet.count ) return;
 
             // reset selection
-            that.annotationId = null;
+            that.selection = {};
 
             let newIndex = Math.max(1, Math.min(index, this.resultSet.count))
             this.getResultSetIdByIndex(newIndex).then( function(id) {
