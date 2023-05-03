@@ -36,18 +36,17 @@ export default {
 
             switch (this.type) {
                 case 'range':
-                    if ( value ) {
+                    if ( value?.start && value?.end ) {
                         return (value.start === value.end ? value.start : value.start + ' - ' + value.end)
                     }
-
                     break;
                 case 'id_name':
-
-                    return value.name;
+                    if ( value?.name ) {
+                        return String(value.name).trim();
+                    }
                     break;
-
                 default:
-                    return value
+                    return String(value).trim();
             }
 
             return this.unknown;
