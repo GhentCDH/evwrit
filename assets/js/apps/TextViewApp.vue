@@ -185,7 +185,7 @@
                         <LabelValue type="id_name" label="Format" :value="text.text_format" :url="urlGeneratorIdName('materiality_search','text_format')"></LabelValue>
                     </PropertyGroup>
                     <PropertyGroup>
-                        <PageMetrics v-bind="text"></PageMetrics>
+                        <PageMetrics v-bind="text" unit="cm"></PageMetrics>
                     </PropertyGroup>
                     <PropertyGroup>
                         <LabelValue label="Lines" :value="arrayToRange(text.lines)"  type="range"></LabelValue>
