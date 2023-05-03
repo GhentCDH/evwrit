@@ -159,7 +159,7 @@
                 </Widget>
 
                 <Widget title="Images" :count="text.image.length" :collapsed.sync="config.widgets.images.isCollapsed">
-                    onClick="(index,url) => (imageIndex = index)" />
+                    <Gallery :images="images" :onClick="(index,url) => (imageIndex = index)" />
                 </Widget>
 
                 <Widget title="Translations" :count="text.translation.length"  :collapsed.sync="config.widgets.translations.isCollapsed">
