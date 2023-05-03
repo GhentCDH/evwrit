@@ -11,7 +11,7 @@
                         :key="index"
                         :type="type"
                         :value="item"
-                        :url="isCallable(url) ? url(value) : url"
+                        :url="isCallable(url) ? url(item) : url"
                         :class="isCallable(valueClass) ? valueClass(item) : valueClass"
                 />
             </template>
