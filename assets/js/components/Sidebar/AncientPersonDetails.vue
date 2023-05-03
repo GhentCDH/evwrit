@@ -1,9 +1,9 @@
 <template>
     <div class="ancient-person">
-        <div class="ancient-person--name">
+        <div class="ancient-person__name">
             {{ person.name }}
         </div>
-        <div class="ancient-person--metadata">
+        <div class="ancient-person__metadata">
             <LabelValue label="Trismegistos ID" :value="person.tm_id" :url="getTmPersonUrl"></LabelValue>
             <LabelValue label="Role" :value="person.role"  type="id_name" :ignore-value="['Unknown','unknown']" :value-class="getPersonRoleClass"></LabelValue>
             <LabelValue label="Age" :value="person.age"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
