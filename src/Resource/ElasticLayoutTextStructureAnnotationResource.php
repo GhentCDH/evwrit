@@ -16,7 +16,7 @@ use function Symfony\Component\String\u;
 class ElasticLayoutTextStructureAnnotationResource extends BaseElasticAnnotationResource
 {
     protected $includeAttributes = ['part','partNumber'];
-    protected $generateContext = false;
+    protected $generateContext = true;
 
     public function toArray($request=null): array
     {
