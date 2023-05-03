@@ -4,6 +4,8 @@
     position: relative;
     left: -20px;
     margin-bottom: 20px;
+    cursor: pointer;
+    user-select: none;
 
     span {
       padding: 3px 10px;
@@ -17,10 +19,25 @@
     color: white;
   }
 
+  .level.level--active {
+    border-left: 2px solid orange;
+
+    & > label {
+      background-color: orange;
+    }
+  }
+
   .structure > label {
     background-color: #e9f0fa
   }
 
+  .structure.structure--active {
+    border-left: 2px solid orange;
+
+    & > label {
+      background-color: orange;
+    }
+  }
 
   .level {
     margin-bottom: 1em;

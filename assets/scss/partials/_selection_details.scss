@@ -34,6 +34,19 @@ $selection-details-border-width: 3px;
         }
       }
     }
+
+    &.annotation-gts::before {
+      border-left: $selection-details-border-width solid orange;
+    }
+  }
+
+  .level-metadata {
+    padding-left: 10px;
+    position: relative;
+
+    &::before {
+      border-left: $selection-details-border-width solid orange;
+    }
   }
 
 }
