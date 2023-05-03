@@ -64,6 +64,12 @@ class TextIndexService extends AbstractIndexService
             'is_transversa_charta' => ['type' => 'boolean'],
             'tomos_synkollesimos' => ['type' => 'boolean'],
 
+            'coptic_relative' => ['type' => 'float'],
+            'greek_relative' => ['type' => 'float'],
+            'latin_relative' => ['type' => 'float'],
+            'arabic_relative' => ['type' => 'float'],
+
+
             'ancient_person' => ['type' => 'nested'],
 
             'level_category' => [ 'type' => 'nested' ],
