@@ -83,16 +83,16 @@
                         @loaded="onLoaded"
                         class="form-group-sm"
                 >
-                    <template #beforeTable>
+                    <template v-slot:beforeTable>
                         <div class="VueTables__beforeTable row form-group form-inline">
                             <div class="VueTables__pagination col-xs-4">
-                                <vt-pagination v-bind="props"></vt-pagination>
+                                <vt-pagination></vt-pagination>
                             </div>
                             <div class="VueTables__count col-xs-4">
-                                <vt-pagination-count v-bind="props"></vt-pagination-count>
+                                <vt-pagination-count></vt-pagination-count>
                             </div>
                             <div class="VueTables__limit col-xs-4">
-                                <vt-per-page-selector v-bind="props"></vt-per-page-selector>
+                                <vt-per-page-selector></vt-per-page-selector>
                             </div>
                         </div>
                     </template>
