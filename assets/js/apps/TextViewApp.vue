@@ -127,35 +127,19 @@
                 </Widget>
 
                 <Widget title="Selection details" class="widget--selection-details" v-if="hasSelection" :collapsed.sync="config.widgets.selectionDetails.isCollapsed">
-                    <AnnotationDetails v-if="selection.annotationId" :annotation="annotationsByTypeId[selection.annotationId]" :class="getAnnotationClass(annotationsByTypeId[selection.annotationId])" :expertMode="config.expertMode"></AnnotationDetails>
-                    <LevelDetails v-if="selection.levelId" :level="getTextLevel(selection.levelId)" :expertMode="config.expertMode" class="level-metadata"></LevelDetails>
+                    <AnnotationDetails v-if="selection.annotationId" :annotation="annotationsByTypeId[selection.annotationId]"
+                                       :class="getAnnotationClass(annotationsByTypeId[selection.annotationId])"
+                                       :url-generator="urlGeneratorIdName"
+                                       :expertMode="config.expertMode"></AnnotationDetails>
+                    <LevelDetails v-if="selection.levelId" :level="getTextLevel(selection.levelId)" :expertMode="config.expertMode"
+                                  class="level-metadata"
+                                  :expert-mode="config.expertMode"
+                                  :url-generator="urlGeneratorIdName">
+                    </LevelDetails>
                 </Widget>
 
                 <Widget title="Metadata" :collapsed.sync="config.widgets.metadata.isCollapsed">
-                    <LabelValue label="EVWRIT ID" :value="text.id"></LabelValue>
-                    <LabelValue label="Trismegistos ID" :value="text.tm_id" :url="getTmTextUrl"></LabelValue>
-
-                    <PropertyGroup v-if="text.text_type">
-                        <LabelValue label="Type" :value="text.text_type" type="id_name"></LabelValue>
-                        <LabelValue label="Subtype" :value="text.text_subtype" type="id_name"></LabelValue>
-                    </PropertyGroup>
-
-                    <PropertyGroup v-if="text.archive">
-                        <LabelValue label="Archive" :value="text.archive" type="id_name"></LabelValue>
-                    </PropertyGroup>
-
-                    <PropertyGroup>
-                        <LabelValue label="Date" :value="{start: text.year_begin, end: text.year_end}" type="range"></LabelValue>
-                        <LabelValue label="Era" :value="text.era" type="id_name" :url="urlGeneratorIdName('text_search', 'era')"></LabelValue>
-                    </PropertyGroup>
-
-                    <PropertyGroup>
-                        <LabelValue label="Location written" :value="text.location_written" type="id_name"></LabelValue>
-                        <LabelValue label="Location found" :value="text.location_found" type="id_name"></LabelValue>
-                    </PropertyGroup>
-
-                    <LabelValue v-if="text.keyword" label="Keywords" :value="text.keyword" :url="urlGeneratorIdName('text_search', 'keyword')" type="id_name"></LabelValue>
-
+                    <text-metadata :text="text" :url-generator="urlGeneratorIdName"></text-metadata>
                 </Widget>
 
                 <Widget title="Images" :count="text.image.length" :collapsed.sync="config.widgets.images.isCollapsed">
@@ -196,7 +180,11 @@
                 </Widget>
 
                 <Widget title="People"  :collapsed.sync="config.widgets.attestation.isCollapsed" :count="people.length">
-                    <ancient-person-details v-for="person in people" :key="person.id" :person="person" :export-mode="config.expertMode"></ancient-person-details>
+                    <ancient-person-details v-for="person in people" :key="person.id" :person="person"
+                                            :export-mode="config.expertMode"
+                                            :url-generator="urlGeneratorIdName"
+                                            class="mbottom-small"
+                    ></ancient-person-details>
                 </Widget>
 
                 <Widget title="Annotations" :collapsed.sync="config.widgets.annotations.isCollapsed" :count="countBaseAnnotations">
@@ -376,8 +364,9 @@ import Gallery from '../components/Sidebar/Gallery'
 import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
 import AnnotationDetailsFlat from '../components/Annotations/AnnotationDetailsFlat'
 import AnnotationDetails from '../components/Annotations/AnnotationDetails'
-import AncientPersonDetails from "../components/Sidebar/AncientPersonDetails.vue";
-import LevelDetails from "../components/Sidebar/LevelDetails.vue";
+import AncientPersonMetadata from "../components/Sidebar/AncientPersonMetadata.vue";
+import LevelMetadata from "../components/Sidebar/LevelMetadata.vue";
+import TextMetadata from "../components/Sidebar/TextMetadata.vue";
 
 import PersistentConfig from "../components/Shared/PersistentConfig";
 import ResultSet from "../components/Search/ResultSet";
@@ -394,7 +383,7 @@ export default {
     name: "TextViewApp",
     components: {
         Widget, LabelValue, PageMetrics, GreekText, CoolLightBox, PropertyGroup, Gallery, CheckboxSwitch, AnnotationDetailsFlat, AnnotationDetails,
-        AncientPersonDetails, LevelDetails
+        AncientPersonDetails: AncientPersonMetadata, LevelDetails: LevelMetadata, TextMetadata
     },
     mixins: [
         PersistentConfig('TextViewConfig'),
@@ -929,9 +918,6 @@ export default {
         },
         getUrl(route) {
             return this.urls[route] ?? ''
-        },
-        getTmTextUrl(id) {
-            return 'https://www.trismegistos.org/text/' + id
         },
         getTextUrl(id) {
             let url = this.urls['text_get_single'].replace('text_id', id);
