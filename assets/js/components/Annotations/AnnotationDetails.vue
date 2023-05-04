@@ -39,6 +39,11 @@ export default {
         expertMode: {
             type: Boolean,
             default: false
+        },
+        urlGenerator: {
+            type: Function,
+            default: null,
+            required: true
         }
     },
     computed: {
