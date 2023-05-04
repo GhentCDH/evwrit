@@ -1,5 +1,5 @@
 <template>
-    <div class="annotation-metadata">
+    <div class="level__metadata">
         <LabelValue label="Number" :value="level.number" :inline="true"></LabelValue>
 
         <LabelValue label="Category" v-if="level.level_category">
@@ -24,21 +24,29 @@
             </div>
         </LabelValue>
 
-        <h3>People</h3>
+        <template v-if="hasPeople">
+            <h3>People</h3>
 
-        <AncientPersonDetails v-for="person in level?.attestations ?? []" :key="person.id" :person="person" class="mbottom-small"></AncientPersonDetails>
+            <PropertyGroup v-for="person in people" :key="person.id">
+                <AncientPersonDetails :person="person"
+                                      :url-generator="urlGenerator">
+                </AncientPersonDetails>
+            </PropertyGroup>
+        </template>
 
     </div>
 </template>
 
 <script>
 import LabelValue from './LabelValue'
-import AncientPersonDetails from "./AncientPersonDetails.vue";
+import AncientPersonDetails from "./AncientPersonMetadata.vue";
 import FormatValue from "./FormatValue.vue";
+import PropertyGroup from "./PropertyGroup.vue";
 
 export default {
     name: "LevelDetails",
     components: {
+        PropertyGroup,
         FormatValue,
         LabelValue, AncientPersonDetails
     },
@@ -50,9 +58,20 @@ export default {
         expertMode: {
             type: Boolean,
             default: false
+        },
+        urlGenerator: {
+            type: Function,
+            default: null,
+            required: true
         }
     },
     computed: {
+        people() {
+            return this.level?.attestations ?? []
+        },
+        hasPeople() {
+            return this.people.length > 0
+        }
     },
 }
 </script>
