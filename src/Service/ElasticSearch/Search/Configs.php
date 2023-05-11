@@ -612,8 +612,7 @@ class Configs implements SearchConfigInterface
                 'coherenceForm', 'coherenceContent', 'coherenceContext',
                 'complementationForm', 'complementationContent', 'complementationContext',
                 'subordinationForm', 'subordinationContent', 'subordinationContext',
-//                'relativisationForm', 'relativisationContent', 'relativisationContext',
-                'orderForm', 'orderContent', 'orderContext', // todo: replace by relativisation fields after reimport
+                'relativisationForm', 'relativisationContent', 'relativisationContext',
                 'typeFormulaicity'
             ],
             'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
@@ -651,8 +650,7 @@ class Configs implements SearchConfigInterface
                 'coherenceForm', 'coherenceContent', 'coherenceContext',
                 'complementationForm', 'complementationContent', 'complementationContext',
                 'subordinationForm', 'subordinationContent', 'subordinationContext',
-//                'relativisationForm', 'relativisationContent', 'relativisationContext', // todo: enable after schema update
-                'orderForm', 'orderContent', 'orderContext', // todo: remove after schema update
+                'relativisationForm', 'relativisationContent', 'relativisationContext',
                 'typeFormulaicity'
             ],
             'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],

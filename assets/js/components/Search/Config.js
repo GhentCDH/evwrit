@@ -386,7 +386,7 @@ export default {
                     ...['morpho_syntactical_coherenceForm', 'morpho_syntactical_coherenceContent', 'morpho_syntactical_coherenceContext',
                         'morpho_syntactical_complementationForm', 'morpho_syntactical_complementationContent', 'morpho_syntactical_complementationContext',
                         'morpho_syntactical_subordinationForm', 'morpho_syntactical_subordinationContent', 'morpho_syntactical_subordinationContext',
-                        'morpho_syntactical_orderForm', 'morpho_syntactical_orderContent', 'morpho_syntactical_orderContext'
+                        'morpho_syntactical_relativisationForm', 'morpho_syntactical_relativisationContent', 'morpho_syntactical_relativisationContext'
                     ].map(
                         field => [
                             this.createOperators(field + '_op', {
