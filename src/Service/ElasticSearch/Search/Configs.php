@@ -129,12 +129,12 @@ class Configs implements SearchConfigInterface
             'collaborator'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'project'  => [
                 'type' => self::AGG_OBJECT_ID_NAME,
-                'allowedValue' => [2,3,4,8] //todo: fix this!!
+                'allowedValue' => [3, 2, 4, 9, 30, 35] //todo: fix this!!
             ],
             'project_extra'  => [
                 'field' => 'project',
                 'type' => self::AGG_OBJECT_ID_NAME,
-                'allowedValue' => [2,3,4,8] //todo: fix this!!
+                'allowedValue' => [3, 2, 4, 9, 30, 35] //todo: fix this!!
             ],
 
         ];

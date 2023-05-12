@@ -23,8 +23,10 @@ class IndexElasticsearchCommand extends Command
     protected $di = [];
 
     protected $projects = [
-        'ERC (main corpus)', 'Post-doc Bentein', 'Serena', 'Emmanuel'
+        'ERC (main corpus)', 'Post-doc Bentein', 'Serena', 'Emmanuel', 'Postscripts', 'VisualSegmentation',
+//        'Papyri'
 //        'Serena'
+        // 3, 2, 4, 9, 30, 35, 28
     ];
 
     public function __construct(ContainerInterface $container)
