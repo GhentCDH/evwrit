@@ -10,13 +10,6 @@ class LevelIndexService extends AbstractIndexService
     protected const indexName = "level";
     const INNER_HITS_SIZE_MAX = 100;
 
-    public function __construct(Client $client)
-    {
-        parent::__construct(
-            $client,
-            self::indexName);
-    }
-
     protected function getMappingProperties(): array {
         return [
             // physical info
