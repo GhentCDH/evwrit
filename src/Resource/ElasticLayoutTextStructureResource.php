@@ -26,6 +26,7 @@ class ElasticLayoutTextStructureResource extends BaseResource
             'properties' => [
                 'lts_part' => (new ElasticIdNameResource($resource->part))->toArray(),
                 'lts_partNumber' => $resource->partNumber,
+                'lts_preservationStatus' => $resource->preservationStatus,
             ]
         ];
 

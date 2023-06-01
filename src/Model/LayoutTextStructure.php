@@ -13,6 +13,7 @@ use ReflectionException;
  * @property int $layout_text_structure_id
  * @property int $text_selection_id
  * @property int $layout_text_structure_part_id
+ * @property string $preservationStatus
  *
  * @property TextSelection textSelection
  * @property LayoutTextStructurePart part

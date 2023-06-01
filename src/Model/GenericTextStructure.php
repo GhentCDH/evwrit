@@ -18,6 +18,7 @@ use ReflectionException;
  * @property int $generic_text_structure_part_number
  * @property int $text_structure_components_id
  * @property string $comment
+ * @property string $preservationStatus
  *
  * @property TextSelection $textSelection
  * @property GenericTextStructurePart part
