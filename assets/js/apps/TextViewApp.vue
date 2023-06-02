@@ -29,14 +29,14 @@
                             <div :class="getLevelClass(getTextLevel(level.id))" v-for="level in genericTextStructureGroupedByLevel">
                                 <label class="level__number" @click.stop="onClickLevel(getTextLevel(level.id))"><span>Level {{ level.number }} {{ level.type }}</span></label>
                                 <label class="level__category" @click.stop="onClickLevel(getTextLevel(level.id))" v-if="level.id" v-for="category in formatLevelCategory(getTextLevel(level.id))"><span>{{ category }}</span></label>
-                                <div :class="getGtsClass(textStructure)" v-for="textStructure in level.genericTextStructure">
+                                <div :class="getStructureClass(textStructure)" v-for="textStructure in level.genericTextStructure">
                                     <label @click="onClickAnnotation(textStructure)"><span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span></label>
-                                    <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                                    <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormattedNoLts" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
                                 </div>
                             </div>
                         </template>
                         <template v-if="!config.genericTextStructure.groupByLevel">
-                            <div :class="getGtsClass(textStructure)" v-for="textStructure in genericTextStructure">
+                            <div :class="getStructureClass(textStructure)" v-for="textStructure in genericTextStructure">
                                 <label @click="onClickAnnotation(textStructure)">
                                     <span v-if="textStructure.gts_textLevel">Level {{ textStructure.gts_textLevel.number }}</span>
                                     <span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span>
@@ -49,7 +49,7 @@
                     <!-- Layout Text Structure -->
                     <div v-if="config.layoutTextStructure.show && layoutTextStructure.length" :class="textContainerClass" class="text-structure">
                         <h2>Layout structure</h2>
-                        <div class="structure" v-for="textStructure in layoutTextStructure">
+                        <div :class="getStructureClass(textStructure)" v-for="textStructure in layoutTextStructure">
                             <label @click="onClickAnnotation(textStructure)">
                                 <span>{{ textStructure.properties.lts_part.name }}</span>
                             </label>
@@ -885,7 +885,7 @@ export default {
             }
             return classes.join(' ')
         },
-        getGtsClass(annotation) {
+        getStructureClass(annotation) {
             let classes = ['structure']
             if (this.selection?.annotationId && this.selection.annotationId === this.getAnnotationTypeId(annotation) ) {
                 classes.push('structure--active')
