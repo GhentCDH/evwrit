@@ -282,6 +282,12 @@ export default {
                 collapsed: this.groupCollapsed,
                 id: 'annotations',
                 fields: [
+                    {
+                        type: 'input',
+                        inputType: 'text',
+                        label: 'Text',
+                        model: 'annotation_text',
+                    },
                     defaultAnnotationType !== 'language' ? this.createSelect('Type',
                         {
                             model: 'annotation_type',
