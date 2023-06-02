@@ -99,7 +99,7 @@
                     </template>
                     <template v-slot:location_found="props">
                         <td>
-                            {{ props.row.location_found[0]?.name }}
+                            {{ props.row.location_found[0]?.name ?? '' }}
                         </td>
                     </template>
                 </v-server-table>
@@ -167,6 +167,7 @@ export default {
                 filterByColumn: false,
                 filterable: false,
                 headings: {
+                    level_category: 'Text type'
                 },
                 columnsClasses: {
                     name: 'no-wrap',

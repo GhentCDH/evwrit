@@ -86,21 +86,16 @@
                             {{ props.row.text_id }}
                         </a>
                     </template>
-                    <!--                <template slot="tm_id" slot-scope="props">-->
-                    <!--                    <a :href="getTextUrl(props.row.id, props.index)">-->
-                    <!--                        {{ props.row.tm_id }}-->
-                    <!--                    </a>-->
-                    <!--                </template>-->
-                    <!--                <template slot="text_type" slot-scope="props">-->
-                    <!--                    <td>-->
-                    <!--                        {{ props.row.text_type.name }}-->
-                    <!--                    </td>-->
-                    <!--                </template>-->
-                    <!--                <template slot="location_found" slot-scope="props">-->
-                    <!--                    <td>-->
-                    <!--                        {{ props.row.location_found[0]?.name }}-->
-                    <!--                    </td>-->
-                    <!--                </template>-->
+                    <template v-slot:level_category="props">
+                        <td>
+                            {{ formatLevelCategory(props.row.level_category) }}
+                        </td>
+                    </template>
+                    <template v-slot:location_found="props">
+                        <td>
+                            {{ props.row.location_found[0]?.name }}
+                        </td>
+                    </template>
                 </v-server-table>
             </section>
         </article>
@@ -180,6 +175,7 @@ export default {
                     text_id: 'ID',
                     tm_id: 'Tm ID ',
                     title: 'Title',
+                    level_category: 'Text type'
                 },
                 columnsClasses: {
                     text_id: 'vue-tables__col vue-tables__col--id',
@@ -215,7 +211,7 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['text_id', 'tm_id', 'title', 'text_type', 'location_found']
+            let columns = ['text_id', 'tm_id', 'title', 'level_category', 'location_found']
             return columns
         },
     },
@@ -224,6 +220,12 @@ export default {
         },
     },
     methods: {
+        formatLevelCategory(data) {
+            // console.log(data)
+            if (!data) return 'None';
+
+            return data.map( item => item.level_category_category.name ).join(', ')
+        },
         update() {
             // Don't create a new history item
             this.noHistory = true;

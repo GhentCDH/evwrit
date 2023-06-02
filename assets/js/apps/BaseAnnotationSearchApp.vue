@@ -244,7 +244,8 @@ export default {
                     id: 'ID',
                     tm_id: 'Tm ID ',
                     title: 'Title',
-                    annotations: 'Annotations'
+                    annotations: 'Annotations',
+                    level_category: 'Text type'
                 },
                 columnsClasses: {
                     id: 'vue-tables__col vue-tables__col--id',

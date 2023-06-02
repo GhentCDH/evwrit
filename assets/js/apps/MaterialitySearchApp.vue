@@ -173,6 +173,7 @@ export default {
                 filterByColumn: false,
                 filterable: false,
                 headings: {
+                    level_category: 'Text type'
                 },
                 columnsClasses: {
                     name: 'no-wrap',
