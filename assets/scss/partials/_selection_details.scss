@@ -35,7 +35,7 @@ $selection-details-border-width: 3px;
       }
     }
 
-    &.annotation-gts::before {
+    &.annotation-gts::before, &.annotation-lts::before {
       border-left: $selection-details-border-width solid orange;
     }
   }
@@ -45,7 +45,12 @@ $selection-details-border-width: 3px;
     position: relative;
 
     &::before {
+      content: ' ';
+      position: absolute;
+      height: 100%;
       border-left: $selection-details-border-width solid orange;
+      //left: -10px;
+      left: 0;
     }
   }
 
