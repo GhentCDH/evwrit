@@ -16,10 +16,12 @@
 
         <LabelValue label="Person" v-if="annotation.gts_preservationStatus" :value="annotation.gts_preservationStatus" :inline="true" class="mtop-small"></LabelValue>
 
-        <AncientPersonDetails :person="ancient_person"
-                              :url-generator="urlGenerator"
-                              v-if="annotation.ancient_person">
-        </AncientPersonDetails>
+        <template v-if="annotation.ancient_person">
+            <h3>Person</h3>
+            <AncientPersonDetails :person="annotation.ancient_person"
+                                  :url-generator="urlGenerator">
+            </AncientPersonDetails>
+        </template>
     </div>
 </template>
 
