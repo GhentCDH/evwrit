@@ -20,6 +20,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     private const NONE_LABEL = 'none';
     private const NONE_KEY = -1;
 
+
     protected function sanitizeSearchParameters(array $params, bool $merge_defaults = true): array
     {
         // Set default parameters
@@ -219,7 +220,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 if (is_array($filterValue)) {
                     $ret['value'] = $filterValue;
                 }
-                if (is_string($filterValue)) {
+                if (is_string($filterValue) && $filterValue != '') {
                     $combination = $params[$filterName . '_combination'] ?? 'any';
                     $combination = in_array($combination, ['any', 'all', 'phrase'], true) ? $combination : 'any';
 

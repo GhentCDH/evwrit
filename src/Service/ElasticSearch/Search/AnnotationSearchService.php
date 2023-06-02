@@ -54,7 +54,8 @@ class AnnotationSearchService extends AbstractSearchService
             '_score',
             'id', 'tm_id', 'title', 'year_begin', 'year_end', 'line_count',
             'inner_hits', 'annotations',
-            'level_category', 'location_found'];
+            'level_category', 'location_found'
+        ];
 
         $result = array_intersect_key($result, array_flip($returnProps));
         $result['annotations'] = $result['annotations'] ?? [];
@@ -63,7 +64,6 @@ class AnnotationSearchService extends AbstractSearchService
             $result['annotations_hits_count'] = $result['inner_hits']['annotations']['count'];
         }
         unset($result['inner_hits']);
-
         return $result;
     }
 

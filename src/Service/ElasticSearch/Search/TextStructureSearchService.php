@@ -100,7 +100,11 @@ class TextStructureSearchService extends AbstractSearchService
 
     protected function sanitizeSearchResult(array $result): array
     {
-        $returnProps = ['id', 'text_id', 'tm_id', 'title', 'year_begin', 'year_end', 'inner_hits', 'annotations', 'level_category', 'location_found'];
+        $returnProps = [
+            'id', 'text_id', 'tm_id', 'title', 'year_begin', 'year_end',
+            'inner_hits', 'annotations',
+            'level_category', 'location_found'
+        ];
 
         $result = array_intersect_key($result, array_flip($returnProps));
         $result['annotations'] = $result['annotations'] ?? [];
@@ -109,7 +113,6 @@ class TextStructureSearchService extends AbstractSearchService
             $result['annotations_hits_count'] = $result['inner_hits']['annotations']['count'];
         }
         unset($result['inner_hits']);
-
         return $result;
     }
 
