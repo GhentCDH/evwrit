@@ -586,6 +586,10 @@ class Configs implements SearchConfigInterface
             'type' => self::FILTER_NESTED_MULTIPLE,
             'nested_path' => 'annotations',
             'filters' => [
+                'annotation_text' => [
+                    'field' => 'text_selection.text',
+                    'type' => self::FILTER_TEXT
+                ],
                 'annotation_type' => [
                     'field' => 'type',
                     'type' => self::FILTER_KEYWORD

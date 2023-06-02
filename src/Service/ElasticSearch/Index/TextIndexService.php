@@ -74,7 +74,23 @@ class TextIndexService extends AbstractIndexService
 
             'level_category' => [ 'type' => 'nested' ],
 
-            'annotations' =>  [ 'type' => 'nested' ],
+            'annotations' =>  [
+                'type' => 'nested',
+                'properties' => [
+                    'text_selection.text' => [
+                        'type' => 'text',
+                        'analyzer' => 'custom_greek_original',
+                        // Needed for sorting
+                        'fields' => [
+                            'keyword' => [
+                                'type' => 'keyword',
+                                'normalizer' => 'case_insensitive',
+                                'ignore_above' => 256,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
 
         ];
     }
