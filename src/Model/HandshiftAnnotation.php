@@ -179,4 +179,14 @@ class HandshiftAnnotation extends AbstractAnnotationModel
     {
         return $this->belongsTo(AnnotationWordSplitting::class);
     }
+
+    /**
+     * @return BelongsTo|IdNameModelModel
+     * @throws ReflectionException
+     */
+    public function attestation(): belongsTo
+    {
+        return $this->belongsTo(Attestation::class);
+    }
+
 }
