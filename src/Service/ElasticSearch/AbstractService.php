@@ -10,14 +10,19 @@ abstract class AbstractService
     protected Client $client;
     protected ?Index $index = null;
 
+    protected bool $debug = false;
+
+
     protected string $indexPrefix;
 
     public function __construct(
         Client $client,
-        string $indexPrefix
+        string $indexPrefix,
+        bool $debug = false
     ) {
         $this->client = $client;
         $this->indexPrefix = $indexPrefix;
+        $this->debug = $debug;
 
         if (!defined('static::indexName')) {
             throw new Exception('Constant indexName is not defined on subclass ' . get_class($this));

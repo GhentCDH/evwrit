@@ -892,7 +892,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // onBeforeSearch
         $this->onBeforeSearch($searchParams, $query, $queryFS);
-//        dump($searchParams);
+        $this->debug && dump($searchParams);
 
         // Number of results
         if (isset($searchParams['limit']) && is_numeric($searchParams['limit'])) {
@@ -927,14 +927,14 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 //        dump($params);
         $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
         if (count($searchFilters)) {
-//            dump($searchFilters);
+            $this->debug && dump($searchFilters);
             $queryFS->setQuery($this->createSearchQuery($searchFilters));
             $query->setHighlight($this->createHighlight($searchFilters));
         } else {
             $queryFS->setQuery( new Query\MatchAll() );
         }
 
-//        dump(json_encode($query->toArray(), JSON_PRETTY_PRINT));
+        $this->debug && dump(json_encode($query->toArray(), JSON_PRETTY_PRINT));
 
         // Search
         $data = $this->getIndex()->search($query)->getResponse()->getData();
