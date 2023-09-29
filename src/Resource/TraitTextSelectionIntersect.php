@@ -6,7 +6,8 @@ namespace App\Resource;
 
 trait TraitTextSelectionIntersect {
 
-    private function annotationIntersect(&$annotationSource, $annotations, $limitProperties= []) {
+    private function annotationIntersect(&$annotationSource, $annotations, $limitProperties= []): array
+    {
         $additionalProperties = [];
         foreach( $annotations as $annotationTest ) {
             $type = $annotationTest['type'];
@@ -27,7 +28,8 @@ trait TraitTextSelectionIntersect {
         $annotationSource['properties'] += $additionalProperties;
     }
 
-    private function textSelectionIntersect($a, $b) {
+    private function textSelectionIntersect($a, $b): ?array
+    {
         $a = $a['text_selection'] ?? $a;
         $b = $b['text_selection'] ?? $b;
 
@@ -35,7 +37,7 @@ trait TraitTextSelectionIntersect {
         $max = $min['id'] == $a['id'] ? $b : $a;
 
         //min ends before max starts -> no intersection
-        if ($min['selection_end'] < $max['selection_start']) return false; //the ranges don't intersect
+        if ($min['selection_end'] < $max['selection_start']) return null; //the ranges don't intersect
 
         return [$max['selection_start'], $min['selection_end'] < $max['selection_end'] ? $min['selection_end'] : $max['selection_end']];
     }

@@ -19,7 +19,7 @@ class AttestationAncientPersonOnlyResource extends BaseResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request=null)
+    public function toArray($request=null): array
     {
         /** @var AncientPerson $ap */
         $ap = $this->ancientPerson;

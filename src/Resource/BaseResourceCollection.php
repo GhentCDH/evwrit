@@ -14,7 +14,7 @@ class BaseResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousRe
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
-    public function toArray($request = null)
+    public function toArray($request = null): array
     {
         return $this->collection->map->toArray($request)->all();
     }

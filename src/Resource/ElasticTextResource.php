@@ -21,7 +21,7 @@ class ElasticTextResource extends ElasticBaseResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request=null)
+    public function toArray($request=null): array
     {
         /** @var Text $text */
         $text = $this->resource;

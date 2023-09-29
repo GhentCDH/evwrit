@@ -15,8 +15,8 @@ use function Symfony\Component\String\u;
 
 class BaseElasticAnnotationResource extends BaseResource
 {
-    protected $includeAttributes = [];
-    protected $generateContext = true;
+    protected array $includeAttributes = [];
+    protected bool $generateContext = true;
 
     /**
      * Transform the resource into an array.
@@ -70,7 +70,7 @@ class BaseElasticAnnotationResource extends BaseResource
      * start/end are PHP string offsets (starting with 0)!
      * @return array
      */
-    protected function createTextSelectionContext() {
+    protected function createTextSelectionContext(): array {
         /** @var Text $resource */
         $resource = $this->resource;
         /** @var TextSelection $text_selection */

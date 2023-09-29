@@ -15,6 +15,6 @@ use function Symfony\Component\String\u;
 
 class ElasticGenericTextStructureAnnotationResource extends BaseElasticAnnotationResource
 {
-    protected $includeAttributes = ['part','partNumber', 'textLevel',];
-    protected $generateContext = true;
+    protected array $includeAttributes = ['part','partNumber', 'textLevel',];
+    protected bool $generateContext = true;
 }
