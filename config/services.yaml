@@ -90,6 +90,12 @@ services:
         public: true
     App\Repository\TextRepository: '@text_repository'
 
+    level_repository:
+        class: App\Repository\LevelRepository
+        arguments: [ ]
+        public: true
+    App\Repository\LevelRepository: '@level_repository'
+
     language_annotation_repository:
         class: App\Repository\LanguageAnnotationRepository
         arguments: []
