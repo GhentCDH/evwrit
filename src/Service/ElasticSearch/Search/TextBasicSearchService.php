@@ -17,6 +17,7 @@ class TextBasicSearchService extends AbstractSearchService
             Configs::filterCommunicativeInfo(),
             Configs::filterAncientPerson(),
             Configs::filterAdministrative(),
+            Configs::filterCharacterRecognitionTool(),
             array_filter(Configs::filterMateriality(), fn($key) => $key === 'material', ARRAY_FILTER_USE_KEY)
         );
 

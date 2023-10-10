@@ -227,7 +227,6 @@ export default {
             schema: {
                 groups: [
                     this.annotationsFields(false, this.defaultAnnotationType),
-                    this.charachterRecognitionToolFields(false),
                     this.generalInformationFields(),
                     this.materialityFields(true),
                     this.ancientPersonFields(true),

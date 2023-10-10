@@ -159,6 +159,7 @@ export default {
                 groups: [
                     this.generalInformationFields(true),
                     this.communicativeInformationFields(),
+                    this.charachterRecognitionToolFields(),
                     this.ancientPersonFields(),
                     this.administrativeInformationFields(),
                 ],
