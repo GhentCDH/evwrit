@@ -1,13 +1,9 @@
 <template>
     <span v-if="value != null">
-        <a v-if="url" :href="url">{{ formatValue(value) }}</a>
-        <template v-else>
-        {{ formatValue(value) }}
-        </template>
+        <a v-if="url" :href="url">{{formatValue(value)}}</a>
+        <template v-else>{{formatValue(value)}}</template>
     </span>
-    <span v-else>
-        {{ unknown }}
-    </span>
+    <span v-else>{{unknown}}</span>
 </template>
 
 <script>
