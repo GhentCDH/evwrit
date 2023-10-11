@@ -3,9 +3,11 @@
         <LabelValue label="Number" :value="level.number" :inline="true"></LabelValue>
 
         <LabelValue label="Category" v-if="level.level_category">
-            <div v-for="category in level.level_category" :key="category.id" class="agentive-role span-list span-list--comma-separated">
-                <FormatValue type="id_name" :value="category.level_category_category"></FormatValue>,
-                <FormatValue type="id_name" :value="category.level_category_subcategory"></FormatValue>
+            <div v-for="category in level.level_category" :key="category.id" class="span-list span-list--comma-separated">
+                <FormatValue type="id_name" :value="category.level_category_category"></FormatValue>
+                <template v-if="category.level_category_subcategory">
+                    (<FormatValue type="id_name" :value="category.level_category_subcategory"></FormatValue>)
+                </template>
             </div>
         </LabelValue>
 

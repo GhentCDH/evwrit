@@ -1,11 +1,19 @@
 <template>
     <div class="text__metadata">
-        <LabelValue label="EVWRIT ID" :value="text.id"></LabelValue>
-        <LabelValue label="Trismegistos ID" :value="text.tm_id" :url="getTmTextUrl"></LabelValue>
+        <PropertyGroup>
+            <LabelValue label="EVWRIT ID" :value="text.id"></LabelValue>
+            <LabelValue label="Trismegistos ID" :value="text.tm_id" :url="getTmTextUrl"></LabelValue>
+        </PropertyGroup>
 
-        <PropertyGroup v-if="text.text_type">
-            <LabelValue label="Type" :value="text.text_type" type="id_name"></LabelValue>
-            <LabelValue label="Subtype" :value="text.text_subtype" type="id_name"></LabelValue>
+        <PropertyGroup v-if="levelCategories.length">
+            <LabelValue label="Text type">
+                <div v-for="category in levelCategories" class="span-list span-list--comma-separated">
+                    <FormatValue type="id_name" :value="category.level_category_category"></FormatValue>
+                    <template v-if="category.level_category_subcategory">
+                        (<FormatValue type="id_name" :value="category.level_category_subcategory"></FormatValue>)
+                    </template>
+                </div>
+            </LabelValue>
         </PropertyGroup>
 
         <PropertyGroup v-if="text.archive">
@@ -33,10 +41,12 @@
 <script>
 import LabelValue from './LabelValue'
 import PropertyGroup from "./PropertyGroup.vue";
+import FormatValue from "./FormatValue.vue";
 
 export default {
     name: "TextMetadata",
     components: {
+        FormatValue,
         LabelValue, PropertyGroup
     },
     props: {
@@ -54,7 +64,13 @@ export default {
             required: true
         }
     },
-    computed: {},
+    computed: {
+        levelCategories() {
+            let level_categories = []
+            this.text?.text_level?.forEach( text_level => level_categories = level_categories.concat(text_level?.level_category ?? []) )
+            return level_categories.filter(category => category)
+        }
+    },
     methods: {
         getTmTextUrl(id) {
             return 'https://www.trismegistos.org/text/' + id
