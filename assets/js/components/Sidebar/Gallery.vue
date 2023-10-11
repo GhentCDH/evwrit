@@ -1,6 +1,6 @@
 <template>
     <div class="gallery">
-        <div class="thumb" v-for="(image,index) in images" :key="index">
+        <div class="thumb" v-for="(image,index) in images">
             <img :src="image.src" style="width: 100%; cursor: pointer" @click="onClick(index,url)">
         </div>
     </div>

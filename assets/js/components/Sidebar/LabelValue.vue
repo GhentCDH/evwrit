@@ -8,7 +8,6 @@
                 <FormatValue
                         v-if="outputValues && outputValues.length"
                         v-for="(item, index) in outputValues"
-                        :key="index"
                         :type="type"
                         :value="item"
                         :url="isCallable(url) ? url(item) : url"

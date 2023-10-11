@@ -182,7 +182,7 @@
                 </Widget>
 
                 <Widget title="People"  :collapsed.sync="config.widgets.attestation.isCollapsed" :count="people.length">
-                    <ancient-person-details v-for="person in people" :key="person.id" :person="person"
+                    <ancient-person-details v-for="person in people" :person="person"
                                             :export-mode="config.expertMode"
                                             :url-generator="urlGeneratorIdName"
                                             class="mbottom-small"
