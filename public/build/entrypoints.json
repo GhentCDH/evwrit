@@ -10,10 +10,10 @@
     },
     "text-search": {
       "css": [
-        "/build/text-search.607a9d31.css"
+        "/build/text-search.5fa11ea3.css"
       ],
       "js": [
-        "/build/text-search.4e5c721f.js"
+        "/build/text-search.f14808e6.js"
       ]
     },
     "materiality-search": {
@@ -29,7 +29,7 @@
         "/build/base-annotation-search.381f5133.css"
       ],
       "js": [
-        "/build/base-annotation-search.8c373b0a.js"
+        "/build/base-annotation-search.73ffa3f9.js"
       ]
     },
     "text-structure-search": {
@@ -37,7 +37,7 @@
         "/build/text-structure-search.35027e98.css"
       ],
       "js": [
-        "/build/text-structure-search.967d5776.js"
+        "/build/text-structure-search.6ec16944.js"
       ]
     },
     "text-view": {
@@ -45,7 +45,7 @@
         "/build/text-view.60667b60.css"
       ],
       "js": [
-        "/build/text-view.fb205432.js"
+        "/build/text-view.1e31d546.js"
       ]
     }
   }
