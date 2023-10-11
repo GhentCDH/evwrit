@@ -16,7 +16,7 @@ export default {
             let params = this.getSearchParams();
             this.updateSearchSession({
                 params: params,
-                count: data.count
+                count: data?.count ?? 0
             })
 
             // update local data
