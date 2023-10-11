@@ -86,6 +86,22 @@
                             {{ props.row.text_id }}
                         </a>
                     </template>
+                    <template v-slot:tm_id="props">
+                        <a :href="getTextUrl(props.row.id, props.index)">
+                            {{ props.row.tm_id }}
+                        </a>
+                    </template>
+                    <template v-slot:annotations="props">
+                        <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)">
+                            <GreekText
+                                    :text="annotation.text_selection.text">
+                            </GreekText>
+                            <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation" :type-only-properties="config.showAnnotationTypeOnlyProperties"></AnnotationDetailsFlat>
+                        </div>
+                        <div class="annotation-count" v-if="config.limitVisibleAnnotations && props.row.annotations.length > 3">
+                            <span class="bg-tertiary small">Showing 3 of {{ props.row.annotations.length }} annotations.</span>
+                        </div>
+                    </template>
                     <template v-slot:level_category="props">
                         <td>
                             {{ formatLevelCategory(props.row.level_category) }}
@@ -152,6 +168,10 @@ export default {
     data() {
         let data = {
             defaultConfig: {
+                limitVisibleAnnotations: true,
+                showAnnotationDetails: true,
+                showAnnotationTypeOnlyProperties: false,
+                expertMode: false,
             },
             model: {
                 date_search_type: 'exact',
@@ -172,8 +192,9 @@ export default {
                 filterByColumn: false,
                 filterable: false,
                 headings: {
-                    text_id: 'ID',
+                    text_id: 'Text ID',
                     tm_id: 'Tm ID ',
+                    number: 'Level',
                     title: 'Title',
                     level_category: 'Text type'
                 },
@@ -187,7 +208,7 @@ export default {
                 },
                 perPage: 25,
                 perPageValues: [25, 50, 100],
-                sortable: ['text_id', 'tm_id', 'title'],
+                sortable: ['text_id', 'tm_id', 'number', 'title'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
@@ -211,7 +232,12 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['text_id', 'tm_id', 'title', 'level_category', 'location_found']
+            let columns = []
+            if (this.config.expertMode) {
+                columns = ['text_id', 'tm_id', 'number', 'title', 'annotations', 'level_category', 'location_found']
+            } else {
+                columns = ['text_id', 'tm_id', 'number', 'title', 'level_category', 'location_found']
+            }
             return columns
         },
     },
@@ -230,6 +256,9 @@ export default {
             // Don't create a new history item
             this.noHistory = true;
             this.$refs.resultTable.refresh();
+        },
+        limitAnnotations(annotations) {
+            return this.config.limitVisibleAnnotations ? annotations.slice(0,3) : annotations
         },
     },
 }

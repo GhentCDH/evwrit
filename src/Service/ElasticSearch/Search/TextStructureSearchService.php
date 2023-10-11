@@ -101,7 +101,7 @@ class TextStructureSearchService extends AbstractSearchService
     protected function sanitizeSearchResult(array $result): array
     {
         $returnProps = [
-            'id', 'text_id', 'tm_id', 'title', 'year_begin', 'year_end',
+            'id', 'text_id', 'tm_id', 'title', 'year_begin', 'year_end', 'number',
             'inner_hits', 'annotations',
             'level_category', 'location_found'
         ];
