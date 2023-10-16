@@ -6,7 +6,7 @@ namespace App\Resource;
 
 trait TraitTextSelectionIntersect {
 
-    private function annotationIntersect(&$annotationSource, $annotations, $limitProperties= []): array
+    private function annotationIntersect(&$annotationSource, $annotations, $limitProperties= []): void
     {
         $additionalProperties = [];
         foreach( $annotations as $annotationTest ) {
