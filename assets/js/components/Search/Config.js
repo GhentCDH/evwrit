@@ -285,6 +285,14 @@ export default {
                     {
                         type: 'input',
                         inputType: 'text',
+                        label: 'Annotation ID',
+                        model: 'annotation_id',
+                        expertOnly: true,
+                        visible: this.fieldVisible
+                    },
+                    {
+                        type: 'input',
+                        inputType: 'text',
                         label: 'Text',
                         model: 'annotation_text',
                     },
