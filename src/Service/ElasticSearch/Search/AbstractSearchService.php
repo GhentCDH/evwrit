@@ -442,7 +442,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $filterField;
     }
 
-    protected function addFieldQuery(Query\BoolQuery $query, array $filterConfig, array $filterValues)
+    protected function addFieldQuery(Query\BoolQuery $query, array $filterConfig, array $filterValues): void
     {
         $query_top = $query;
 
@@ -451,7 +451,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         $filterName = $filterConfig['name'];
         $filterField = $this->calculateFilterField($filterConfig);
-        $filterValue = $filterConfig['value'] ?? $filterValues[$filterName]['value'] ?? $filterConfig['defaultValue'] ?? null; // filter can have fixed value, query value or default value
+//        $filterValue = $filterConfig['value'] ?? $filterValues[$filterName]['value'] ?? $filterConfig['defaultValue'] ?? null; // filter can have fixed value, query value or default value
+        $filterValue = $filterValues[$filterName]['value'] ?? null;
         $filterType = $filterConfig['type'];
         $filterNestedPath = $filterConfig['nested_path'] ?? null;
 
@@ -1388,7 +1389,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             }
         }
 
-//        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
+        $this->debug && dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
 
         // parse query result
         $searchResult = $this->getIndex()->search($query);
