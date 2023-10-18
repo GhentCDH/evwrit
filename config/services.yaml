@@ -37,37 +37,37 @@ services:
 
     text_basic_search_service:
         class: App\Service\ElasticSearch\Search\TextBasicSearchService
-        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%', '%elasticsearch.debug%']
+        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%', '@elasticsearch_search_configurations', '%elasticsearch.debug%']
         public: true
     App\Service\ElasticSearch\Search\TextBasicSearchService: '@text_basic_search_service'
 
     text_materiality_search_service:
         class: App\Service\ElasticSearch\Search\TextMaterialitySearchService
-        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%', '%elasticsearch.debug%']
+        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%', '@elasticsearch_search_configurations', '%elasticsearch.debug%']
         public: true
     App\Service\ElasticSearch\Search\TextMaterialitySearchService: '@text_materiality_search_service'
 
     linguistic_annotation_search_service:
         class: App\Service\ElasticSearch\Search\LexicogrammerAnnotationSearchService
-        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%', '%elasticsearch.debug%']
+        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%', '@elasticsearch_search_configurations', '%elasticsearch.debug%']
         public: true
     App\Service\ElasticSearch\Search\LexicogrammerAnnotationSearchService: '@linguistic_annotation_search_service'
 
     language_annotation_search_service:
         class: App\Service\ElasticSearch\Search\LanguageAnnotationSearchService
-        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%', '%elasticsearch.debug%']
+        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%', '@elasticsearch_search_configurations', '%elasticsearch.debug%']
         public: true
     App\Service\ElasticSearch\Search\LanguageAnnotationSearchService: '@language_annotation_search_service'
 
     orthotypo_annotation_search_service:
         class: App\Service\ElasticSearch\Search\OrthoTypoAnnotationSearchService
-        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%', '%elasticsearch.debug%']
+        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%', '@elasticsearch_search_configurations', '%elasticsearch.debug%']
         public: true
     App\Service\ElasticSearch\Search\OrthoTypoAnnotationSearchService: '@orthotypo_annotation_search_service'
 
     text_structure_search_service:
         class: App\Service\ElasticSearch\Search\TextStructureSearchService
-        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%', '%elasticsearch.debug%']
+        arguments: ['@elastic_search_client','%elasticsearch.index_prefix%', '@elasticsearch_search_configurations', '%elasticsearch.debug%']
         public: true
     App\Service\ElasticSearch\Search\TextStructureSearchService: '@text_structure_search_service'
 
@@ -102,8 +102,14 @@ services:
         public: true
     App\Repository\LanguageAnnotationRepository: '@language_annotation_repository'
 
-    orthotypo_annotation_repository:
+    typography_annotation_repository:
         class: App\Repository\TypographyAnnotationRepository
         arguments: []
         public: true
-    App\Repository\TypographyAnnotationRepository: '@orthotypo_annotation_repository'
+    App\Repository\TypographyAnnotationRepository: '@typography_annotation_repository'
+
+    elasticsearch_search_configurations:
+        class: App\Service\ElasticSearch\Search\Configs
+#        arguments: []
+#        public: true
+#    App\Service\ElasticSearch\Search\Configs: '@search_configurations'
