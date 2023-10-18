@@ -28,4 +28,9 @@ interface SearchConfigInterface
 
     const AGG_NESTED_ID_NAME = "nested_id_name";
     const AGG_OBJECT_ID_NAME = "object_id_name";
+
+    const ANY_LABEL = 'any';
+    const ANY_KEY = -2;
+    const NONE_LABEL = 'none';
+    const NONE_KEY = -1;
 }

@@ -15,12 +15,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     const SEARCH_RAW_MAX_RESULTS = 500;
     private const DEFAULT_FILTER_TYPE = self::FILTER_KEYWORD;
 
-    private const ANY_LABEL = 'any';
-    private const ANY_KEY = -2;
-    private const NONE_LABEL = 'none';
-    private const NONE_KEY = -1;
-
-
     protected function sanitizeSearchParameters(array $params, bool $merge_defaults = true): array
     {
         // Set default parameters
