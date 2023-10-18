@@ -320,6 +320,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $count = $item['count'];
             $value = $item['id'];
             $label = $item['name'];
+            $active = $item['active'] ?? false;
 
             // limitValue?
             if (count($aggConfig['allowedValue'] ?? []) && !in_array($value, $aggConfig['allowedValue'], true)) {
@@ -345,7 +346,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $output[] = [
                 'id' => $value,
                 'name' => $label,
-                'count' => $count
+                'count' => $count,
+                'active' => $active
             ];
         }
         return $output;
@@ -1429,39 +1431,52 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 case self::AGG_OBJECT_ID_NAME:
                 case self::AGG_NESTED_ID_NAME:
                     $items = [];
+                    $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
 
                     // get none count
                     $aggResults = $this->getAggregationData($aggData, $aggName, 'count_missing');
                     if ( $aggResults['doc_count'] ?? null) {
-                        $items[] = [
+                        $item = [
                             'id' => $aggConfig['noneKey'],
                             'name' => $aggConfig['noneLabel'],
                             'count' => (int) ($aggResults['top_reverse_nested']['doc_count'] ?? $aggResults['doc_count'])
                         ];
+                        if ( in_array((int) $aggConfig['noneKey'], $aggFilterValues) ) {
+                            $item['active'] = true;
+                        }
+                        $items[] = $item;
                     }
 
                     // get any count
                     $aggResults = $this->getAggregationData($aggData, $aggName, 'count_any');
                     if ( $aggResults['buckets'][0]['doc_count'] ?? null) {
-                        $items[] = [
+                        $item = [
                             'id' => $aggConfig['anyKey'],
                             'name' => $aggConfig['anyLabel'],
                             'count' => (int) ($aggResults['buckets'][0]['top_reverse_nested']['doc_count'] ?? $aggResults['buckets'][0]['doc_count'])
                         ];
+                        if ( in_array((int) $aggConfig['anyKey'], $aggFilterValues) ) {
+                            $item['active'] = true;
+                        }
+                        $items[] = $item;
                     }
 
                     // get values
-                    $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
                     $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
                     foreach ($aggResults['buckets'] ?? [] as $result) {
                         if (!isset($result['key'])) continue;
                         $parts = explode('_', $result['key'], 2);
 
-                        $items[] = [
+                        $item = [
                             'id' => (int) $parts[0],
                             'name' => $parts[1],
                             'count' => (int) ($result['top_reverse_nested']['doc_count'] ?? $result['doc_count'])
                         ];
+                        if ( in_array((int) $parts[0], $aggFilterValues) ) {
+                            $item['active'] = true;
+                        }
+
+                        $items[] = $item;
                     }
                     $results[$aggName] = $this->sanitizeTermAggregationItems($items, $aggConfig, $aggFilterConfigs);
                     break;
