@@ -1,6 +1,0 @@
-parameters:
-  elasticsearch.config:
-      host: localhost
-      port: 9200
-  elasticsearch.index_prefix: evwrit_dev
-  elasticsearch.debug: true
