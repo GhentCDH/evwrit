@@ -11,14 +11,20 @@ class TextBasicSearchService extends AbstractSearchService
 
     const ignoreUnknownUncertain = ['unknown','uncertain', 'Unknown', 'Uncertain', 'Unknwon'];
 
+    public function __construct(Client $client, string $indexPrefix, Configs $config, bool $debug = false)
+    {
+        parent::__construct($client, $indexPrefix, $debug);
+        $this->config = $config;
+    }
+
     protected function getSearchFilterConfig(): array {
         $searchFilters = array_merge(
-            Configs::filterPhysicalInfo(),
-            Configs::filterCommunicativeInfo(),
-            Configs::filterAncientPerson(),
-            Configs::filterAdministrative(),
-            Configs::filterCharacterRecognitionTool(),
-            array_filter(Configs::filterMateriality(), fn($key) => $key === 'material', ARRAY_FILTER_USE_KEY)
+            $this->config->filterPhysicalInfo(),
+            $this->config->filterCommunicativeInfo(),
+            $this->config->filterAncientPerson(),
+            $this->config->filterAdministrative(),
+            $this->config->filterCharacterRecognitionTool(),
+            array_filter($this->config->filterMateriality(), fn($key) => $key === 'material', ARRAY_FILTER_USE_KEY)
         );
 
         return $searchFilters;
@@ -26,11 +32,11 @@ class TextBasicSearchService extends AbstractSearchService
 
     protected function getAggregationConfig(): array {
         $aggregationFilters = array_merge(
-            Configs::aggregatePhysicalInfo(),
-            Configs::aggregateCommunicativeInfo(),
-            Configs::aggregateAncientPerson(),
-            Configs::aggregateAdministrative(),
-            array_filter(Configs::aggregateMateriality(), fn($key) => $key === 'material', ARRAY_FILTER_USE_KEY)
+            $this->config->aggregatePhysicalInfo(),
+            $this->config->aggregateCommunicativeInfo(),
+            $this->config->aggregateAncientPerson(),
+            $this->config->aggregateAdministrative(),
+            array_filter($this->config->aggregateMateriality(), fn($key) => $key === 'material', ARRAY_FILTER_USE_KEY)
         );
 
         // add extra filters if user role allows

@@ -3,7 +3,6 @@
 namespace App\Service\ElasticSearch\Search;
 
 use App\Service\ElasticSearch\Client;
-use App\Service\ElasticSearch\Index\TextIndexService;
 use Elastica\Query;
 use Elastica\Settings;
 use Elastica\Script;
@@ -12,14 +11,22 @@ class AnnotationSearchService extends AbstractSearchService
 {
     protected const indexName = "texts";
 
+    private Configs $config;
+
+    public function __construct(Client $client, string $indexPrefix, Configs $config, bool $debug = false)
+    {
+        parent::__construct($client, $indexPrefix, $debug);
+        $this->config = $config;
+    }
+
     protected function getSearchFilterConfig(): array {
         $searchFilters = array_merge(
-            Configs::filterPhysicalInfo(),
-            Configs::filterCommunicativeInfo(),
-            Configs::filterMateriality(),
-            Configs::filterAncientPerson(),
-            Configs::filterAdministrative(),
-            Configs::filterBaseAnnotations(),
+            $this->config->filterPhysicalInfo(),
+            $this->config->filterCommunicativeInfo(),
+            $this->config->filterMateriality(),
+            $this->config->filterAncientPerson(),
+            $this->config->filterAdministrative(),
+            $this->config->filterBaseAnnotations(),
         );
 
         return $searchFilters;
@@ -27,12 +34,12 @@ class AnnotationSearchService extends AbstractSearchService
 
     protected function getAggregationConfig(): array {
         $aggregationFilters = array_merge(
-            Configs::aggregatePhysicalInfo(),
-            Configs::aggregateCommunicativeInfo(),
-            Configs::aggregateMateriality(),
-            Configs::aggregateAncientPerson(),
-            Configs::aggregateAdministrative(),
-            Configs::aggregateBaseAnnotations(),
+            $this->config->aggregatePhysicalInfo(),
+            $this->config->aggregateCommunicativeInfo(),
+            $this->config->aggregateMateriality(),
+            $this->config->aggregateAncientPerson(),
+            $this->config->aggregateAdministrative(),
+            $this->config->aggregateBaseAnnotations(),
         );
 
         return $aggregationFilters;

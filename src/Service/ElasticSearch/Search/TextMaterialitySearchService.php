@@ -7,14 +7,19 @@ use App\Service\ElasticSearch\Client;
 class TextMaterialitySearchService extends AbstractSearchService
 {
     protected const indexName = "texts";
-
+    public function __construct(Client $client, string $indexPrefix, Configs $config, bool $debug = false)
+    {
+        parent::__construct($client, $indexPrefix, $debug);
+        $this->config = $config;
+    }
+    
     protected function getSearchFilterConfig(): array {
         $searchFilters = array_merge(
-            Configs::filterPhysicalInfo(),
-            Configs::filterCommunicativeInfo(),
-            Configs::filterMateriality(),
-            Configs::filterAncientPerson(),
-            Configs::filterAdministrative(),
+            $this->config->filterPhysicalInfo(),
+            $this->config->filterCommunicativeInfo(),
+            $this->config->filterMateriality(),
+            $this->config->filterAncientPerson(),
+            $this->config->filterAdministrative(),
         );
 
         // add extra filters if user role allows
@@ -25,11 +30,11 @@ class TextMaterialitySearchService extends AbstractSearchService
 
     protected function getAggregationConfig(): array {
         $aggregationFilters = array_merge(
-            Configs::aggregatePhysicalInfo(),
-            Configs::aggregateCommunicativeInfo(),
-            Configs::aggregateMateriality(),
-            Configs::aggregateAncientPerson(),
-            Configs::aggregateAdministrative(),
+            $this->config->aggregatePhysicalInfo(),
+            $this->config->aggregateCommunicativeInfo(),
+            $this->config->aggregateMateriality(),
+            $this->config->aggregateAncientPerson(),
+            $this->config->aggregateAdministrative(),
         );
 
         // add extra filters if user role allows

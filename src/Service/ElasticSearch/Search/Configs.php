@@ -4,19 +4,35 @@ namespace App\Service\ElasticSearch\Search;
 
 use App\Service\ElasticSearch\Index\LevelIndexService;
 use App\Service\ElasticSearch\Index\TextIndexService;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class Configs implements SearchConfigInterface
 {
     const ignoreUnknownUncertain = ['unknown','uncertain', 'Unknown', 'Uncertain', 'Unknwon'];
 
-    public static function filterDefaults(): array
+    private array $allowedProjectIds = [];
+    private ?int $defaultProjectId = null;
+    private ?ContainerInterface $container = null;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+        if ($container->hasParameter('app.allowed_project_ids')) {
+            $this->allowedProjectIds = array_map(fn($i) => (int) $i, (array) $container->getParameter('app.allowed_project_ids'));
+        }
+        if ($container->hasParameter('app.default_project_id')) {
+            $this->defaultProjectId = (int) $container->getParameter('app.default_project_id');
+        }
+    }
+
+    public function filterDefaults(): array
     {
         return [
             'boost' => 0
         ];
     }
 
-    private static function mergeFilterDefaults($filters): array
+    private function mergeFilterDefaults($filters): array
     {
         $defaults = self::filterDefaults();
         foreach($filters as $index => $config) {
@@ -26,7 +42,7 @@ class Configs implements SearchConfigInterface
         return $filters;
     }
 
-    public static function filterPhysicalInfo(): array
+    public function filterPhysicalInfo(): array
     {
         $filters = [
             'id' => ['type' => self::FILTER_NUMERIC],
@@ -65,10 +81,10 @@ class Configs implements SearchConfigInterface
             ],
         ];
 
-        return self::mergeFilterDefaults($filters);
+        return $this->mergeFilterDefaults($filters);
     }
 
-    public static function aggregatePhysicalInfo(): array
+    public function aggregatePhysicalInfo(): array
     {
         return [
             'era' => ['type' => self::AGG_OBJECT_ID_NAME],
@@ -99,7 +115,7 @@ class Configs implements SearchConfigInterface
         ];
     }
 
-    public static function filterCharacterRecognitionTool(): array
+    public function filterCharacterRecognitionTool(): array
     {
         $filters = [
             'arabic_relative' => ['type' => self::FILTER_NUMERIC_RANGE_SLIDER, 'ignore' => [-1, 10000]],
@@ -107,40 +123,49 @@ class Configs implements SearchConfigInterface
             'latin_relative' => ['type' => self::FILTER_NUMERIC_RANGE_SLIDER, 'ignore' => [-1, 10000]],
             'coptic_relative' => ['type' => self::FILTER_NUMERIC_RANGE_SLIDER, 'ignore' => [-1, 10000]],
         ];
-        return self::mergeFilterDefaults($filters);
+        return $this->mergeFilterDefaults($filters);
     }
 
-    public static function filterAdministrative(): array
+    public function filterAdministrative(): array
     {
         $filters = [
-            'project' => ['type' => self::FILTER_OBJECT_ID],
+            'project' => [
+                'type' => self::FILTER_OBJECT_ID,
+                'defaultValue' => $this->defaultProjectId !== null ? [$this->defaultProjectId] : null,
+            ],
             'project_extra' => [
                 'type' => self::FILTER_OBJECT_ID,
                 'field' => 'project',
             ],
             'collaborator' => ['type' => self::FILTER_OBJECT_ID],
         ];
-        return self::mergeFilterDefaults($filters);
+        return $this->mergeFilterDefaults($filters);
     }
 
-    public static function aggregateAdministrative(): array
+    public function aggregateAdministrative(): array
     {
-        return [
+        $config = [
             'collaborator'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'project'  => [
                 'type' => self::AGG_OBJECT_ID_NAME,
-                'allowedValue' => [3, 2, 4, 9, 30, 35] //todo: fix this!!
+//                'allowedValue' => [3, 2, 4, 9, 30, 35] //todo: fix this!!
+                'allowedValue' => [...$this->allowedProjectIds, self::ANY_KEY],
+                'defaultValue' => $this->defaultProjectId !== null ? [$this->defaultProjectId] : null,
             ],
             'project_extra'  => [
                 'field' => 'project',
                 'type' => self::AGG_OBJECT_ID_NAME,
-                'allowedValue' => [3, 2, 4, 9, 30, 35] //todo: fix this!!
+//                'allowedValue' => [3, 2, 4, 9, 30, 35] //todo: fix this!!
+                'allowedValue' => [...$this->allowedProjectIds, self::ANY_KEY],
             ],
 
         ];
+
+        dump($config);
+        return $config;
     }
 
-    public static function filterCommunicativeInfo(): array
+    public function filterCommunicativeInfo(): array
     {
         $filters = [
             'archive' => ['type' => self::FILTER_OBJECT_ID],
@@ -184,10 +209,10 @@ class Configs implements SearchConfigInterface
                 ]
             ],
         ];
-        return self::mergeFilterDefaults($filters);
+        return $this->mergeFilterDefaults($filters);
     }
 
-    public static function aggregateCommunicativeInfo(): array
+    public function aggregateCommunicativeInfo(): array
     {
         return [
             'archive' => ['type' => self::AGG_OBJECT_ID_NAME],
@@ -237,7 +262,7 @@ class Configs implements SearchConfigInterface
         ];
     }
 
-    public static function filterMateriality(): array
+    public function filterMateriality(): array
     {
         $filters = [
             'production_stage' => ['type' => self::FILTER_OBJECT_ID],
@@ -302,10 +327,10 @@ class Configs implements SearchConfigInterface
                 'ignore' => [-1, 10000]
             ],
         ];
-        return self::mergeFilterDefaults($filters);
+        return $this->mergeFilterDefaults($filters);
     }
 
-    public static function aggregateMateriality(): array
+    public function aggregateMateriality(): array
     {
         return [
             'production_stage' => ['type' => self::AGG_OBJECT_ID_NAME],
@@ -335,7 +360,7 @@ class Configs implements SearchConfigInterface
         ];
     }
 
-    public static function filterAncientPerson(): array
+    public function filterAncientPerson(): array
     {
         $filters = [
             'ancient_person' => [
@@ -383,10 +408,10 @@ class Configs implements SearchConfigInterface
                 ]
             ]
         ];
-        return self::mergeFilterDefaults($filters);
+        return $this->mergeFilterDefaults($filters);
     }
 
-    public static function filterAttestations(): array
+    public function filterAttestations(): array
     {
         $filters = [
             'attestations' => [
@@ -435,10 +460,10 @@ class Configs implements SearchConfigInterface
                 ]
             ]
         ];
-        return self::mergeFilterDefaults($filters);
+        return $this->mergeFilterDefaults($filters);
     }
 
-    public static function aggregateAncientPerson(): array
+    public function aggregateAncientPerson(): array
     {
         return [
             'ap_name' => [
@@ -446,14 +471,14 @@ class Configs implements SearchConfigInterface
                 'field' => 'name',
                 'nested_path' => 'ancient_person',
                 'excludeFilter' => ['ancient_person'],
-                'filters' => Configs::filterAncientPerson()['ancient_person']['filters'],
+                'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
             ],
             'ap_tm_id' => [
                 'type' => self::AGG_NUMERIC, 
                 'field' => 'tm_id',
                 'nested_path' => 'ancient_person',
                 'excludeFilter' => ['ancient_person'],
-                'filters' => Configs::filterAncientPerson()['ancient_person']['filters'],
+                'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
             ],
             'ap_role' => [
                 'type' => self::AGG_NESTED_ID_NAME, 
@@ -461,7 +486,7 @@ class Configs implements SearchConfigInterface
                 'nested_path' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
-                'filters' => Configs::filterAncientPerson()['ancient_person']['filters'],
+                'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
             ],
             'ap_gender' => [
                 'type' => self::AGG_NESTED_ID_NAME, 
@@ -469,7 +494,7 @@ class Configs implements SearchConfigInterface
                 'nested_path' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
-                'filters' => Configs::filterAncientPerson()['ancient_person']['filters'],
+                'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
             ],
             'ap_occupation' => [
                 'type' => self::AGG_NESTED_ID_NAME, 
@@ -477,7 +502,7 @@ class Configs implements SearchConfigInterface
                 'nested_path' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
-                'filters' => Configs::filterAncientPerson()['ancient_person']['filters'],
+                'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
             ],
             'ap_social_rank' => [
                 'type' => self::AGG_NESTED_ID_NAME, 
@@ -485,7 +510,7 @@ class Configs implements SearchConfigInterface
                 'nested_path' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
-                'filters' => Configs::filterAncientPerson()['ancient_person']['filters'],
+                'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
             ],
             'ap_honorific_epithet' => [
                 'type' => self::AGG_NESTED_ID_NAME, 
@@ -493,7 +518,7 @@ class Configs implements SearchConfigInterface
                 'nested_path' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
-                'filters' => Configs::filterAncientPerson()['ancient_person']['filters'],
+                'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
             ],
             'ap_graph_type' => [
                 'type' => self::AGG_NESTED_ID_NAME, 
@@ -501,12 +526,12 @@ class Configs implements SearchConfigInterface
                 'nested_path' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
-                'filters' => Configs::filterAncientPerson()['ancient_person']['filters'],
+                'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
             ],
         ];
     }
 
-    public static function aggregateAttestations(): array
+    public function aggregateAttestations(): array
     {
         return [
             'ap_name' => [
@@ -514,14 +539,14 @@ class Configs implements SearchConfigInterface
                 'field' => 'attestations.name',
                 'nested_path' => 'attestations',
                 'excludeFilter' => ['attestations'],
-                'filters' => Configs::filterAttestations()['attestations']['filters'],
+                'filters' => $this->filterAttestations()['attestations']['filters'],
             ],
             'ap_tm_id' => [
                 'type' => self::AGG_NUMERIC,
                 'field' => 'attestations.tm_id',
                 'nested_path' => 'attestations',
                 'excludeFilter' => ['attestations'],
-                'filters' => Configs::filterAttestations()['attestations']['filters'],
+                'filters' => $this->filterAttestations()['attestations']['filters'],
             ],
             'ap_role' => [
                 'type' => self::AGG_NESTED_ID_NAME,
@@ -529,7 +554,7 @@ class Configs implements SearchConfigInterface
                 'nested_path' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
-                'filters' => Configs::filterAttestations()['attestations']['filters'],
+                'filters' => $this->filterAttestations()['attestations']['filters'],
             ],
             'ap_gender' => [
                 'type' => self::AGG_NESTED_ID_NAME,
@@ -537,7 +562,7 @@ class Configs implements SearchConfigInterface
                 'nested_path' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
-                'filters' => Configs::filterAttestations()['attestations']['filters'],
+                'filters' => $this->filterAttestations()['attestations']['filters'],
             ],
             'ap_occupation' => [
                 'type' => self::AGG_NESTED_ID_NAME,
@@ -545,7 +570,7 @@ class Configs implements SearchConfigInterface
                 'nested_path' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
-                'filters' => Configs::filterAttestations()['attestations']['filters'],
+                'filters' => $this->filterAttestations()['attestations']['filters'],
             ],
             'ap_social_rank' => [
                 'type' => self::AGG_NESTED_ID_NAME,
@@ -553,7 +578,7 @@ class Configs implements SearchConfigInterface
                 'nested_path' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
-                'filters' => Configs::filterAttestations()['attestations']['filters'],
+                'filters' => $this->filterAttestations()['attestations']['filters'],
             ],
             'ap_honorific_epithet' => [
                 'type' => self::AGG_NESTED_ID_NAME,
@@ -561,7 +586,7 @@ class Configs implements SearchConfigInterface
                 'nested_path' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
-                'filters' => Configs::filterAttestations()['attestations']['filters'],
+                'filters' => $this->filterAttestations()['attestations']['filters'],
             ],
             'ap_graph_type' => [
                 'type' => self::AGG_NESTED_ID_NAME,
@@ -569,12 +594,12 @@ class Configs implements SearchConfigInterface
                 'nested_path' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
-                'filters' => Configs::filterAttestations()['attestations']['filters'],
+                'filters' => $this->filterAttestations()['attestations']['filters'],
             ],
         ];
     }
 
-    public static function filterBaseAnnotations(): array
+    public function filterBaseAnnotations(): array
     {
         $searchFilters = [];
 
@@ -642,7 +667,7 @@ class Configs implements SearchConfigInterface
         return $searchFilters;
     }
 
-    public static function aggregateBaseAnnotations(): array
+    public function aggregateBaseAnnotations(): array
     {
         $aggregationFilters = [];
 
@@ -750,7 +775,7 @@ class Configs implements SearchConfigInterface
         return $aggregationFilters;
     }
 
-    public static function filterTextStructure(): array
+    public function filterTextStructure(): array
     {
         $searchFilters['textLevel'] = [
             'field' => 'number',

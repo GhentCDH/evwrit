@@ -3,7 +3,6 @@
 namespace App\Service\ElasticSearch\Search;
 
 use App\Service\ElasticSearch\Client;
-use App\Service\ElasticSearch\Index\LevelIndexService;
 use Elastica\Settings;
 
 class TextStructureSearchService extends AbstractSearchService
@@ -12,14 +11,20 @@ class TextStructureSearchService extends AbstractSearchService
 
     const ignoreUnknownUncertain = ['unknown','uncertain', 'Unknown', 'Uncertain', 'Unknwon'];
 
+    public function __construct(Client $client, string $indexPrefix, Configs $config, bool $debug = false)
+    {
+        parent::__construct($client, $indexPrefix, $debug);
+        $this->config = $config;
+    }
+    
     protected function getSearchFilterConfig(): array {
         $searchFilters = array_merge(
-            Configs::filterPhysicalInfo(),
-            Configs::filterCommunicativeInfo(),
-            Configs::filterMateriality(),
-            Configs::filterAttestations(),
-            Configs::filterAdministrative(),
-            Configs::filterTextStructure()
+            $this->config->filterPhysicalInfo(),
+            $this->config->filterCommunicativeInfo(),
+            $this->config->filterMateriality(),
+            $this->config->filterAttestations(),
+            $this->config->filterAdministrative(),
+            $this->config->filterTextStructure()
         );
 
         return $searchFilters;
@@ -27,11 +32,11 @@ class TextStructureSearchService extends AbstractSearchService
 
     protected function getAggregationConfig(): array {
         $aggregationFilters = array_merge(
-            Configs::aggregatePhysicalInfo(),
-            Configs::aggregateCommunicativeInfo(),
-            Configs::aggregateMateriality(),
-            Configs::aggregateAttestations(),
-            Configs::aggregateAdministrative(),
+            $this->config->aggregatePhysicalInfo(),
+            $this->config->aggregateCommunicativeInfo(),
+            $this->config->aggregateMateriality(),
+            $this->config->aggregateAttestations(),
+            $this->config->aggregateAdministrative(),
         );
 
         // annotation aggregations
