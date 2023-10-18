@@ -33,6 +33,7 @@ class ElasticTextResource extends ElasticBaseResource
             'id' => $text->getId(),
             'text' => TextSelectionResource::convertNewlines($text->text),
             'text_lemmas' => TextSelectionResource::convertNewlines($text->text_lemmas),
+            'text_edited' => TextSelectionResource::convertNewlines($text->text_edited),
             'apparatus' => TextSelectionResource::convertNewlines($text->apparatus),
 
             'translation' => TranslationResource::collection($text->translations)->toArray(),

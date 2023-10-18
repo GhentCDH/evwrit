@@ -30,6 +30,7 @@ use ReflectionException;
  * @property string $text
  * @property string $text_lemmas
  * @property string $text_scrubbed
+ * @property string $text_edited
 
  * @property string comment
  * @property string note
