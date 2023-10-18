@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Repository\TextRepository;
 use App\Resource\ElasticTextLevelIndexResource;
 use App\Resource\ElasticTextResource;
+use App\Service\ElasticSearch\Index\LevelIndexService;
 use App\Service\ElasticSearch\Index\TextIndexService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -21,13 +22,6 @@ class IndexElasticsearchCommand extends Command
 
     protected $container = [];
     protected $di = [];
-
-    protected $projects = [
-        'ERC (main corpus)', 'Post-doc Bentein', 'Serena', 'Emmanuel', 'Postscripts', 'VisualSegmentation',
-//        'Papyri'
-//        'Serena'
-        // 3, 2, 4, 9, 30, 35, 28
-    ];
 
     public function __construct(ContainerInterface $container)
     {
@@ -47,6 +41,8 @@ class IndexElasticsearchCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
+        $allowedProjectIds = (array) $this->container->getParameter('app.allowed_project_ids');
+
         $count = 0;
         if ($index = $input->getArgument('index')) {
             switch ($index) {
@@ -58,12 +54,12 @@ class IndexElasticsearchCommand extends Command
                     $service = $this->container->get('text_index_service');
                     $indexName = $service->createNewIndex();
 
-                    $total = $repository->findByProjectNames($this->projects)->count();
+                    $total = $repository->findByProjectIds($allowedProjectIds)->count();
 
                     $progressBar = new ProgressBar($output, $total);
                     $progressBar->start();
 
-                    $repository->findByProjectNames($this->projects)->chunk(100,
+                    $repository->findByProjectIds($allowedProjectIds)->chunk(100,
                         function($res) use ($service, &$count, $progressBar) {
                             foreach ($res as $text) {
                                 $res = new ElasticTextResource($text);
@@ -82,16 +78,16 @@ class IndexElasticsearchCommand extends Command
                     /** @var $repository TextRepository */
                     $repository = $this->container->get('text_repository' );
 
-                    /** @var $service TextIndexService */
+                    /** @var $service LevelIndexService */
                     $service = $this->container->get('level_index_service');
                     $indexName = $service->createNewIndex();
 
-                    $total = $repository->findByProjectNames($this->projects)->count();
+                    $total = $repository->findByProjectIds($allowedProjectIds)->count();
 
                     $progressBar = new ProgressBar($output, $total);
                     $progressBar->start();
 
-                    $repository->findByProjectNames($this->projects)->chunk(100,
+                    $repository->findByProjectIds($allowedProjectIds)->chunk(100,
                         function($res) use ($service, &$count, $progressBar) {
                             foreach ($res as $text) {
                                 foreach( $text->textLevels as $level ) {
