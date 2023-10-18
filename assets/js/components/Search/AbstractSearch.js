@@ -248,6 +248,11 @@ export default {
                     // let values = this.aggregation[fieldName] == null ? [] : this.aggregation[fieldName].sort(this.sortByName)
                     let values = this.aggregation[fieldName] ?? []
                     field.values = values
+                    // active values? update model
+                    let activeValues = field.values.filter( item => item?.active )
+                    if (activeValues.length) {
+                        this.$set(this.model, fieldName, activeValues)
+                    }
                     if (field.dependency != null && this.model[field.dependency] == null) {
                         this.dependencyField(field)
                     }
