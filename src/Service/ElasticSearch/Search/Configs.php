@@ -208,6 +208,25 @@ class Configs implements SearchConfigInterface
                     ],
                 ]
             ],
+
+            'greek_latin_group' => [
+                'type' => self::FILTER_NESTED_MULTIPLE,
+                'nested_path' => 'greek_latin',
+                'filters' => [
+                    'greek_latin_label' => [
+                        'type' => self::FILTER_KEYWORD,
+                        'field' => 'label',
+                    ],
+                    'greek_latin_sublabel' => [
+                        'type' => self::FILTER_KEYWORD,
+                        'field' => 'sublabel',
+                    ],
+                    'greek_latin_english' => [
+                        'type' => self::FILTER_KEYWORD,
+                        'field' => 'english',
+                    ],
+                ]
+            ],
         ];
         return $this->mergeFilterDefaults($filters);
     }

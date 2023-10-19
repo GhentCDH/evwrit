@@ -66,8 +66,8 @@ class LevelIndexService extends AbstractIndexService
 
             // level
             'level_category' => [ 'type' => 'nested' ],
-//            'physical_objects' => ['type' => 'nested'],
-//            'greek_latins' => ['type' => 'nested'],
+//            'physical_object' => ['type' => 'nested'],
+            'greek_latin' => ['type' => 'nested'],
 
             'attestations' => [
                 'type' => 'nested',
