@@ -16,7 +16,10 @@ class BaseResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousRe
      */
     public function toArray($request = null): array
     {
-        return $this->collection->map->toArray($request)->all();
+        return array_filter(
+            $this->collection->map->toArray($request)->all(),
+            fn($item) => $item,
+        );
     }
 
     /**
