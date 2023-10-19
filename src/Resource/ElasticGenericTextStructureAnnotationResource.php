@@ -17,4 +17,5 @@ class ElasticGenericTextStructureAnnotationResource extends BaseElasticAnnotatio
 {
     protected array $includeAttributes = ['part','partNumber', 'textLevel',];
     protected bool $generateContext = true;
+    protected bool $allowEmptyRelationProperties = true;
 }

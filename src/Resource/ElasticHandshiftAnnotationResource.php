@@ -7,6 +7,8 @@ use App\Model\HandshiftAnnotation;
 
 class ElasticHandshiftAnnotationResource extends BaseElasticAnnotationResource
 {
+    protected bool $allowEmptyRelationProperties = true;
+
     /**
      * Transform the resource into an array.
      *

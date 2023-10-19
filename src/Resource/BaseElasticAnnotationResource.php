@@ -17,6 +17,14 @@ class BaseElasticAnnotationResource extends BaseResource
 {
     protected array $includeAttributes = [];
     protected bool $generateContext = true;
+    protected bool $allowEmptyRelationProperties = false;
+
+    protected array $skipRelations = [
+        'aspectContent','aspectContext','aspectForm',
+        'modalityContent','modalityContext','modalityForm',
+        'cliticContent','cliticContext','cliticForm',
+        'caseContent','caseContext','caseForm',
+    ];
 
     /**
      * Transform the resource into an array.
@@ -24,7 +32,7 @@ class BaseElasticAnnotationResource extends BaseResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request=null): array
+    public function toArray($request=null): ?array
     {
         /** @var AbstractAnnotationModel $resource */
         $resource = $this->resource;
@@ -39,9 +47,20 @@ class BaseElasticAnnotationResource extends BaseResource
 
         // add all id_name lookups
         $relations = $resource->getRelations();
-        foreach( $relations as $name => $model) {
-            if (is_subclass_of($model, IdNameModelModel::class)) {
-                $ret['properties'][$type.'_'.$name] = (new ElasticIdNameResource($model))->toArray();
+        if ( count($relations) ) {
+            // add relation to annotation properties
+            foreach( $relations as $name => $model) {
+                if ( in_array($name, $this->skipRelations) ) {
+                    continue;
+                }
+                if (is_subclass_of($model, IdNameModelModel::class)) {
+                    $ret['properties'][$type.'_'.$name] = (new ElasticIdNameResource($model))->toArray();
+                }
+            }
+
+            // no properties? skip this record
+            if (!$this->allowEmptyRelationProperties && !count($ret['properties'])) {
+                return null;
             }
         }
 

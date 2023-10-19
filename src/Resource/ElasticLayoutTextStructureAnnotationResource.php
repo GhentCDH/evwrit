@@ -17,6 +17,7 @@ class ElasticLayoutTextStructureAnnotationResource extends BaseElasticAnnotation
 {
     protected array $includeAttributes = ['part','partNumber'];
     protected bool $generateContext = true;
+    protected bool $allowEmptyRelationProperties = true;
 
     public function toArray($request=null): array
     {

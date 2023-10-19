@@ -43,15 +43,16 @@ use ReflectionException;
  */
 class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
 {
-    protected $with = ['textSelection', 'textSelection.sourceText', 'aspectContent','aspectContext','aspectForm',
+    protected $with = ['textSelection', 'textSelection.sourceText',
         'complementationContent','complementationContext','complementationForm',
-        'modalityContent','modalityContext','modalityForm',
         'coherenceContent','coherenceContext','coherenceForm',
-        'cliticContent','cliticContext','cliticForm',
-        'caseContent','caseContext','caseForm',
         'subordinationContent','subordinationForm','subordinationContext',
         'relativisationContent','relativisationContext','relativisationForm',
         'typeFormulaicity', 'typeReconstruction'
+//        'aspectContent','aspectContext','aspectForm',
+//        'modalityContent','modalityContext','modalityForm',
+//        'cliticContent','cliticContext','cliticForm',
+//        'caseContent','caseContext','caseForm',
     ];
 
     public function getAnnotationType(): string
