@@ -39,7 +39,7 @@ trait TraitTextSelectionIntersect {
         //min ends before max starts -> no intersection
         if ($min['selection_end'] < $max['selection_start']) return null; //the ranges don't intersect
 
-        return [$max['selection_start'], $min['selection_end'] < $max['selection_end'] ? $min['selection_end'] : $max['selection_end']];
+        return [$max['selection_start'], min($min['selection_end'], $max['selection_end'])];
     }
 
 }
