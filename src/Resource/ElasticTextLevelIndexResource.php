@@ -38,7 +38,7 @@ class ElasticTextLevelIndexResource extends ElasticBaseResource
             'attestations' => ElasticAttestationResource::collection($level->attestations)->toArray(),
 
 //            'physical_objects' => ElasticIdNameResource::collection($level->physicalObjects)->toArray(),
-//            'greek_latins' => ElasticIdNameResource::collection($level->greekLatins)->toArray(),
+            'greek_latin' => ElasticBaseResource::collection($level->greekLatins)->toArray(),
 
 
             // todo: add general information
