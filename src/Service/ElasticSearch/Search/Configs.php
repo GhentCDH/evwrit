@@ -161,7 +161,6 @@ class Configs implements SearchConfigInterface
 
         ];
 
-        dump($config);
         return $config;
     }
 
