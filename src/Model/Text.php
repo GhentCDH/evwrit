@@ -7,6 +7,7 @@ use App\Model\Lookup\Era;
 use App\Model\Lookup\Form;
 use App\Model\Lookup\Language;
 use App\Model\Lookup\Material;
+use App\Model\Lookup\PreservationState;
 use App\Model\Lookup\ProductionStage;
 use App\Model\Lookup\RevisionStatus;
 use App\Model\Lookup\Script;
@@ -41,6 +42,11 @@ use ReflectionException;
  * @property string content
  * @property string inventory
  * @property string apparatus
+ * @property int kollesis
+ * @property string kollesis_dir
+ * @property bool kollesis_uncertain
+ * @property bool tomos_synkollesimos
+ * @property bool tomos_synkollesimos_uncertain
 
  * @property string no_known_translation
 
@@ -60,6 +66,7 @@ use ReflectionException;
  * @property TextFormat[] textFormat
  * @property Collaborator[] collaborators
  * @property Location[] locations
+ * @property PreservationState[] preservationStates
  * @property Url[] links
  * @property Image[] images
  * @property WritingDirection[] writingDirections
@@ -137,6 +144,15 @@ class Text extends AbstractModel
     public function materials(): BelongsToMany
     {
         return $this->belongsToMany(Material::class);
+    }
+
+    /**
+     * @return BelongsToMany|Collection|PreservationState[]
+     * @throws ReflectionException
+     */
+    public function preservationStates(): BelongsToMany
+    {
+        return $this->belongsToMany(PreservationState::class);
     }
 
     /**

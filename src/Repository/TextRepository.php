@@ -28,7 +28,7 @@ class TextRepository extends AbstractRepository
         'links',
         'images',
         'writingDirections',
-
+        'preservationStates',
         'translations',
 
         'typographyAnnotations',

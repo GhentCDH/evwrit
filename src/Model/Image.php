@@ -18,6 +18,11 @@ namespace App\Model;
  * @property float $margin_right
  * @property float $line_height
  * @property float $interlinear_space
+ * @property string $kollemata
+ * @property string $orientation
+ * @property bool $is_incomplete
+ * @property bool $is_measurable
+ *
  * @package App\Model
  */
 class Image extends AbstractModel
