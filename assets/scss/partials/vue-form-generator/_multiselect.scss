@@ -405,6 +405,14 @@
     pointer-events: none;
   }
 
+  .multiselect__option--none {
+    color: #999;
+  }
+
+  .multiselect__option--any {
+    color: #999;
+  }
+
   .multiselect-enter-active,
   .multiselect-leave-active {
     transition: all .15s ease;
