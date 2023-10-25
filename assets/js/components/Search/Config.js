@@ -248,14 +248,26 @@ export default {
                             model: 'text_format'
                         }
                     ),
+                    this.createMultiSelect('Orientation',
+                        {
+                            model: 'orientation'
+                        }
+                    ),
                     this.createMultiSelect('Writing direction',
                         {
                             model: 'writing_direction'
                         }
                     ),
+
                     this.createMultiSelect('Recto', {model: 'is_recto'}),
                     this.createMultiSelect('Verso', {model: 'is_verso'}),
+                    this.createMultiSelect('Kollemata', {model: 'kollemata'}),
                     this.createMultiSelect('Transversa charta', {model: 'is_transversa_charta'}),
+                    this.createMultiSelect('Tomos Synkollesimos', {model: 'tomos_synkollesimos'}),
+
+                    this.createMultiSelect('Preservation status W', {model: 'preservation_status_w'}),
+                    this.createMultiSelect('Preservation status H', {model: 'preservation_status_h'}),
+
                     this.createRangeSlider('kollesis', 'Kollesis', 0, 50, 1),
                     this.createRangeSlider('lines', 'Text lines', 0, 160, 5),
                     this.createRangeSlider('columns', 'Text columns', 0, 10, 1),
@@ -264,6 +276,8 @@ export default {
                     this.createRangeSlider('height', 'Height', 0, 300, 5),
 
                     this.createRangeSlider('interlinear_space','Interlinear space',0,22,0),
+                    this.createRangeSlider('line_height','Line height',0,5,0.1),
+
                     this.createRangeSlider('margin_left','Margin Left',0,410,5),
                     this.createRangeSlider('margin_right','Margin Right',0,410,5),
                     this.createRangeSlider('margin_top','Margin Top',0,350,5),

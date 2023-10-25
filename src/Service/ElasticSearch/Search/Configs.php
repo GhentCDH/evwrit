@@ -292,6 +292,8 @@ class Configs implements SearchConfigInterface
             'is_verso' => ['type' => self::FILTER_BOOLEAN],
             'is_transversa_charta' => ['type' => self::FILTER_BOOLEAN],
             'tomos_synkollesimos' => ['type' => self::FILTER_BOOLEAN],
+            'preservation_status_h' => ['type' => self::FILTER_OBJECT_ID],
+            'preservation_status_w' => ['type' => self::FILTER_OBJECT_ID],
 
             'kollesis' => [
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
@@ -344,6 +346,21 @@ class Configs implements SearchConfigInterface
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
                 'ignore' => [-1, 10000]
             ],
+
+            'orientation' => [
+                'field' => 'images.orientation',
+                'type' => self::FILTER_KEYWORD,
+            ],
+            'kollemata' => [
+                'field' => 'images.kollemata',
+                'type' => self::FILTER_KEYWORD,
+            ],
+            'line_height' => [
+                'field' => 'images.line_height',
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+
         ];
         return $this->mergeFilterDefaults($filters);
     }
@@ -357,10 +374,22 @@ class Configs implements SearchConfigInterface
             'writing_direction' => ['type' => self::AGG_OBJECT_ID_NAME],
             'kollesis' => ['type' => self::AGG_GLOBAL_STATS],
 
+            'preservation_status_h' => ['type' => self::AGG_OBJECT_ID_NAME],
+            'preservation_status_w' => ['type' => self::AGG_OBJECT_ID_NAME],
+
             'is_recto' => ['type' => self::AGG_BOOLEAN],
             'is_verso' => ['type' => self::AGG_BOOLEAN],
             'is_transversa_charta' => ['type' => self::AGG_BOOLEAN],
             'tomos_synkollesimos' => ['type' => self::AGG_BOOLEAN],
+
+            'orientation' => [
+                'field' => 'images.orientation',
+                'type' => self::AGG_KEYWORD,
+            ],
+            'kollemata' => [
+                'field' => 'images.kollemata',
+                'type' => self::AGG_KEYWORD,
+            ],
 
             'lines_max' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'lines.max'],
             'lines_min' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'lines.min'],
@@ -371,6 +400,7 @@ class Configs implements SearchConfigInterface
             'width' => ['type' => self::AGG_GLOBAL_STATS],
             'height' => ['type' => self::AGG_GLOBAL_STATS],
             'interlinear_space' => ['type' => self::AGG_GLOBAL_STATS],
+            'line_height' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'images.line_height'],
             'margin_left' => ['type' => self::AGG_GLOBAL_STATS],
             'margin_right' => ['type' => self::AGG_GLOBAL_STATS],
             'margin_top' => ['type' => self::AGG_GLOBAL_STATS],

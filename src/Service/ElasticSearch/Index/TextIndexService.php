@@ -63,6 +63,7 @@ class TextIndexService extends AbstractIndexService
             'is_verso' => ['type' => 'boolean'],
             'is_transversa_charta' => ['type' => 'boolean'],
             'tomos_synkollesimos' => ['type' => 'boolean'],
+            'preservation_state' => ['type' => 'nested'],
 
             'coptic_relative' => ['type' => 'float'],
             'greek_relative' => ['type' => 'float'],

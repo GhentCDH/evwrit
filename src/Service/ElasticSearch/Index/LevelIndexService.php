@@ -61,6 +61,8 @@ class LevelIndexService extends AbstractIndexService
             'is_recto' => ['type' => 'boolean'],
             'is_verso' => ['type' => 'boolean'],
             'is_transversa_charta' => ['type' => 'boolean'],
+            'tomos_synkollesimos' => ['type' => 'boolean'],
+            'preservation_state' => ['type' => 'nested'],
 
             'annotations' => ['type' => 'nested'],
 
