@@ -44,6 +44,7 @@
         "symfony/yaml": "^5.4",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
+        "voku/arrayy": "^7.9",
         "wouterj/eloquent-bundle": "^2.0"
     },
     "require-dev": {
