@@ -277,6 +277,22 @@ class Configs implements SearchConfigInterface
 //                'excludeFilter' => ['communicative_goal_group'], // exclude filter of same type
 //                'filters' => self::filterCommunicativeInfo()['communicative_goal_group']['filters']
             ],
+            'greek_latin_label' => [
+                'type' => self::AGG_KEYWORD,
+                'nested_path' => 'greek_latin',
+                'field' => 'label'
+            ],
+            'greek_latin_sublabel' => [
+                'type' => self::AGG_KEYWORD,
+                'nested_path' => 'greek_latin',
+                'field' => 'sublabel'
+            ],
+            'greek_latin_english' => [
+                'type' => self::AGG_KEYWORD,
+                'nested_path' => 'greek_latin',
+                'field' => 'english'
+            ],
+
         ];
     }
 

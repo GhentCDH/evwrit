@@ -70,6 +70,7 @@ class TextIndexService extends AbstractIndexService
             'latin_relative' => ['type' => 'float'],
             'arabic_relative' => ['type' => 'float'],
 
+            'greek_latin' => ['type' => 'nested'],
 
             'ancient_person' => ['type' => 'nested'],
 

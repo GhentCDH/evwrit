@@ -151,6 +151,7 @@ export default {
                         model: 'level_category_subcategory',
                         'dependency': 'level_category_category'
                     }),
+                    this.createSelect('Ancient category', {model: 'greek_latin_label'}),
                     this.createMultiSelect('Social distance',
                         {
                             model: 'social_distance'
