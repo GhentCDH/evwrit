@@ -204,10 +204,10 @@ export default {
             let b_name_lower = b_name.toLowerCase()
 
             // Place 'any', 'none' filters above
-            if((a_name === 'none' || a_name === 'all') && (b_name !== 'all' && b_name !== 'none')) {
+            if((a_name === 'none' || a_name === 'any') && (b_name !== 'any' && b_name !== 'none')) {
                 return -1
             }
-            if((a_name !== 'all' && a_name !== 'none') && (b_name === 'all' || b_name === 'none')) {
+            if((a_name !== 'any' && a_name !== 'none') && (b_name === 'any' || b_name === 'none')) {
                 return 1
             }
 
@@ -245,8 +245,8 @@ export default {
             for (let fieldName of Object.keys(this.fields)) {
                 let field = this.fields[fieldName]
                 if (field.type === 'multiselectClear') {
-                    // let values = this.aggregation[fieldName] == null ? [] : this.aggregation[fieldName].sort(this.sortByName)
                     let values = this.aggregation[fieldName] ?? []
+                    values = values.sort(this.sortByName)
                     field.values = values
                     // active values? update model
                     let activeValues = field.values.filter( item => item?.active )
