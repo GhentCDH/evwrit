@@ -59,7 +59,7 @@ class ElasticTextResource extends ElasticBaseResource
 //            'communicative_goal' => ElasticCommunicativeGoalResource::collection($text->communicativeGoals)->toArray(),
 
             /* links */
-            'image' => ImageResource::collection($text->images)->toArray(),
+            'image' => ElasticImageResource::collection($text->images)->toArray(),
             'link' => LinkResource::collection($text->links)->toArray(),
 
             /* attestation */
