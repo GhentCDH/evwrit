@@ -131,7 +131,7 @@
       border-bottom: 0;
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
-      border-top: 1px solid $border-color;
+      border-top: 1px solid $input-border;
       bottom: 100%;
     }
   }
@@ -145,7 +145,8 @@
     line-height: 20px;
     margin-bottom: 8px;
     min-height: 20px;
-    padding: 0 0 0 5px;
+    //padding: 0 0 0 5px;
+    padding: 0;
     position: relative;
     transition: border .1s ease;
     vertical-align: top;
@@ -235,7 +236,7 @@
   }
 
   .multiselect__current {
-    border: 1px solid $brand-tertiary;
+    border: 1px solid $input-border;
     border-radius: 5px;
     box-sizing: border-box;
     cursor: pointer;
@@ -295,7 +296,7 @@
   .multiselect__content-wrapper {
     -webkit-overflow-scrolling: touch;
     background-color: $white;
-    border: 1px solid $brand-tertiary;
+    border: 1px solid $input-border;
     border-top: 0;
     display: block;
     max-height: 240px;
