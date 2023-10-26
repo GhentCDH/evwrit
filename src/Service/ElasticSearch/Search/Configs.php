@@ -362,17 +362,16 @@ class Configs implements SearchConfigInterface
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
                 'ignore' => [-1, 10000]
             ],
-
             'orientation' => [
-                'field' => 'images.orientation',
+                'field' => 'image.orientation',
                 'type' => self::FILTER_KEYWORD,
             ],
             'kollemata' => [
-                'field' => 'images.kollemata',
-                'type' => self::FILTER_KEYWORD,
+                'field' => 'image.kollemata',
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
             ],
             'line_height' => [
-                'field' => 'images.line_height',
+                'field' => 'image.line_height',
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
                 'ignore' => [-1, 10000]
             ],
@@ -399,12 +398,12 @@ class Configs implements SearchConfigInterface
             'tomos_synkollesimos' => ['type' => self::AGG_BOOLEAN],
 
             'orientation' => [
-                'field' => 'images.orientation',
+                'field' => 'image.orientation',
                 'type' => self::AGG_KEYWORD,
             ],
-            'kollemata' => [
-                'field' => 'images.kollemata',
-                'type' => self::AGG_KEYWORD,
+            'kollemata_count' => [
+                'field' => 'image.kollemata_count',
+                'type' => self::AGG_NUMERIC,
             ],
 
             'lines_max' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'lines.max'],
@@ -416,11 +415,12 @@ class Configs implements SearchConfigInterface
             'width' => ['type' => self::AGG_GLOBAL_STATS],
             'height' => ['type' => self::AGG_GLOBAL_STATS],
             'interlinear_space' => ['type' => self::AGG_GLOBAL_STATS],
-            'line_height' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'images.line_height'],
+            'line_height' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'image.line_height'],
             'margin_left' => ['type' => self::AGG_GLOBAL_STATS],
             'margin_right' => ['type' => self::AGG_GLOBAL_STATS],
             'margin_top' => ['type' => self::AGG_GLOBAL_STATS],
             'margin_bottom' => ['type' => self::AGG_GLOBAL_STATS],
+            'kollemata' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'image.kollemata'],
         ];
     }
 
@@ -538,7 +538,7 @@ class Configs implements SearchConfigInterface
                 'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
             ],
             'ap_tm_id' => [
-                'type' => self::AGG_NUMERIC, 
+                'type' => self::AGG_NUMERIC,
                 'field' => 'tm_id',
                 'nested_path' => 'ancient_person',
                 'excludeFilter' => ['ancient_person'],
