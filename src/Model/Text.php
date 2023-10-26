@@ -8,6 +8,8 @@ use App\Model\Lookup\Form;
 use App\Model\Lookup\Language;
 use App\Model\Lookup\Material;
 use App\Model\Lookup\PreservationState;
+use App\Model\Lookup\PreservationStatusH;
+use App\Model\Lookup\PreservationStatusW;
 use App\Model\Lookup\ProductionStage;
 use App\Model\Lookup\RevisionStatus;
 use App\Model\Lookup\Script;
@@ -83,6 +85,8 @@ use ReflectionException;
  * @property HandshiftAnnotation[] handshiftAnnotations
  * @property GenericTextStructureAnnotation[] genericTextStructureAnnotations
  * @property LayoutTextStructureAnnotation[] layoutTextStructureAnnotations
+ * @property PreservationStatusW $preservationStatusW
+ * @property PreservationStatusH $preservationStatusH
  *
  * @property GenericTextStructure[] genericTextStructures
  * @property LayoutTextStructure[] layoutTextStructures
@@ -153,6 +157,16 @@ class Text extends AbstractModel
     public function preservationStates(): BelongsToMany
     {
         return $this->belongsToMany(PreservationState::class);
+    }
+
+    public function preservationStatusW(): BelongsTo
+    {
+        return $this->belongsTo( PreservationStatusW::class);
+    }
+
+    public function preservationStatusH(): BelongsTo
+    {
+        return $this->belongsTo( PreservationStatusH::class);
     }
 
     /**

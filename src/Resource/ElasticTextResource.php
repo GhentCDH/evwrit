@@ -55,24 +55,20 @@ class ElasticTextResource extends ElasticBaseResource
             'location_found' => ElasticIdNameResource::collection($text->locationsFound)->toArray(),
             'location_written' => ElasticIdNameResource::collection($text->locationsWritten)->toArray(),
 
-//            'agentive_role' => ElasticAgentiveRoleResource::collection($text->agentiveRoles)->toArray(),
-//            'communicative_goal' => ElasticCommunicativeGoalResource::collection($text->communicativeGoals)->toArray(),
-
             /* links */
             'image' => ElasticImageResource::collection($text->images)->toArray(),
             'link' => LinkResource::collection($text->links)->toArray(),
 
-            /* attestation */
-//            'attestations' => ElasticAttestationResource::collection($text->attestations)->toArray(),
-
             /* materiality */
-
             'is_recto' => self::boolean($text->is_recto),
             'is_verso' => self::boolean($text->is_verso),
             'is_transversa_charta' => self::boolean($text->is_transversa_charta),
             'tomos_synkollesimos' => self::boolean($text->tomos_synkollesimos),
             'form' => ElasticIdNameResource::collection($text->forms)->toArray(),
             'preservation_state' => ElasticIdNameResource::collection($text->preservationStates),
+            'preservation_status_w' => new ElasticIdNameResource($text->preservationStatusW),
+            'preservation_status_h' => new ElasticIdNameResource($text->preservationStatusH),
+
             'lines' => !is_null($text->count_lines) ? [ 'min' => $text->count_lines, 'max' => $text->count_lines ] : ( is_null($text->lines_min) ? null : [ 'min' => $text->lines_min, 'max' => $text->lines_max ] ),
             'columns' => is_null($text->columns_min) ? null : [ 'min' => $text->columns_min, 'max' => $text->columns_max ],
             'letters_per_line' => is_null($text->letters_per_line_min) ? null : [ 'min' => $text->letters_per_line_min, 'max' => $text->letters_per_line_max ],
