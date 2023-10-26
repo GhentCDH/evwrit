@@ -593,8 +593,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $query->addMust($subQuery);
                 break;
             case self::FILTER_NUMERIC_RANGE_SLIDER:
-                $floorField = $filterConfig['floorField'] ?? $filterName;
-                $ceilingField = $filterConfig['ceilingField'] ?? $filterName;
+                $floorField = $filterConfig['floorField'] ?? $filterConfig['field'] ?? $filterName;
+                $ceilingField = $filterConfig['ceilingField'] ?? $filterConfig['field'] ?? $filterName;
 
                 if (isset($filterValue['floor'])) {
                     $query->addMust(
