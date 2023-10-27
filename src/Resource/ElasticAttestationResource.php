@@ -25,7 +25,6 @@ class ElasticAttestationResource extends BaseResource
         $attestation = $this->resource;
 
         $person = $attestation->ancientPerson;
-        $level = $attestation->level;
 
         return [
             /* ancient person properties */
@@ -36,8 +35,6 @@ class ElasticAttestationResource extends BaseResource
             'name' => $person->getName(),
             'gender' => new ElasticIdNameResource($person->gender),
             'patronimic' => $person->patronymic,
-
-//            'textLevel' => new ElasticTextLevelResourceLite($level),
 
             /* attestation properties */
             'education' => new ElasticIdNameResource($this->education),

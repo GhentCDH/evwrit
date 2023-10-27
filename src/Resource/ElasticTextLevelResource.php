@@ -23,7 +23,6 @@ class ElasticTextLevelResource extends ElasticBaseResource
     {
         /** @var Level $level */
         $level = $this->resource;
-        $text = $level->text;
 
         $levelProperties = [
             // level properties
@@ -31,14 +30,10 @@ class ElasticTextLevelResource extends ElasticBaseResource
             'number' => $level->number,
 
             'level_category' => ElasticLevelCategoryResource::collection($level->levelCategories)->toArray(),
-
             'agentive_role' => ElasticAgentiveRoleResource::collection($level->agentiveRoles)->toArray(),
             'communicative_goal' => ElasticCommunicativeGoalResource::collection($level->communicativeGoals)->toArray(),
-
             'production_stage' => ElasticIdNameResource::collection($level->productionStages)->toArray(),
-
             'attestations' => ElasticAttestationResource::collection($level->attestations)->toArray(),
-
 //            'physical_object' => ElasticIdNameResource::collection($level->physicalObjects)->toArray(),
             'greek_latin' => ElasticBaseResource::collection($level->greekLatins)->toArray(),
         ];
