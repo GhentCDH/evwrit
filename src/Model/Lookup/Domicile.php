@@ -3,13 +3,13 @@
 namespace App\Model\Lookup;
 
 
-use App\Model\IdNameModelModel;
+use App\Model\IdNameModel;
 
 /**
  * Class Domicile
  *
  * @package App\Model
  */
-class Domicile extends IdNameModelModel
+class Domicile extends IdNameModel
 {
 }

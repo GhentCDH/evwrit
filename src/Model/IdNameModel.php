@@ -10,7 +10,7 @@ use App\Model\AbstractModel;
  * @property string $name
  * @package App\Model
  */
-class IdNameModelModel extends AbstractModel implements IdNameModelInterface
+class IdNameModel extends AbstractModel implements IdNameModelInterface
 {
     public function __construct(array $attributes = [])
     {

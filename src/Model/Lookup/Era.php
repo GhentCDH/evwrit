@@ -3,8 +3,8 @@
 namespace App\Model\Lookup;
 
 
-use App\Model\IdNameModelModel;
+use App\Model\IdNameModel;
 
-class Era extends IdNameModelModel
+class Era extends IdNameModel
 {
 }

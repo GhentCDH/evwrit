@@ -2,8 +2,8 @@
 
 namespace App\Model\Lookup;
 
-use App\Model\IdNameModelModel;
+use App\Model\IdNameModel;
 
-class AnnotationAspectForm extends IdNameModelModel
+class AnnotationAspectForm extends IdNameModel
 {
 }

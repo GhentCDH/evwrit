@@ -63,7 +63,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function abbreviation(): belongsTo
@@ -72,7 +72,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function accentuation(): belongsTo
@@ -81,7 +81,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function accronym(): belongsTo
@@ -90,7 +90,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function insertion(): belongsTo
@@ -99,7 +99,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function expansion(): belongsTo
@@ -108,7 +108,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function connectivity(): belongsTo
@@ -117,7 +117,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function correction(): belongsTo
@@ -126,7 +126,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function curvature(): belongsTo
@@ -135,7 +135,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function deletion(): belongsTo
@@ -144,7 +144,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function orientation(): belongsTo
@@ -153,7 +153,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function vacat(): belongsTo
@@ -162,7 +162,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function weight(): belongsTo
@@ -171,7 +171,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function symbol(): belongsTo
@@ -180,7 +180,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function wordSplitting(): belongsTo
@@ -189,7 +189,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function wordClass(): belongsTo
@@ -198,7 +198,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function punctuation(): belongsTo
@@ -207,7 +207,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function positionInText(): belongsTo
@@ -216,7 +216,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function regularity(): belongsTo
@@ -225,7 +225,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function slope(): belongsTo
@@ -234,7 +234,7 @@ class TypographyAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function scriptType(): belongsTo

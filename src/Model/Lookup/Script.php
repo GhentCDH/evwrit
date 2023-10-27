@@ -3,13 +3,13 @@
 namespace App\Model\Lookup;
 
 
-use App\Model\IdNameModelModel;
+use App\Model\IdNameModel;
 
 /**
  * Class Script
  *
  * @package App\Model
  */
-class Script extends IdNameModelModel
+class Script extends IdNameModel
 {
 }

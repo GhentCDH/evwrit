@@ -5,7 +5,7 @@ namespace App\Resource;
 
 
 use App\Model\AbstractAnnotationModel;
-use App\Model\IdNameModelModel;
+use App\Model\IdNameModel;
 use App\Model\Text;
 use App\Model\TextSelection;
 use Illuminate\Contracts\Support\Arrayable;
@@ -53,7 +53,7 @@ class BaseElasticAnnotationResource extends BaseResource
                 if ( in_array($name, $this->skipRelations) ) {
                     continue;
                 }
-                if (is_subclass_of($model, IdNameModelModel::class)) {
+                if (is_subclass_of($model, IdNameModel::class)) {
                     $ret['properties'][$type.'_'.$name] = (new ElasticIdNameResource($model))->toArray();
                 }
             }
@@ -68,7 +68,7 @@ class BaseElasticAnnotationResource extends BaseResource
         foreach($this->includeAttributes as $attribute ) {
             $attributeValue = $resource->getAttribute($attribute);
             if ( is_object($attributeValue) ) {
-                if (is_subclass_of($attributeValue, IdNameModelModel::class)) {
+                if (is_subclass_of($attributeValue, IdNameModel::class)) {
                     $ret['properties'][$type . '_' . $attribute] = (new ElasticIdNameResource($attributeValue))->toArray();
                 }
             } else {

@@ -8,6 +8,6 @@ namespace App\Model;
  *
  * @package App\Model
  */
-class Collaborator extends IdNameModelModel
+class Collaborator extends IdNameModel
 {
 }

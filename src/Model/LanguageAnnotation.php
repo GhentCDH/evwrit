@@ -51,7 +51,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function bigraphismComments(): belongsTo
@@ -60,7 +60,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function bigraphismDomain(): belongsTo
@@ -69,7 +69,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function bigraphismFormulaicity(): belongsTo
@@ -78,7 +78,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function bigraphismRank(): belongsTo
@@ -87,7 +87,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function bigraphismType(): belongsTo
@@ -96,7 +96,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function codeswitchingComments(): belongsTo
@@ -105,7 +105,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function codeswitchingDomain(): belongsTo
@@ -114,7 +114,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function codeswitchingRank(): belongsTo
@@ -123,7 +123,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function codeswitchingType(): belongsTo
@@ -132,7 +132,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function otherComments(): belongsTo
@@ -141,7 +141,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function otherDomain(): belongsTo
@@ -150,7 +150,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function otherFormulaicity(): belongsTo
@@ -159,7 +159,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function otherRank(): belongsTo
@@ -168,7 +168,7 @@ class LanguageAnnotation extends AbstractAnnotationModel
     }
 
     /**
-     * @return BelongsTo|IdNameModelModel
+     * @return BelongsTo|IdNameModel
      * @throws ReflectionException
      */
     public function otherType(): belongsTo

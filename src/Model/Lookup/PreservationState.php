@@ -3,13 +3,13 @@
 namespace App\Model\Lookup;
 
 
-use App\Model\IdNameModelModel;
+use App\Model\IdNameModel;
 
 /**
  * Class Role
  *
  * @package App\Model
  */
-class PreservationState extends IdNameModelModel
+class PreservationState extends IdNameModel
 {
 }

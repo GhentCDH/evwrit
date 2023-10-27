@@ -81,7 +81,6 @@ abstract class AbstractModel extends Model
         if (is_null($ownerKey)) {
             $ownerKey = $related_pk;
         }
-
         return parent::belongsTo($related, $foreignKey, $ownerKey, $relation);
     }
 

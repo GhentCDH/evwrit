@@ -2,8 +2,8 @@
 
 namespace App\Model\Lookup;
 
-use App\Model\IdNameModelModel;
+use App\Model\IdNameModel;
 
-class AnnotationStandardFormMorphology extends IdNameModelModel
+class AnnotationStandardFormMorphology extends IdNameModel
 {
 }

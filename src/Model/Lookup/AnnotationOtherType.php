@@ -1,6 +1,6 @@
 <?php
 namespace App\Model\Lookup;
 
-use App\Model\IdNameModelModel;
+use App\Model\IdNameModel;
 
-class AnnotationOtherType extends IdNameModelModel {}
+class AnnotationOtherType extends IdNameModel {}

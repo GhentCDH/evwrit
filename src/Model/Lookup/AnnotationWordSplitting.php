@@ -2,8 +2,8 @@
 
 namespace App\Model\Lookup;
 
-use App\Model\IdNameModelModel;
+use App\Model\IdNameModel;
 
-class AnnotationWordSplitting extends IdNameModelModel
+class AnnotationWordSplitting extends IdNameModel
 {
 }

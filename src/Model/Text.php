@@ -85,8 +85,8 @@ use ReflectionException;
  * @property HandshiftAnnotation[] handshiftAnnotations
  * @property GenericTextStructureAnnotation[] genericTextStructureAnnotations
  * @property LayoutTextStructureAnnotation[] layoutTextStructureAnnotations
- * @property PreservationStatusW $preservationStatusW
- * @property PreservationStatusH $preservationStatusH
+ * @property PreservationStatusW preservationStatusW
+// * @property PreservationStatusH preservationStatusH
  *
  * @property GenericTextStructure[] genericTextStructures
  * @property LayoutTextStructure[] layoutTextStructures

@@ -3,13 +3,13 @@
 namespace App\Model\Lookup;
 
 
-use App\Model\IdNameModelModel;
+use App\Model\IdNameModel;
 
 /**
  * Class AgentiveRole
  *
  * @package App\Model
  */
-class LevelCategorySubcategory extends IdNameModelModel
+class LevelCategorySubcategory extends IdNameModel
 {
 }

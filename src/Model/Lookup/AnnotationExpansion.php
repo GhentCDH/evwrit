@@ -2,8 +2,8 @@
 
 namespace App\Model\Lookup;
 
-use App\Model\IdNameModelModel;
+use App\Model\IdNameModel;
 
-class AnnotationExpansion extends IdNameModelModel
+class AnnotationExpansion extends IdNameModel
 {
 }

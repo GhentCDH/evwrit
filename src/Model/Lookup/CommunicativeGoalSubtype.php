@@ -3,13 +3,13 @@
 namespace App\Model\Lookup;
 
 
-use App\Model\IdNameModelModel;
+use App\Model\IdNameModel;
 
 /**
  * Class AgentiveRole
  *
  * @package App\Model
  */
-class CommunicativeGoalSubtype extends IdNameModelModel
+class CommunicativeGoalSubtype extends IdNameModel
 {
 }

@@ -8,6 +8,6 @@ namespace App\Model;
  *
  * @package App\Model
  */
-class Keyword extends IdNameModelModel
+class Keyword extends IdNameModel
 {
 }
