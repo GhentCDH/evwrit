@@ -29,8 +29,9 @@ class TextRepository extends AbstractRepository
         'images',
         'writingDirections',
         'preservationStates',
+        'preservationStatusW',
+        'preservationStatusH',
         'translations',
-
         'typographyAnnotations',
         'typographyAnnotations.textSelection',
         'morphologyAnnotations',
