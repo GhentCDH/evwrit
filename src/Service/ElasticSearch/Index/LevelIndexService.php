@@ -28,15 +28,13 @@ class LevelIndexService extends AbstractIndexService
             'year_end' => ['type' => 'short'],
 
             // com info
-//            'archive' => ['type' => 'object'],
-//            'text_type' => ['type' => 'object'],
-//            'text_subtype' => ['type' => 'object'],
-//            'social_distance' => ['type' => 'object'],
             'agentive_role' => ['type' => 'nested'],
             'communicative_goal'  => ['type' => 'nested'],
 
             // ancient person
             'ancient_person' => [ 'type' => 'nested' ],
+            'attestations' => [ 'type' => 'nested' ],
+
 
 //            'production_stage' => ['type' => 'nested'],
 //            'text_format' => ['type' => 'nested'],
@@ -63,17 +61,26 @@ class LevelIndexService extends AbstractIndexService
             'is_transversa_charta' => ['type' => 'boolean'],
             'tomos_synkollesimos' => ['type' => 'boolean'],
             'preservation_state' => ['type' => 'nested'],
+            'kollesis' => ['type' => 'half_float'],
+
+            'image.kollemata_count' => ['type' => 'short'],
+            'image.kollemata' => ['type' => 'half_float'],
+            'image.line_height' => ['type' => 'half_float'],
+
+            'coptic_relative' => ['type' => 'float'],
+            'greek_relative' => ['type' => 'float'],
+            'latin_relative' => ['type' => 'float'],
+            'arabic_relative' => ['type' => 'float'],
+
+            'greek_latin' => ['type' => 'nested'],
+
+            'level_category' => [ 'type' => 'nested' ],
+
 
             'annotations' => ['type' => 'nested'],
 
             // level
-            'level_category' => [ 'type' => 'nested' ],
-//            'physical_object' => ['type' => 'nested'],
-            'greek_latin' => ['type' => 'nested'],
 
-            'attestations' => [
-                'type' => 'nested',
-            ],
         ];
     }
 

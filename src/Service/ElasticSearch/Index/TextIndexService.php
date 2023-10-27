@@ -40,8 +40,8 @@ class TextIndexService extends AbstractIndexService
             'communicative_goal'  => ['type' => 'nested'],
 
             // ancient person
+            'ancient_person' => [ 'type' => 'nested' ],
             'attestations' => [ 'type' => 'nested' ],
-
 
             'columns.min' => ['type' => 'short'],
             'columns.max' => ['type' => 'short'],
@@ -76,8 +76,6 @@ class TextIndexService extends AbstractIndexService
             'arabic_relative' => ['type' => 'float'],
 
             'greek_latin' => ['type' => 'nested'],
-
-            'ancient_person' => ['type' => 'nested'],
 
             'level_category' => [ 'type' => 'nested' ],
 
