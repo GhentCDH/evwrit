@@ -369,6 +369,7 @@ class Configs implements SearchConfigInterface
             'kollemata' => [
                 'field' => 'image.kollemata',
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
             ],
             'line_height' => [
                 'field' => 'image.line_height',
