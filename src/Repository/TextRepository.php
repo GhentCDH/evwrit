@@ -44,6 +44,7 @@ class TextRepository extends AbstractRepository
         'morphoSyntacticalAnnotations.textSelection',
         'handshiftAnnotations',
         'handshiftAnnotations.textSelection',
+        'handshiftAnnotations.attestation.ancientPerson',
         'languageAnnotations',
         'languageAnnotations.textSelection',
         'genericTextStructures',
@@ -75,6 +76,7 @@ class TextRepository extends AbstractRepository
         'textLevels.communicativeGoals',
         'textLevels.communicativeGoals.communicativeGoalType',
         'textLevels.communicativeGoals.communicativeGoalSubtype',
+        'textLevels.greekLatins',
     ];
     protected $model = Text::class;
 
