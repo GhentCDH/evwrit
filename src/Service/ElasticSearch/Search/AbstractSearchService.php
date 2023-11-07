@@ -1358,7 +1358,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     break;
                 case self::AGG_OBJECT_ID_NAME:
                 case self::AGG_NESTED_ID_NAME:
-                    $aggField = $aggField . '.id_name.keyword';
+                    $aggLocalePrefix = ($aggConfig['locale'] ?? null) ? '.'.$aggConfig['locale'] : '';
+                    $aggField = $aggField . '.id_name'.$aggLocalePrefix.'.keyword';
                     $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
 
                     $aggTerm = (new Aggregation\Terms($aggName))
