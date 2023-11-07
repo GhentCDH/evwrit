@@ -448,7 +448,11 @@ class Configs implements SearchConfigInterface
                         'field' => 'gender',
                         'type' => self::FILTER_OBJECT_ID,
                     ],
-                    'ap_occupation' => [
+                    'ap_occupation_en' => [
+                        'field' => 'occupation',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_occupation_gr' => [
                         'field' => 'occupation',
                         'type' => self::FILTER_OBJECT_ID,
                     ],
@@ -504,7 +508,11 @@ class Configs implements SearchConfigInterface
                         'field' => 'attestations.role',
                         'type' => self::FILTER_OBJECT_ID,
                     ],
-                    'ap_occupation' => [
+                    'ap_occupation_en' => [
+                        'field' => 'attestations.occupation',
+                        'type' => self::FILTER_OBJECT_ID,
+                    ],
+                    'ap_occupation_gr' => [
                         'field' => 'attestations.occupation',
                         'type' => self::FILTER_OBJECT_ID,
                     ],
@@ -561,9 +569,19 @@ class Configs implements SearchConfigInterface
                 'excludeFilter' => ['ancient_person'],
                 'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
             ],
-            'ap_occupation' => [
+            'ap_occupation_gr' => [
                 'type' => self::AGG_NESTED_ID_NAME, 
                 'field' => 'occupation',
+                'locale' => 'gr',
+                'nested_path' => 'ancient_person',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'excludeFilter' => ['ancient_person'],
+                'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
+            ],
+            'ap_occupation_en' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'field' => 'occupation',
+                'locale' => 'en',
                 'nested_path' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
@@ -629,9 +647,19 @@ class Configs implements SearchConfigInterface
                 'excludeFilter' => ['attestations'],
                 'filters' => $this->filterAttestations()['attestations']['filters'],
             ],
-            'ap_occupation' => [
+            'ap_occupation_gr' => [
                 'type' => self::AGG_NESTED_ID_NAME,
                 'field' => 'attestations.occupation',
+                'locale' => 'gr',
+                'nested_path' => 'attestations',
+                'ignoreValue' => self::ignoreUnknownUncertain,
+                'excludeFilter' => ['attestations'],
+                'filters' => $this->filterAttestations()['attestations']['filters'],
+            ],
+            'ap_occupation_en' => [
+                'type' => self::AGG_NESTED_ID_NAME,
+                'field' => 'attestations.occupation',
+                'locale' => 'en',
                 'nested_path' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
