@@ -52,6 +52,8 @@ $maxwidth-container: 1800px;
 
 @import 'partials/annotations';
 @import 'partials/selection_details';
+
+@import 'partials/_cool-lightbox';
 //
 @import 'partials/vue-form-generator/fieldset';
 @import 'partials/vue-form-generator/multiselect';

@@ -481,7 +481,10 @@ export default {
             if ( this.data.text.hasOwnProperty('image') && this.data.text.image.length ) {
                 this.data.text.image.forEach( function(image,index) {
                     result.push({
-                        description: image.copyright ? 'Copyright: ' + image.copyright : null,
+                        description: [
+                            image.source ? 'Source: ' + image.source : null,
+                            image.copyright ? 'Copyright: ' + image.copyright : null,
+                        ].filter( (i) => i ).join(' - '),
                         src: 'https://media.evwrit.ugent.be/image.php?secret=RHRVvbV4ScZITUVjfbab85DCteR9dsPgw2s5G2aD&filename=' +image.filename
                     })
                 })
