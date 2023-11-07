@@ -22,7 +22,15 @@ export default {
         },
         type: {
             type: String,
-        }
+        },
+        locale: {
+            type: String,
+            default: null
+        },
+        secondLocale: {
+            type: String,
+            default: null
+        },
     },
     methods: {
         formatValue(value) {
@@ -38,11 +46,13 @@ export default {
                     break;
                 case 'id_name':
                     if ( value?.name ) {
-                        return String(value.name).trim();
+                        let ret = (this.locale && value?.name?.[this.locale]) ? String(value.name[this.locale]).trim() : String(value.name).trim()
+                        ret = this.secondLocale && value?.name?.[this.secondLocale] ? ret + ' (' + value.name[this.secondLocale] + ')' : ret
+                        return ret
                     }
                     break;
                 default:
-                    return String(value).trim();
+                    return this.locale ? String(value[this.locale]).trim() : String(value).trim()
             }
 
             return this.unknown;

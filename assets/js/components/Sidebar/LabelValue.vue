@@ -12,6 +12,8 @@
                         :value="item"
                         :url="isCallable(url) ? url(item) : url"
                         :class="isCallable(valueClass) ? valueClass(item) : valueClass"
+                        :locale="locale"
+                        :second-locale="secondLocale"
                 />
             </template>
             <template v-else-if="$scopedSlots.default">
@@ -59,6 +61,14 @@ export default {
         },
         url: {
             type: String|Function,
+            default: null
+        },
+        locale: {
+            type: String,
+            default: null
+        },
+        secondLocale: {
+            type: String,
             default: null
         },
         ignoreValue: {
