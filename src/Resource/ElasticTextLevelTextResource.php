@@ -81,6 +81,11 @@ class ElasticTextLevelTextResource extends ElasticBaseResource
             'writing_direction' => ElasticIdNameResource::collection($text->writingDirections)->toArray(),
             'text_format' => new ElasticIdNameResource($text->textFormat),
             'material' => ElasticIdNameResource::collection($text->materials)->toArray(),
+
+            /* global language */
+            'drawing' => new ElasticIdNameResource($text->drawing),
+            'margin_filler' => new ElasticIdNameResource($text->marginFiller),
+            'margin_writing' => new ElasticIdNameResource($text->marginWriting),
         ]);
 
         return $ret;
