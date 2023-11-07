@@ -739,7 +739,7 @@ class Configs implements SearchConfigInterface
             'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
             'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
             'morphology' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
-            'language' => ['bigraphismDomain', 'bigraphismRank', 'bigraphismFormulaicity', 'bigraphismType', 'codeswitchingType' ],
+            'language' => ['bigraphismDomain', 'bigraphismRank', 'bigraphismFormulaicity', 'bigraphismType', 'codeswitchingType', 'codeswitchingRank', 'codeswitchingDomain', 'codeswitchingFormulaicity' ],
             'morpho_syntactical' => [
                 'coherenceForm', 'coherenceContent', 'coherenceContext',
                 'complementationForm', 'complementationContent', 'complementationContext',
@@ -777,7 +777,7 @@ class Configs implements SearchConfigInterface
             'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
             'morphology' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
             // rank opsplitsen
-            'language' => ['bigraphismDomain', 'bigraphismRank', 'bigraphismFormulaicity', 'bigraphismType', 'codeswitchingType' ],
+            'language' => ['bigraphismDomain', 'bigraphismRank', 'bigraphismFormulaicity', 'bigraphismType', 'codeswitchingType', 'codeswitchingRank', 'codeswitchingDomain', 'codeswitchingFormulaicity' ],
             'morpho_syntactical' => [
                 'coherenceForm', 'coherenceContent', 'coherenceContext',
                 'complementationForm', 'complementationContent', 'complementationContext',
