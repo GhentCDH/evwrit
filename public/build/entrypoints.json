@@ -13,7 +13,7 @@
         "/build/text-search.5fa11ea3.css"
       ],
       "js": [
-        "/build/text-search.ff39401a.js"
+        "/build/text-search.791fc83f.js"
       ]
     },
     "materiality-search": {
@@ -21,7 +21,7 @@
         "/build/materiality-search.5fa11ea3.css"
       ],
       "js": [
-        "/build/materiality-search.2db91616.js"
+        "/build/materiality-search.50014dd3.js"
       ]
     },
     "base-annotation-search": {
@@ -29,7 +29,7 @@
         "/build/base-annotation-search.381f5133.css"
       ],
       "js": [
-        "/build/base-annotation-search.fcba5013.js"
+        "/build/base-annotation-search.d9f78a1c.js"
       ]
     },
     "text-structure-search": {
@@ -37,15 +37,15 @@
         "/build/text-structure-search.35027e98.css"
       ],
       "js": [
-        "/build/text-structure-search.fc398100.js"
+        "/build/text-structure-search.7d59bc9c.js"
       ]
     },
     "text-view": {
       "css": [
-        "/build/text-view.e044cea3.css"
+        "/build/text-view.f171f575.css"
       ],
       "js": [
-        "/build/text-view.cbc1f0b0.js"
+        "/build/text-view.71505f3b.js"
       ]
     }
   }
