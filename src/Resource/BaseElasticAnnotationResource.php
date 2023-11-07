@@ -26,6 +26,14 @@ class BaseElasticAnnotationResource extends BaseResource
         'caseContent','caseContext','caseForm',
     ];
 
+    private ?Text $text;
+
+    public function __construct($resource, Text $text = null)
+    {
+        parent::__construct($resource);
+        $this->text = $text ?? $resource?->textSelection?->sourceText?->text ?? null;
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -77,33 +85,26 @@ class BaseElasticAnnotationResource extends BaseResource
         }
 
         // generate text selection context?
-        if ( $this->generateContext ) {
-            $ret['context'] = $this->createTextSelectionContext();
+        if ( $this->generateContext && $this->text ) {
+            $ret['context'] = $this->createTextSelectionContext($this->text->text, $resource->textSelection);
         }
 
         return $ret;
     }
 
     /**
-     * calculcate text selection context
+     * calculate text selection context
      * start/end are PHP string offsets (starting with 0)!
-     * @return array
      */
-    protected function createTextSelectionContext(): array {
-        /** @var Text $resource */
-        $resource = $this->resource;
-        /** @var TextSelection $text_selection */
-        $text_selection = $resource->textSelection;
-
-        $text = $resource->textSelection->sourceText->text;
+    protected function createTextSelectionContext(string $text, TextSelection $textSelection): array {
 
         // text end
         $t_len = mb_strlen($text);
         $t_end = $t_len - 1;
 
         // selection start/end
-        $s_start = min(max(0, $text_selection->selection_start), $t_end); // fix incorrect selection start
-        $s_end = min($text_selection->selection_end, $t_end); // fix incorrect selection end
+        $s_start = min(max(0, $textSelection->selection_start), $t_end); // fix incorrect selection start
+        $s_end = min($textSelection->selection_end, $t_end); // fix incorrect selection end
 
         // context start: if selection start > 0, find last vertical tab in string before selection start
         $c_start = 0;

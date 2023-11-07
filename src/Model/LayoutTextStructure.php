@@ -22,7 +22,9 @@ use ReflectionException;
  */
 class LayoutTextStructure extends AbstractModel
 {
-    protected $with = ['textSelection', 'textSelection.sourceText', 'part'];
+    protected $with = ['textSelection',
+//        'textSelection.sourceText',
+        'part'];
 
     /**
      * @return BelongsTo|TextSelection

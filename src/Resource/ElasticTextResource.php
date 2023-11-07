@@ -98,29 +98,52 @@ class ElasticTextResource extends ElasticBaseResource
 
         // base annotations
         $ret['annotations'] = array_merge(
-            BaseElasticAnnotationResource::collection($text->languageAnnotations)->toArray(),
-            BaseElasticAnnotationResource::collection($text->typographyAnnotations)->toArray(),
-            BaseElasticAnnotationResource::collection($text->lexisAnnotations)->toArray(),
-            BaseElasticAnnotationResource::collection($text->orthographyAnnotations)->toArray(),
-            BaseElasticAnnotationResource::collection($text->morphologyAnnotations)->toArray(),
-            BaseElasticAnnotationResource::collection($text->morphoSyntacticalAnnotations)->toArray(),
+            BaseElasticAnnotationResource::collection(
+                $text->languageAnnotations->map( fn($a) => new BaseElasticAnnotationResource($a, $text) )
+            )->toArray(),
+            BaseElasticAnnotationResource::collection(
+                $text->typographyAnnotations->map( fn($a) => new BaseElasticAnnotationResource($a, $text) )
+            )->toArray(),
+            BaseElasticAnnotationResource::collection(
+                $text->lexisAnnotations->map( fn($a) => new BaseElasticAnnotationResource($a, $text) )
+            )->toArray(),
+            BaseElasticAnnotationResource::collection(
+                $text->orthographyAnnotations->map( fn($a) => new BaseElasticAnnotationResource($a, $text) )
+            )->toArray(),
+            BaseElasticAnnotationResource::collection(
+                $text->morphologyAnnotations->map( fn($a) => new BaseElasticAnnotationResource($a, $text) )
+            )->toArray(),
+            BaseElasticAnnotationResource::collection(
+                $text->morphoSyntacticalAnnotations->map( fn($a) => new BaseElasticAnnotationResource($a, $text) )
+            )->toArray(),
         );
 
         // handshift annotations
-        $handshiftAnnotations = ElasticHandshiftAnnotationResource::collection($text->handshiftAnnotations)->toArray();
+        $handshiftAnnotations = ElasticHandshiftAnnotationResource::collection(
+            $text->handshiftAnnotations->map( fn($a) => new ElasticHandshiftAnnotationResource($a, $text) )
+        )->toArray();
 
         // generic/layout text structure
-        $genericTextStructure = ElasticGenericTextStructureResource::collection($text->genericTextStructures)->toArray();
+        $genericTextStructure = ElasticGenericTextStructureResource::collection(
+            $text->genericTextStructures
+        )->toArray();
         $ret['has_generic_text_structure'] = self::boolean(count($genericTextStructure) > 0);
-        $layoutTextStructure = ElasticLayoutTextStructureResource::collection($text->layoutTextStructures)->toArray();
+
+        $layoutTextStructure = ElasticLayoutTextStructureResource::collection(
+            $text->layoutTextStructures
+        )->toArray();
         $ret['has_layout_text_structure'] = self::boolean(count($layoutTextStructure) > 0);
 
         // text levels
         $ret['text_level'] = ElasticTextLevelResource::collection($text->textLevels)->toArray();
 
         // generic/layout text structure annotations
-        $gtsAnnotations = ElasticGenericTextStructureAnnotationResource::collection($text->genericTextStructureAnnotations)->toArray();
-        $ltsAnnotations = ElasticLayoutTextStructureAnnotationResource::collection($text->layoutTextStructureAnnotations)->toArray();
+        $gtsAnnotations = ElasticGenericTextStructureAnnotationResource::collection(
+            $text->genericTextStructureAnnotations->map( fn($a) => new ElasticGenericTextStructureAnnotationResource($a, $text) )
+        )->toArray();
+        $ltsAnnotations = ElasticLayoutTextStructureAnnotationResource::collection(
+            $text->layoutTextStructureAnnotations->map( fn($a) => new ElasticLayoutTextStructureAnnotationResource($a, $text) )
+        )->toArray();
 
         // calculate base annotations intersect with text_structure and handshift
         foreach($ret['annotations'] as &$annotationSource) {

@@ -27,7 +27,9 @@ use ReflectionException;
  */
 class GenericTextStructureAnnotation extends AbstractAnnotationModel
 {
-    protected $with = ['textSelection', 'textSelection.sourceText', 'type', 'subtype','genericTextStructure', 'genericTextStructure.part','genericTextStructure.textLevel',
+    protected $with = ['textSelection',
+//        'textSelection.sourceText',
+        'type', 'subtype','genericTextStructure', 'genericTextStructure.part','genericTextStructure.textLevel',
         'genericTextStructure', 'genericTextStructure.part', 'genericTextStructure.textLevel',
         'standardForm', 'attachedTo', 'attachmentType','speechAct','informationStatus',];
 

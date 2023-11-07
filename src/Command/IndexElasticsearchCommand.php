@@ -91,7 +91,7 @@ class IndexElasticsearchCommand extends Command
                         function($res) use ($service, &$count, $progressBar) {
                             foreach ($res as $text) {
                                 foreach( $text->textLevels as $level ) {
-                                    $res = new ElasticTextLevelIndexResource($level);
+                                    $res = new ElasticTextLevelIndexResource($level, $text);
                                     $service->add($res);
                                 }
                                 $count++;

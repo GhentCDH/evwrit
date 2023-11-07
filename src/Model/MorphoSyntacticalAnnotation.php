@@ -43,7 +43,8 @@ use ReflectionException;
  */
 class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
 {
-    protected $with = ['textSelection', 'textSelection.sourceText',
+    protected $with = ['textSelection',
+//        'textSelection.sourceText',
         'complementationContent','complementationContext','complementationForm',
         'coherenceContent','coherenceContext','coherenceForm',
         'subordinationContent','subordinationForm','subordinationContext',

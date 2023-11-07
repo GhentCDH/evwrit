@@ -5,6 +5,9 @@ namespace App\Resource;
 
 
 use App\Model\Level;
+use App\Model\Text;
+use phpDocumentor\Reflection\DocBlock\Tags\Generic;
+use Arrayy\Arrayy as A;
 
 /**
  * @mixin Level
@@ -12,6 +15,14 @@ use App\Model\Level;
 class ElasticTextLevelIndexResource extends ElasticBaseResource
 {
     use TraitTextSelectionIntersect;
+
+    private Text $text;
+
+    public function __construct($resource, Text $text)
+    {
+        parent::__construct($resource);
+        $this->text = $text;
+    }
 
     /**
      * Transform the resource into an array.
@@ -23,7 +34,7 @@ class ElasticTextLevelIndexResource extends ElasticBaseResource
     {
         /** @var Level $level */
         $level = $this->resource;
-        $text = $level->text;
+        $text = $this->text;
 
         $levelProperties = [
             // level properties
@@ -48,18 +59,29 @@ class ElasticTextLevelIndexResource extends ElasticBaseResource
         ];
 
         // generic/layout text structure
-        $gts = ElasticGenericTextStructureResource::collection($this->genericTextStructures)->toArray();
-        $ret['has_generic_text_structure'] = self::boolean(count($gts) > 0);
 
-        $gtsa = ElasticGenericTextStructureAnnotationResource::collection($this->genericTextStructureAnnotations)->toArray();
+        $gts = ElasticGenericTextStructureResource::collection(
+            $text->genericTextStructures->filter(fn(\App\Model\GenericTextStructure $gts) => $gts->level_id = $level->level_id)
+        )->toArray();
+        $gts_ids = A::create($gts)->map(fn($gtsi) => $gtsi['id'])->toArray();
+
+        $gtsa = ElasticGenericTextStructureAnnotationResource::collection(
+            $text->genericTextStructureAnnotations
+                ->filter( fn($a) => in_array($a->generic_text_structure_id, $gts_ids))
+                ->map( fn($a) => new ElasticGenericTextStructureAnnotationResource($a, $text))
+        )->toArray();
 
         // layout text structure
-        $lts = ElasticLayoutTextStructureResource::collection($level->text->layoutTextStructures)->toArray();
-        $ret['has_layout_text_structure'] = self::boolean(count($lts) > 0);
+        $lts = ElasticLayoutTextStructureResource::collection($text->layoutTextStructures)->toArray();
 
-        $ltsa = ElasticLayoutTextStructureAnnotationResource::collection($level->text->layoutTextStructureAnnotations)->toArray();
+        $ltsa = ElasticLayoutTextStructureAnnotationResource::collection(
+            $text->layoutTextStructureAnnotations->map( fn($a) => new ElasticLayoutTextStructureAnnotationResource($a, $text) )
+        )->toArray();
 
-        $hsa = ElasticHandshiftAnnotationResource::collection($level->text->handshiftAnnotations)->toArray();
+        // handshift
+        $hsa = ElasticHandshiftAnnotationResource::collection(
+            $text->handshiftAnnotations->map( fn($a) => new ElasticHandshiftAnnotationResource($a, $text) )
+        )->toArray();
 
 //        dump($gts);
 //        dump($lts);
@@ -95,6 +117,9 @@ class ElasticTextLevelIndexResource extends ElasticBaseResource
             });
 
         }
+
+        $ret['has_generic_text_structure'] = self::boolean(count($gts) > 0);
+        $ret['has_layout_text_structure'] = self::boolean(count($lts) > 0);
 
         // intersect generic text structure annotations with lts, gts, ltsa, handshift
         foreach( $gtsa as &$annotationSource ) {

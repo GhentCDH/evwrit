@@ -55,7 +55,9 @@ use ReflectionException;
  */
 class TypographyAnnotation extends AbstractAnnotationModel
 {
-    protected $with = ['textSelection', 'textSelection.sourceText', 'abbreviation','accentuation','accronym','insertion','expansion','connectivity','correction','curvature','deletion','orientation','vacat','weight','symbol','wordSplitting','wordClass','punctuation','positionInText','regularity','slope','scriptType'];
+    protected $with = ['textSelection',
+//        'textSelection.sourceText',
+        'abbreviation','accentuation','accronym','insertion','expansion','connectivity','correction','curvature','deletion','orientation','vacat','weight','symbol','wordSplitting','wordClass','punctuation','positionInText','regularity','slope','scriptType'];
 
     public function getAnnotationType(): string
     {

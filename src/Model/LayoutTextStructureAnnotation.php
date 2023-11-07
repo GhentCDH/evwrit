@@ -28,7 +28,9 @@ use ReflectionException;
  */
 class LayoutTextStructureAnnotation extends AbstractAnnotationModel
 {
-    protected $with = ['textSelection', 'textSelection.sourceText', 'type', 'subtype',
+    protected $with = ['textSelection',
+//        'textSelection.sourceText',
+        'type', 'subtype',
         'layoutTextStructure', 'layoutTextStructure.part',
         'spacing', 'separation', 'orientation', 'alignment', 'indentation', 'lectionalSigns', 'lineation', 'pagination'];
 

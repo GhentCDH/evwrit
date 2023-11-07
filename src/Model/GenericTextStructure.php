@@ -29,7 +29,9 @@ use ReflectionException;
  */
 class GenericTextStructure extends AbstractModel
 {
-    protected $with = ['textSelection', 'textSelection.sourceText', 'part', 'textLevel'];
+    protected $with = ['textSelection',
+//        'textSelection.sourceText',
+        'part', 'textLevel'];
 
     /**
      * @return BelongsTo|TextSelection
