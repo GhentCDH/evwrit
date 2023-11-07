@@ -449,8 +449,8 @@ class Configs implements SearchConfigInterface
                         'type' => self::FILTER_OBJECT_ID,
                     ],
                     'ap_occupation_en' => [
-                        'field' => 'occupation',
-                        'type' => self::FILTER_OBJECT_ID,
+                        'field' => 'occupation.name.en',
+                        'type' => self::FILTER_KEYWORD,
                     ],
                     'ap_occupation_gr' => [
                         'field' => 'occupation',
@@ -509,8 +509,8 @@ class Configs implements SearchConfigInterface
                         'type' => self::FILTER_OBJECT_ID,
                     ],
                     'ap_occupation_en' => [
-                        'field' => 'attestations.occupation',
-                        'type' => self::FILTER_OBJECT_ID,
+                        'field' => 'attestations.occupation.name.en',
+                        'type' => self::FILTER_KEYWORD,
                     ],
                     'ap_occupation_gr' => [
                         'field' => 'attestations.occupation',
@@ -579,9 +579,8 @@ class Configs implements SearchConfigInterface
                 'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
             ],
             'ap_occupation_en' => [
-                'type' => self::AGG_NESTED_ID_NAME,
-                'field' => 'occupation',
-                'locale' => 'en',
+                'type' => self::AGG_KEYWORD,
+                'field' => 'occupation.name.en',
                 'nested_path' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
@@ -657,9 +656,8 @@ class Configs implements SearchConfigInterface
                 'filters' => $this->filterAttestations()['attestations']['filters'],
             ],
             'ap_occupation_en' => [
-                'type' => self::AGG_NESTED_ID_NAME,
-                'field' => 'attestations.occupation',
-                'locale' => 'en',
+                'type' => self::AGG_KEYWORD,
+                'field' => 'attestations.occupation.name.en',
                 'nested_path' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
