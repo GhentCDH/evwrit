@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Model\Lookup;
+namespace App\Model;
 
-
-use App\Model\IdNameModel;
 
 /**
  * Class Occupation
  *
  * @package App\Model
+ * @property int $id
+ * @property string name_gr
+ * @property string name_en
  */
-class Occupation extends IdNameModel
+class Occupation extends AbstractModel
 {
 }

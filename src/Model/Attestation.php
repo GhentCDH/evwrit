@@ -9,7 +9,6 @@ use App\Model\Lookup\Education;
 use App\Model\Lookup\GraphType;
 use App\Model\Lookup\HonorificEpithet;
 use App\Model\Lookup\LocationType;
-use App\Model\Lookup\Occupation;
 use App\Model\Lookup\Role;
 use App\Model\Lookup\SocialRank;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

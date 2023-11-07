@@ -42,7 +42,7 @@ class ElasticAttestationResource extends BaseResource
             'graph_type' => new ElasticIdNameResource($this->graphType),
             'role' => ElasticIdNameResource::collection($this->roles)->toArray(),
             'social_rank' => ElasticIdNameResource::collection($this->socialRanks)->toArray(),
-            'occupation' => ElasticIdNameResource::collection($this->occupations)->toArray(),
+            'occupation' => ElasticOccupationResource::collection($this->occupations)->toArray(),
             'honorific_epithet' => ElasticIdNameResource::collection($this->honorificEpithets)->toArray(),
         ];
     }
