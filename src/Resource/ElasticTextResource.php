@@ -78,6 +78,11 @@ class ElasticTextResource extends ElasticBaseResource
             'text_format' => new ElasticIdNameResource($text->textFormat),
             'material' => ElasticIdNameResource::collection($text->materials)->toArray(),
 
+            /* global language */
+            'drawing' => new ElasticIdNameResource($text->drawing),
+            'margin_filler' => new ElasticIdNameResource($text->marginFiller),
+            'margin_writing' => new ElasticIdNameResource($text->marginWriting),
+
             // annotations placeholder
             'annotations' => []
         ]);

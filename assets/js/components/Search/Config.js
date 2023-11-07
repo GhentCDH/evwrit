@@ -364,6 +364,20 @@ export default {
                         ]
                     ).flat(Infinity),
 
+                    // global typography fields
+                    this.createMultiSelect('Drawings', {
+                        model: 'drawing',
+                        visible: this.typographyFieldVisible
+                    }),
+                    this.createMultiSelect('Writings in the margins', {
+                        model: 'margin_writing',
+                        visible: this.typographyFieldVisible
+                    }),
+                    this.createMultiSelect('Margin fillers', {
+                        model: 'margin_filler',
+                        visible: this.typographyFieldVisible
+                    }),
+
                     // lexis
                     ...['lexis_standardForm', 'lexis_type', 'lexis_subtype', 'lexis_wordclass', 'lexis_formulaicity',
                         'lexis_prescription', 'lexis_proscription', 'lexis_identifier'].map(
@@ -574,6 +588,9 @@ export default {
             }
 
             return false
+        },
+        typographyFieldVisible(model, field) {
+            return model?.annotation_type?.id === "typography"
         }
 
     }

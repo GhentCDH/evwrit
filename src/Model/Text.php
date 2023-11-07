@@ -3,9 +3,12 @@
 namespace App\Model;
 
 use App\Model\Lookup\Archive;
+use App\Model\Lookup\Drawing;
 use App\Model\Lookup\Era;
 use App\Model\Lookup\Form;
 use App\Model\Lookup\Language;
+use App\Model\Lookup\MarginFiller;
+use App\Model\Lookup\MarginWriting;
 use App\Model\Lookup\Material;
 use App\Model\Lookup\PreservationState;
 use App\Model\Lookup\PreservationStatusH;
@@ -86,8 +89,10 @@ use ReflectionException;
  * @property GenericTextStructureAnnotation[] genericTextStructureAnnotations
  * @property LayoutTextStructureAnnotation[] layoutTextStructureAnnotations
  * @property PreservationStatusW preservationStatusW
-// * @property PreservationStatusH preservationStatusH
- *
+ * @property PreservationStatusH preservationStatusH
+ * @property Drawing drawing
+ * @property MarginFiller marginFiller
+ * @property MarginWriting marginWriting
  * @property GenericTextStructure[] genericTextStructures
  * @property LayoutTextStructure[] layoutTextStructures
  * @property Level[] textLevels
@@ -258,6 +263,34 @@ class Text extends AbstractModel
     {
         return $this->belongsToMany(WritingDirection::class);
     }
+
+    /**
+     * @return BelongsTo|Drawing
+     * @throws ReflectionException
+     */
+    public function drawing(): BelongsTo
+    {
+        return $this->belongsTo(Drawing::class);
+    }
+
+    /**
+     * @return BelongsTo|MarginWriting
+     * @throws ReflectionException
+     */
+    public function marginWriting(): BelongsTo
+    {
+        return $this->belongsTo(MarginWriting::class);
+    }
+
+    /**
+     * @return BelongsTo|MarginFiller
+     * @throws ReflectionException
+     */
+    public function marginFiller(): BelongsTo
+    {
+        return $this->belongsTo(MarginFiller::class);
+    }
+
 
     /**
      * @return HasMany|TextTranslation[]
