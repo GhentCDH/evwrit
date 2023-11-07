@@ -13,7 +13,7 @@
             <LabelValue label="Education" :value="person.education"  type="id_name" :ignore-value="['Unknown','unknown']"
                         :url="urlGenerator('text_search', 'ap_education')"></LabelValue>
             <LabelValue label="Occupation" :value="person.occupation"  type="id_name" :ignore-value="['Unknown','unknown']"
-                        :url="urlGenerator('text_search', 'ap_occupation')"></LabelValue>
+                        :url="urlGenerator('text_search', 'ap_occupation_gr')" locale="gr" second-locale="en"></LabelValue>
             <LabelValue label="Social Rank" :value="person.social_rank"  type="id_name" :ignore-value="['Unknown','unknown']"
                         :url="urlGenerator('text_search', 'ap_social_rank')"></LabelValue>
             <LabelValue label="Graph Type" :value="person.graph_type"  type="id_name" :ignore-value="['Unknown','unknown']"
