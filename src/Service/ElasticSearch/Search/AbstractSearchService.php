@@ -289,6 +289,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $config['nested_path'] = $config['nested_path'] ?? $config['field'];
             $arrFieldPrefix[] = $config['nested_path'];
         }
+        $config['countTopDocuments'] = (bool) ($config['countTopDocuments'] ?? True);
 
         if($config['filters'] ?? []) {
             foreach($config['filters'] as $sub_name => $sub_config) {
@@ -1232,6 +1233,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $aggType = $aggConfig['type'];
             $aggField = $aggConfig['field'];
             $aggIsGlobal = $this->isGlobalAggregation($aggConfig); // global aggregation?
+            $countTopDocuments = $aggConfig['countTopDocuments'];
 
             // skip inactive aggregations
             if (!$aggConfig['active']) {
@@ -1364,7 +1366,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     }
 
                     // count top documents?
-                    $aggIsNested && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+                    $aggIsNested && $countTopDocuments && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
 
                     $aggParentQuery->addAggregation($aggTerm);
                     break;
@@ -1373,8 +1375,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $aggTerm = (new Aggregation\Terms($aggName))
                         ->setSize(self::MAX_AGG)
                         ->setField($aggField);
+
                     // count top documents?
-                    $aggIsNested && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+                    $aggIsNested && $countTopDocuments && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
 
                     $aggParentQuery->addAggregation($aggTerm);
                     break;
@@ -1389,7 +1392,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         ->setField($aggField);
 
                     // count top documents?
-                    $aggIsNested && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+                    $aggIsNested && $countTopDocuments && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
 
                     // allow 0 doc count if aggregation is filtered
                     if ( count($aggFilterValues) ) {
@@ -1400,11 +1403,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
                     // count missing
                     $aggCountMissing = new Aggregation\Missing('count_missing', $aggField);
-                    $aggIsNested && $aggCountMissing->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+                    $aggIsNested && $countTopDocuments && $aggCountMissing->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
                     $aggParentQuery->addAggregation($aggCountMissing);
                     // count any
                     $aggCountAny = new Aggregation\Filters('count_any');
-                    $aggIsNested && $aggCountAny->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+                    $aggIsNested && $countTopDocuments && $aggCountAny->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
                     $aggCountAny->addFilter(new Query\Exists($aggField));
 
                     $aggParentQuery->addAggregation($aggCountAny);
