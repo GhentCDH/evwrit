@@ -795,6 +795,7 @@ class Configs implements SearchConfigInterface
                     'nested_path' => "annotations",
                     'condition' => in_array($type, $this->baseAnnotationTypes) ?
                         $this->baseAnnotationAggregationIsActive($type) : null,
+                    'countTopDocuments' => False,
                 ];
             }
         }
@@ -807,7 +808,8 @@ class Configs implements SearchConfigInterface
             'replaceLabel' => [
                 'search' => 'morpho_syntactical',
                 'replace' => 'syntax'
-            ]
+            ],
+            'countTopDocuments' => False,
         ];
         if (count($allowedAnnotationTypes)) {
             $aggregationFilters['annotation_type']['allowedValue'] = $allowedAnnotationTypes;
@@ -818,6 +820,14 @@ class Configs implements SearchConfigInterface
             'type' => self::AGG_NUMERIC,
             'field' => 'properties.gts_textLevel.number',
             'nested_path' => "annotations",
+            'countTopDocuments' => False,
+        ];
+
+        $aggregationFilters['annotation_count'] = [
+            'type' => self::AGG_CARDINALITY,
+            'field' => 'id',
+            'nested_path' => "annotations",
+            'countTopDocuments' => False,
         ];
 
         return $aggregationFilters;
