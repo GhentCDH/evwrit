@@ -286,6 +286,18 @@ export default {
                     this.createRangeSlider('margin_right','Margin Right',0,410,5),
                     this.createRangeSlider('margin_top','Margin Top',0,350,5),
                     this.createRangeSlider('margin_bottom','Margin Bottom',0,1050,5),
+
+                    // global typography fields
+                    this.createMultiSelect('Drawings', {
+                        model: 'drawing',
+                    }),
+                    this.createMultiSelect('Writings in the margins', {
+                        model: 'margin_writing',
+                    }),
+                    this.createMultiSelect('Margin fillers', {
+                        model: 'margin_filler',
+                    }),
+
                 ]
             }
         },
@@ -363,20 +375,6 @@ export default {
                             }),
                         ]
                     ).flat(Infinity),
-
-                    // global typography fields
-                    this.createMultiSelect('Drawings', {
-                        model: 'drawing',
-                        visible: this.typographyFieldVisible
-                    }),
-                    this.createMultiSelect('Writings in the margins', {
-                        model: 'margin_writing',
-                        visible: this.typographyFieldVisible
-                    }),
-                    this.createMultiSelect('Margin fillers', {
-                        model: 'margin_filler',
-                        visible: this.typographyFieldVisible
-                    }),
 
                     // lexis
                     ...['lexis_standardForm', 'lexis_type', 'lexis_subtype', 'lexis_wordclass', 'lexis_formulaicity',
