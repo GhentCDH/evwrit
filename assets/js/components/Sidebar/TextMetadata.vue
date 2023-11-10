@@ -68,7 +68,11 @@ export default {
         levelCategories() {
             let level_categories = []
             this.text?.text_level?.forEach( text_level => level_categories = level_categories.concat(text_level?.level_category ?? []) )
-            return level_categories.filter(category => category)
+            level_categories = level_categories.filter(category => category)
+            return level_categories
+                .filter((category, index) => {
+                    return index === level_categories.findIndex( o => o.id === category.id )
+            })
         }
     },
     methods: {
