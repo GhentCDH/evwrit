@@ -14,6 +14,28 @@ class Configs implements SearchConfigInterface
     private ?int $defaultProjectId = null;
     private ?ContainerInterface $container = null;
 
+    private array $baseAnnotationTypes = [
+        'typography', 'lexis', 'orthography', 'morphology', 'language', 'morpho_syntactical'
+    ];
+
+    private array $baseAnnotationProperties = [
+            'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation', 'vacat', 'accronym', 'positionInText', 'wordClass'],
+            'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
+            'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
+            'morphology' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
+            'language' => ['bigraphismDomain', 'bigraphismRank', 'bigraphismFormulaicity', 'bigraphismType', 'codeswitchingType', 'codeswitchingRank', 'codeswitchingDomain', 'codeswitchingFormulaicity' ],
+            'morpho_syntactical' => [
+                'coherenceForm', 'coherenceContent', 'coherenceContext',
+                'complementationForm', 'complementationContent', 'complementationContext',
+                'subordinationForm', 'subordinationContent', 'subordinationContext',
+                'relativisationForm', 'relativisationContent', 'relativisationContext',
+                'typeFormulaicity'
+            ],
+            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
+            'gts' => ['part'],
+            'gtsa' => ['type', 'subtype', 'speechAct'],
+        ];
+
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
@@ -734,24 +756,7 @@ class Configs implements SearchConfigInterface
             'boost' => 1
         ];
 
-        $annotationProperties = [
-            'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation', 'vacat', 'accronym', 'positionInText', 'wordClass'],
-            'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
-            'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
-            'morphology' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
-            'language' => ['bigraphismDomain', 'bigraphismRank', 'bigraphismFormulaicity', 'bigraphismType', 'codeswitchingType', 'codeswitchingRank', 'codeswitchingDomain', 'codeswitchingFormulaicity' ],
-            'morpho_syntactical' => [
-                'coherenceForm', 'coherenceContent', 'coherenceContext',
-                'complementationForm', 'complementationContent', 'complementationContext',
-                'subordinationForm', 'subordinationContent', 'subordinationContext',
-                'relativisationForm', 'relativisationContent', 'relativisationContext',
-                'typeFormulaicity'
-            ],
-            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
-            'gts' => ['part'],
-            'gtsa' => ['type', 'subtype', 'speechAct'],
-        ];
-
+        $annotationProperties = $this->baseAnnotationProperties;
         foreach( $annotationProperties as $type => $properties ) {
             foreach( $properties as $property ) {
                 $subfilter_name = "{$type}_{$property}";
@@ -766,37 +771,19 @@ class Configs implements SearchConfigInterface
         return $searchFilters;
     }
 
-    public function aggregateBaseAnnotations(): array
+    public function aggregateBaseAnnotations(array $allowedAnnotationTypes = []): array
     {
         $aggregationFilters = [];
 
-        // annotation aggregations
-        $annotationProperties = [
-            'typography' => ['wordSplitting','correction','insertion', 'abbreviation', 'deletion', 'symbol', 'punctuation', 'accentuation', 'vacat', 'accronym', 'positionInText', 'wordClass'],
-            'lexis' => ['standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','identifier'],
-            'orthography' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
-            'morphology' => ['standardForm','type','subtype','wordclass','formulaicity','positionInWord'],
-            // rank opsplitsen
-            'language' => ['bigraphismDomain', 'bigraphismRank', 'bigraphismFormulaicity', 'bigraphismType', 'codeswitchingType', 'codeswitchingRank', 'codeswitchingDomain', 'codeswitchingFormulaicity' ],
-            'morpho_syntactical' => [
-                'coherenceForm', 'coherenceContent', 'coherenceContext',
-                'complementationForm', 'complementationContent', 'complementationContext',
-                'subordinationForm', 'subordinationContent', 'subordinationContext',
-                'relativisationForm', 'relativisationContent', 'relativisationContext',
-                'typeFormulaicity'
-            ],
-            'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
-            'gts' => ['part'],
-            'gtsa' => ['type', 'subtype', 'speechAct'],
-        ];
-
-        // create aggregation filter keys (typography_wordSplitting, typography_correction ...)
-        $annotationFilterKeys = array_reduce(
-            array_keys($annotationProperties),
-            function($carry, $type) use ($annotationProperties) { return array_merge($carry, preg_filter('/^/', "{$type}_", $annotationProperties[$type])); },
-            []
-        );
-        //$annotationFilterKeys[] = "annotation_type";
+        // remove aggregations not in scope
+        $annotationProperties = $this->baseAnnotationProperties;
+        if ( count($allowedAnnotationTypes) ) {
+            foreach($this->baseAnnotationTypes as $annotationType) {
+                if ( !in_array($annotationType, $allowedAnnotationTypes) ) {
+                    unset($annotationProperties[$annotationType]);
+                }
+            }
+        }
 
         // add annotation property filters
         foreach( $annotationProperties as $type => $properties ) {
@@ -807,32 +794,9 @@ class Configs implements SearchConfigInterface
                     'type' => self::AGG_NESTED_ID_NAME,
                     'field' => $field_name,
                     'nested_path' => "annotations",
-//                    'excludeFilter' => ['annotations'], // exclude filter of same type
-//                    'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
-//                        if ( $subfilter_name != $filter_name ) {
-//                            $carry[$subfilter_name] = [
-//                                'field' => "properties.{$subfilter_name}",
-//                                'type' => self::FILTER_OBJECT_ID
-//                            ];
-//                        }
-//                        return $carry;
-//                    }, [])
+                    'condition' => in_array($type, $this->baseAnnotationTypes) ?
+                        $this->baseAnnotationAggregationIsActive($type) : null,
                 ];
-//                // filter on type
-//                $aggregationFilters[$filter_name]['filters']['annotation_type'] = [
-//                    'field' => 'type',
-//                    'type' => self::FILTER_KEYWORD
-//                ];
-//                // filter on generic text structure part
-//                $aggregationFilters[$filter_name]['filters']['generic_text_structure_part'] = [
-//                    'field' => 'properties.gts_part',
-//                    'type' => self::FILTER_OBJECT_ID
-//                ];
-//                // filter on text level
-//                $aggregationFilters[$filter_name]['filters']['text_level'] = [
-//                    'field' => 'properties.textLevel.number',
-//                    'type' => self::FILTER_NUMERIC
-//                ];
             }
         }
 
@@ -841,34 +805,20 @@ class Configs implements SearchConfigInterface
             'type' => self::AGG_KEYWORD,
             'field' => 'type',
             'nested_path' => "annotations",
-//            'excludeFilter' => ['annotations'], // exclude filter of same type
-//            'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
-//                if ( $subfilter_name != $filter_name ) {
-//                    $carry[$subfilter_name] = [
-//                        'field' => "properties.{$subfilter_name}",
-//                        'type' => self::FILTER_OBJECT_ID
-//                    ];
-//                }
-//                return $carry;
-//            }, []),
             'replaceLabel' => [
                 'search' => 'morpho_syntactical',
                 'replace' => 'syntax'
             ]
         ];
+        if (count($allowedAnnotationTypes)) {
+            $aggregationFilters['annotation_type']['allowedValue'] = $allowedAnnotationTypes;
+        }
 
         // add annotation type filter
         $aggregationFilters['gts_textLevel'] = [
             'type' => self::AGG_NUMERIC,
             'field' => 'properties.gts_textLevel.number',
             'nested_path' => "annotations",
-//            'excludeFilter' => ['annotations'], // exclude filter of same type
-//            'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($type,$filter_name) {
-//                if ( $subfilter_name != $filter_name ) {
-//                    $carry[$subfilter_name] = "properties.{$subfilter_name}.id";
-//                }
-//                return $carry;
-//            }, []),
         ];
 
         return $aggregationFilters;
@@ -925,4 +875,9 @@ class Configs implements SearchConfigInterface
         return $searchFilters;
     }
 
+    protected function baseAnnotationAggregationIsActive(string $type): callable {
+        return function($name, $config, $filterValues) use ($type) {
+            return ( count($filterValues["annotation_type"]["value"] ?? []) === 1 && $filterValues["annotation_type"]["value"][0] === $type );
+        };
+    }
 }
