@@ -6,6 +6,8 @@ class LexicogrammerAnnotationSearchService extends AnnotationSearchService
 {
     protected const indexName = "texts";
 
+    protected array $allowedBaseAnnotationTypes = ['morpho_syntactical', 'lexis', 'morphology'];
+
     protected function getSearchFilterConfig(): array
     {
         $ret = parent::getSearchFilterConfig();
@@ -13,10 +15,8 @@ class LexicogrammerAnnotationSearchService extends AnnotationSearchService
         return $ret;
     }
 
-    protected function getAggregationConfig(): array
+    protected function onInitAggregationConfig(array $arrAggregationConfigs, array $arrFilterValues): void
     {
-        $ret = parent::getAggregationConfig();
-        $ret['annotation_type']['allowedValue'] = ['morpho_syntactical', 'lexis', 'morphology'];
-        return $ret;
     }
+
 }

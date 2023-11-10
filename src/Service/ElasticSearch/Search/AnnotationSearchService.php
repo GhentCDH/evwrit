@@ -11,7 +11,9 @@ class AnnotationSearchService extends AbstractSearchService
 {
     protected const indexName = "texts";
 
-    private Configs $config;
+    protected Configs $config;
+
+    protected array $allowedBaseAnnotationTypes = [];
 
     public function __construct(Client $client, string $indexPrefix, Configs $config, bool $debug = false)
     {
@@ -39,7 +41,7 @@ class AnnotationSearchService extends AbstractSearchService
             $this->config->aggregateMateriality(),
             $this->config->aggregateAncientPerson(),
             $this->config->aggregateAdministrative(),
-            $this->config->aggregateBaseAnnotations(),
+            $this->config->aggregateBaseAnnotations($this->allowedBaseAnnotationTypes),
         );
 
         return $aggregationFilters;
@@ -99,7 +101,7 @@ class AnnotationSearchService extends AbstractSearchService
         return parent::sanitizeSearchParameters($params, $merge_defaults);
     }
 
-    protected function onBeforeSearch(array &$searchParams, Query $query, Query\FunctionScore $queryFS)
+    protected function onBeforeSearch(array &$searchParams, Query $query, Query\FunctionScore $queryFS): void
     {
 //        dump($searchParams);
         foreach ($searchParams['orderBy'] ?? [] as $index => $field) {
