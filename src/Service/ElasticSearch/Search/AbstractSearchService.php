@@ -284,6 +284,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         $config['name'] = $name;
         $config['field'] = $config['field'] ?? $config['name'];
+        $config['active'] = (bool) ($config['active'] ?? true);
         if($this->isNestedAggregation($config)) {
             $config['nested_path'] = $config['nested_path'] ?? $config['field'];
             $arrFieldPrefix[] = $config['nested_path'];
@@ -363,9 +364,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return [];
     }
 
-    protected function onBeforeSearch(array &$searchParams, Query $query, Query\FunctionScore $queryFS)
-    {
-        return null;
+    protected function onBeforeSearch(array &$searchParams, Query $query, Query\FunctionScore $queryFS): void {
+    }
+
+    protected function onInitAggregationConfig(array &$arrAggregationConfigs, array $arrFilterValues): void {
     }
 
     /**
@@ -413,7 +415,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         foreach ($config as $filterName => $filterConfig) {
             $config[$filterName] = $this->sanitizeSearchFilterConfig($filterName, $filterConfig);
         }
-//        dump($config);
         return $config;
     }
 
@@ -1207,6 +1208,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         // sanitize filter values
         $arrFilterValues = $this->sanitizeSearchFilters($arrFilterValues);
 
+        // event onInitAggregationConfig
+        $this->onInitAggregationConfig($arrAggregationConfigs, $arrFilterValues);
+
         // get filters used in multiselect aggregations
         // these filters are added to each aggregation and don't filter the global set
         $arrAggregationFilterConfigs = $this->getAggregationFilters();
@@ -1228,6 +1232,18 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $aggType = $aggConfig['type'];
             $aggField = $aggConfig['field'];
             $aggIsGlobal = $this->isGlobalAggregation($aggConfig); // global aggregation?
+
+            // skip inactive aggregations
+            if (!$aggConfig['active']) {
+                continue;
+            }
+
+            // skip aggregations with false condition
+            if ( is_callable($aggConfig['condition'] ?? null) ) {
+                if ( !$aggConfig['condition']($aggName, $aggConfig, $arrFilterValues) ) {
+                    continue;
+                }
+            }
 
             // set aggregation parent
             $aggParentQuery = $aggIsGlobal ? $aggGlobalQuery : $query;
