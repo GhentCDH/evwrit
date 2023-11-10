@@ -26,6 +26,8 @@ interface SearchConfigInterface
     const AGG_BOOLEAN = "bool";
     const AGG_GLOBAL_STATS = "stats";
 
+    const AGG_CARDINALITY = "cardinality";
+
     const AGG_NESTED_ID_NAME = "nested_id_name";
     const AGG_OBJECT_ID_NAME = "object_id_name";
 

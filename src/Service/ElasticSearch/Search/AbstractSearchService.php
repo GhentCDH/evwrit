@@ -1344,6 +1344,12 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                             ->setField($aggField)
                     );
                     break;
+                case self::AGG_CARDINALITY:
+                    $aggParentQuery->addAggregation(
+                        (new Aggregation\Cardinality($aggName))
+                            ->setField($aggField)
+                    );
+                    break;
                 case self::AGG_KEYWORD:
                     $aggField = $aggField . '.keyword';
                     $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
@@ -1425,6 +1431,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
             switch ($aggType) {
                 case self::AGG_GLOBAL_STATS:
+                    $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
+                    $results[$aggName] = $aggResults;
+                    break;
+                case self::AGG_CARDINALITY:
                     $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
                     $results[$aggName] = $aggResults;
                     break;
