@@ -15,7 +15,7 @@ class LexicogrammerAnnotationSearchService extends AnnotationSearchService
         return $ret;
     }
 
-    protected function onInitAggregationConfig(array $arrAggregationConfigs, array $arrFilterValues): void
+    protected function onInitAggregationConfig(array &$arrAggregationConfigs, array $arrFilterValues): void
     {
     }
 
