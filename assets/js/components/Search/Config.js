@@ -273,19 +273,19 @@ export default {
                     this.createRangeSlider('kollemata', 'Kollemata', 0, 50, 0.1),
 
                     this.createRangeSlider('kollesis', 'Kollesis', 0, 50, 1),
-                    this.createRangeSlider('lines', 'Text lines', 0, 160, 5),
+                    this.createRangeSlider('lines', 'Text lines', 0, 160, 1),
                     this.createRangeSlider('columns', 'Text columns', 0, 10, 1),
-                    this.createRangeSlider('letters_per_line', 'Letters per line', 0, 220, 5),
-                    this.createRangeSlider('width', 'Width', 0, 320, 5),
-                    this.createRangeSlider('height', 'Height', 0, 300, 5),
+                    this.createRangeSlider('letters_per_line', 'Letters per line', 0, 220, 1),
+                    this.createRangeSlider('width', 'Width', 0, 320, 1),
+                    this.createRangeSlider('height', 'Height', 0, 300, 1),
 
                     this.createRangeSlider('interlinear_space','Interlinear space',0,22,0),
                     this.createRangeSlider('line_height','Line height',0,5,0.1, 1),
 
-                    this.createRangeSlider('margin_left','Margin Left',0,410,5),
-                    this.createRangeSlider('margin_right','Margin Right',0,410,5),
-                    this.createRangeSlider('margin_top','Margin Top',0,350,5),
-                    this.createRangeSlider('margin_bottom','Margin Bottom',0,1050,5),
+                    this.createRangeSlider('margin_left','Margin Left',0,410,1),
+                    this.createRangeSlider('margin_right','Margin Right',0,410,1),
+                    this.createRangeSlider('margin_top','Margin Top',0,350,1),
+                    this.createRangeSlider('margin_bottom','Margin Bottom',0,1050,1),
 
                     // global typography fields
                     this.createMultiSelect('Drawings', {
