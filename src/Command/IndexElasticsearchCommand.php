@@ -34,6 +34,7 @@ class IndexElasticsearchCommand extends Command
         $this
             ->setDescription(self::$defaultDescription)
             ->addArgument('index', InputArgument::REQUIRED, 'Which index should be reindexed?')
+            ->addArgument('maxItems', InputArgument::OPTIONAL, 'Max number of items to index')
             ->setHelp('This command allows you to reindex elasticsearch.');
     }
 
@@ -44,6 +45,7 @@ class IndexElasticsearchCommand extends Command
         $allowedProjectIds = (array) $this->container->getParameter('app.allowed_project_ids');
 
         $count = 0;
+        $maxItems = $input->getArgument('maxItems');
         if ($index = $input->getArgument('index')) {
             switch ($index) {
                 case 'text':
@@ -60,7 +62,10 @@ class IndexElasticsearchCommand extends Command
                     $progressBar->start();
 
                     $repository->findByProjectIds($allowedProjectIds)->chunk(100,
-                        function($res) use ($service, &$count, $progressBar) {
+                        function($res) use ($service, &$count, $progressBar, $maxItems) {
+                            if ( $maxItems && $count >= $maxItems ) {
+                                return false;
+                            }
                             foreach ($res as $text) {
                                 $res = new ElasticTextResource($text);
                                 $service->add($res);
@@ -88,7 +93,10 @@ class IndexElasticsearchCommand extends Command
                     $progressBar->start();
 
                     $repository->findByProjectIds($allowedProjectIds)->chunk(100,
-                        function($res) use ($service, &$count, $progressBar) {
+                        function($res) use ($service, &$count, $progressBar, $maxItems) {
+                            if ( $maxItems && $count >= $maxItems ) {
+                                return false;
+                            }
                             foreach ($res as $text) {
                                 foreach( $text->textLevels as $level ) {
                                     $res = new ElasticTextLevelIndexResource($level, $text);
