@@ -3,7 +3,7 @@
 namespace App\Service\ElasticSearch\Index;
 
 use App\Service\ElasticSearch\Analysis;
-use App\Service\ElasticSearch\Client;
+use App\Service\ElasticSearch\Base\AbstractIndexService;
 
 class TextIndexService extends AbstractIndexService
 {

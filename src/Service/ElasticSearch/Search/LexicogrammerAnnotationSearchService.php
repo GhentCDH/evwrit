@@ -8,9 +8,9 @@ class LexicogrammerAnnotationSearchService extends AnnotationSearchService
 
     protected array $allowedBaseAnnotationTypes = ['morpho_syntactical', 'lexis', 'morphology'];
 
-    protected function getSearchFilterConfig(): array
+    protected function initSearchConfig(): array
     {
-        $ret = parent::getSearchFilterConfig();
+        $ret = parent::initSearchConfig();
         $ret['annotations']['filters']['annotation_type']['defaultValue'] = ['morpho_syntactical', 'lexis', 'morphology'];
         return $ret;
     }

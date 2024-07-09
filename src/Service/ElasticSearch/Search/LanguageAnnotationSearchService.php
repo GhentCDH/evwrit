@@ -8,9 +8,9 @@ class LanguageAnnotationSearchService extends AnnotationSearchService
 
     protected array $allowedBaseAnnotationTypes = ['language'];
 
-    protected function getSearchFilterConfig(): array
+    protected function initSearchConfig(): array
     {
-        $ret = parent::getSearchFilterConfig();
+        $ret = parent::initSearchConfig();
         $ret['annotations']['filters']['annotation_type']['defaultValue'] = ['language'];
 
         return $ret;

@@ -1,11 +1,8 @@
 <?php
 
-namespace App\Service\ElasticSearch\Index;
+namespace App\Service\ElasticSearch\Base;
 
 use App\Resource\BaseResource;
-use App\Service\ElasticSearch\AbstractService;
-use App\Service\ElasticSearch\IndexServiceInterface;
-use App\Service\ElasticSearch\Search\SearchServiceInterface;
 use Elastica\Document;
 use Elastica\Mapping;
 use Illuminate\Http\Resources\Json\ResourceCollection;

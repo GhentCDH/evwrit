@@ -2,6 +2,7 @@
 
 namespace App\Service\ElasticSearch\Search;
 
+use App\Service\ElasticSearch\Base\AbstractSearchService;
 use App\Service\ElasticSearch\Client;
 use Elastica\Settings;
 
@@ -17,7 +18,7 @@ class TextStructureSearchService extends AbstractSearchService
         $this->config = $config;
     }
     
-    protected function getSearchFilterConfig(): array {
+    protected function initSearchConfig(): array {
         $searchFilters = array_merge(
             $this->config->filterPhysicalInfo(),
             $this->config->filterCommunicativeInfo(),
@@ -30,7 +31,7 @@ class TextStructureSearchService extends AbstractSearchService
         return $searchFilters;
     }
 
-    protected function getAggregationConfig(): array {
+    protected function initAggregationConfig(): array {
         $aggregationFilters = array_merge(
             $this->config->aggregatePhysicalInfo(),
             $this->config->aggregateCommunicativeInfo(),
@@ -63,7 +64,7 @@ class TextStructureSearchService extends AbstractSearchService
                 $aggregationFilters[$filter_name] = [
                     'type' => self::AGG_NESTED_ID_NAME,
                     'field' => $field_name,
-                    'nested_path' => "annotations",
+                    'nestedPath' => "annotations",
 //                    'excludeFilter' => ['annotations'], // exclude filter of same type
 //                    'filters' => array_reduce( $annotationFilterKeys, function($carry,$subfilter_name) use ($filter_name) {
 //                        if ( $subfilter_name != $filter_name ) {

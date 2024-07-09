@@ -2,6 +2,7 @@
 
 namespace App\Service\ElasticSearch\Search;
 
+use App\Service\ElasticSearch\Base\SearchConfigInterface;
 use App\Service\ElasticSearch\Index\LevelIndexService;
 use App\Service\ElasticSearch\Index\TextIndexService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -82,7 +83,9 @@ class Configs implements SearchConfigInterface
                 'ceilingField' => 'year_end',
                 'typeField' => 'date_search_type',
             ],
-            'era' => ['type' => self::FILTER_OBJECT_ID],
+            'era' => [
+                'type' => self::FILTER_OBJECT_ID
+            ],
             'keyword' => ['type' => self::FILTER_OBJECT_ID],
             'language' => ['type' => self::FILTER_OBJECT_ID],
             'language_count' => [
@@ -193,7 +196,7 @@ class Configs implements SearchConfigInterface
             'social_distance' => ['type' => self::FILTER_OBJECT_ID],
             'level_category_group' => [
                 'type' => self::FILTER_NESTED_MULTIPLE,
-                'nested_path' => 'level_category',
+                'nestedPath' => 'level_category',
                 'filters' => [
                     'level_category_category' => [
                         'type' => self::FILTER_OBJECT_ID
@@ -207,7 +210,7 @@ class Configs implements SearchConfigInterface
 
             'agentive_role_group' => [
                 'type' => self::FILTER_NESTED_MULTIPLE,
-                'nested_path' => 'agentive_role',
+                'nestedPath' => 'agentive_role',
                 'filters' => [
                     'agentive_role' => [
                         'type' => self::FILTER_OBJECT_ID,
@@ -219,7 +222,7 @@ class Configs implements SearchConfigInterface
             ],
             'communicative_goal_group' => [
                 'type' => self::FILTER_NESTED_MULTIPLE,
-                'nested_path' => 'communicative_goal',
+                'nestedPath' => 'communicative_goal',
                 'filters' => [
                     'communicative_goal_type' => [
                         'type' => self::FILTER_OBJECT_ID,
@@ -232,7 +235,7 @@ class Configs implements SearchConfigInterface
 
             'greek_latin_group' => [
                 'type' => self::FILTER_NESTED_MULTIPLE,
-                'nested_path' => 'greek_latin',
+                'nestedPath' => 'greek_latin',
                 'filters' => [
                     'greek_latin_label' => [
                         'type' => self::FILTER_KEYWORD,
@@ -261,12 +264,12 @@ class Configs implements SearchConfigInterface
                 'ignoreValue' => self::ignoreUnknownUncertain,
             ],
             'level_category_category' => [
-                'nested_path' => 'level_category',
+                'nestedPath' => 'level_category',
                 'type' => self::AGG_NESTED_ID_NAME,
 //                'excludeFilter' => ['level_category_group'], // exclude filter of same type
             ],
             'level_category_subcategory' => [
-                'nested_path' => 'level_category',
+                'nestedPath' => 'level_category',
                 'type' => self::AGG_NESTED_ID_NAME,
 //                'excludeFilter' => ['level_category_group'], // exclude filter of same type
 //                'filters' => self::filterCommunicativeInfo()['level_category_group']['filters']
@@ -275,13 +278,13 @@ class Configs implements SearchConfigInterface
             'generic_agentive_role' => [
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'agentive_role',
+                'nestedPath' => 'agentive_role',
 //                'excludeFilter' => ['agentive_role_group'], // exclude filter of same type
             ],
             'agentive_role' => [
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'agentive_role',
+                'nestedPath' => 'agentive_role',
 //                'excludeFilter' => ['agentive_role_group'], // exclude filter of same type
 //                'filters' => self::filterCommunicativeInfo()['agentive_role_group']['filters']
             ],
@@ -290,28 +293,28 @@ class Configs implements SearchConfigInterface
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
 //                'excludeFilter' => ['communicative_goal_group'], // exclude filter of same type
-                'nested_path' => 'communicative_goal',
+                'nestedPath' => 'communicative_goal',
             ],
             'communicative_goal_subtype' => [
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'type' => self::AGG_NESTED_ID_NAME,
-                'nested_path' => 'communicative_goal',
+                'nestedPath' => 'communicative_goal',
 //                'excludeFilter' => ['communicative_goal_group'], // exclude filter of same type
 //                'filters' => self::filterCommunicativeInfo()['communicative_goal_group']['filters']
             ],
             'greek_latin_label' => [
                 'type' => self::AGG_KEYWORD,
-                'nested_path' => 'greek_latin',
+                'nestedPath' => 'greek_latin',
                 'field' => 'label'
             ],
             'greek_latin_sublabel' => [
                 'type' => self::AGG_KEYWORD,
-                'nested_path' => 'greek_latin',
+                'nestedPath' => 'greek_latin',
                 'field' => 'sublabel'
             ],
             'greek_latin_english' => [
                 'type' => self::AGG_KEYWORD,
-                'nested_path' => 'greek_latin',
+                'nestedPath' => 'greek_latin',
                 'field' => 'english'
             ],
 
@@ -459,7 +462,7 @@ class Configs implements SearchConfigInterface
         $filters = [
             'ancient_person' => [
                 'type' => self::FILTER_NESTED_MULTIPLE,
-                'nested_path' => 'ancient_person',
+                'nestedPath' => 'ancient_person',
                 'filters' => [
                     'ap_name' => [
                         'field' => 'name',
@@ -501,7 +504,7 @@ class Configs implements SearchConfigInterface
 //                    'ap_level' => [
 //                        'field' => 'level.number',
 //                        'type' => self::FILTER_NUMERIC,
-//                        'param_name' => 'textLevel'
+//                        'filterParameter' => 'textLevel'
 //                    ]
                 ]
             ]
@@ -514,7 +517,7 @@ class Configs implements SearchConfigInterface
         $filters = [
             'attestations' => [
                 'type' => self::FILTER_NESTED_MULTIPLE,
-                'nested_path' => 'attestations',
+                'nestedPath' => 'attestations',
                 'filters' => [
                     'ap_name' => [
                         'field' => 'attestations.name',
@@ -557,7 +560,7 @@ class Configs implements SearchConfigInterface
 //                    'ap_level' => [
 //                        'field' => 'level.number',
 //                        'type' => self::FILTER_NUMERIC,
-//                        'param_name' => 'textLevel'
+//                        'filterParameter' => 'textLevel'
 //                    ]
                 ]
             ]
@@ -571,21 +574,21 @@ class Configs implements SearchConfigInterface
             'ap_name' => [
                 'type' => self::AGG_KEYWORD, 
                 'field' => 'name',
-                'nested_path' => 'ancient_person',
+                'nestedPath' => 'ancient_person',
                 'excludeFilter' => ['ancient_person'],
                 'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
             ],
             'ap_tm_id' => [
                 'type' => self::AGG_NUMERIC,
                 'field' => 'tm_id',
-                'nested_path' => 'ancient_person',
+                'nestedPath' => 'ancient_person',
                 'excludeFilter' => ['ancient_person'],
                 'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
             ],
             'ap_role' => [
                 'type' => self::AGG_NESTED_ID_NAME, 
                 'field' => 'role',
-                'nested_path' => 'ancient_person',
+                'nestedPath' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
                 'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
@@ -593,7 +596,7 @@ class Configs implements SearchConfigInterface
             'ap_gender' => [
                 'type' => self::AGG_NESTED_ID_NAME, 
                 'field' => 'gender',
-                'nested_path' => 'ancient_person',
+                'nestedPath' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
                 'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
@@ -602,7 +605,7 @@ class Configs implements SearchConfigInterface
                 'type' => self::AGG_NESTED_ID_NAME, 
                 'field' => 'occupation',
                 'locale' => 'gr',
-                'nested_path' => 'ancient_person',
+                'nestedPath' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
                 'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
@@ -610,7 +613,7 @@ class Configs implements SearchConfigInterface
             'ap_occupation_en' => [
                 'type' => self::AGG_KEYWORD,
                 'field' => 'occupation.name.en',
-                'nested_path' => 'ancient_person',
+                'nestedPath' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
                 'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
@@ -618,7 +621,7 @@ class Configs implements SearchConfigInterface
             'ap_social_rank' => [
                 'type' => self::AGG_NESTED_ID_NAME, 
                 'field' => 'social_rank',
-                'nested_path' => 'ancient_person',
+                'nestedPath' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
                 'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
@@ -626,7 +629,7 @@ class Configs implements SearchConfigInterface
             'ap_honorific_epithet' => [
                 'type' => self::AGG_NESTED_ID_NAME, 
                 'field' => 'honorific_epithet',
-                'nested_path' => 'ancient_person',
+                'nestedPath' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
                 'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
@@ -634,7 +637,7 @@ class Configs implements SearchConfigInterface
             'ap_graph_type' => [
                 'type' => self::AGG_NESTED_ID_NAME, 
                 'field' => 'graph_type',
-                'nested_path' => 'ancient_person',
+                'nestedPath' => 'ancient_person',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['ancient_person'],
                 'filters' => $this->filterAncientPerson()['ancient_person']['filters'],
@@ -648,21 +651,21 @@ class Configs implements SearchConfigInterface
             'ap_name' => [
                 'type' => self::AGG_KEYWORD,
                 'field' => 'attestations.name',
-                'nested_path' => 'attestations',
+                'nestedPath' => 'attestations',
                 'excludeFilter' => ['attestations'],
                 'filters' => $this->filterAttestations()['attestations']['filters'],
             ],
             'ap_tm_id' => [
                 'type' => self::AGG_NUMERIC,
                 'field' => 'attestations.tm_id',
-                'nested_path' => 'attestations',
+                'nestedPath' => 'attestations',
                 'excludeFilter' => ['attestations'],
                 'filters' => $this->filterAttestations()['attestations']['filters'],
             ],
             'ap_role' => [
                 'type' => self::AGG_NESTED_ID_NAME,
                 'field' => 'attestations.role',
-                'nested_path' => 'attestations',
+                'nestedPath' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
                 'filters' => $this->filterAttestations()['attestations']['filters'],
@@ -670,7 +673,7 @@ class Configs implements SearchConfigInterface
             'ap_gender' => [
                 'type' => self::AGG_NESTED_ID_NAME,
                 'field' => 'attestations.gender',
-                'nested_path' => 'attestations',
+                'nestedPath' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
                 'filters' => $this->filterAttestations()['attestations']['filters'],
@@ -679,7 +682,7 @@ class Configs implements SearchConfigInterface
                 'type' => self::AGG_NESTED_ID_NAME,
                 'field' => 'attestations.occupation',
                 'locale' => 'gr',
-                'nested_path' => 'attestations',
+                'nestedPath' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
                 'filters' => $this->filterAttestations()['attestations']['filters'],
@@ -687,7 +690,7 @@ class Configs implements SearchConfigInterface
             'ap_occupation_en' => [
                 'type' => self::AGG_KEYWORD,
                 'field' => 'attestations.occupation.name.en',
-                'nested_path' => 'attestations',
+                'nestedPath' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
                 'filters' => $this->filterAttestations()['attestations']['filters'],
@@ -695,7 +698,7 @@ class Configs implements SearchConfigInterface
             'ap_social_rank' => [
                 'type' => self::AGG_NESTED_ID_NAME,
                 'field' => 'attestations.social_rank',
-                'nested_path' => 'attestations',
+                'nestedPath' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
                 'filters' => $this->filterAttestations()['attestations']['filters'],
@@ -703,7 +706,7 @@ class Configs implements SearchConfigInterface
             'ap_honorific_epithet' => [
                 'type' => self::AGG_NESTED_ID_NAME,
                 'field' => 'attestations.honorific_epithet',
-                'nested_path' => 'attestations',
+                'nestedPath' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
                 'filters' => $this->filterAttestations()['attestations']['filters'],
@@ -711,7 +714,7 @@ class Configs implements SearchConfigInterface
             'ap_graph_type' => [
                 'type' => self::AGG_NESTED_ID_NAME,
                 'field' => 'attestations.graph_type',
-                'nested_path' => 'attestations',
+                'nestedPath' => 'attestations',
                 'ignoreValue' => self::ignoreUnknownUncertain,
                 'excludeFilter' => ['attestations'],
                 'filters' => $this->filterAttestations()['attestations']['filters'],
@@ -729,7 +732,7 @@ class Configs implements SearchConfigInterface
 
         $searchFilters['annotations'] = [
             'type' => self::FILTER_NESTED_MULTIPLE,
-            'nested_path' => 'annotations',
+            'nestedPath' => 'annotations',
             'filters' => [
                 'annotation_id' => [
                     'field' => 'id',
@@ -792,7 +795,7 @@ class Configs implements SearchConfigInterface
                 $aggregationFilters[$filter_name] = [
                     'type' => self::AGG_NESTED_ID_NAME,
                     'field' => $field_name,
-                    'nested_path' => "annotations",
+                    'nestedPath' => "annotations",
                     'condition' => in_array($type, $this->baseAnnotationTypes) ?
                         $this->baseAnnotationAggregationIsActive($type) : null,
                     'countTopDocuments' => False,
@@ -804,7 +807,7 @@ class Configs implements SearchConfigInterface
         $aggregationFilters['annotation_type'] = [
             'type' => self::AGG_KEYWORD,
             'field' => 'type',
-            'nested_path' => "annotations",
+            'nestedPath' => "annotations",
             'replaceLabel' => [
                 'search' => 'morpho_syntactical',
                 'replace' => 'syntax'
@@ -819,14 +822,14 @@ class Configs implements SearchConfigInterface
         $aggregationFilters['gts_textLevel'] = [
             'type' => self::AGG_NUMERIC,
             'field' => 'properties.gts_textLevel.number',
-            'nested_path' => "annotations",
+            'nestedPath' => "annotations",
             'countTopDocuments' => False,
         ];
 
         $aggregationFilters['annotation_count'] = [
             'type' => self::AGG_CARDINALITY,
             'field' => 'id',
-            'nested_path' => "annotations",
+            'nestedPath' => "annotations",
             'countTopDocuments' => False,
         ];
 
@@ -843,7 +846,7 @@ class Configs implements SearchConfigInterface
 
         $searchFilters['annotation_type'] = [
             'field' => 'annotations.type',
-            'nested_path' => 'annotations',
+            'nestedPath' => 'annotations',
             'type' => self::FILTER_KEYWORD,
             'defaultValue' => ['gts', 'gtsa', 'lts', 'ltsa'],
         ];
@@ -854,7 +857,7 @@ class Configs implements SearchConfigInterface
 
         $searchFilters['annotations'] = [
             'type' => self::FILTER_NESTED_MULTIPLE,
-            'nested_path' => 'annotations',
+            'nestedPath' => 'annotations',
             'filters' => [
             ],
             'innerHits' => [

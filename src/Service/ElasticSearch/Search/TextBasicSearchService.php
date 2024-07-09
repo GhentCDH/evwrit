@@ -2,6 +2,7 @@
 
 namespace App\Service\ElasticSearch\Search;
 
+use App\Service\ElasticSearch\Base\AbstractSearchService;
 use App\Service\ElasticSearch\Client;
 use Elastica\Settings;
 
@@ -17,7 +18,7 @@ class TextBasicSearchService extends AbstractSearchService
         $this->config = $config;
     }
 
-    protected function getSearchFilterConfig(): array {
+    protected function initSearchConfig(): array {
         $searchFilters = array_merge(
             $this->config->filterPhysicalInfo(),
             $this->config->filterCommunicativeInfo(),
@@ -30,7 +31,7 @@ class TextBasicSearchService extends AbstractSearchService
         return $searchFilters;
     }
 
-    protected function getAggregationConfig(): array {
+    protected function initAggregationConfig(): array {
         $aggregationFilters = array_merge(
             $this->config->aggregatePhysicalInfo(),
             $this->config->aggregateCommunicativeInfo(),

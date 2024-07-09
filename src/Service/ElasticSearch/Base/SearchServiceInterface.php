@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\ElasticSearch\Search;
+namespace App\Service\ElasticSearch\Base;
 
 interface SearchServiceInterface
 {

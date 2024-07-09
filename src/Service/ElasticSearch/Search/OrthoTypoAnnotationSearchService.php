@@ -8,9 +8,9 @@ class OrthoTypoAnnotationSearchService extends AnnotationSearchService
 
     protected array $allowedBaseAnnotationTypes = ['orthography', 'typography'];
 
-    protected function getSearchFilterConfig(): array
+    protected function initSearchConfig(): array
     {
-        $ret = parent::getSearchFilterConfig();
+        $ret = parent::initSearchConfig();
         $ret['annotations']['filters']['annotation_type']['defaultValue'] = ['orthography', 'typography'];
 
         return $ret;
