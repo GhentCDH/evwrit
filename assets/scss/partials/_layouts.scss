@@ -84,14 +84,11 @@ body.layout--fullscreen {
     aside {
       margin: 0;
     }
-
   }
 
   & > .fluid-container.page__content {
     flex-grow: 1;
     overflow: hidden;
   }
-
-
 
 }

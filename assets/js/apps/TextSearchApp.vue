@@ -54,7 +54,6 @@
             </header>
             <section>
                 <v-server-table
-
                         ref="resultTable"
                         :columns="tableColumns"
                         :options="tableOptions"
