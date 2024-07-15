@@ -1,6 +1,6 @@
 import axios from "axios";
 import qs from "qs";
-import _merge from "lodash.merge";
+import { merge as _merge } from "lodash";
 
 export default {
     data() {

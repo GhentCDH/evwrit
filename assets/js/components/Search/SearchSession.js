@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import qs from "qs";
-import _merge from "lodash.merge";
-import _isEqual from "lodash.isequal";
+import { merge as _merge } from "lodash";
+import { isEqual as _isEqual } from "lodash";
 
 export default {
     data() {
