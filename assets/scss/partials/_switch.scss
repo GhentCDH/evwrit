@@ -1,3 +1,5 @@
+@use "sass:math";
+
 $field-switch-width: 35px;
 $field-switch-height: 15px;
 .field-switch {
@@ -14,7 +16,7 @@ $field-switch-height: 15px;
             height: $field-switch-height;
             padding: 0;
             margin: 0 10px 10px 0;
-            border-radius: $field-switch-height / 2;
+            border-radius: math.div($field-switch-height, 2);
             cursor: pointer;
         }
     }

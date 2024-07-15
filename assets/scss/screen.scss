@@ -1,6 +1,6 @@
 @import 'partials/variables';
 
-@import 'font-awesome/scss/font-awesome';
+@import 'font-awesome-4/scss/font-awesome';
 //
 // settings and bootstrap
 @import 'huisstijl2016/sass/settings';
@@ -23,12 +23,12 @@ $maxwidth-container: 1800px;
 @import 'partials/date';
 @import 'partials/draggable';
 @import 'partials/dropdown';
-@import 'partials/dropzone';
+//@import 'partials/dropzone';
 @import 'partials/footer';
 @import 'partials/form';
 @import 'partials/greek';
 @import 'partials/icons';
-@import 'partials/image-edit';
+//@import 'partials/image-edit';
 @import 'partials/inpage_nav';
 @import 'partials/lightbox';
 @import 'partials/line-numbers';
