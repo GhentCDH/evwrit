@@ -1,11 +1,11 @@
 @import 'partials/variables';
 
-@import '~font-awesome/scss/font-awesome';
+@import 'font-awesome/scss/font-awesome';
 //
 // settings and bootstrap
-@import '~huisstijl2016/sass/settings';
-@import '~huisstijl2016/sass/bootstrap-custom';
-@import '~bootstrap-sass/assets/stylesheets/bootstrap/panels';
+@import 'huisstijl2016/sass/settings';
+@import 'huisstijl2016/sass/bootstrap-custom';
+@import 'bootstrap-sass/assets/stylesheets/bootstrap/panels';
 
 $maxwidth-container: 1800px;
 
