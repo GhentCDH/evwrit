@@ -25,7 +25,11 @@ Encore
     .addEntry('text-view', './assets/js/main/text-view.js')
 
     // allow sass/scss files to be processed
-    .enableSassLoader()
+    .enableSassLoader((options) => {
+        options.sassOptions = {
+            quietDeps: true, // disable warning msg
+        }
+    })
 
     // provide source maps for dev environment
     .enableSourceMaps(!Encore.isProduction())
