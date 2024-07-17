@@ -50,7 +50,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '~huisstijl2016/sass/settings';
+@import 'huisstijl2016/sass/settings';
 
 .widget {
 
