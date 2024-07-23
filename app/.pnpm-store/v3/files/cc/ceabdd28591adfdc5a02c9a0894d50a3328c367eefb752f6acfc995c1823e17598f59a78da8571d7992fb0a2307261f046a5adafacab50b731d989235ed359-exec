@@ -1,0 +1,82 @@
+.form-control,
+.btn {
+  border-radius: 0;
+}
+
+.form-control {
+  font-size: 17px;
+  height: 40px;
+}
+
+.has-success,
+.has-warning,
+.has-error {
+  .form-control {
+    border-width: 3px;
+  }
+}
+
+.radio,
+.checkbox {
+  margin-bottom: 0;
+}
+
+label,
+dt {
+  font-family: $medium-font-family;
+  font-weight: 300;
+}
+
+// Reset height for `textarea`s
+textarea.form-control {
+  height: auto;
+}
+
+// Form control sizing
+//
+// Build on `.form-control` with modifier classes to decrease or increase the
+// height and font-size of form controls.
+//
+// The `.form-group-* form-control` variations are sadly duplicated to avoid the
+// issue documented in https://github.com/twbs/bootstrap/issues/15074.
+
+@include input-size('.input-sm', ($input-height-small + 2), ($padding-small-vertical), $padding-small-horizontal, $fz-default, $line-height-small, 0);
+.input-group-sm > .form-control,
+.input-group-sm > .input-group-addon,
+.input-group-sm > .input-group-btn > .btn {
+  @extend .input-sm;
+}
+
+.input-group-sm > .input-group-addon {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.input-group-sm {
+  .glyphicon, .glyphicon-calendar {
+    font-size: 14px;
+  }
+}
+
+// Horizontal forms
+//
+// Horizontal forms are built on grid classes and allow you to create forms with
+// labels on the left and inputs on the right.
+
+.form-horizontal {
+
+  // Form group sizes
+  //
+  // Quick utility class for applying `.input-lg` and `.input-sm` styles to the
+  // inputs and labels within a `.form-group`.
+  .form-group-sm {
+    @media (min-width: $screen-sm-min) {
+      .control-label {
+        padding-top: ($padding-small-vertical + 1);
+        font-size: $fz-default;
+      }
+    }
+  }
+}
+
+

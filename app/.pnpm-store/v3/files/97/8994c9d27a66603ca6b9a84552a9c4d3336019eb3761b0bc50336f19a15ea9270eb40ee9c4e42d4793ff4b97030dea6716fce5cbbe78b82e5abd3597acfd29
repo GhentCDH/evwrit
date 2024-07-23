@@ -1,0 +1,1 @@
+export default function AverageLonLat(lonlats: Iterable<[number, number]>): [number, number];

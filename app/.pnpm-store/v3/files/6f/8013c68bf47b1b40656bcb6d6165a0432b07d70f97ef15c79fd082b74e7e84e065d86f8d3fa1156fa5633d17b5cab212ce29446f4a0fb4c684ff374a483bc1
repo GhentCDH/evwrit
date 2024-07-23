@@ -1,0 +1,16 @@
+import { BatchArray } from './BatchArray';
+import { IBatchArray } from './IBatchArray';
+declare class _SteadyBatchArray<T> extends BatchArray<T> {
+    filterInPlace(callbackFcn: (value: T, index: number, array: T[]) => any): void;
+    concat(...items: IBatchArray<T>[]): SteadyBatchArray<T>;
+    splice(begIdx: number, numRemoved: number, ...addedItems: T[]): T[];
+    spliceAll(...splices: [number, number, ...T[]][]): void;
+    protected clone(): SteadyBatchArray<T>;
+    pop(): T | undefined;
+    push(...items: T[]): number;
+    shift(): T | undefined;
+    unshift(...items: T[]): number;
+}
+declare type SteadyBatchArray<T> = _SteadyBatchArray<T>;
+declare function SteadyBatchArray<T>(content: T[], batchSize: number): SteadyBatchArray<T>;
+export { SteadyBatchArray as default };

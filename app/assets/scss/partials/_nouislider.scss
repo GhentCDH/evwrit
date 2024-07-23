@@ -1,0 +1,46 @@
+.vue-form-generator {
+  .field-noUiSlider {
+    .noUi-target {
+      border-radius: 0;
+      border: 1px solid #A1A1A1;
+    }
+
+    .noUi-horizontal {
+      height: 5px;
+
+      &.contain-tooltip {
+        margin-top: 40px;
+      }
+
+      .noUi-connects {
+        border-radius: 0;
+      }
+
+      .noUi-connect {
+        background: $brand-primary;
+      }
+
+      .noUi-handle {
+        width: 14px;
+        height: 14px;
+        right: -9px;
+        border: 1px solid #A1A1A1;
+        border-radius: 50%;
+        box-shadow: none;
+
+        &:before, &:after {
+          display: none;
+        }
+      }
+
+      .noUi-tooltip {
+        border-radius: 0;
+        padding: 4px 5px;
+        line-height: 1;
+        margin-bottom: 4px;
+      }
+    }
+  }
+}
+
+

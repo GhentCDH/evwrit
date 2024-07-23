@@ -1,0 +1,5 @@
+export * from './IBatchArray';
+export * from './BatchArray';
+export { default as SteadyBatchArray } from './SteadyBatchArray';
+export { default as BubbleBatchArray } from './BubbleBatchArray';
+export { chunks, proxyArrayAccess } from './util';

@@ -1,0 +1,54 @@
+.text-structure {
+
+  label {
+    position: relative;
+    left: -20px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    user-select: none;
+
+    span {
+      padding: 3px 10px;
+      display: inline-block;
+      border-right: 1px solid white;
+    }
+  }
+
+  .level > label {
+    background-color: #1E64C8;
+    color: white;
+  }
+
+  .level.level--active {
+    border-left: 2px solid orange;
+
+    & > label {
+      background-color: orange;
+    }
+  }
+
+  .structure > label {
+    background-color: #e9f0fa
+  }
+
+  .structure.structure--active {
+    border-left: 2px solid orange;
+
+    & > label {
+      background-color: orange;
+    }
+  }
+
+  .level {
+    margin-bottom: 1em;
+    padding-left: 20px;
+    border-left: 2px solid #1E64C8;
+  }
+
+  .structure {
+    margin-bottom: 1em;
+    padding-left: 20px;
+    border-left: 2px solid #e9f0fa;
+  }
+
+}

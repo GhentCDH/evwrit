@@ -1,0 +1,950 @@
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
+function AverageLonLat(lonlats) {
+  let [sumC, sumSC, sumSS] = [0, 0, 0];
+  for (const ll of lonlats) {
+    const th = Math.PI / 2 - ll[1] * Math.PI / 180;
+    const ph = ll[0] * Math.PI / 180;
+    sumC += Math.cos(th);
+    sumSC += Math.sin(th) * Math.cos(ph);
+    sumSS += Math.sin(th) * Math.sin(ph);
+  }
+  let phi = Math.atan2(sumSS, sumSC);
+  if (phi < 0)
+    phi += 2 * Math.PI;
+  const theta = Math.abs(Math.atan(Math.sqrt(sumSC * sumSC + sumSS * sumSS) / sumC));
+  return [phi * 180 / Math.PI, 90 - theta * 180 / Math.PI];
+}
+function FlattenRanges(ranges) {
+  const spans = [[0, []]];
+  for (const range of ranges) {
+    let begIdx = spans.length - 1;
+    for (; begIdx >= 0; --begIdx) {
+      const span = spans[begIdx];
+      if (span[0] <= range[0]) {
+        if (span[0] < range[0]) {
+          spans.splice(begIdx + 1, 0, [range[0], spans[begIdx][1].slice()]);
+          begIdx += 1;
+        }
+        break;
+      }
+    }
+    let endIdx = spans.length - 1;
+    for (; endIdx >= 0; --endIdx) {
+      const spanPrev = spans[endIdx];
+      if (spanPrev[0] <= range[1]) {
+        if (spanPrev[0] < range[1]) {
+          spans.splice(endIdx + 1, 0, [range[1], spanPrev[1].slice()]);
+          endIdx += 1;
+        }
+        break;
+      }
+    }
+    for (let idx = begIdx; idx < endIdx; ++idx)
+      spans[idx][1].push(range[2]);
+  }
+  const fullSpans = [];
+  for (let idx = 0; idx < spans.length - 1; ++idx) {
+    if (spans[idx][1].length > 0) {
+      fullSpans.push([spans[idx][0], spans[idx + 1][0], spans[idx][1]]);
+    }
+  }
+  return fullSpans;
+}
+function* chunks(arr, numChunks) {
+  const avgFill = Math.floor(arr.length / numChunks);
+  const remainder = arr.length - avgFill * numChunks;
+  let sliceIdx = 0;
+  for (let i = 0; i < remainder; ++i) {
+    yield arr.slice(sliceIdx, sliceIdx + avgFill + 1);
+    sliceIdx += avgFill + 1;
+  }
+  for (let i = remainder; i < numChunks; ++i) {
+    yield arr.slice(sliceIdx, sliceIdx + avgFill);
+    sliceIdx += avgFill;
+  }
+}
+function proxyArrayAccess(arr) {
+  const handler = {
+    get(target, prop) {
+      if (!["number", "string"].includes(typeof prop))
+        return target[prop];
+      const numProp = Number(prop);
+      if (isNaN(numProp))
+        return target[prop];
+      if (numProp < 0 || numProp >= target.length)
+        return void 0;
+      const batchIdx = target.batchIdx(numProp);
+      if (batchIdx == null)
+        return void 0;
+      return target.rawBatches[batchIdx[0]][batchIdx[1]];
+    },
+    set(target, prop, val) {
+      if (!["number", "string"].includes(typeof prop))
+        return target[prop];
+      const numProp = Number(prop);
+      if (isNaN(numProp))
+        return target[prop] = val;
+      if (numProp < 0 || numProp >= target.length)
+        return false;
+      const batchIdx = target.batchIdx(numProp);
+      if (batchIdx == null)
+        return false;
+      return target.rawBatches[batchIdx[0]][batchIdx[1]] = val;
+    }
+  };
+  return new Proxy(arr, handler);
+}
+class BatchArray {
+  constructor(content, batchSize) {
+    __publicField(this, "rawBatches");
+    __publicField(this, "batchSize");
+    const numBatches = Math.floor((content.length - 1) / batchSize) + 1;
+    this.rawBatches = [...chunks(content, numBatches)];
+    this.batchSize = batchSize;
+  }
+  *contentIterator() {
+    let idx = 0;
+    for (const batch of this.rawBatches) {
+      for (const item of batch) {
+        yield [idx, item];
+        ++idx;
+      }
+    }
+  }
+  contentIdx(batchIdx, itemIdx) {
+    if (batchIdx < 0 || batchIdx >= this.length)
+      return void 0;
+    if (itemIdx < 0 || itemIdx >= this.rawBatches[batchIdx].length)
+      return void 0;
+    let totIdx = 0;
+    for (let idx = 0; idx < batchIdx; ++idx)
+      totIdx += this.rawBatches[idx].length;
+    return totIdx + itemIdx;
+  }
+  batchIdx(contentIdx) {
+    if (contentIdx == null)
+      return void 0;
+    let numItems = 0;
+    let [batchIdx, itemIdx] = [-1, -1];
+    for (const [idx, batch] of this.rawBatches.entries()) {
+      numItems += batch.length;
+      if (batchIdx === -1 && numItems > contentIdx) {
+        batchIdx = idx;
+        itemIdx = contentIdx - (numItems - batch.length);
+        break;
+      }
+    }
+    if (batchIdx === -1)
+      return void 0;
+    return [batchIdx, itemIdx];
+  }
+  batchIdxs(begIdx, endIdx) {
+    let numItems = 0;
+    let [begBatchIdx, begItemIdx, endBatchIdx, endItemIdx] = [-1, -1, -1, -1];
+    for (const [idx, batch] of this.rawBatches.entries()) {
+      numItems += batch.length;
+      if (begBatchIdx === -1 && numItems > begIdx) {
+        begBatchIdx = idx;
+        begItemIdx = begIdx - (numItems - batch.length);
+      }
+      if (endBatchIdx === -1 && numItems >= endIdx) {
+        endBatchIdx = idx;
+        endItemIdx = endIdx - (numItems - batch.length);
+        if (begIdx === endIdx) {
+          begBatchIdx = idx;
+          begItemIdx = endItemIdx;
+        }
+        break;
+      }
+    }
+    while (begBatchIdx > 0 && begItemIdx === 0) {
+      begBatchIdx -= 1;
+      begItemIdx = this.rawBatches[begBatchIdx].length;
+    }
+    while (endBatchIdx < this.rawBatches.length - 1 && endItemIdx === this.rawBatches[endBatchIdx].length) {
+      endBatchIdx += 1;
+      endItemIdx = 0;
+    }
+    if (begBatchIdx === -1) {
+      begBatchIdx = this.rawBatches.length - 1;
+      begItemIdx = this.rawBatches[begBatchIdx].length;
+    }
+    if (endBatchIdx === -1) {
+      endBatchIdx = this.rawBatches.length - 1;
+      endItemIdx = this.rawBatches[endBatchIdx].length;
+    }
+    return [[begBatchIdx, begItemIdx], [endBatchIdx, endItemIdx]];
+  }
+  find(predicate, thisArg) {
+    let totIndex = 0;
+    for (const batch of this.rawBatches) {
+      const batchPred = (value, index) => predicate(value, index + totIndex, this);
+      const search = batch.find(batchPred, thisArg);
+      if (search != null)
+        return search;
+      totIndex += batch.length;
+    }
+    return void 0;
+  }
+  findIndex(predicate, thisArg) {
+    let totIndex = 0;
+    for (const batch of this.rawBatches) {
+      const batchPred = (value, index) => predicate(value, index + totIndex, this);
+      const searchIdx = batch.findIndex(batchPred, thisArg);
+      if (searchIdx >= 0)
+        return totIndex + searchIdx;
+      totIndex += batch.length;
+    }
+    return -1;
+  }
+  fill(value, start, end) {
+    if (this.rawBatches.length === 0)
+      return this;
+    let startBatchIdx;
+    if (start == null || start < -this.length)
+      startBatchIdx = [0, 0];
+    else if (start >= 0)
+      startBatchIdx = this.batchIdx(start);
+    else
+      startBatchIdx = this.batchIdx(this.length + start);
+    if (startBatchIdx == null)
+      return this;
+    let endBatchIdx;
+    if (end == null || end > this.length)
+      endBatchIdx = [this.rawBatches.length, 0];
+    else if (end >= 0)
+      endBatchIdx = this.batchIdx(end);
+    else
+      endBatchIdx = this.batchIdx(this.length + end);
+    if (endBatchIdx == null)
+      return this;
+    if (startBatchIdx[0] > endBatchIdx[0])
+      return this;
+    if (startBatchIdx[0] === endBatchIdx[0]) {
+      this.rawBatches[startBatchIdx[0]].fill(value, startBatchIdx[1], endBatchIdx[1]);
+    } else {
+      let batch = this.rawBatches[startBatchIdx[0]];
+      batch.fill(value, startBatchIdx[1]);
+      for (let batchIdx = startBatchIdx[0] + 1; batchIdx < endBatchIdx[0]; ++batchIdx) {
+        batch = this.rawBatches[batchIdx];
+        batch.fill(value);
+      }
+      batch = this.rawBatches[endBatchIdx[0]];
+      batch.fill(value, void 0, endBatchIdx[1]);
+    }
+    return this;
+  }
+  copyWithin(target, start, end) {
+    if (this.rawBatches.length === 0)
+      return this;
+    let startBatchIdx;
+    if (start < -this.length)
+      startBatchIdx = [0, 0];
+    else if (start >= 0)
+      startBatchIdx = this.batchIdx(start);
+    else
+      startBatchIdx = this.batchIdx(this.length + start);
+    if (startBatchIdx == null)
+      return this;
+    let endBatchIdx;
+    if (end == null || end > this.length)
+      endBatchIdx = [this.rawBatches.length, 0];
+    else if (end >= 0)
+      endBatchIdx = this.batchIdx(end);
+    else
+      endBatchIdx = this.batchIdx(this.length + end);
+    if (endBatchIdx == null)
+      return this;
+    if (startBatchIdx[0] > endBatchIdx[0])
+      return this;
+    let targetBatchIdx;
+    if (target < -this.length)
+      targetBatchIdx = [0, 0];
+    else if (target >= 0)
+      targetBatchIdx = this.batchIdx(target);
+    else
+      targetBatchIdx = this.batchIdx(this.length + target);
+    if (targetBatchIdx == null)
+      return this;
+    if (startBatchIdx[0] === targetBatchIdx[0] && startBatchIdx[1] === targetBatchIdx[1])
+      return this;
+    if (startBatchIdx[0] > targetBatchIdx[0] || startBatchIdx[0] === targetBatchIdx[0] && startBatchIdx[1] > targetBatchIdx[1]) {
+      let [origBatch, origItem] = startBatchIdx;
+      let [copyBatch, copyItem] = targetBatchIdx;
+      while (origBatch < endBatchIdx[0] || origItem < endBatchIdx[1]) {
+        this.rawBatches[copyBatch][copyItem] = this.rawBatches[origBatch][origItem];
+        ++origItem;
+        if (origItem >= this.rawBatches[origBatch].length) {
+          ++origBatch;
+          origItem = 0;
+        }
+        ++copyItem;
+        if (copyItem >= this.rawBatches[copyBatch].length) {
+          ++copyBatch;
+          copyItem = 0;
+        }
+      }
+    } else {
+      const realContentStart = this.contentIdx(...startBatchIdx);
+      const realContentEnd = this.contentIdx(...endBatchIdx);
+      const realContentTarget = this.contentIdx(...targetBatchIdx);
+      const lastTarget = realContentTarget + realContentEnd - realContentStart;
+      let origBatchIdx = endBatchIdx;
+      let copyBatchIdx = this.batchIdx(lastTarget);
+      if (copyBatchIdx == null) {
+        const goodContentEnd = realContentStart + this.length - realContentTarget;
+        origBatchIdx = this.batchIdx(goodContentEnd);
+        copyBatchIdx = [this.rawBatches.length, 0];
+      }
+      let [origBatch, origItem] = origBatchIdx;
+      let [copyBatch, copyItem] = copyBatchIdx;
+      while (origBatch > startBatchIdx[0] || origItem > startBatchIdx[1]) {
+        --origItem;
+        if (origItem < 0) {
+          --origBatch;
+          origItem = this.rawBatches[origBatch].length - 1;
+        }
+        --copyItem;
+        if (copyItem < 0) {
+          --copyBatch;
+          copyItem = this.rawBatches[copyBatch].length - 1;
+        }
+        this.rawBatches[copyBatch][copyItem] = this.rawBatches[origBatch][origItem];
+      }
+    }
+    return this;
+  }
+  *[Symbol.iterator]() {
+    for (const batch of this.rawBatches) {
+      for (const item of batch)
+        yield item;
+    }
+  }
+  *entries() {
+    let idx = 0;
+    for (const iter of this) {
+      yield [idx, iter];
+      idx += 1;
+    }
+  }
+  *keys() {
+    for (const [idx] of this.entries()) {
+      yield idx;
+    }
+  }
+  *values() {
+    yield* this;
+  }
+  includes(searchElement, fromIndex) {
+    if (fromIndex == null) {
+      return this.rawBatches.some((batch) => batch.includes(searchElement));
+    } else {
+      const startBatchIdx = this.batchIdx(fromIndex);
+      if (startBatchIdx == null)
+        return false;
+      if (this.rawBatches[startBatchIdx[0]].includes(searchElement, startBatchIdx[1]))
+        return true;
+      for (let batchIdx = startBatchIdx[0] + 1; batchIdx < this.rawBatches.length; ++batchIdx) {
+        if (this.rawBatches[batchIdx].includes(searchElement))
+          return true;
+      }
+      return false;
+    }
+  }
+  get length() {
+    return this.rawBatches.reduce((num, batch) => num + batch.length, 0);
+  }
+  toString() {
+    return this.rawBatches.toString();
+  }
+  toLocaleString() {
+    return this.rawBatches.toLocaleString();
+  }
+  concat(...items) {
+    const output = this.clone();
+    for (const item of items) {
+      if (item.rawBatches != null)
+        output.rawBatches = output.rawBatches.concat(item.rawBatches);
+    }
+    return output;
+  }
+  join(separator) {
+    return this.rawBatches.map((batch) => batch.join(separator)).join(separator);
+  }
+  reverse() {
+    const output = this.clone();
+    output.rawBatches = output.rawBatches.reverse().map((batch) => batch.reverse());
+    return output;
+  }
+  slice(start, end) {
+    const output = [];
+    if (start == null && end == null) {
+      for (const batch of this.rawBatches)
+        output.push(...batch);
+    } else if (end == null) {
+      if (start >= this.length)
+        return [];
+      let begBatchIdx = this.batchIdx(start);
+      if (begBatchIdx == null)
+        begBatchIdx = [0, 0];
+      output.push(...this.rawBatches[begBatchIdx[0]].slice(begBatchIdx[1]));
+      for (let i = begBatchIdx[0] + 1; i < this.rawBatches.length; ++i)
+        output.push(...this.rawBatches[i]);
+    } else if (start == null) {
+      if (end <= 0)
+        return [];
+      let endBatchIdx = this.batchIdx(end);
+      if (endBatchIdx == null) {
+        const last = this.rawBatches.length - 1;
+        endBatchIdx = [last, this.rawBatches[last].length];
+      }
+      for (let i = 0; i < endBatchIdx[0] + 1 && i < this.rawBatches.length; ++i)
+        output.push(...this.rawBatches[i]);
+      output.push(...this.rawBatches[endBatchIdx[0]].slice(0, endBatchIdx[1]));
+    } else {
+      if (start >= this.length)
+        return [];
+      if (end <= 0)
+        return [];
+      let begBatchIdx = this.batchIdx(start);
+      if (begBatchIdx == null)
+        begBatchIdx = [0, 0];
+      let endBatchIdx = this.batchIdx(end);
+      if (endBatchIdx == null) {
+        const last = this.rawBatches.length - 1;
+        endBatchIdx = [last, this.rawBatches[last].length];
+      }
+      if (begBatchIdx[0] === endBatchIdx[0]) {
+        output.push(...this.rawBatches[begBatchIdx[0]].slice(begBatchIdx[1], endBatchIdx[1]));
+      } else {
+        output.push(...this.rawBatches[begBatchIdx[0]].slice(begBatchIdx[1]));
+        for (let i = begBatchIdx[0] + 1; i < endBatchIdx[0] && i < this.rawBatches.length; ++i)
+          output.push(...this.rawBatches[i]);
+        output.push(...this.rawBatches[endBatchIdx[0]].slice(0, endBatchIdx[1]));
+      }
+    }
+    return output;
+  }
+  sort(compareFn) {
+    const sortedBatches = [].concat(...this.rawBatches).sort(compareFn);
+    let idx = 0;
+    for (const batch of this.rawBatches) {
+      for (let itemIdx = 0; itemIdx < batch.length; ++itemIdx) {
+        batch[itemIdx] = sortedBatches[idx];
+        idx += 1;
+      }
+    }
+    return this;
+  }
+  indexOf(searchElement, fromIndex) {
+    if (fromIndex == null) {
+      return this.findIndex((val) => val === searchElement);
+    } else {
+      const startBatchIdx = this.batchIdx(fromIndex);
+      if (startBatchIdx == null)
+        return -1;
+      let batchTot = 0;
+      for (let batchIdx = 0; batchIdx < startBatchIdx[0]; ++batchIdx) {
+        batchTot += this.rawBatches[batchIdx].length;
+      }
+      let trial = this.rawBatches[startBatchIdx[0]].indexOf(searchElement, startBatchIdx[1]);
+      if (trial !== -1)
+        return batchTot + trial;
+      batchTot += this.rawBatches[startBatchIdx[0]].length;
+      for (let batchIdx = startBatchIdx[0] + 1; batchIdx < this.rawBatches.length; ++batchIdx) {
+        trial = this.rawBatches[batchIdx].indexOf(searchElement);
+        if (trial !== -1)
+          return batchTot + trial;
+        batchTot += this.rawBatches[batchIdx].length;
+      }
+      return -1;
+    }
+  }
+  lastIndexOf(searchElement, fromIndex) {
+    if (this.rawBatches.length === 0)
+      return -1;
+    let startBatchIdx;
+    if (fromIndex) {
+      startBatchIdx = this.batchIdx(fromIndex);
+      if (startBatchIdx == null)
+        return -1;
+    } else {
+      startBatchIdx = [
+        this.rawBatches.length - 1,
+        this.rawBatches[this.rawBatches.length - 1].length
+      ];
+    }
+    let batchTot = 0;
+    for (let batchIdx = this.rawBatches.length - 1; batchIdx > startBatchIdx[0]; --batchIdx) {
+      batchTot += this.rawBatches[batchIdx].length;
+    }
+    let trial = this.rawBatches[startBatchIdx[0]].lastIndexOf(searchElement, startBatchIdx[1]);
+    batchTot += this.rawBatches[startBatchIdx[0]].length;
+    if (trial !== -1)
+      return this.length - batchTot + trial;
+    for (let batchIdx = startBatchIdx[0] - 1; batchIdx >= 0; --batchIdx) {
+      trial = this.rawBatches[batchIdx].lastIndexOf(searchElement);
+      batchTot += this.rawBatches[batchIdx].length;
+      if (trial !== -1)
+        return this.length - batchTot + trial;
+    }
+    return -1;
+  }
+  every(predicate, thisArg) {
+    return this.rawBatches.every((batch) => batch.every(predicate, thisArg));
+  }
+  some(predicate, thisArg) {
+    return this.rawBatches.some((batch) => batch.some(predicate, thisArg));
+  }
+  forEach(callbackfn, thisArg) {
+    this.rawBatches.forEach((batch) => batch.forEach(callbackfn, thisArg), thisArg);
+  }
+  map(callbackfn, thisArg) {
+    const output = [];
+    for (const batch of this.rawBatches)
+      output.push(...batch.map(callbackfn, thisArg));
+    return output;
+  }
+  filter(predicate, thisArg) {
+    const output = [];
+    for (const batch of this.rawBatches)
+      output.push(...batch.filter(predicate, thisArg));
+    return output;
+  }
+  flatMap(callback) {
+    return Array.prototype.concat(...this.map(callback));
+  }
+  flat(depth) {
+    return Array.prototype.flat(depth);
+  }
+  reduce(callbackfn, initialValue) {
+    let reduction;
+    if (initialValue != null) {
+      reduction = initialValue;
+      for (const batch of this.rawBatches)
+        reduction = batch.reduce(callbackfn, reduction);
+    } else {
+      const callbackfnT = callbackfn;
+      reduction = this.rawBatches[0].reduce(callbackfnT);
+      for (const batch of this.rawBatches.slice(1)) {
+        reduction = batch.reduce(callbackfnT, reduction);
+      }
+    }
+    return reduction;
+  }
+  reduceRight(callbackfn, initialValue) {
+    let reduction;
+    if (initialValue != null) {
+      reduction = initialValue;
+      for (const batch of this.rawBatches.reverse())
+        reduction = batch.reduceRight(callbackfn, reduction);
+    } else {
+      const callbackfnT = callbackfn;
+      reduction = this.rawBatches[this.rawBatches.length - 1].reduceRight(callbackfnT);
+      for (const batch of this.rawBatches.reverse().slice(1)) {
+        reduction = batch.reduceRight(callbackfnT, reduction);
+      }
+    }
+    return reduction;
+  }
+  at(n) {
+    return n >= 0 && n < this.length ? this[n] : void 0;
+  }
+  [Symbol.unscopables]() {
+    return {
+      copyWithin: false,
+      entries: false,
+      fill: false,
+      find: false,
+      findIndex: false,
+      keys: false,
+      values: false
+    };
+  }
+}
+class _ImmutBatchArray extends BatchArray {
+  throwMut(methodName) {
+    throw Error("Cannot use " + methodName + " in ImmutableBatchArray");
+  }
+  clone() {
+    const copy = ImmutBatchArray([], this.batchSize);
+    copy.rawBatches = this.rawBatches.map((batch) => batch.slice());
+    return copy;
+  }
+  filterInPlace() {
+    this.throwMut("filterInPlace");
+  }
+  spliceAll() {
+    this.throwMut("spliceAll");
+  }
+  pop() {
+    this.throwMut("pop");
+    return void 0;
+  }
+  push() {
+    this.throwMut("push");
+    return -1;
+  }
+  shift() {
+    this.throwMut("shift");
+    return void 0;
+  }
+  splice() {
+    this.throwMut("splice");
+    return [];
+  }
+  unshift() {
+    this.throwMut("unshift");
+    return -1;
+  }
+}
+function ImmutBatchArray(content, batchSize) {
+  return proxyArrayAccess(new _ImmutBatchArray(content, batchSize));
+}
+class _SteadyBatchArray extends BatchArray {
+  filterInPlace(callbackFcn) {
+    this.rawBatches.forEach((batch, idx) => {
+      this.rawBatches[idx] = batch.filter(callbackFcn);
+    });
+  }
+  concat(...items) {
+    let output = [];
+    output = output.concat(...this.rawBatches);
+    for (const item of items) {
+      if (item.rawBatches)
+        output = output.concat(...item.rawBatches);
+    }
+    return SteadyBatchArray(output, this.batchSize);
+  }
+  splice(begIdx, numRemoved, ...addedItems) {
+    const [[begBatch, begItem], [endBatch, endItem]] = this.batchIdxs(begIdx, begIdx + numRemoved);
+    if (begBatch === endBatch) {
+      return this.rawBatches[begBatch].splice(begItem, numRemoved, ...addedItems);
+    } else {
+      const avgFill = Math.floor(addedItems.length / (endBatch - begBatch + 1));
+      const remainder = addedItems.length - avgFill * (endBatch - begBatch + 1);
+      let numAdded = 0;
+      const deletedEls = [];
+      for (const [batchIdx, batch] of this.rawBatches.slice(begBatch, endBatch + 1).entries()) {
+        let fill = avgFill;
+        if (batchIdx < remainder)
+          fill += 1;
+        const start = batchIdx === 0 ? begItem : 0;
+        const end = batchIdx === endBatch - begBatch ? endItem : batch.length;
+        deletedEls.push(...batch.splice(start, end - start, ...addedItems.slice(numAdded, numAdded + fill)));
+        numAdded += fill;
+      }
+      return deletedEls;
+    }
+  }
+  spliceAll(...splices) {
+    splices.forEach((splice) => this.splice(...splice));
+  }
+  clone() {
+    const copy = SteadyBatchArray([], this.batchSize);
+    copy.rawBatches = this.rawBatches.map((batch) => batch.slice());
+    return copy;
+  }
+  pop() {
+    while (this.rawBatches.length > 0) {
+      const poppedEl = this.rawBatches[this.rawBatches.length - 1].pop();
+      if (poppedEl != null) {
+        if (this.rawBatches[this.rawBatches.length - 1].length === 0)
+          this.rawBatches.pop();
+        return poppedEl;
+      } else
+        this.rawBatches.pop();
+    }
+    return void 0;
+  }
+  push(...items) {
+    if (this.rawBatches.length === 0 || this.rawBatches[this.rawBatches.length - 1].length >= this.batchSize)
+      this.rawBatches.push([]);
+    let elIdx = 0;
+    while (elIdx < items.length) {
+      const endBatch = this.rawBatches[this.rawBatches.length - 1];
+      const endBatchSpace = this.batchSize - endBatch.length;
+      if (items.length - elIdx <= endBatchSpace) {
+        endBatch.push(...items.slice(elIdx));
+      } else {
+        endBatch.push(...items.slice(elIdx, elIdx + endBatchSpace));
+        this.rawBatches.push([]);
+      }
+      elIdx += endBatchSpace;
+    }
+    return this.length;
+  }
+  shift() {
+    while (this.rawBatches.length > 0) {
+      const shiftedEl = this.rawBatches[0].shift();
+      if (shiftedEl != null) {
+        if (this.rawBatches[0].length === 0)
+          this.rawBatches.shift();
+        return shiftedEl;
+      } else
+        this.rawBatches.shift();
+    }
+    return void 0;
+  }
+  unshift(...items) {
+    if (this.rawBatches.length === 0 || this.rawBatches[0].length >= this.batchSize)
+      this.rawBatches.unshift([]);
+    let elIdx = items.length;
+    while (elIdx > 0) {
+      const begBatch = this.rawBatches[0];
+      const begBatchSpace = this.batchSize - begBatch.length;
+      if (elIdx <= begBatchSpace) {
+        begBatch.unshift(...items.slice(0, elIdx));
+      } else {
+        begBatch.unshift(...items.slice(elIdx - begBatchSpace, elIdx));
+        this.rawBatches.unshift([]);
+      }
+      elIdx -= begBatchSpace;
+    }
+    return this.length;
+  }
+}
+function SteadyBatchArray(content, batchSize) {
+  return proxyArrayAccess(new _SteadyBatchArray(content, batchSize));
+}
+class _BubbleBatchArray extends BatchArray {
+  constructor(content, maxBatchSize, minBatchSize = maxBatchSize / 2) {
+    const optimalSize = minBatchSize + Math.round((maxBatchSize - minBatchSize) / 2);
+    super(content, optimalSize);
+    __publicField(this, "minBatchSize");
+    __publicField(this, "maxBatchSize");
+    __publicField(this, "optimalSize");
+    if (minBatchSize > maxBatchSize / 2) {
+      console.warn("Minimum batch size for BubbleBatchArray should be less than half maximum batch size; setting to max/2.");
+      this.minBatchSize = maxBatchSize / 2;
+    } else
+      this.minBatchSize = minBatchSize;
+    this.maxBatchSize = maxBatchSize;
+    this.optimalSize = optimalSize;
+  }
+  filterInPlace(callbackFcn) {
+    this.rawBatches.forEach((batch, idx) => {
+      this.rawBatches[idx] = batch.filter(callbackFcn);
+    });
+    this.mergeSmallBatches();
+  }
+  concat(...items) {
+    let output = [];
+    output = output.concat(...this.rawBatches);
+    for (const item of items) {
+      if (item.rawBatches)
+        output = output.concat(...item.rawBatches);
+    }
+    return BubbleBatchArray(output, this.minBatchSize, this.maxBatchSize);
+  }
+  splice(begIdx, numRemoved, ...addedItems) {
+    const [rmedElems, affectedBatchRange] = this.spliceNoBubble(begIdx, numRemoved, ...addedItems);
+    const mergeRange = this.mergeSmallBatches(affectedBatchRange);
+    this.splitLargeBatches(mergeRange);
+    return rmedElems;
+  }
+  spliceAll(...splices) {
+    if (splices.length === 0)
+      return;
+    const sortedSplices = splices.sort((splice1, splice2) => splice1[0] - splice2[0]);
+    const reducedSplices = [sortedSplices[0]];
+    let currentLast = 0;
+    for (let idx = 1; idx < sortedSplices.length; ++idx) {
+      const newSplice = sortedSplices[idx];
+      const prevSplice = reducedSplices[currentLast];
+      const prevEnd = prevSplice[0] + prevSplice[1];
+      if (newSplice[0] >= prevEnd) {
+        reducedSplices.push(newSplice);
+        ++currentLast;
+      } else
+        prevSplice[1] = Math.max(prevSplice[1], prevEnd - prevSplice[0]);
+    }
+    const affectedBatchRanges = [];
+    let prevRange = null;
+    for (const splice of reducedSplices.reverse()) {
+      const [, batchRange] = this.spliceNoBubble(...splice);
+      if (prevRange != null && batchRange[1] >= prevRange[0]) {
+        if (batchRange[0] < prevRange[0])
+          prevRange[0] = batchRange[0];
+      } else {
+        affectedBatchRanges.push(batchRange);
+        prevRange = batchRange;
+      }
+    }
+    let mergeRanges = [];
+    for (const batchRange of affectedBatchRanges) {
+      const mergeRange = this.mergeSmallBatches(batchRange);
+      const overlapping = mergeRanges.filter((range) => range[0] < mergeRange[1] && mergeRange[0] < range[1]);
+      if (overlapping.length > 0) {
+        mergeRanges = mergeRanges.filter((range) => !overlapping.includes(range));
+        for (const r of overlapping) {
+          if (r[0] < mergeRange[0])
+            mergeRange[0] = r[0];
+          if (r[1] < mergeRange[1])
+            mergeRange[1] = r[1];
+        }
+      }
+      mergeRanges.push(mergeRange);
+    }
+    for (const batchRange of mergeRanges) {
+      this.splitLargeBatches(batchRange);
+    }
+  }
+  spliceNoBubble(begIdx, numRemoved, ...addedItems) {
+    const [[begBatch, begItem], [endBatch, endItem]] = this.batchIdxs(begIdx, begIdx + numRemoved);
+    const rmedItems = [];
+    if (begBatch === endBatch) {
+      rmedItems.push(...this.rawBatches[begBatch].splice(begItem, numRemoved, ...addedItems));
+    } else {
+      const avgFill = Math.floor(addedItems.length / (endBatch - begBatch + 1));
+      const remainder = addedItems.length - avgFill * (endBatch - begBatch + 1);
+      let numAdded = 0;
+      for (const [batchIdx, batch] of this.rawBatches.slice(begBatch, endBatch + 1).entries()) {
+        let fill = avgFill;
+        if (batchIdx < remainder)
+          fill += 1;
+        const start = batchIdx === 0 ? begItem : 0;
+        const end = batchIdx === endBatch - begBatch ? endItem : batch.length;
+        rmedItems.push(...batch.splice(start, end - start, ...addedItems.slice(numAdded, numAdded + fill)));
+        numAdded += fill;
+      }
+    }
+    return [rmedItems, [begBatch, endBatch + 1]];
+  }
+  mergeSmallBatches(batchRange = [0, this.rawBatches.length]) {
+    if (batchRange[0] < 0 || batchRange[0] >= this.rawBatches.length)
+      batchRange[0] = 0;
+    if (batchRange[1] <= 0 || batchRange[1] > this.rawBatches.length)
+      batchRange[1] = this.rawBatches.length;
+    const merges = [];
+    let idx = batchRange[0];
+    while (idx < batchRange[1]) {
+      let batch = this.rawBatches[idx];
+      if (batch.length < this.minBatchSize) {
+        const merge = [idx, idx + 1];
+        let mergeTot = batch.length;
+        ++idx;
+        while (idx < this.rawBatches.length) {
+          batch = this.rawBatches[idx];
+          if (batch.length > this.minBatchSize)
+            break;
+          mergeTot += batch.length;
+          if (mergeTot > this.maxBatchSize)
+            break;
+          merge[1] += 1;
+          ++idx;
+        }
+        if (merge[1] - merge[0] > 1)
+          merges.push(merge);
+      } else {
+        ++idx;
+      }
+    }
+    let mergedSoFar = 0;
+    for (const merge of merges) {
+      const begMerge = merge[0] - mergedSoFar;
+      const numMerge = merge[1] - merge[0];
+      this.rawBatches.splice(begMerge, numMerge, [].concat(...this.rawBatches.slice(begMerge, begMerge + numMerge)));
+      mergedSoFar += numMerge - 1;
+    }
+    return [batchRange[0], batchRange[1] - mergedSoFar];
+  }
+  splitLargeBatches(batchRange = [0, this.rawBatches.length]) {
+    const splitIdxs = [];
+    for (let idx = batchRange[0]; idx < batchRange[1]; ++idx) {
+      if (this.rawBatches[idx].length > this.maxBatchSize)
+        splitIdxs.push(idx);
+    }
+    let splitSoFar = 0;
+    for (const idx of splitIdxs) {
+      const splitIdx = idx + splitSoFar;
+      const batch = this.rawBatches[splitIdx];
+      const numSplit = Math.round(batch.length / this.optimalSize);
+      this.rawBatches.splice(splitIdx, 1, ...chunks(batch, numSplit));
+      splitSoFar += numSplit - 1;
+    }
+  }
+  clone() {
+    const copy = BubbleBatchArray([], this.maxBatchSize, this.minBatchSize);
+    copy.rawBatches = this.rawBatches.map((batch) => batch.slice());
+    return copy;
+  }
+  pop() {
+    while (this.rawBatches.length > 0) {
+      const poppedEl = this.rawBatches[this.rawBatches.length - 1].pop();
+      if (poppedEl != null) {
+        if (this.rawBatches[this.rawBatches.length - 1].length === 0)
+          this.rawBatches.pop();
+        this.mergeSmallBatches([this.rawBatches.length - 2, this.rawBatches.length - 1]);
+        return poppedEl;
+      } else
+        this.rawBatches.pop();
+    }
+    return void 0;
+  }
+  push(...items) {
+    let origEndBatchIdx = this.rawBatches.length - 1;
+    if (origEndBatchIdx < 0)
+      origEndBatchIdx = 0;
+    if (this.rawBatches.length === 0 || this.rawBatches[this.rawBatches.length - 1].length >= this.batchSize)
+      this.rawBatches.push([]);
+    let elIdx = 0;
+    while (elIdx < items.length) {
+      const endBatch = this.rawBatches[this.rawBatches.length - 1];
+      const endBatchSpace = this.batchSize - endBatch.length;
+      if (items.length - elIdx <= endBatchSpace) {
+        endBatch.push(...items.slice(elIdx));
+      } else {
+        endBatch.push(...items.slice(elIdx, elIdx + endBatchSpace));
+        this.rawBatches.push([]);
+      }
+      elIdx += endBatchSpace;
+    }
+    this.splitLargeBatches([origEndBatchIdx, this.rawBatches.length]);
+    return this.length;
+  }
+  shift() {
+    while (this.rawBatches.length > 0) {
+      const shiftedEl = this.rawBatches[0].shift();
+      if (shiftedEl != null) {
+        if (this.rawBatches[0].length === 0)
+          this.rawBatches.shift();
+        this.mergeSmallBatches([0, 1]);
+        return shiftedEl;
+      } else
+        this.rawBatches.shift();
+    }
+    return void 0;
+  }
+  unshift(...items) {
+    let origBegBatchIdx = 0;
+    if (this.rawBatches.length === 0 || this.rawBatches[0].length >= this.batchSize) {
+      this.rawBatches.unshift([]);
+      origBegBatchIdx += 1;
+    }
+    let elIdx = items.length;
+    while (elIdx > 0) {
+      const begBatch = this.rawBatches[0];
+      const begBatchSpace = this.batchSize - begBatch.length;
+      if (elIdx <= begBatchSpace) {
+        begBatch.unshift(...items.slice(0, elIdx));
+      } else {
+        begBatch.unshift(...items.slice(elIdx - begBatchSpace, elIdx));
+        this.rawBatches.unshift([]);
+        origBegBatchIdx += 1;
+      }
+      elIdx -= begBatchSpace;
+    }
+    this.splitLargeBatches([0, origBegBatchIdx + 1]);
+    return this.length;
+  }
+}
+function BubbleBatchArray(content, maxBatchSize, minBatchSize) {
+  return proxyArrayAccess(new _BubbleBatchArray(content, maxBatchSize, minBatchSize));
+}
+export { AverageLonLat, BatchArray, BubbleBatchArray, FlattenRanges, ImmutBatchArray, SteadyBatchArray, chunks, proxyArrayAccess };

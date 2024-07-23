@@ -1,0 +1,37 @@
+{
+  "name": "font-awesome-4",
+  "description": "The iconic font and CSS framework, just cloned & adapted to work with newer versions of Sass",
+  "version": "4.7.4",
+  "style": "css/font-awesome.css",
+  "keywords": [
+    "font",
+    "awesome",
+    "fontawesome",
+    "icon",
+    "font",
+    "bootstrap"
+  ],
+  "homepage": "http://fontawesome.io/",
+  "bugs": {
+    "url": "https://github.com/cseelus/font-awesome-4/issues"
+  },
+  "author": "Dave Gandy <dave@fontawesome.io> (http://twitter.com/davegandy)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cseelus/font-awesome-4.git"
+  },
+  "contributors": [
+    "Brian Talbot (http://twitter.com/talbs)",
+    "Travis Chase (http://twitter.com/supercodepoet)",
+    "Rob Madole (http://twitter.com/robmadole)",
+    "Geremia Taglialatela (http://twitter.com/gtagliala)"
+  ],
+  "license": "(OFL-1.1 AND MIT)",
+  "engines": {
+    "node": ">=0.10.3"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

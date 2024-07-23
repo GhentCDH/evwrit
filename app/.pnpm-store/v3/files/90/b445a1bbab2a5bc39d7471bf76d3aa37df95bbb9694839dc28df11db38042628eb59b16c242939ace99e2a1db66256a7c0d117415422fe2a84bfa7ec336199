@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="nl">
+    <head>
+        <meta charset="UTF-8">
+        <title>UGent</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <link rel="stylesheet" href="../static/css/screen.css">
+        <link rel="apple-touch-icon" sizes="57x57" href="../static/icons/apple-icon-57x57.png"/>
+        <link rel="apple-touch-icon" sizes="60x60" href="../static/icons/apple-icon-60x60.png"/>
+        <link rel="apple-touch-icon" sizes="72x72" href="../static/icons/apple-icon-72x72.png"/>
+        <link rel="apple-touch-icon" sizes="76x76" href="../static/icons/apple-icon-76x76.png"/>
+        <link rel="apple-touch-icon" sizes="114x114" href="../static/icons/apple-icon-114x114.png"/>
+        <link rel="apple-touch-icon" sizes="120x120" href="../static/icons/apple-icon-120x120.png"/>
+        <link rel="apple-touch-icon" sizes="144x144" href="../static/icons/apple-icon-144x144.png"/>
+        <link rel="apple-touch-icon" sizes="152x152" href="../static/icons/apple-icon-152x152.png"/>
+        <link rel="apple-touch-icon" sizes="180x180" href="../static/icons/apple-icon-180x180.png"/>
+        <link rel="icon" type="image/png" sizes="192x192" href="../static/icons/android-icon-192x192.png"/>
+        <link rel="icon" type="image/png" sizes="96x96" href="../static/icons/favicon-96x96.png"/>
+        <link rel="icon" type="image/png" sizes="32x32" href="../static/icons/favicon-32x32.png"/>
+        <link rel="icon" type="image/png" sizes="16x16" href="../static/icons/favicon-16x16.png"/>
+        <link rel="icon" sizes="16x16 32x32" href="../static/icons/favicon.ico"/>
+        <link rel="manifest" href="../static/icons/manifest.json"/>
+        <meta name="msapplication-TileColor" content="#ffffff"/>
+        <meta name="msapplication-TileImage" content="../static/icons/ms-icon-144x144.png"/>
+        <meta name="theme-color" content="#ffffff"/>
+        <script>
+            document.createElement("picture")
+        </script>
+        <script src="../static/js/vendor/modernizr-custom.min.js" async=""></script>
+        <script src="../static/js/vendor/picturefill.min.js" async=""></script>
+        <script src="../static/js/vendor/jquery.min.js"></script>
+    </head>
+
+    <body>
+        <div class="fluid-container">
+            <div class="row">
+                <header class="pageheader col-xs-12 ">
+                    <nav class="navbar navbar-default">
+                        <div class="row">
+                            <div class="navbar-header col-xs-12 col-sm-2">
+                                <div class="page-logo">
+                                    <a href=".." class="link">
+                                        <img src="../static/images/logo_ugent_nl.svg" alt="Universiteit Gent">
+                                    </a>
+                                </div>
+                                <a href="#" class="toggle-search">
+                                    <i class="glyphicon glyphicon-search"></i>
+                                    <span>ZOEK</span>
+                                </a>
+                                <a href="#" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar" role="button">
+                                    <span class="">MENU</span>
+                                    <div class="block">
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                    </div>
+                                </a>
+                            </div>
+                            <div id="navbar" class="collapse navbar-collapse col-sm-10" role="navigation">
+                                <div class="row search">
+                                    <div class="col-xs-12 col-sm-6 search-container clearfix pull-right">
+                                        <form class="navbar-form navbar-right" role="search">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" placeholder="" id="search" name="search" value="">
+                                                <div class="input-group-btn">
+                                                    <button type="submit" class="btn btn-primary">Zoek</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="row menu">
+                                    <div class="col-xs-12">
+                                        <div class="bg-primary spacer">
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <ul class="nav-tertiary nav navbar-nav navbar-right">
+                                                        <li>
+                                                            <a href="#">
+                                                                <span>Home UGent</span>
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="#">
+                                                                <span>In English</span>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row menu">
+                                    <div class="col-xs-12">
+                                        <ul class="nav-primary nav navbar-nav">
+                                            <li class="active">
+                                                <a href="#">
+                                                    <span>Opleidingen</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#">
+                                                    <span>Onderzoek</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#">
+                                                    <span>Vacatures</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#">
+                                                    <span>Over ons</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#">
+                                                    <span>Contact</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-sm-offset-2 branding-container faculty-1"></div>
+                    </div>
+                </header>
+            </div>
+        </div>
+
+        <div class="fluid-container">
+            <ol class="breadcrumb">
+                <li>
+                    <a href="#">Home</a>
+                </li>
+                <li>
+                    <a href="#">Opleidingen</a>
+                </li>
+                <li>
+                    <a href="#">Broodkruimelpad</a>
+                </li>
+                <li>
+                    <a href="#">Broodkruimelpad</a>
+                </li>
+                <li>
+                    <a href="#">Broodkruimelpad</a>
+                </li>
+                <li>
+                    <a href="#">Broodkruimelpad</a>
+                </li>
+                <li>
+                    <a href="#">Broodkruimelpad</a>
+                </li>
+                <li>
+                    <a href="#">Broodkruimelpad</a>
+                </li>
+                <li>
+                    <a href="#">Broodkruimelpad</a>
+                </li>
+                <li class="active">
+                    <span>Bacheloropleidingen</span>
+                </li>
+            </ol>
+
+            <div class="row">
+                <article class="col-sm-9">
+
+                    <h2>Datepicker</h2>
+
+                    <div class="mbottom-default">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <!-- datepicker-->
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-6 col-md-4">
+                                        <div class="form-group">
+                                            <label for="datepicker1" class="control-label">dd-mm-jjjj</label>
+                                            <div class="input-group date col-xs-12 ">
+                                                <input type="text" class="form-control" placeholder="dd-mm-jjjj" id="datepicker1">
+                                                <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>Select</h2>
+
+                    <div class="pbottom-small">
+                        <div class="row">
+                            <div class="col-md-5 col-sm-6 col-xs-12 form-group">
+                                <label for="select1">Maak een keuze</label>
+                                <div class="btn-group bootstrap-select form-control">
+                                    <select class="form-control selectpicker" id="select1" tabindex="-98">
+                                        <option value="">Faculteiten dropdown menu</option>
+                                        <option value="">Geneeskunde en Gezondheidswetenschappen</option>
+                                        <option>Ingenieurswetenschappen en Architectuur</option>
+                                        <option>Economie en Bedrijfskunde</option>
+                                        <option>Dierengeneeskunde</option>
+                                        <option>Farmaceutische Wetenschappen</option>
+                                        <option>Psychologie en Pedagogische Wetenschappen</option>
+                                        <option>Bio-Ingenierswetenschappen</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 col-sm-6 col-xs-12 form-group">
+                                <label for="text1">Vul hier een tekst in</label>
+                                <input type="text" class="form-control" placeholder="Input text" id="text1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>Checkbox/Radio</h2>
+
+                    <div class="pbottom-large mbottom-default border-bottom">
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="checkbox checkbox-primary">
+                                    <ul class="list-unstyled">
+                                        <li>
+                                            <input type="checkbox" id="checkbox11">
+                                            <label for="checkbox11">Checkbox 1</label>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="checkbox12">
+                                            <label for="checkbox12">Checkbox 2</label>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="checkbox13">
+                                            <label for="checkbox13">Checkbox 3</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="radio radio-primary">
+                                    <ul class="list-unstyled">
+                                        <li>
+                                            <input type="radio" id="radio11" name="radio">
+                                            <label for="radio11">Radiobutton 1</label>
+                                        </li>
+                                        <li>
+                                            <input type="radio" id="radio12" name="radio">
+                                            <label for="radio12">Radiobutton 2</label>
+                                        </li>
+                                        <li>
+                                            <input type="radio" id="radio13" name="radio">
+                                            <label for="radio13">Radiobutton 3</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Row end -->
+                    </div>
+
+                    <h2>Text</h2>
+
+                    <div class="pbottom-large mbottom-default border-bottom">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <form class="form-horizontal row-border" action="#">
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label" for="regular">Default input field</label>
+                                        <div class="col-md-10">
+                                            <input type="text" name="regular" id="regular" class="form-control"
+                                                   style="background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABHklEQVQ4EaVTO26DQBD1ohQWaS2lg9JybZ+AK7hNwx2oIoVf4UPQ0Lj1FdKktevIpel8AKNUkDcWMxpgSaIEaTVv3sx7uztiTdu2s/98DywOw3Dued4Who/M2aIx5lZV1aEsy0+qiwHELyi+Ytl0PQ69SxAxkWIA4RMRTdNsKE59juMcuZd6xIAFeZ6fGCdJ8kY4y7KAuTRNGd7jyEBXsdOPE3a0QGPsniOnnYMO67LgSQN9T41F2QGrQRRFCwyzoIF2qyBuKKbcOgPXdVeY9rMWgNsjf9ccYesJhk3f5dYT1HX9gR0LLQR30TnjkUEcx2uIuS4RnI+aj6sJR0AM8AaumPaM/rRehyWhXqbFAA9kh3/8/NvHxAYGAsZ/il8IalkCLBfNVAAAAABJRU5ErkJggg==&quot;); background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%;">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label" for="pass">Password</label>
+                                        <div class="col-md-10">
+                                            <input class="form-control" type="password" name="pass" id="pass"
+                                                   style="background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACIUlEQVQ4EX2TOYhTURSG87IMihDsjGghBhFBmHFDHLWwSqcikk4RRKJgk0KL7C8bMpWpZtIqNkEUl1ZCgs0wOo0SxiLMDApWlgOPrH7/5b2QkYwX7jvn/uc//zl3edZ4PPbNGvF4fC4ajR5VrNvt/mo0Gr1ZPOtfgWw2e9Lv9+chX7cs64CS4Oxg3o9GI7tUKv0Q5o1dAiTfCgQCLwnOkfQOu+oSLyJ2A783HA7vIPLGxX0TgVwud4HKn0nc7Pf7N6vV6oZHkkX8FPG3uMfgXC0Wi2vCg/poUKGGcagQI3k7k8mcp5slcGswGDwpl8tfwGJg3xB6Dvey8vz6oH4C3iXcFYjbwiDeo1KafafkC3NjK7iL5ESFGQEUF7Sg+ifZdDp9GnMF/KGmfBdT2HCwZ7TwtrBPC7rQaav6Iv48rqZwg+F+p8hOMBj0IbxfMdMBrW5pAVGV/ztINByENkU0t5BIJEKRSOQ3Aj+Z57iFs1R5NK3EQS6HQqF1zmQdzpFWq3W42WwOTAf1er1PF2USFlC+qxMvFAr3HcexWX+QX6lUvsKpkTyPSEXJkw6MQ4S38Ljdbi8rmM/nY+CvgNcQqdH6U/xrYK9t244jZv6ByUOSiDdIfgBZ12U6dHEHu9TpdIr8F0OP692CtzaW/a6y3y0Wx5kbFHvGuXzkgf0xhKnPzA4UTyaTB8Ph8AvcHi3fnsrZ7Wore02YViqVOrRXXPhfqP8j6MYlawoAAAAASUVORK5CYII=&quot;); background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%;">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label" for="placeholder">With placeholder</label>
+                                        <div class="col-md-10">
+                                            <input class="form-control" type="text" name="placeholder" id="placeholder"
+                                                   placeholder="placeholder">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label" for="disabled">Disabled field</label>
+                                        <div class="col-md-10">
+                                            <input type="text" name="disabled" id="disabled" disabled="disabled" value="disabled"
+                                                   class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label" for="readonly">Read only field</label>
+                                        <div class="col-md-10">
+                                            <input class="form-control" type="text" name="readonly" id="readonly" readonly=""
+                                                   value="read only">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label" for="regular2">Help text</label>
+                                        <div class="col-md-10">
+                                            <input type="text" name="regular" id="regular2" class="form-control">
+                                            <span class="help-block">A block of help text that breaks onto a new line and may extend beyond one line.</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label" for="regular3">Predefined value</label>
+                                        <div class="col-md-10">
+                                            <input type="text" name="regular" id="regular3" value="http://" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label">Column sizing</label>
+                                        <div class="col-md-10">
+                                            <div class="row">
+                                                <div class="col-xs-3">
+                                                    <input type="text" class="form-control" placeholder=".col-xs-3">
+                                                </div>
+                                                <div class="col-xs-5">
+                                                    <input type="text" class="form-control" placeholder=".col-xs-5">
+                                                </div>
+                                                <div class="col-xs-4">
+                                                    <input type="text" class="form-control" placeholder=".col-xs-4">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group has-success">
+                                        <label class="col-md-2 control-label" for="inputSuccess">Input success</label>
+                                        <div class="col-md-10">
+                                            <input type="text" class="form-control" id="inputSuccess" placeholder="Input Success">
+                                            <i class="icon-pencil input-icon success"></i>
+                                        </div>
+                                    </div>
+                                    <div class="form-group has-warning">
+                                        <label class="col-md-2 control-label" for="inputWarning">Input warning</label>
+                                        <div class="col-md-10">
+                                            <input type="text" class="form-control" id="inputWarning" placeholder="Input Warning">
+                                            <i class="icon-pencil input-icon warning"></i>
+                                        </div>
+                                    </div>
+                                    <div class="form-group has-error">
+                                        <label class="col-md-2 control-label" for="inputError">Input error</label>
+                                        <div class="col-md-10">
+                                            <input type="text" class="form-control" id="inputError" placeholder="Input Error">
+                                            <i class="icon-pencil input-icon error"></i>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label" for="textarea">Multiline textarea</label>
+                                        <div class="col-md-10">
+                                            <textarea type="text" rows="3" name="regular" id="textarea" class="form-control"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label" for="inputsm">Small input</label>
+                                        <div class="col-md-10">
+                                            <input class="form-control input-sm" id="inputsm" type="text">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label"  for="inputsm">Small datepicker</label>
+                                        <div class="col-md-10">
+                                            <div class="input-group input-group-sm date col-xs-12 ">
+                                                <input type="text" class="form-control" placeholder="dd-mm-jjjj" id="datepicker1">
+                                                <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label"  for="inputsm">Small select</label>
+                                        <div class="col-md-10">
+                                            <div class="btn-group bootstrap-select form-control form-control-sm">
+                                                <select class="form-control selectpicker" id="select1" data-style="btn-default btn-sm" tabindex="-98">
+                                                    <option value="">Faculteiten dropdown menu</option>
+                                                    <option value="">Geneeskunde en Gezondheidswetenschappen</option>
+                                                    <option>Ingenieurswetenschappen en Architectuur</option>
+                                                    <option>Economie en Bedrijfskunde</option>
+                                                    <option>Dierengeneeskunde</option>
+                                                    <option>Farmaceutische Wetenschappen</option>
+                                                    <option>Psychologie en Pedagogische Wetenschappen</option>
+                                                    <option>Bio-Ingenierswetenschappen</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+                                    <div class="form-group margin-none">
+                                        <div class="col-md-10 col-md-offset-2">
+                                            <button type="submit" class="btn btn-default">Verstuur</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>Buttons</h2>
+
+                    <div class="mbottom-default">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <button class="btn btn-default">btn-default</button>
+                                <button class="btn btn-primary">btn-default</button>
+                                <button class="btn btn-secondary">btn-default</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mbottom-default">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <button class="btn">btn-default</button>
+                                <button class="btn btn-sm">btn-sm</button>
+                                <button class="btn btn-xs">btn-xs</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </article>
+            </div>
+        </div>
+
+        <footer class="page-footer fluid-container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="bg-primary padding-20">
+                        <div class="mbottom-small border-bottom">
+                            <div class="row flexbox">
+                                <div class="col-xs-12 col-ms-6 col-md-3 pbottom-small">
+                                    <h2 class="h4">Opleidingen</h2>
+                                    <ul class="linklist linklist-inverted">
+                                        <li>
+                                            <a href="#">Masteropleidingen</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Lerarenopleiding</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Permanente vorming</a>
+                                        </li>
+                                    </ul>
+                                    <ul class="linklist linklist-inverted">
+                                        <li>
+                                            <a href="#">Meer links</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-xs-12 col-ms-6 col-md-3 pbottom-small">
+                                    <h2 class="h4">Onderzoek</h2>
+                                    <ul class="linklist linklist-inverted">
+                                        <li>
+                                            <a href="#">Onderzoek@UGent</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Doctoreren</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Financiering</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Onderzoek en maatschappij</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Deelnemen aan onderzoek</a>
+                                        </li>
+                                    </ul>
+                                    <ul class="linklist linklist-inverted">
+                                        <li>
+                                            <a href="#">Meer links</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-xs-12 col-ms-6 col-md-3 pbottom-small">
+                                    <h2 class="h4">Over de UGent</h2>
+                                    <ul class="linklist linklist-inverted">
+                                        <li>
+                                            <a href="#">Campussen</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Contact</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Schenkingen en legaten</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Faculteiten</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Administratie en bestuur</a>
+                                        </li>
+                                    </ul>
+                                    <ul class="linklist linklist-inverted">
+                                        <li>
+                                            <a href="#">Meer links</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-xs-12 col-ms-6 col-md-3 pbottom-small">
+                                    <h2 class="h4">Tools</h2>
+                                    <ul class="linklist linklist-inverted">
+                                        <li>
+                                            <a href="#">Athena</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Bibliotheek</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">E-mail</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Oasis</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Minerva</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Telefoonboek</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="container-share col-xs-12 col-sm-4">
+                                <ul class="list-inline list-unstyled social">
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-facebook"></i>
+                                            <span class="sr-only">Facebook</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-twitter"></i>
+                                            <span class="sr-only">Twitter</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-linkedin"></i>
+                                            <span class="sr-only">Linkedin</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-pinterest-p"></i>
+                                            <span class="sr-only">Pinterest</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-youtube"></i>
+                                            <span class="sr-only">YouTube</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-instagram"></i>
+                                            <span class="sr-only">Instagram</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-google-plus"></i>
+                                            <span class="sr-only">Google-plus</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-flickr"></i>
+                                            <span class="sr-only">Flickr</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-xs-12 col-sm-8">
+                                <ul class="list-inline list-unstyled pull-right">
+                                    <li>
+                                        <a href="#">Feedback</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Disclaimer</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Cookies</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Toegankelijkheid</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Aan-/afmelden</a>
+                                    </li>
+                                    <li>&copy; 2015 Universiteit Gent</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <script type="text/javascript" src="../static/js/vendor/jquery-migrate.min.js"></script>
+        <script type="text/javascript" src="../static/js/vendor/jquery.tablesorter.min.js"></script>
+        <script type="text/javascript" src="../static/js/vendor/typeahead.bundle.min.js"></script>
+        <script type="text/javascript" src="../static/js/vendor/jquery.ui.widget.min.js"></script>
+        <script type="text/javascript" src="../static/js/vendor/jquery.tocify.min.js"></script>
+        <script type="text/javascript" src="../static/js/vendor/moment.min.js"></script>
+        <script type="text/javascript" src="../static/js/vendor/bootstrap.min.js"></script>
+        <script type="text/javascript" src="../static/js/vendor/locale/nl.min.js"></script>
+        <script type="text/javascript" src="../static/js/vendor/bootstrap-select.min.js"></script>
+        <script type="text/javascript" src="../static/js/vendor/bootstrap-datetimepicker.min.js"></script>
+        <script type="text/javascript" src="../static/js/vendor/ekko-lightbox.min.js"></script>
+        <script type="text/javascript" src="../static/js/vendor/smooth-scroll.min.js"></script>
+        <script type="text/javascript" src="../static/js/main.min.js"></script>
+    </body>
+</html>

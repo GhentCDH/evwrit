@@ -1,0 +1,12 @@
+interface IBatchArray<T> extends Array<T> {
+    rawBatches: T[][];
+    batchSize: number;
+    contentIterator(): Generator<[number, T], void>;
+    contentIdx(batchIdx: number, itemIdx: number): number | undefined;
+    batchIdx(contentIdx: number): [number, number] | undefined;
+    batchIdxs(begIdx: number, endIdx: number): [[number, number], [number, number]];
+    filterInPlace(callbackFcn: (value: T, index: number, array: T[]) => any): void;
+    splice(begIdx: number, numRemoved: number, ...addedItems: T[]): T[];
+    spliceAll(...splices: [number, number, ...T[]][]): void;
+}
+export { type IBatchArray };

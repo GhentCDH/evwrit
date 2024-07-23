@@ -1,0 +1,74 @@
+import { IBatchArray } from './IBatchArray';
+declare abstract class BatchArray<T> implements IBatchArray<T> {
+    rawBatches: T[][];
+    batchSize: number;
+    constructor(content: T[], batchSize: number);
+    contentIterator(): Generator<[number, T], void, unknown>;
+    contentIdx(batchIdx: number, itemIdx: number): number | undefined;
+    batchIdx(contentIdx?: number): [number, number] | undefined;
+    batchIdxs(begIdx: number, endIdx: number): [
+        [number, number],
+        [number, number]
+    ];
+    protected abstract clone(): IBatchArray<T>;
+    abstract filterInPlace(callbackFcn: (value: T, index: number, array: T[]) => any): void;
+    abstract spliceAll(...splices: [number, number, ...T[]][]): void;
+    find(predicate: (value: T, index: number, obj: T[]) => boolean, thisArg?: any): T | undefined;
+    findIndex(predicate: (value: T, index: number, obj: T[]) => unknown, thisArg?: any): number;
+    fill(value: T, start?: number, end?: number): this;
+    copyWithin(target: number, start: number, end?: number): this;
+    [Symbol.iterator](): IterableIterator<T>;
+    entries(): IterableIterator<[number, T]>;
+    keys(): IterableIterator<number>;
+    values(): IterableIterator<T>;
+    includes(searchElement: T, fromIndex?: number): boolean;
+    get length(): number;
+    toString(): string;
+    toLocaleString(): string;
+    concat(...items: IBatchArray<T>[]): IBatchArray<T>;
+    join(separator?: string): string;
+    reverse(): IBatchArray<T>;
+    slice(start?: number, end?: number): T[];
+    sort(compareFn?: (a: T, b: T) => number): this;
+    indexOf(searchElement: T, fromIndex?: number): number;
+    lastIndexOf(searchElement: T, fromIndex?: number): number;
+    every(predicate: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean;
+    some(predicate: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean;
+    forEach(callbackfn: (value: T, index: number, array: T[]) => void, thisArg?: any): void;
+    map<U>(callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[];
+    filter(predicate: (value: T, index: number, array: T[]) => boolean, thisArg?: any): T[];
+    flatMap<U>(callback: (value: T, index: number, array: T[]) => U[]): U[];
+    flat<A, D extends number = 1>(this: A, depth?: D): FlatArray<A, D>[];
+    reduce<U>(callbackfn: (accumulator: U, currentValue: T, index: number, array: T[]) => U, initialValue?: U): U;
+    reduceRight<U>(callbackfn: (accumulator: U, currentValue: T, index: number, array: T[]) => U, initialValue?: U): U;
+    [n: number]: T;
+    at(n: number): T | undefined;
+    [Symbol.unscopables](): {
+        copyWithin: boolean;
+        entries: boolean;
+        fill: boolean;
+        find: boolean;
+        findIndex: boolean;
+        keys: boolean;
+        values: boolean;
+    };
+    abstract pop(): T | undefined;
+    abstract push(...items: T[]): number;
+    abstract shift(): T | undefined;
+    abstract splice(start: number, deleteCount: number, ...items: T[]): T[];
+    abstract unshift(...items: T[]): number;
+}
+declare class _ImmutBatchArray<T> extends BatchArray<T> {
+    private throwMut;
+    protected clone(): ImmutBatchArray<T>;
+    filterInPlace(): void;
+    spliceAll(): void;
+    pop(): T | undefined;
+    push(): number;
+    shift(): T | undefined;
+    splice(): T[];
+    unshift(): number;
+}
+declare type ImmutBatchArray<T> = _ImmutBatchArray<T>;
+declare function ImmutBatchArray<T>(content: T[], batchSize: number): ImmutBatchArray<T>;
+export { BatchArray, ImmutBatchArray };
