@@ -1,3 +1,0 @@
-declare type Span<T> = [number, number, T[]];
-export default function FlattenRanges<T>(ranges: Iterable<[number, number, T]>): Span<T>[];
-export {};
