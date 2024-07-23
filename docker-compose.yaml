@@ -1,0 +1,72 @@
+version: "3"
+
+services:
+  psql-db: 
+    image: postgres:16
+    container_name: psql-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./var/postgres/data:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
+  
+  elasticsearch:
+    build: 
+      context: .
+      dockerfile: elasticsearch.Dockerfile
+    container_name: elasticsearch
+    environment:
+      discovery.type: single-node
+      network.host: 0.0.0.0
+      http.port: 9200
+      transport.host: localhost
+      cluster.name: docker-cluster
+      bootstrap.memory_lock: "true"
+      xpack.security.enabled: "false"
+      cluster.routing.allocation.disk.threshold_enabled: "false"
+      ES_JAVA_OPTS: -Xms2g -Xmx2g
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - ./var/elasticsearch/data:/var/lib/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    depends_on:
+      - psql-db
+  
+  evwritdocker:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+      ssh: 
+        - default
+    image: evwritdocker
+    env_file:
+      - .env.prod
+    ports:
+      - "8080:8080"
+    depends_on:
+      - psql-db
+      - elasticsearch
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=pgadmin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=postgres
+      - PGADMIN_DEFUALT_PASSWORD_FILE=/run/secrets/pgadmin
+    depends_on:
+      - psql-db
+      
