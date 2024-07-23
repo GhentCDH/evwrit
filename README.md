@@ -60,12 +60,3 @@ The `thewatcher` container will keep restarting until the following script has b
 
 - When running in development, 3 folders will be created locally: `node_modules`, `vendor`, and `var` (for PostgreSQL and Elasticsearch data). If you want to run in production after development, be sure to delete these 3 folders!
 
-## ISSUES
-
-There is an issue with getting the dev build to run in a dev container. The problem encountered is that the dev container gives the following error:
-```sh
-invalid empty ssh agent socket: make sure SSH_AUTH_SOCK is set
-```
-Even though the SSH socket had been set correctly (it was visible in the output logs some lines above the error).
-
-For the dev container, the scripts `startup_script.sh` and `dev_script.sh` were used. The lines in `devcontainer.json` are mostly commented out. The commented lines show most of the things that have been tried to solve the issue but did not fix it.
