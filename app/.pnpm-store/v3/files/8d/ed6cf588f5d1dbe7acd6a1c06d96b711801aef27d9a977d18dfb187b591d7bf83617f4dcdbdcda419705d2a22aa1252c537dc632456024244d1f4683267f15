@@ -1,4 +1,0 @@
-import { IBatchArray } from './IBatchArray';
-declare function chunks<T>(arr: T[], numChunks: number): Generator<T[], void, unknown>;
-declare function proxyArrayAccess<T, A extends IBatchArray<T>>(arr: A): A;
-export { chunks, proxyArrayAccess };

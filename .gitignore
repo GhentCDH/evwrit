@@ -1,5 +1,4 @@
-*.sql
-
+010-*.sql
 /var/
-
 .env.*
+/.pnpm-store/
