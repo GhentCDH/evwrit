@@ -26,7 +26,7 @@ Add the correct SSH key to the agent if building in production, and then run:
 docker buildx build --tag evwritdocker --target prod --ssh default .
 
 # For development build
-docker buildx build --tag evwritdocker --target dev --ssh default .
+docker buildx build --tag evwritdocker --target dev
 ```
 Here, `--target` specifies whether it should build in `dev` or `prod`.
 
@@ -40,7 +40,7 @@ docker compose up --build
 ```
 
 #### Notes:
-- Ensure you have the ssh-agent active with the correct SSH key!\
+- Ensure you have the ssh-agent active with the correct SSH key!
 - If an external database is used, **comment/remove** the code in `docker-compose.yaml` under `psql-db`.
 
 ### 4.2 Development Build in Docker
