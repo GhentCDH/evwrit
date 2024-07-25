@@ -38,3 +38,4 @@ phpunit.xml.dist
 *.test.php
 *.test.vue
 TestElasticsearchCommand.php
+.pnpm-store/
