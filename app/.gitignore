@@ -32,7 +32,7 @@ src/Controller/TestController.php
 src/Command/TestElasticsearchCommand.php
 /public/build/
 todo.txt
-*.sh
+#*.sh
 phpunit.xml.dist
 .run
 *.test.php

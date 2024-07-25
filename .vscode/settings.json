@@ -1,0 +1,8 @@
+{
+    "docker.commands.composeUp": [
+        {
+            "label": "Compose Up",
+            "template": "${composeCommand} ${configurationFile} up ${detached} ${build}"
+        }
+    ]
+}

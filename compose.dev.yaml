@@ -1,4 +1,4 @@
-version: "3"
+version: "3.7"
 
 services:
   psql-db: 
@@ -43,15 +43,17 @@ services:
       - psql-db
   
   evwritdocker:
+    platform: linux/amd64
     build: 
       context: .
       dockerfile: Dockerfile
       target: dev
-      ssh: 
-        - default
+
     volumes:
       - ./app:/app
+      - ~/.ssh:/root/.ssh
     image: evwritdocker-dev
+    container_name: evwritdocker-dev
     env_file:
       - ./app/.env.dev
     ports:
@@ -61,16 +63,16 @@ services:
       - elasticsearch
   
   thewatcher:
+    platform: linux/amd64
     build: 
       context: .
       dockerfile: Dockerfile
       target: dev
-      ssh: 
-        - default
     volumes:
       - ./app:/app
 
     image: thewatcher
+    container_name: thewatcher
     command: ["pnpm", "encore", "dev", "--watch"]
     restart: always
     depends_on:
@@ -83,10 +85,8 @@ services:
     container_name: pgadmin
     ports:
       - "5050:80"
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=pgadmin@example.com
-      - PGADMIN_DEFAULT_PASSWORD=postgres
-      - PGADMIN_DEFUALT_PASSWORD_FILE=/run/secrets/pgadmin
+    env_file:
+      - pgadmin.env
     depends_on:
       - psql-db
       

@@ -4,7 +4,7 @@ ARG PHP_VERSION=8.0
 # BASE
 # ----------------------------------------------------------
 
-FROM  webdevops/php-apache-dev:${PHP_VERSION} AS base
+FROM  webdevops/php-apache:${PHP_VERSION} AS base
 
 WORKDIR "/app"
 
