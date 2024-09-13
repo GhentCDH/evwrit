@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Helper\StreamedCsvResponse;
+use App\Repository\TextRepository;
+use App\Resource\ElasticTextAnnotationsResource;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -147,6 +149,59 @@ class TextController extends BaseController
             } catch(Exception $e) {
                 throw $this->createNotFoundException('The text does not exist');
             }
+        }
+    }
+
+    /**
+     * @Route("/text/{id}/annotations", name="text_get_annotations", methods={"GET"})
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse|Response
+     */
+    public function getAnnotations(int $id, Request $request)
+    {
+        $preloadRelations = [
+            'typographyAnnotations',
+            'typographyAnnotations.textSelection',
+            'morphologyAnnotations',
+            'morphologyAnnotations.textSelection',
+            'lexisAnnotations',
+            'lexisAnnotations.textSelection',
+            'orthographyAnnotations',
+            'orthographyAnnotations.textSelection',
+            'morphoSyntacticalAnnotations',
+            'morphoSyntacticalAnnotations.textSelection',
+            'handshiftAnnotations',
+            'handshiftAnnotations.textSelection',
+            'languageAnnotations',
+            'languageAnnotations.textSelection',
+            'genericTextStructures',
+            'genericTextStructures.textSelection',
+            'layoutTextStructures',
+            'layoutTextStructures.textSelection',
+            'genericTextStructureAnnotations',
+            'genericTextStructureAnnotations.textSelection',
+            'layoutTextStructureAnnotations',
+            'layoutTextStructureAnnotations.textSelection',
+            'textLevels',
+        ];
+
+        /** @var TextRepository $repo */
+        $repo = $this->getContainer()->get('text_repository');
+
+        try {
+            $text = $repo->find($id, $preloadRelations);
+            if (!$text) {
+                throw new Exception('Text not found');
+            }
+
+            $res = new ElasticTextAnnotationsResource($text);
+            return new JsonResponse($res->toArray());
+        } catch (Exception $e) {
+            return new JsonResponse(
+                ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
+                Response::HTTP_NOT_FOUND
+            );
         }
     }
 
