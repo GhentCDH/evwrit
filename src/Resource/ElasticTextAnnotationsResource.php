@@ -29,6 +29,7 @@ class ElasticTextAnnotationsResource extends ElasticBaseResource
         $ret = [
             /* properties */
             'id' => $text->getId(),
+            'text' => $text->text,
 
             // annotations placeholder
             'annotations' => []
