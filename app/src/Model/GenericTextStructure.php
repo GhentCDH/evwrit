@@ -21,6 +21,7 @@ use ReflectionException;
  * @property string $preservationStatus
  *
  * @property TextSelection $textSelection
+ * @property AnnotationOverride override
  * @property GenericTextStructurePart part
  * @property GenericTextStructureComponents components
  * @property Level textLevel
@@ -72,8 +73,13 @@ class GenericTextStructure extends AbstractModel
      * @return Text|BelongsTo
      * @throws ReflectionException
      */
-    public function sourceText() {
+    public function sourceText()
+    {
         return $this->textSelection->sourceText;
     }
 
+    public function override()
+    {
+        return $this->morphOne(AnnotationOverride::class, 'annotation');
+    }
 }

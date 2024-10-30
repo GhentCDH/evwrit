@@ -18,6 +18,7 @@ use ReflectionException;
  * @property TextSelection textSelection
  * @property LayoutTextStructurePart part
  * @property string partNumber*
+ * @property AnnotationOverride override
  * @package App\Model
  */
 class LayoutTextStructure extends AbstractModel
@@ -56,9 +57,14 @@ class LayoutTextStructure extends AbstractModel
      * @return Text|BelongsTo
      * @throws ReflectionException
      */
-    public function sourceText() {
+    public function sourceText()
+    {
         return $this->textSelection->sourceText;
     }
 
+    public function override()
+    {
+        return $this->morphOne(AnnotationOverride::class, 'annotation');
+    }
 
 }

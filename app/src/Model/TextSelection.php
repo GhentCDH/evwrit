@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use ReflectionException;
 
 /**
- * Class TextTranslation
+ * Class TextSelection
  *
  * @property int $text_selection_id
  * @property int $text_id

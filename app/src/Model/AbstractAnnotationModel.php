@@ -8,6 +8,7 @@ use ReflectionException;
 /**
  * @property int $text_selection_id
  * @property TextSelection textSelection
+ * @property AnnotationOverride override
  */
 abstract class AbstractAnnotationModel extends AbstractModel
 {
@@ -26,7 +27,13 @@ abstract class AbstractAnnotationModel extends AbstractModel
      * @return Text|BelongsTo
      * @throws ReflectionException
      */
-    public function sourceText() {
+    public function sourceText()
+    {
         return $this->textSelection->sourceText;
+    }
+
+    public function override()
+    {
+        return $this->morphOne(AnnotationOverride::class, 'annotation');
     }
 }
