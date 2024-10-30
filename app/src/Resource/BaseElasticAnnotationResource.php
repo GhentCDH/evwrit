@@ -15,6 +15,8 @@ use function Symfony\Component\String\u;
 
 class BaseElasticAnnotationResource extends BaseResource
 {
+    use TraitAnnotationOverride;
+
     protected array $includeAttributes = [];
     protected bool $generateContext = true;
     protected bool $allowEmptyRelationProperties = false;
@@ -52,6 +54,16 @@ class BaseElasticAnnotationResource extends BaseResource
             'properties' => [
             ]
         ];
+
+
+
+        // add overrides
+        $ret = $this->override($ret, $resource);
+
+        // skip deleted records
+        if ($ret['isDeleted'] ?? null) {
+            return [];
+        }
 
         // add all id_name lookups
         $relations = $resource->getRelations();

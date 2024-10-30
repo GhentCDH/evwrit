@@ -9,6 +9,8 @@ use App\Model\LayoutTextStructure;
 
 class ElasticLayoutTextStructureResource extends BaseResource
 {
+    use TraitAnnotationOverride;
+
     /**
      * Transform the resource into an array.
      *
@@ -29,6 +31,14 @@ class ElasticLayoutTextStructureResource extends BaseResource
                 'lts_preservationStatus' => $resource->preservationStatus,
             ]
         ];
+
+        // add overrides
+        $ret = $this->override($ret, $resource);
+
+        // skip deleted records?
+//        if ($ret['isDeleted'] ?? null) {
+//            return [];
+//        }
 
         return $ret;
     }

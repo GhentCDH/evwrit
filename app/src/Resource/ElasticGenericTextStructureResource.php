@@ -15,6 +15,7 @@ use function Symfony\Component\String\u;
 
 class ElasticGenericTextStructureResource extends BaseResource
 {
+    use TraitAnnotationOverride;
     /**
      * Transform the resource into an array.
      *
@@ -37,6 +38,14 @@ class ElasticGenericTextStructureResource extends BaseResource
                 'gts_preservationStatus' => $resource->preservationStatus,
             ]
         ];
+
+        // add overrides
+        $ret = $this->override($ret, $resource);
+
+        // skip deleted records?
+//        if ($ret['isDeleted'] ?? null) {
+//            return [];
+//        }
 
         return $ret;
     }
