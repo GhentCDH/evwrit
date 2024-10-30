@@ -22,6 +22,7 @@ php bin/console cache:clear
 
 # start the symfony server
 echo "Starting server..."
+symfony server:stop
 symfony local:server:start --port=8000 --no-tls --allow-all-ip
 
 echo "Server started"
