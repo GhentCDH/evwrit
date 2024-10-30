@@ -13,19 +13,20 @@ class ElasticIdNameResource extends BaseResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request = null): ?array
+    public function toArray($request = null): array
     {
         /** @var IdNameModelInterface $resource */
         $resource = $this->resource;
 
-        if ($this->resource) {
-            return [
-                'id' => $resource->getId(),
-                'name' => $resource->getName(),
-                'id_name' => $resource->getId()."_".$resource->getName(),
-            ];
+        if (!$this->resource) {
+            return [];
         }
-        return null;
+
+        return [
+            'id' => $resource->getId(),
+            'name' => $resource->getName(),
+            'id_name' => $resource->getId()."_".$resource->getName(),
+        ];
     }
 
 }

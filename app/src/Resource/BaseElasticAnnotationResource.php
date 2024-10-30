@@ -42,7 +42,7 @@ class BaseElasticAnnotationResource extends BaseResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request=null): ?array
+    public function toArray($request=null): array
     {
         /** @var AbstractAnnotationModel $resource */
         $resource = $this->resource;
@@ -80,7 +80,7 @@ class BaseElasticAnnotationResource extends BaseResource
 
             // no properties? skip this record
             if (!$this->allowEmptyRelationProperties && !count($ret['properties'])) {
-                return null;
+                return [];
             }
         }
 

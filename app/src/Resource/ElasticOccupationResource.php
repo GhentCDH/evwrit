@@ -13,23 +13,25 @@ class ElasticOccupationResource extends BaseResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request=null): ?array
+    public function toArray($request=null): array
     {
         /** @var Occupation $resource */
         $resource = $this->resource;
-        if ($this->resource) {
-            return [
-                'id' => $resource->getId(),
-                'name' => [
-                    'en' => $resource->name_en,
-                    'gr' => $resource->name_gr,
-                ],
-                'id_name' => [
-                    'en' => $resource->getId()."_".$resource->name_en,
-                    'gr' => $resource->getId()."_".$resource->name_gr
-                ]
-            ];
+
+        if (!$this->resource) {
+            return [];
         }
-        return null;
+
+        return [
+            'id' => $resource->getId(),
+            'name' => [
+                'en' => $resource->name_en,
+                'gr' => $resource->name_gr,
+            ],
+            'id_name' => [
+                'en' => $resource->getId()."_".$resource->name_en,
+                'gr' => $resource->getId()."_".$resource->name_gr
+            ]
+        ];
     }
 }
