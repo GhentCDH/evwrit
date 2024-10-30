@@ -5,6 +5,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 
 class BaseController extends AbstractController
@@ -137,6 +138,30 @@ class BaseController extends AbstractController
     protected function sanitizeSearchRequest(array $params): array
     {
         return $params;
+    }
+
+    protected function jsonError($message, $data = null): JsonResponse
+    {
+        return $this->jsonStatus('error', $message, $data, Response::HTTP_BAD_REQUEST);
+    }
+
+    protected function jsonFail($message, $data = null): JsonResponse
+    {
+        return $this->jsonStatus('fail', $message, $data, Response::HTTP_BAD_REQUEST);
+    }
+
+    protected function jsonSuccess($message, $data = null): JsonResponse
+    {
+        return $this->jsonStatus('success', $message, $data);
+    }
+
+    protected function jsonStatus($status, $message, $data = null, int $httpStatusCode = null): JsonResponse
+    {
+        return $this->json([
+            'status' => $status,
+            'message' => $message,
+            'data' => $data
+        ], $httpStatusCode ?? Response::HTTP_OK);
     }
 
 }

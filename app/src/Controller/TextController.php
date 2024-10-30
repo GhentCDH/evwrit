@@ -3,13 +3,18 @@
 namespace App\Controller;
 
 use App\Helper\StreamedCsvResponse;
+use App\Repository\TextRepository;
+use App\Resource\ElasticTextAnnotationsResource;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Throwable;
 
 class TextController extends BaseController
 {
@@ -147,6 +152,107 @@ class TextController extends BaseController
             } catch(Exception $e) {
                 throw $this->createNotFoundException('The text does not exist');
             }
+        }
+    }
+
+    /**
+     * @Route("/text/{id}/annotations", name="text_get_annotations", methods={"GET"})
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse|Response
+     */
+    public function getAnnotations(int $id, Request $request)
+    {
+        $preloadRelations = [
+            'typographyAnnotations',
+            'typographyAnnotations.textSelection',
+            'typographyAnnotations.override',
+            'morphologyAnnotations',
+            'morphologyAnnotations.textSelection',
+            'morphologyAnnotations.override',
+            'lexisAnnotations',
+            'lexisAnnotations.textSelection',
+            'lexisAnnotations.override',
+            'orthographyAnnotations',
+            'orthographyAnnotations.textSelection',
+            'orthographyAnnotations.override',
+            'morphoSyntacticalAnnotations',
+            'morphoSyntacticalAnnotations.textSelection',
+            'morphoSyntacticalAnnotations.override',
+            'handshiftAnnotations',
+            'handshiftAnnotations.textSelection',
+            'handshiftAnnotations.override',
+            'languageAnnotations',
+            'languageAnnotations.textSelection',
+            'genericTextStructures',
+            'genericTextStructures.override',
+            'layoutTextStructures',
+            'layoutTextStructures.textSelection',
+            'layoutTextStructures.override',
+            'genericTextStructureAnnotations',
+            'genericTextStructureAnnotations.textSelection',
+            'genericTextStructureAnnotations.override',
+            'layoutTextStructureAnnotations',
+            'layoutTextStructureAnnotations.textSelection',
+            'layoutTextStructureAnnotations.override',
+            'textLevels',
+        ];
+
+        /** @var TextRepository $repo */
+        $repo = $this->getContainer()->get('text_repository');
+
+        try {
+            $text = $repo->find($id, $preloadRelations);
+            if (!$text) {
+                throw new Exception('Text not found');
+            }
+
+            $res = new ElasticTextAnnotationsResource($text);
+            return new JsonResponse($res->toArray());
+        } catch (Exception $e) {
+            return new JsonResponse(
+                ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+    }
+
+    /**
+     * @Route("/annotation/{annotationType}/{annotationId}/override", name="annotation_override", methods={"PATCH"})
+     */
+    public function overrideAnnotation(string $annotationType, int $annotationId, Request $request): JsonResponse
+    {
+        // get morphMap
+        $morphMap = Relation::morphMap();
+
+        // validate request
+        $annotation = json_decode($request->getContent(), true);
+        if (!is_array($annotation)) {
+            return $this->jsonFail('Invalid input data', $annotation);
+        }
+        if (!isset($annotation['selection_start'], $annotation['selection_end'], $annotation['is_deleted'])) {
+            return $this->jsonFail('Missing required properties', $annotation);
+        }
+        if (!isset($morphMap[$annotationType])) {
+            return $this->jsonFail("Invalid annotation type ({$annotationType})", $annotation);
+        }
+
+        // insert/update annotation overrides
+        try {
+            $modelClass = $morphMap[$annotationType];
+            /** @var Model $model */
+            $model = new $modelClass();
+
+            $record = $model::find($annotationId);
+            if (!$record) {
+                return $this->jsonFail("Annotation not found", $annotation);
+            }
+
+            $record->override()->updateOrCreate(['annotation_id' => $annotationId, 'annotation_type' => $annotationType], $annotation);
+
+            return $this->jsonSuccess('Annotation override successful', $annotation);
+        } catch (Throwable $e) {
+            return $this->jsonError($e->getMessage(), $annotation, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
