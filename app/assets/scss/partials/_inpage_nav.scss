@@ -1,0 +1,25 @@
+.linklist {
+  .active {
+    & > a {
+      border-bottom: 1px solid $brand-primary;
+      color: $brand-primary;
+    }
+  }
+}
+
+.toc {
+  li {
+    font-family: $body-text-font-family;
+    font-size: $fz-default;
+  }
+
+  a {
+    color: $black;
+
+    &:hover,
+    &:focus,
+    &.selected {
+      color: $brand-primary;
+    }
+  }
+}

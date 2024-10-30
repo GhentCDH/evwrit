@@ -1,0 +1,28 @@
+.line-number {
+  &::before {
+    content: attr(data-line-number);
+  }
+}
+
+.table {
+  .line-number {
+    border-right: 1px solid $border-color;
+    border-top: 0;
+    color: $border-color;
+    padding: 2px 4px;
+  }
+
+  .verse {
+    border-top: 0;
+    padding: 2px 4px 2px 16px;
+
+    a {
+      border-bottom: 0;
+      color: inherit;
+
+      &:hover {
+        border-bottom: 1px solid;
+      }
+    }
+  }
+}

@@ -1,8 +1,0 @@
-.required {
-  .control-label {
-    &::after {
-      color: $state-danger-text;
-      content: ' *';
-    }
-  }
-}

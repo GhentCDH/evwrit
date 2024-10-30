@@ -1,0 +1,259 @@
+<?php
+
+namespace App\Controller;
+
+use App\Helper\StreamedCsvResponse;
+use App\Repository\TextRepository;
+use App\Resource\ElasticTextAnnotationsResource;
+use Exception;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Annotation\Route;
+use Throwable;
+
+class TextController extends BaseController
+{
+    protected $templateFolder = 'Text';
+
+    protected const searchServiceName = "text_basic_search_service";
+    protected const indexServiceName = "text_index_service";
+
+    /**
+     * @Route("/text", name="text", methods={"GET"})
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function index(Request $request)
+    {
+        return $this->redirectToRoute('text_search', ['request' =>  $request], 301);
+    }
+
+    /**
+     * @Route("/text/search", name="text_search", methods={"GET"})
+     * @param Request $request
+     * @return Response
+     */
+    public function search(
+        Request $request
+    ) {
+        return $this->_search(
+            $request,
+            [
+                'title' => 'Texts'
+            ],
+            [
+                'search_api' => 'text_search_api',
+                'paginate' => 'text_paginate',
+                'export_csv' => 'text_export_csv'
+            ]
+        );
+    }
+
+    /**
+     * @Route("/text/search_api", name="text_search_api", methods={"GET"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function search_api(
+        Request $request
+    ) {
+        return $this->_search_api($request);
+    }
+
+    /**
+     * @Route("/text/paginate", name="text_paginate", methods={"GET"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function paginate(
+        Request $request
+    ) {
+        return $this->_paginate($request);
+    }
+
+    /**
+     * @Route("/text/export/csv", name="text_export_csv", methods={"GET"})
+     * @param Request $request
+     * @return StreamedCsvResponse
+     */
+    public function exportCSV(
+        Request $request
+    ) {
+        $elasticService = $this->getContainer()->get(static::searchServiceName);
+
+        $header = [];
+
+        // search
+        $data = $elasticService->searchRAW(
+            $this->sanitizeSearchRequest($request->query->all())
+        );
+
+        // header
+        $csvHeader = ['id', 'tm_id', 'year_begin', 'year_end', 'text'];
+
+        // data
+        $csvData = [];
+        foreach ($data['data'] as $row) {
+            $csvRow = [];
+
+            $csvRow['id'] = $row['id'];
+            $csvRow['tm_id'] = $row['tm_id'];
+            $csvRow['year_begin'] = $row['year_begin'];
+            $csvRow['year_end'] = $row['year_end'];
+            $csvRow['text'] = $row['text'];
+
+            $csvData[] = $csvRow;
+        }
+
+        // csv response
+        $response = new StreamedCsvResponse($csvData, $csvHeader, 'texts.csv');
+        return $response;
+    }
+
+
+    /**
+     * @Route("/text/{id}", name="text_get_single", methods={"GET"})
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse|Response
+     */
+    public function getSingle(int $id, Request $request)
+    {
+        $elasticService = $this->getContainer()->get(self::indexServiceName);
+
+        if (in_array('application/json', $request->getAcceptableContentTypes())) {
+            //$this->denyAccessUnlessGranted('ROLE_EDITOR_VIEW');
+            try {
+                $resource = $elasticService->get($id);
+            } catch (NotFoundHttpException $e) {
+                return new JsonResponse(
+                    ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+            return new JsonResponse($resource);
+        } else {
+            try {
+                $resource = $elasticService->get($id);
+                return $this->render(
+                    $this->templateFolder. '/detail.html.twig',
+                    [
+                        'urls' => json_encode($this->getSharedAppUrls()),
+                        'data' => json_encode([
+                            'text' => $resource
+                        ])
+                    ]
+                );
+            } catch(Exception $e) {
+                throw $this->createNotFoundException('The text does not exist');
+            }
+        }
+    }
+
+    /**
+     * @Route("/text/{id}/annotations", name="text_get_annotations", methods={"GET"})
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse|Response
+     */
+    public function getAnnotations(int $id, Request $request)
+    {
+        $preloadRelations = [
+            'typographyAnnotations',
+            'typographyAnnotations.textSelection',
+            'typographyAnnotations.override',
+            'morphologyAnnotations',
+            'morphologyAnnotations.textSelection',
+            'morphologyAnnotations.override',
+            'lexisAnnotations',
+            'lexisAnnotations.textSelection',
+            'lexisAnnotations.override',
+            'orthographyAnnotations',
+            'orthographyAnnotations.textSelection',
+            'orthographyAnnotations.override',
+            'morphoSyntacticalAnnotations',
+            'morphoSyntacticalAnnotations.textSelection',
+            'morphoSyntacticalAnnotations.override',
+            'handshiftAnnotations',
+            'handshiftAnnotations.textSelection',
+            'handshiftAnnotations.override',
+            'languageAnnotations',
+            'languageAnnotations.textSelection',
+            'genericTextStructures',
+            'genericTextStructures.override',
+            'layoutTextStructures',
+            'layoutTextStructures.textSelection',
+            'layoutTextStructures.override',
+            'genericTextStructureAnnotations',
+            'genericTextStructureAnnotations.textSelection',
+            'genericTextStructureAnnotations.override',
+            'layoutTextStructureAnnotations',
+            'layoutTextStructureAnnotations.textSelection',
+            'layoutTextStructureAnnotations.override',
+            'textLevels',
+        ];
+
+        /** @var TextRepository $repo */
+        $repo = $this->getContainer()->get('text_repository');
+
+        try {
+            $text = $repo->find($id, $preloadRelations);
+            if (!$text) {
+                throw new Exception('Text not found');
+            }
+
+            $res = new ElasticTextAnnotationsResource($text);
+            return new JsonResponse($res->toArray());
+        } catch (Exception $e) {
+            return new JsonResponse(
+                ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+    }
+
+    /**
+     * @Route("/annotation/{annotationType}/{annotationId}/override", name="annotation_override", methods={"PATCH"})
+     */
+    public function overrideAnnotation(string $annotationType, int $annotationId, Request $request): JsonResponse
+    {
+        // get morphMap
+        $morphMap = Relation::morphMap();
+
+        // validate request
+        $annotation = json_decode($request->getContent(), true);
+        if (!is_array($annotation)) {
+            return $this->jsonFail('Invalid input data', $annotation);
+        }
+        if (!isset($annotation['selection_start'], $annotation['selection_end'], $annotation['is_deleted'])) {
+            return $this->jsonFail('Missing required properties', $annotation);
+        }
+        if (!isset($morphMap[$annotationType])) {
+            return $this->jsonFail("Invalid annotation type ({$annotationType})", $annotation);
+        }
+
+        // insert/update annotation overrides
+        try {
+            $modelClass = $morphMap[$annotationType];
+            /** @var Model $model */
+            $model = new $modelClass();
+
+            $record = $model::find($annotationId);
+            if (!$record) {
+                return $this->jsonFail("Annotation not found", $annotation);
+            }
+
+            $record->override()->updateOrCreate(['annotation_id' => $annotationId, 'annotation_type' => $annotationType], $annotation);
+
+            return $this->jsonSuccess('Annotation override successful', $annotation);
+        } catch (Throwable $e) {
+            return $this->jsonError($e->getMessage(), $annotation, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+}

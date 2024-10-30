@@ -1,0 +1,63 @@
+@import 'partials/variables';
+
+@import 'font-awesome-4/scss/font-awesome';
+//
+// settings and bootstrap
+@import 'huisstijl2016/sass/settings';
+@import 'huisstijl2016/sass/bootstrap-custom';
+@import 'bootstrap-sass/assets/stylesheets/bootstrap/panels';
+
+$maxwidth-container: 1800px;
+
+
+
+// huisstijl2016 theme
+@import 'huisstijl/huisstijl2016';
+
+// Externals
+@import 'external/css_checkbox_switch';
+
+// Extra
+@import 'partials/typography';
+@import 'partials/collapse';
+@import 'partials/date';
+@import 'partials/draggable';
+@import 'partials/dropdown';
+//@import 'partials/dropzone';
+@import 'partials/footer';
+@import 'partials/form';
+@import 'partials/greek';
+@import 'partials/icons';
+//@import 'partials/image-edit';
+@import 'partials/inpage_nav';
+@import 'partials/lightbox';
+@import 'partials/line-numbers';
+@import 'partials/loading';
+@import 'partials/pageheader';
+@import 'partials/pager';
+// @import 'partials/radio';
+@import 'partials/required';
+@import 'partials/search';
+@import 'partials/thumbnail';
+@import 'partials/type';
+@import 'partials/nouislider';
+@import 'partials/vue_tables';
+@import 'partials/text_structure';
+@import 'partials/scrollable';
+@import 'partials/layouts';
+@import 'partials/switch';
+@import 'partials/widgets';
+@import 'partials/labels';
+
+
+@import 'partials/annotations';
+@import 'partials/selection_details';
+
+@import 'partials/_cool-lightbox';
+//
+@import 'partials/vue-form-generator/fieldset';
+@import 'partials/vue-form-generator/multiselect';
+@import 'partials/vue-form-generator/collapsible-group';
+@import 'partials/vue-form-generator/collapsible-field';
+@import 'partials/vue-form-generator/inline-options';
+@import 'partials/vue-form-generator/radios-labels-only';

@@ -1,0 +1,148 @@
+.search-app {
+
+  // hide first row, we added our own
+  .VueTables--server {
+    & > .row:first-child {
+      display: none;
+    }
+  }
+
+  .search-app__filters {
+
+  }
+
+  .search-app__search-page {
+
+    // allow absolute position in header and section
+    & > header, & > section {
+      position: relative;
+    }
+
+    // move actions to top right of header
+    .search-page__actions {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    .VueTables {
+      .row:first-child {
+        //display: block !important;
+
+        .col-md-12:first-child {
+          min-height: 3.667em;
+        }
+      }
+
+
+    }
+
+    .VuePagination__count {
+      display: none;
+    }
+
+  }
+}
+
+.layout--fullscreen {
+
+  .page__content {
+    display: flex;
+    padding-bottom: 20px;
+
+    // hide before/after when row is flex
+    & > .row {
+      &:before, &:after {
+        display: none;
+      }
+    }
+  }
+
+  .search-app {
+    display: flex;
+    flex: 1;
+
+    padding: 0 10px; // remove row padding
+    gap: 20px;
+  }
+
+  .search-app__filters, .search-app__search-page {
+    padding: 0; // remove col padding
+  }
+
+  .search-app__search-page {
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
+
+    & > section {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .VueTables--server {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+
+      // make table scrollable
+      .table-responsive {
+        flex: 1;
+        overflow-y: auto;
+        position: relative;
+
+        @extend .scrollable;
+
+        // sticky headers, doesn't work, containers scrolls now
+        //.VueTables__table {
+        //  position: relative;
+        //
+        //  thead tr th {
+        //    background: white;
+        //
+        //  }
+        //
+        //  thead {
+        //    position: sticky !important;
+        //    top: 0;
+        //  }
+        //}
+      }
+    }
+  }
+}
+
+.search-page {
+  table {
+    .no-wrap {
+      white-space: nowrap;
+    }
+
+    .checkbox {
+      margin-top: 0;
+    }
+  }
+}
+
+mark,
+.mark {
+  padding: 0;
+}
+
+/* vue-tables columns */
+.vue-tables__col--id {
+  white-space: nowrap;
+  min-width: 70px;
+}
+
+.vue-tables__col--tm-id {
+  white-space: nowrap;
+  min-width: 70px;
+}
+
+.vue-tables__col--title {
+  white-space: nowrap;
+  min-width: 100px;
+}
