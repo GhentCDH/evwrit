@@ -4,9 +4,7 @@
 namespace App\Resource;
 
 
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use JsonSerializable;
+use Illuminate\Http\Request;
 
 class ElasticBaseResource extends BaseResource
 {
@@ -18,7 +16,7 @@ class ElasticBaseResource extends BaseResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return array
      */
     public function toArray($request=null): array
@@ -29,8 +27,9 @@ class ElasticBaseResource extends BaseResource
         $ret = $this->resource->attributesToArray();
         $keyName = $this->resource->getKeyName();
         if (isset($ret[$keyName])) {
-            $ret['id'] = $ret[$keyName];
+            $id = $ret[$keyName];
             unset($ret[$keyName]);
+            $ret = array_merge(['id' => $id], $ret);
         }
 
         return $ret;

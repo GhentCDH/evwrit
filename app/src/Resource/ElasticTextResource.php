@@ -13,8 +13,6 @@ class ElasticTextResource extends ElasticBaseResource
 {
     use TraitTextSelectionIntersect;
 
-    const CACHENAME = "text_elastic";
-
     /**
      * Transform the resource into an array.
      *

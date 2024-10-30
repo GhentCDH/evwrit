@@ -12,9 +12,7 @@ use App\Model\Text;
 class ElasticTextLevelTextResource extends ElasticBaseResource
 {
     use TraitTextSelectionIntersect;
-
-    const CACHENAME = "text_level_text_elastic";
-
+    
     /**
      * Transform the resource into an array.
      *
