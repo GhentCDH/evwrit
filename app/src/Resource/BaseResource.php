@@ -5,11 +5,29 @@ namespace App\Resource;
 
 
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
 
-class BaseResource extends AbstractResource
+class BaseResource extends JsonResource
 {
+    public function getId(): string
+    {
+        return $this->resource->getId();
+    }
+
+    /**
+     * Transform the resource into a JSON array.
+     *
+     * @param  Request  $request
+     * @return array
+     */
+    public function toArray($request = null): array
+    {
+        return (array) parent::toArray($request);
+    }
+
     public function jsonSerialize(): array
     {
         return $this->resolve();
@@ -18,7 +36,7 @@ class BaseResource extends AbstractResource
     /**
      * Resolve the resource to an array.
      *
-     * @param  \Illuminate\Http\Request|null  $request
+     * @param Request|null  $request
      * @return array
      */
     public function resolve($request = null): array
@@ -40,7 +58,7 @@ class BaseResource extends AbstractResource
      * @param  mixed  $resource
      * @return BaseResourceCollection
      */
-    public static function collection($resource)
+    public static function collection($resource): BaseResourceCollection
     {
         return tap(new BaseResourceCollection($resource, static::class), function ($collection) {
             if (property_exists(static::class, 'preserveKeys')) {
