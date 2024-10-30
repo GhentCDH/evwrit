@@ -1,0 +1,9 @@
+CREATE DATABASE evwrit WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8';
+ALTER DATABASE evwrit OWNER TO evwrit;
+
+\connect evwrit
+
+CREATE SCHEMA IF NOT EXISTS public;
+ALTER SCHEMA public OWNER TO evwrit;
+
+
