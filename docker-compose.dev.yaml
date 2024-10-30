@@ -1,13 +1,15 @@
-version: "3.7"
+name: evwrit-dev
 
 services:
-  psql-db: 
+
+  postgresql:
     image: postgres:16
-    container_name: psql-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
     volumes:
       - ./var/postgres/data:/var/lib/postgresql/data
       - ./initdb:/docker-entrypoint-initdb.d
@@ -16,7 +18,6 @@ services:
     build: 
       context: .
       dockerfile: elasticsearch.Dockerfile
-    container_name: elasticsearch
     environment:
       discovery.type: single-node
       network.host: 0.0.0.0
@@ -27,11 +28,13 @@ services:
       xpack.security.enabled: "false"
       cluster.routing.allocation.disk.threshold_enabled: "false"
       ES_JAVA_OPTS: -Xms2g -Xmx2g
+      TAKE_FILE_OWNERSHIP: 1
+      ELASTIC_PASSWORD: "elastic"
     ports:
       - "9200:9200"
       - "9300:9300"
     volumes:
-      - ./var/elasticsearch/data:/var/lib/elasticsearch/data
+      - ./var/elasticsearch/data:/usr/share/elasticsearch/data
     ulimits:
       memlock:
         soft: -1
@@ -39,54 +42,43 @@ services:
       nofile:
         soft: 65536
         hard: 65536
-    depends_on:
-      - psql-db
-  
-  evwritdocker:
+
+  symfony:
     platform: linux/amd64
     build: 
       context: .
       dockerfile: Dockerfile
-      target: dev
-
-    volumes:
-      - ./app:/app
-      - ~/.ssh:/root/.ssh
-    image: evwritdocker-dev
-    container_name: evwritdocker-dev
+      target: symfony-dev
     env_file:
       - ./app/.env.dev
     ports:
-      - "8080:8080"
-    depends_on:
-      - psql-db
-      - elasticsearch
-  
-  thewatcher:
-    platform: linux/amd64
-    build: 
-      context: .
-      dockerfile: Dockerfile
-      target: dev
+      - "8080:8000"
+    environment:
+      - SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
     volumes:
       - ./app:/app
-
-    image: thewatcher
-    container_name: thewatcher
-    command: ["pnpm", "encore", "dev", "--watch"]
-    restart: always
+      - ${SSH_AUTH_SOCK}:${SSH_AUTH_SOCK}
     depends_on:
-      - psql-db
+      - postgresql
       - elasticsearch
-      - evwritdocker
+  
+  node:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: node-dev
+    environment:
+      - SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
+    volumes:
+      - ./app:/app
+      - ${SSH_AUTH_SOCK}:${SSH_AUTH_SOCK}
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin
     ports:
       - "5050:80"
     env_file:
       - pgadmin.env
     depends_on:
-      - psql-db
-      
+      - postgresql
