@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 mkdir -p ./public/build/static/icons
 cp -rf ./node_modules/huisstijl2016/static/icons/* ./public/build/static/icons

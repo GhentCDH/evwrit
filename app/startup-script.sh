@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 cd /app
 
 # Start SSH agent
