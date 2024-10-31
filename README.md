@@ -47,9 +47,7 @@ docker exec -it evwrit-dev-symfony-1 php bin/console app:elasticsearch:index tex
 docker exec -it evwrit-dev-symfony-1 php bin/console app:elasticsearch:index level [max limit]
 ```
 
-## Details
-
-### Docker production build
+## Docker production build
 
 Add the correct SSH key to the agent if building in production, and then run:
 
@@ -63,14 +61,6 @@ docker buildx build --tag evwrit-web --target prod --ssh default .
 - Ensure you have the ssh-agent active with the correct SSH key!
 - If an external PostgreSQL database or Elasticsearch is used, update or remove the services in `docker-compose.yaml` (
   or create a `docker-composer.override.yaml` file).
-
-### Dev Container
-
-When building using a dev container, the startup script and the indexing for Elasticsearch are done using
-`postCreateCommand` found in `.devcontainer/devcontainer.json`. Edit this command to the required index and limit. After
-that, build the dev container and reopen VSCode in the container.
-
-This command is handy because it is only executed once: when creating the containers.
 
 ## IMPORTANT NOTES
 
