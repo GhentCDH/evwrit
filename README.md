@@ -16,7 +16,8 @@ Additionally, update the PGAdmin variables in `pgadmin.env` to the desired login
 
 ## 2. Data Setup for PostgreSQL
 
-In the `initdb` folder, you can find two example scripts: `001-create-role.sql` and `100-alter-grants.sql`. It is recommended to modify these scripts to suit your needs and also add a SQL script for the actual data with a name starting with `010-` inside this folder. You can also add `.sh` scripts if required. The docker-compose will import the data when the containers are created.
+In the `initdb` folder, you can find the necessary scripts to create the database schema and a minimum test dataset.
+You can also add `.sh` scripts if required. The docker-compose will import the data when the containers are created.
 
 ## 3. Building the `evwrit` Image
 
@@ -41,34 +42,27 @@ docker compose up --build
 
 #### Notes:
 - Ensure you have the ssh-agent active with the correct SSH key!
-- If an external database is used, **comment/remove** the code in `docker-compose.yaml` under `psql-db`.
+- If an external PostgreSQL database or Elasticsearch is used, update or remove the services in `docker-compose.yaml` (or create a `docker-composer.override.yaml` file).
 
 ### 4.2 Development Build in Docker
 
 To build the dev environment in Docker, run:
 ```sh
-docker compose -f compose.dev.yaml up --build 
-```
-Then, to install backend PHP modules, install frontend dependencies, and start Symfony (web), run the following command:
-```sh
-docker exec -it evwritdocker-dev sh startup-script.sh
+docker compose -f docker-compose.dev.yaml up --build 
 ```
 
 Finally, index Elasticsearch on the desired string using the following command:
 ```sh
-docker exec -it evwritdocker-dev php bin/console app:elasticsearch:index <your index> [max limit]
+docker exec -it evwrit-dev-symfony-1 php bin/console app:elasticsearch:index texts [max limit]
+docker exec -it evwrit-dev-symfony-1 php bin/console app:elasticsearch:index level [max limit]
 ```
 
 The web interface can be accessed on [localhost:8080](http://localhost:8080) and PGAdmin on [localhost:5050](http://localhost:5050).
 
 #### Notes:
-- The `thewatcher` container will keep restarting until the following script has been run:
-```sh
-startup-script.sh
-```
 - To remove the containers, execute:
 ```sh
-docker compose -f compose.dev.yaml down
+docker compose -f docker-compose.dev.yaml down
 ```
 
 ### 4.3 Development Build using Dev Container
@@ -89,7 +83,8 @@ This command is handy because it is only executed once: when creating the contai
 
 - Once the `evwrit` container is successfully created, be sure to run the following command before using the website:
   ```sh
-  php bin/console app:elasticsearch:index <your index name> [max limit]
+  php bin/console app:elasticsearch:index texts [max limit]
+  php bin/console app:elasticsearch:index level [max limit]
   ```
 
 - When running in development, three folders will be created locally: `node_modules`, `vendor`, and `var` (for PostgreSQL and Elasticsearch data). If you want to run in production after development, be sure to delete these three folders!
