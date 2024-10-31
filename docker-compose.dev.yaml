@@ -48,7 +48,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-      target: symfony-dev
+      target: dev
     env_file:
       - ./app/.env.dev
     ports:

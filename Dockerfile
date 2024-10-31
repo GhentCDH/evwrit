@@ -73,7 +73,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 # DEVELOPMENT
 # ----------------------------------------------------------
 
-FROM symfony-base AS symfony-dev
+FROM symfony-base AS dev
 USER root
 WORKDIR "/app"
 
