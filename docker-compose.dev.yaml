@@ -52,11 +52,8 @@ services:
       - ./app/.env.dev
     ports:
       - "8080:8000"
-    environment:
-      - SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
     volumes:
       - ./app:/app
-      - ${SSH_AUTH_SOCK}:${SSH_AUTH_SOCK}
     depends_on:
       - postgresql
       - elasticsearch
@@ -66,11 +63,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: node-dev
-    environment:
-      - SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
     volumes:
       - ./app:/app
-      - ${SSH_AUTH_SOCK}:${SSH_AUTH_SOCK}
 
   pgadmin:
     image: dpage/pgadmin4
