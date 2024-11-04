@@ -6,8 +6,14 @@ trait TraitAnnotationOverride
 {
     protected function override(array $ret, Model $resource): array
     {
+        $ret['hasOverride'] = false;
+        $ret['isDeleted'] = false;
+
         if ($resource->relationLoaded('override')) {
             $override = $resource->override;
+            if (!$override) {
+                return $ret;
+            }
             // override text selection properties
             $textSelection = $ret['text_selection'];
             $textSelection['selection_start'] = $override->selection_start;

@@ -22,6 +22,9 @@ class AttestationAncientPersonOnlyResource extends BaseResource
     public function toArray($request=null): array
     {
         /** @var AncientPerson $ap */
+        if (!$this->resource || !$this->resource->relationLoaded('ancientPerson') || !$this->resource->ancientPerson) {
+            return [];
+        }
         $ap = $this->ancientPerson;
 
         return [
