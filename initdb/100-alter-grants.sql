@@ -1,4 +1,6 @@
 grant all privileges on database evwrit to evwrit;
 \c evwrit;
-grant usage on schema public to evwrit;
-grant all privileges on all tables in schema public to evwrit;
+grant usage on SCHEMA public to evwrit;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO evwrit;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO evwrit;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO evwrit;
