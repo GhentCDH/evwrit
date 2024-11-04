@@ -52,8 +52,6 @@ class BaseElasticAnnotationResource extends BaseResource
             ],
         ];
 
-
-
         // add overrides
         $ret = $this->override($ret, $resource);
 
