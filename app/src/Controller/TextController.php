@@ -184,7 +184,9 @@ class TextController extends BaseController
             'handshiftAnnotations.override',
             'languageAnnotations',
             'languageAnnotations.textSelection',
+            'languageAnnotations.override',
             'genericTextStructures',
+            'genericTextStructures.textSelection',
             'genericTextStructures.override',
             'layoutTextStructures',
             'layoutTextStructures.textSelection',
@@ -195,7 +197,6 @@ class TextController extends BaseController
             'layoutTextStructureAnnotations',
             'layoutTextStructureAnnotations.textSelection',
             'layoutTextStructureAnnotations.override',
-            'textLevels',
         ];
 
         /** @var TextRepository $repo */
