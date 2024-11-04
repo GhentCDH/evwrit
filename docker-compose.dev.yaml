@@ -44,7 +44,6 @@ services:
         hard: 65536
 
   symfony:
-    platform: linux/amd64
     build: 
       context: .
       dockerfile: Dockerfile
@@ -63,7 +62,6 @@ services:
       - elasticsearch
   
   node:
-    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile
