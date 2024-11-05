@@ -73,9 +73,6 @@ docker buildx build --tag evwrit-web --target prod --ssh default .
 
 ## IMPORTANT NOTES
 
-- This application uses the Ghent University Theme. The stylesheets and code is stored on a private repository. To build
-  this application, you need access to the theme repository with a private key.
-
 - Ensure that your ssh agent is running and that your key(s) are added before building or starting the containers. For
   production builds, it is necessary to start and add your SSH key in the same terminal window (unless set up via config
   file) as where the build command is executed.
