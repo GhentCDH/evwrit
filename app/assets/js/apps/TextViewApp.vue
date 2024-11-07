@@ -174,7 +174,7 @@
                     <PropertyGroup>
                         <LabelValue label="Lines" :value="arrayToRange(text.lines)"  type="range"></LabelValue>
                         <LabelValue label="Lines (calculated)" :value="text.count_lines_auto"></LabelValue>
-                        <LabelValue label="Columns" :value="arrayToRange(text.columns)"  type="range"></LabelValue>
+                        <LabelValue label="Columns" :value="minMaxToRange(text.columns)"  type="range"></LabelValue>
                         <LabelValue label="Letters per line" :value="arrayToRange(text.letters_per_line)" type="range"></LabelValue>
                         <LabelValue label="Letters per line (calculated)" :value="text.letters_per_line_auto"></LabelValue>
                         <LabelValue label="Interlinear space" :value="text.interlinear_space" ></LabelValue>
@@ -951,6 +951,12 @@ export default {
         arrayToRange(value) {
             if ( value ) {
                 return {start: value[0], end: value[1]}
+            }
+            return null;
+        },
+        minMaxToRange(value) {
+            if ( value ) {
+                return {start: value.min, end: value.max}
             }
             return null;
         },
