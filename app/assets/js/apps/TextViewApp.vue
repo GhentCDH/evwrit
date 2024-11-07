@@ -504,7 +504,15 @@ export default {
         people: function() {
             return this.text.ancient_person.filter(
                 person => person?.role && person?.role.length // && !['Unknown','unknown'].includes(person.role)
-            )
+            ).sort((person1, person2) => {
+                const order = {
+                    "initiator": 0,
+                    "receiver": 1,
+                }
+                const role1 = person1.role[0]?.name;
+                const role2 = person2.role[0]?.name;
+                return (role1 in order ? order[role1] : 3) - (role2 in order ? order[role2] : 3);
+            });
         },
         annotationsByTypeId() {
             let result = []
