@@ -50,7 +50,7 @@ export default {
             event.preventDefault();
             this.$cookies.set('prev_url', window.location.href, '1d');
             window.location.href = event.target.getAttribute("href");
-        }
+        },
     },
     created() {
         this.initSearchSession({

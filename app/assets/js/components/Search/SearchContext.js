@@ -37,6 +37,9 @@ export default {
         },
         isValidContext() {
             return Object.keys(this.context).length !== 0
+        },
+        navigateToSearchResult(){
+            window.location.href = this.$cookies.get("prev_url");
         }
     },
 }
