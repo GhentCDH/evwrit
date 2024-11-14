@@ -77,17 +77,17 @@
                     </template>
 
                     <template v-slot:title="props">
-                        <a :href="getTextUrl(props.row.id, props.index)">
+                        <a :href="getTextUrl(props.row.id, props.index)" @click="handleLinkClick">
                             {{ props.row.title }}
                         </a>
                     </template>
                     <template v-slot:id="props">
-                        <a :href="getTextUrl(props.row.id, props.index)">
+                        <a :href="getTextUrl(props.row.id, props.index)" @click="handleLinkClick">
                             {{ props.row.id }}
                         </a>
                     </template>
                     <template v-slot:tm_id="props">
-                        <a :href="getTextUrl(props.row.id, props.index)">
+                        <a :href="getTextUrl(props.row.id, props.index)" @click="handleLinkClick">
                             {{ props.row.tm_id }}
                         </a>
                     </template>
@@ -129,6 +129,10 @@ import SearchAppFields from '../components/Search/Config'
 import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
 import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";
 import VtPaginationCount from "vue-tables-2-premium/compiled/components/VtPaginationCount";
+
+import VueCookies from 'vue-cookies'
+
+Vue.use(VueCookies)
 
 Vue.component('fieldRadio', fieldRadio);
 
@@ -208,7 +212,8 @@ export default {
             return columns
         },
     },
-    watch: {},
+    watch: {
+    },
     methods: {
         formatLevelCategory(data) {
             // console.log(data)

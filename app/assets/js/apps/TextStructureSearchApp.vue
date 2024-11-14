@@ -77,17 +77,17 @@
                     </template>
 
                     <template v-slot:title="props">
-                        <a :href="getTextUrl(props.row.text_id, props.index)">
+                        <a :href="getTextUrl(props.row.text_id, props.index)" @click="handleLinkClick">
                             {{ props.row.title }}
                         </a>
                     </template>
                     <template v-slot:text_id="props">
-                        <a :href="getTextUrl(props.row.text_id, props.index)">
+                        <a :href="getTextUrl(props.row.text_id, props.index)" @click="handleLinkClick">
                             {{ props.row.text_id }}
                         </a>
                     </template>
                     <template v-slot:tm_id="props">
-                        <a :href="getTextUrl(props.row.id, props.index)">
+                        <a :href="getTextUrl(props.row.id, props.index)" @click="handleLinkClick">
                             {{ props.row.tm_id }}
                         </a>
                     </template>
