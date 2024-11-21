@@ -3,6 +3,7 @@ import qs from "qs";
 import SearchSession from "./SearchSession";
 import SearchContext from "./SearchContext";
 import CollapsibleGroups from "./CollapsibleGroups";
+import PersistentConfig from "../Shared/PersistentConfig";
 
 export default {
     mixins: [
@@ -18,6 +19,18 @@ export default {
                 params: params,
                 count: data?.count ?? 0
             })
+            // Put annotation ids in search context in a cookie to be able to filter in text view
+            let annotations = [];
+            if (data.data){
+                data.data.forEach(text => {
+                    if (text.annotations){
+                        text.annotations.forEach(annotation => {
+                            annotations.push(annotation.id);
+                        })
+                    }
+                })
+            }
+            this.$cookies.set("search_context_annotations", annotations);
 
             // update local data
             this.aggregation = data.aggregation

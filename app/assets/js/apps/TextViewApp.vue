@@ -736,6 +736,7 @@ export default {
         },
         filterAnnotationsByConfig(annotations) {
             let that = this
+            const search_context_annotations = this.$cookies.get("search_context_annotations");
             return annotations
                 // filter by annotation type
                 .filter( function(annotation) {
@@ -748,6 +749,9 @@ export default {
                 // filter ltsa annotations by ltsa_type
                 .filter( function(annotation) {
                     return annotation.type !== "ltsa" || ( annotation.type === "ltsa" && that.visibleLTSATypes.includes(annotation.properties?.ltsa_type?.name) )
+                })
+                .filter( function(annotation) {
+                    return  !that.config.annotations.showOnlyInSearchContext || search_context_annotations.includes(annotation.id)
                 })
         },
         filterAnnotationsByContext(annotations, context_params) {
