@@ -25,7 +25,6 @@ export default function(cookieName) {
         methods: {
             setCookie(name, value) {
                 this.$cookies.set(name,value,'30d');
-                this.$cookies.set('test', 'test', '1d')
             },
             getCookie(name, defaultValue) {
                 try {
