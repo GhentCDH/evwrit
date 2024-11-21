@@ -3,7 +3,6 @@ import qs from "qs";
 import SearchSession from "./SearchSession";
 import SearchContext from "./SearchContext";
 import CollapsibleGroups from "./CollapsibleGroups";
-import PersistentConfig from "../Shared/PersistentConfig";
 
 export default {
     mixins: [
