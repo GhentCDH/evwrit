@@ -228,7 +228,7 @@ class TextSearchFlagsService
         }
 
 
-        return $query->orderBy($orderBy, $ascending);
+        return $query;
     }
 
     private function mapData($data)
@@ -258,8 +258,13 @@ class TextSearchFlagsService
         $params = $this->sanitizeSearchParameters($config, $request->query->all() ?? []);
 
         $query = $this->buildQuery($filters, $params['orderBy'], $params['sortDir']);
-        $data = $this->mapData($query->offset($params['offset'])->limit($params['limit'])->get());
         $count = $query->count('text.text_id');
+
+        if ($count < $params['offset'] * $params['limit']) {
+            $data = [];
+        } else {
+            $data = $this->mapData($query->offset($params['offset'])->limit($params['limit'])->get());
+        }
 
         return [
             'params' => $params,
