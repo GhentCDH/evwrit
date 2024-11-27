@@ -206,7 +206,7 @@ class TextSearchFlagsService
     {
         $repo = $this->getContainer()->get('text_repository');
 
-        $query = $repo->indexQuery()
+        $query = $repo->defaultQuery()
             ->with([])
             ->join('text__project', 'text__project.text_id', '=', 'text.text_id')
             ->join('level', 'level.text_id', '=', 'text.text_id')
