@@ -86,6 +86,9 @@ class ElasticTextAnnotationsResource extends ElasticBaseResource
             $handshiftAnnotations
         );
 
+        // Add flags
+        $ret['flags'] = new TextFlagsResource($text->flags);
+
         return $ret;
     }
 }
