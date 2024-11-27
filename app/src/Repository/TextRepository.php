@@ -80,6 +80,7 @@ class TextRepository extends AbstractRepository
         'textLevels.communicativeGoals.communicativeGoalType',
         'textLevels.communicativeGoals.communicativeGoalSubtype',
         'textLevels.greekLatins',
+        'flags'
     ];
     protected $model = Text::class;
 

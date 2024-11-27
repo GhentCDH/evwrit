@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use ReflectionException;
 
 /**
@@ -37,7 +38,6 @@ use ReflectionException;
  * @property string $text_lemmas
  * @property string $text_scrubbed
  * @property string $text_edited
-
  * @property string comment
  * @property string note
  * @property string remark
@@ -52,9 +52,7 @@ use ReflectionException;
  * @property bool kollesis_uncertain
  * @property bool tomos_synkollesimos
  * @property bool tomos_synkollesimos_uncertain
-
  * @property string no_known_translation
-
  * @property int $year_begin
  * @property int $year_end
  *
@@ -96,6 +94,7 @@ use ReflectionException;
  * @property GenericTextStructure[] genericTextStructures
  * @property LayoutTextStructure[] layoutTextStructures
  * @property Level[] textLevels
+ * @property TextFlags flags
  *
  * @package App\Model
  */
@@ -418,6 +417,14 @@ class Text extends AbstractModel
     public function textLevels(): HasMany
     {
         return $this->hasMany(Level::class);
+    }
+
+    /**
+     * @return HasOne|TextFlags
+     */
+    public function flags(): HasOne
+    {
+        return $this->hasOne(TextFlags::class);
     }
 
 }
