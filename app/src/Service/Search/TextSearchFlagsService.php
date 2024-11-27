@@ -175,7 +175,6 @@ class TextSearchFlagsService
                     $result[] = [
                         'id' => $config['id'],
                         'field' => $field,
-                        'orig_value' => $value,
                         'value' => $mappedValue,
                         'where' => $where
                     ];
@@ -261,11 +260,10 @@ class TextSearchFlagsService
         $query = $this->buildQuery($filters, $params['orderBy'], $params['sortDir']);
         $data = $this->mapData($query->offset($params['offset'])->limit($params['limit'])->get());
         $count = $query->count('text.text_id');
-        
+
         return [
             'params' => $params,
             'filters' => $filters,
-            'query' => $query->toSql(),
             'data' => $data,
             'count' => $count
         ];
