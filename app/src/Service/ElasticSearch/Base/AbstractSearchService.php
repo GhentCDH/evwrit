@@ -90,6 +90,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 }
             }
         }
+
+        dump($filters);
         return $filters;
     }
 
@@ -231,6 +233,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $ret['value'] = $filterValue;
                 }
                 if (is_string($filterValue) && $filterValue !== '') {
+                    dump($filterName);
+                    dump($params);
                     $combination = $params[$filterName . '_combination'] ?? 'any';
                     $combination = in_array($combination, ['any', 'all', 'phrase'], true) ? $combination : 'any';
 
@@ -854,8 +858,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         // Remove colons
         $text = str_replace(':', '', $text);
 
+
         // Check if user does not use advanced syntax
         if (preg_match('/AND|OR|[\/~\-"()]/', $text) === 0) {
+            $text = trim($text);
             if ($value['combination'] == 'phrase') {
                 if (preg_match('/[*?]/', $text) === 0) {
                     $text = '"' . $text . '"';
@@ -924,7 +930,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $query->setTrackTotalHits();
 
         // Filtering
-//        dump($params);
+//        dump($params['filters']);
         $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
         if (count($searchFilters)) {
             $this->debug && dump($searchFilters);

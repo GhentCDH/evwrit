@@ -35,6 +35,18 @@ export default {
                         model: 'title',
                     },
                     {
+                        type: 'radio',
+                        styleClasses: 'field-checkboxes-labels-only field-checkboxes-lg',
+                        label: 'Word combination options:',
+                        model: 'title_combination',
+                        parentModel: 'title',
+                        values: [
+                            { value: 'all', name: 'all', toggleGroup: 'all_any_phrase' },
+                            { value: 'any', name: 'any', toggleGroup: 'all_any_phrase' },
+                            { value: 'phrase', name: 'consecutive words', toggleGroup: 'all_any_phrase' },
+                        ],
+                    },
+                    {
                         type: 'input',
                         inputType: 'text',
                         label: 'Text ID',
