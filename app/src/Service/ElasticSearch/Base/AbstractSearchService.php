@@ -72,6 +72,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // Validate values
         $filterConfigs = $this->getSearchConfig();
+        $this->debug && dump($filterConfigs);
 
         foreach ($filterConfigs as $filterName => $filterConfig) {
             // filter has subfilters?
@@ -90,8 +91,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 }
             }
         }
-
-        dump($filters);
         return $filters;
     }
 
@@ -233,8 +232,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $ret['value'] = $filterValue;
                 }
                 if (is_string($filterValue) && $filterValue !== '') {
-                    dump($filterName);
-                    dump($params);
+                    $this->debug && dump($filterName);
+                    $this->debug && dump($params);
                     $combination = $params[$filterName . '_combination'] ?? 'any';
                     $combination = in_array($combination, ['any', 'all', 'phrase'], true) ? $combination : 'any';
 
