@@ -234,8 +234,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 if (is_string($filterValue) && $filterValue !== '') {
                     $this->debug && dump($filterName);
                     $this->debug && dump($params);
-                    $combination = $params[$filterName . '_combination'] ?? 'any';
-                    $combination = in_array($combination, ['any', 'all', 'phrase'], true) ? $combination : 'any';
+                    $combinationField = $filterConfig['combinationField'];
+                    $combinationOptions = $filterConfig['combinationOptions'] ?? ['any'];
+                    $combination = $params[$combinationField] ?? 'any';
+                    $combination = in_array($combination, $combinationOptions, true) ? $combination : 'any';
 
                     $ret['value'] = [
                         'text' => $filterValue,

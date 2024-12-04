@@ -41,8 +41,8 @@ export default {
                         model: 'title_combination',
                         parentModel: 'title',
                         values: [
-                            { value: 'all', name: 'all', toggleGroup: 'all_any_phrase' },
                             { value: 'any', name: 'any', toggleGroup: 'all_any_phrase' },
+                            { value: 'all', name: 'all', toggleGroup: 'all_any_phrase' },
                             { value: 'phrase', name: 'consecutive words', toggleGroup: 'all_any_phrase' },
                         ],
                     },

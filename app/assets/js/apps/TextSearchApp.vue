@@ -152,7 +152,7 @@ export default {
         let data = {
             model: {
                 date_search_type: 'exact',
-                title_combination: 'all',
+                title_combination: 'any',
             },
             persons: null,
             schema: {
