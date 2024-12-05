@@ -175,6 +175,7 @@ export default {
             },
             model: {
                 date_search_type: 'exact',
+                title_combination: 'any',
             },
             schema: {
                 groups: [
