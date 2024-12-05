@@ -174,7 +174,7 @@
                     <PropertyGroup>
                         <LabelValue label="Lines" :value="arrayToRange(text.lines)"  type="range"></LabelValue>
                         <LabelValue label="Lines (calculated)" :value="text.count_lines_auto"></LabelValue>
-                        <LabelValue label="Columns" :value="arrayToRange(text.columns)"  type="range"></LabelValue>
+                        <LabelValue label="Columns" :value="minMaxToRange(text.columns)"  type="range"></LabelValue>
                         <LabelValue label="Letters per line" :value="arrayToRange(text.letters_per_line)" type="range"></LabelValue>
                         <LabelValue label="Letters per line (calculated)" :value="text.letters_per_line_auto"></LabelValue>
                         <LabelValue label="Interlinear space" :value="text.interlinear_space" ></LabelValue>
@@ -421,18 +421,18 @@ export default {
                     show: true,
                 },
                 annotations: {
-                    show: true,
+                    show: false,
                     showList: false,
                     showOnlyInSearchContext: true,
                     showDetails: true,
                     showContext: true,
-                    showTypography: true,
-                    showLanguage: true,
-                    showOrthography: true,
-                    showMorphology: true,
-                    showLexis: true,
-                    showMorphoSyntactical: true,
-                    showHandshift: true,
+                    showTypography: false,
+                    showLanguage: false,
+                    showOrthography: false,
+                    showMorphology: false,
+                    showLexis: false,
+                    showMorphoSyntactical: false,
+                    showHandshift: false,
                 },
                 genericTextStructure: {
                     show: false,
@@ -502,17 +502,21 @@ export default {
             return links
         },
         people: function() {
-            return this.text.ancient_person.filter(
-                person => person?.role && person?.role.length // && !['Unknown','unknown'].includes(person.role)
-            ).sort((person1, person2) => {
-                const order = {
-                    "initiator": 0,
-                    "receiver": 1,
-                }
-                const role1 = person1.role[0]?.name;
-                const role2 = person2.role[0]?.name;
-                return (role1 in order ? order[role1] : 3) - (role2 in order ? order[role2] : 3);
-            });
+            if (this.text.ancient_person) {
+                return this.text.ancient_person.filter(
+                    person => person?.role && person?.role.length // && !['Unknown','unknown'].includes(person.role)
+                ).sort((person1, person2) => {
+                    const order = {
+                        "initiator": 0,
+                        "receiver": 1,
+                    }
+                    const role1 = person1.role[0]?.name;
+                    const role2 = person2.role[0]?.name;
+                    return (role1 in order ? order[role1] : 3) - (role2 in order ? order[role2] : 3);
+                });
+            }
+            return [];
+
         },
         annotationsByTypeId() {
             let result = []
@@ -959,6 +963,12 @@ export default {
         arrayToRange(value) {
             if ( value ) {
                 return {start: value[0], end: value[1]}
+            }
+            return null;
+        },
+        minMaxToRange(value) {
+            if ( value ) {
+                return {start: value.min, end: value.max}
             }
             return null;
         },
