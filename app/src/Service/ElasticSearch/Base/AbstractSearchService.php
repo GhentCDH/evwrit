@@ -871,10 +871,16 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 }
             } elseif ($value['combination'] == 'all') {
                 $text = implode(' AND ', explode(' ', $text));
+            } elseif ($value['combination'] == 'any') {
+                $text = explode(' ', $text);
+                $text = array_map(function($word) {
+                    return "($word)";
+                }, $text);
+                $text = implode(' OR ', $text);
             }
         }
-
-        return (new Query\QueryString($text))->setDefaultField($field);
+        dump($text);
+        return (new Query\QueryString($text))->setDefaultField($field)->setAnalyzer("standard");
     }
 
     public function searchAndAggregate(array $params): array

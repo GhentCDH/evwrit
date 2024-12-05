@@ -77,6 +77,9 @@ class Analysis
                     'lowercase',
                 ],
             ],
+            'custom_ngram_analyzer' => [
+                'tokenizer' => 'custom_ngram_tokenizer',
+            ],
         ],
         'normalizer' => [
             'case_insensitive' => [
@@ -100,5 +103,13 @@ class Analysis
                 ],
             ],
         ],
+        'tokenizer' => [
+            'custom_ngram_tokenizer' => [
+                'type' => 'edge_ngram',
+                'min_gram' => 1,
+                'max_gram' => 5,
+                'token_chars' => ['letter', 'digit']
+            ]
+        ]
     ];
 }

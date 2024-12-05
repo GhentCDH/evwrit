@@ -23,6 +23,7 @@ class TextIndexService extends AbstractIndexService
                         'ignore_above' => 256,
                     ],
                 ],
+                'analyzer' => 'custom_ngram_analyzer',
             ],
             'text' => [
                 'type' => 'text',
