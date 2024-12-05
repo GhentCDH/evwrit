@@ -266,8 +266,8 @@ export default {
                     this.createMultiSelect('Transversa charta', {model: 'is_transversa_charta'}),
                     this.createMultiSelect('Tomos Synkollesimos', {model: 'tomos_synkollesimos'}),
 
-                    this.createMultiSelect('Preservation status W', {model: 'preservation_status_w'}),
-                    this.createMultiSelect('Preservation status H', {model: 'preservation_status_h'}),
+                    this.createMultiSelect('Preservation status Width', {model: 'preservation_status_w'}),
+                    this.createMultiSelect('Preservation status Height', {model: 'preservation_status_h'}),
 
                     this.createMultiSelect('Number of Kollemata', {model: 'kollemata_count'}),
                     this.createRangeSlider('kollemata', 'Kollemata', 0, 50, 0.1),
