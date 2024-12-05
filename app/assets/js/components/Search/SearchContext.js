@@ -39,7 +39,12 @@ export default {
             return Object.keys(this.context).length !== 0
         },
         navigateToSearchResult(){
-            window.location.href = this.$cookies.get("prev_url");
+            const { pathname, search, hash } = window.location;
+            console.log(`${pathname}${search}${hash}`)
+            console.log(`${window.location.href}_prev_url`)
+            console.log(this.$cookies.get(`${window.location.href}_prev_url`));
+            console.log(this.$cookies.keys());
+            window.location.href = this.$cookies.get(`${pathname}${search}${hash}_prev_url`);
         }
     },
 }
