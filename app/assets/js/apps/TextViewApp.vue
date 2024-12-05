@@ -469,6 +469,29 @@ export default {
             imageIndex: null,
             openRequests: false,
             indexNumberInputValue: null,
+            peopleOrder: {
+                2: 10,
+                1: 20,
+                3: 30,
+                10: 60,
+                9: 100,
+                11: 100,
+                12: 100,
+                13: 60,
+                15: 100,
+                16: 100,
+                17: 100,
+                18: 100,
+                4: 80,
+                25: 100,
+                26: 100,
+                27: 90,
+                5: 70,
+                6: 50,
+                7: 40,
+                8: 100,
+                14: 150
+            }
         }
         return data
     },
@@ -506,13 +529,9 @@ export default {
                 return this.text.ancient_person.filter(
                     person => person?.role && person?.role.length // && !['Unknown','unknown'].includes(person.role)
                 ).sort((person1, person2) => {
-                    const order = {
-                        "initiator": 0,
-                        "receiver": 1,
-                    }
-                    const role1 = person1.role[0]?.name;
-                    const role2 = person2.role[0]?.name;
-                    return (role1 in order ? order[role1] : 3) - (role2 in order ? order[role2] : 3);
+                    const role1 = person1.role[0]?.id;
+                    const role2 = person2.role[0]?.id;
+                    return (role1 in this.peopleOrder ? this.peopleOrder[role1] : 200) - (role2 in this.peopleOrder ? this.peopleOrder[role2] : 200);
                 });
             }
             return [];
