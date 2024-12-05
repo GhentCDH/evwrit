@@ -502,9 +502,13 @@ export default {
             return links
         },
         people: function() {
-            return this.text.ancient_person.filter(
-                person => person?.role && person?.role.length // && !['Unknown','unknown'].includes(person.role)
-            )
+            if (this.text.ancient_person) {
+                return this.text.ancient_person.filter(
+                    person => person?.role && person?.role.length // && !['Unknown','unknown'].includes(person.role)
+                )
+            }
+            return [];
+
         },
         annotationsByTypeId() {
             let result = []
