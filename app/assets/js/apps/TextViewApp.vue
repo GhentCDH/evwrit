@@ -742,7 +742,8 @@ export default {
         },
         filterAnnotationsByConfig(annotations) {
             let that = this
-            const search_context_annotations = this.$cookies.get("search_context_annotations");
+            const { pathname, search, hash } = window.location;
+            const search_context_annotations = this.$cookies.get(`${pathname}${search}${hash}_search_context_annotations`);
             return annotations
                 // filter by annotation type
                 .filter( function(annotation) {

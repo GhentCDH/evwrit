@@ -29,7 +29,7 @@ export default {
                     }
                 })
             }
-            this.$cookies.set("search_context_annotations", annotations);
+            this.$cookies.set(`${window.location.pathname}_${window.location.search}_search_context_annotations`, annotations);
 
             // update local data
             this.aggregation = data.aggregation
@@ -62,6 +62,9 @@ export default {
             event.preventDefault();
             if (event.button === 0 || event.button === 1){
                 this.$cookies.set(`${event.target.getAttribute("href")}_prev_url`, window.location.href, '1d');
+                const searchContextAnnotations = this.$cookies.get(`${window.location.pathname}_${window.location.search}_search_context_annotations`);
+                this.$cookies.set(`${event.target.getAttribute("href")}_search_context_annotations`, searchContextAnnotations, '1d');
+                this.$cookies.remove(`${window.location.pathname}_${window.location.search}_search_context_annotations`)
             }
         },
     },
