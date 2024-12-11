@@ -58,6 +58,12 @@ export default {
 
             return params;
         },
+        handleLinkClick(event){
+            event.preventDefault();
+            if (event.button === 0 || event.button === 1){
+                this.$cookies.set(`${event.target.getAttribute("href")}_prev_url`, window.location.href, '1d');
+            }
+        },
     },
     created() {
         this.initSearchSession({

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Helper\StreamedCsvResponse;
 use App\Repository\TextRepository;
 use App\Resource\ElasticTextAnnotationsResource;
+use App\Resource\TextSearchFlagsResource;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -22,6 +23,7 @@ class TextController extends BaseController
 
     protected const searchServiceName = "text_basic_search_service";
     protected const indexServiceName = "text_index_service";
+    protected const searchFlagServiceName = "text_search_flags_service";
 
     /**
      * @Route("/text", name="text", methods={"GET"})
@@ -63,6 +65,36 @@ class TextController extends BaseController
         Request $request
     ) {
         return $this->_search_api($request);
+    }
+
+    /**
+     * @Route("/text/search_flags/filters", name="text_search_flags_filters", methods={"GET"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function search_flags_filters(
+        Request $request
+    )
+    {
+        $search_service = $this->getContainer()->get(static::searchFlagServiceName);
+        $data = $search_service->filters($request);
+
+        return new JsonResponse($data);
+    }
+
+    /**
+     * @Route("/text/search_flags", name="text_search_flags", methods={"GET"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function search_flags(
+        Request $request
+    )
+    {
+        $search_service = $this->getContainer()->get(static::searchFlagServiceName);
+        $data = $search_service->search($request);
+
+        return new JsonResponse($data);
     }
 
     /**
@@ -197,6 +229,7 @@ class TextController extends BaseController
             'layoutTextStructureAnnotations',
             'layoutTextStructureAnnotations.textSelection',
             'layoutTextStructureAnnotations.override',
+            'flags',
         ];
 
         /** @var TextRepository $repo */
@@ -215,6 +248,45 @@ class TextController extends BaseController
                 ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
                 Response::HTTP_NOT_FOUND
             );
+        }
+    }
+
+    /**
+     * @Route("/text/{id}/flags", name="text_flags_update", methods={"PATCH"})
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse|Response
+     */
+    public function patchTextFlags(string $id, Request $request): JsonResponse
+    {
+
+        // get morphMap
+        $morphMap = Relation::morphMap();
+
+        $flags = json_decode($request->getContent(), true);
+
+
+        if (!isset($flags['needs_attention'], $flags['review_done'])) {
+            return $this->jsonFail('Missing required properties', $flags);
+        }
+
+
+        // insert/update flags
+
+        try {
+            $repo = $this->getContainer()->get('text_repository');
+            $record = $repo->find($id, ['flags']);
+
+
+            if (!$record) {
+                return $this->jsonFail("Text not found", $id);
+            }
+
+            $record->flags()->updateOrCreate(['text_id' => $id], $flags);
+
+            return $this->jsonSuccess('Annotation override successful', $flags);
+        } catch (Throwable $e) {
+            return $this->jsonError($e->getMessage(), $id, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

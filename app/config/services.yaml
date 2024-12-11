@@ -96,6 +96,25 @@ services:
         public: true
     App\Repository\LevelRepository: '@level_repository'
 
+    era_repository:
+        class: App\Repository\EraRepository
+        arguments: [ ]
+        public: true
+    App\Repository\EraRepository: '@era_repository'
+
+
+    project_repository:
+        class: App\Repository\ProjectRepository
+        arguments: [ ]
+        public: true
+    App\Repository\ProjectRepository: '@project_repository'
+
+    level_category_category_repository:
+        class: App\Repository\LevelCategoryCategoryRepository
+        arguments: [ ]
+        public: true
+    App\Repository\LevelCategoryCategoryRepository: '@level_category_category_repository'
+
     language_annotation_repository:
         class: App\Repository\LanguageAnnotationRepository
         arguments: []
@@ -113,3 +132,8 @@ services:
 #        arguments: []
 #        public: true
 #    App\Service\ElasticSearch\Search\Configs: '@search_configurations'
+
+    text_search_flags_service:
+        class: App\Service\Search\TextSearchFlagsService
+        arguments: [ ]
+        public: true
