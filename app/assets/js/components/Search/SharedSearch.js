@@ -47,15 +47,9 @@ export default {
             return params;
         },
         handleLinkClick(event){
+            event.preventDefault();
             if (event.button === 0 || event.button === 1){
-                event.preventDefault();
                 this.$cookies.set(`${event.target.getAttribute("href")}_prev_url`, window.location.href, '1d');
-                if (event.button === 0){
-                    window.open(event.target.getAttribute("href"));
-                } else {
-                    window.open(event.target.getAttribute("href"), '_blank');
-                }
-
             }
         },
     },
