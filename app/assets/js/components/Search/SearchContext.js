@@ -40,7 +40,10 @@ export default {
         },
         navigateToSearchResult(){
             const { pathname, search, hash } = window.location;
-            window.location.href = this.$cookies.get(`${pathname}${search}${hash}_prev_url`);
+            const prev_url = this.$cookies.get(`${pathname}${search}${hash}_prev_url`);
+            this.$cookies.remove(`${pathname}${search}${hash}_prev_url`);
+            this.$cookies.remove(`${pathname}${search}${hash}_search_context_annotations`);
+            window.location.href = prev_url;
         }
     },
 }
