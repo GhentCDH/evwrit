@@ -11,11 +11,7 @@ The search and edit pages consist of Vue.js applications.
 
 Read the [Important Notes](#important-notes) thoroughly before starting!
 
-First, create a `./app/.env.dev` file based on the `example.env` file. Update the variables in the `.env.dev` file to the desired values. Additionally, update the PGAdmin variables in `pgadmin.env` to the desired login credentials.
-
-```sh
-cp example.env ./app/.env.dev
-```
+First, check that `.env` contains the correct default configuration (see `example.env`). Additionally, update the PGAdmin variables in `pgadmin.env` to the desired login credentials.
 
 Next, make sure ssh-agent is running on your machine and exposes the correct key. To add a key run `ssh-add ~/.ssh/id_rsa`. To check the keys exposed by ssh-agent, run `ssh-add -l`.
 
