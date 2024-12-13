@@ -45,7 +45,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: prod
-      ssh: 
+      ssh:
         - default
     env_file:
       - .env.prod

@@ -12,8 +12,8 @@ done
 # install backend dependencies
 echo "Installing backend dependencies"
 composer install
-echo "Dumping environment variables to .env.local.php"
-composer dump-env dev
+#echo "Dumping environment variables to .env.local.php"
+#composer dump-env dev
 
 # clear cache
 echo "Clearing cache..."

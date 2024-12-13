@@ -49,7 +49,7 @@ services:
       dockerfile: Dockerfile
       target: dev
     env_file:
-      - ./app/.env.dev
+      - .env
     ports:
       - "8080:8000"
     volumes:
