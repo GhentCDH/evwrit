@@ -93,17 +93,15 @@ RUN mkdir -p -m 0600 ~/.ssh && \
     ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 COPY ./app /app
-COPY .env.prod /app/
 RUN --mount=type=ssh \
-    composer install && \
-    composer dump-env prod
+    composer install --no-scripts --no-dev
 
 # ----------------------------------------------------------
 # PRODUCTION
 # ----------------------------------------------------------
 
 FROM webdevops/php-apache:${PHP_VERSION} AS prod
-USER application
+# USER application
 
 COPY --from=symfony-prod --chown=1000:1000 /app /app
 COPY --from=node-prod --chown=1000:1000 /app/public/build /app/public/build
