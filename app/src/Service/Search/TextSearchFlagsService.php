@@ -47,10 +47,10 @@ class TextSearchFlagsService
 
         // Pagination
         if (isset($params['limit']) && is_numeric($params['limit'])) {
-            $result['limit'] = $params['limit'];
+            $result['limit'] = (int)$params['limit'];
         }
         if (isset($params['page']) && is_numeric($params['page'])) {
-            $result['page'] = $params['page'];
+            $result['page'] = (int)$params['page'];
         }
 
         $result['orderBy'] = $this->getOrderBy($params);
@@ -260,7 +260,7 @@ class TextSearchFlagsService
         $query = $this->buildQuery($filters, $params['orderBy'], $params['sortDir']);
         $count = $query->count('text.text_id');
 
-        if ($count < $params['offset'] * $params['limit']) {
+        if ($count < $params['offset']) {
             $data = [];
         } else {
             $data = $this->mapData($query->offset($params['offset'])->limit($params['limit'])->get());
