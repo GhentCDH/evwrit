@@ -72,6 +72,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // Validate values
         $filterConfigs = $this->getSearchConfig();
+        $this->debug && dump($filterConfigs);
 
         foreach ($filterConfigs as $filterName => $filterConfig) {
             // filter has subfilters?
@@ -231,8 +232,12 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $ret['value'] = $filterValue;
                 }
                 if (is_string($filterValue) && $filterValue !== '') {
-                    $combination = $params[$filterName . '_combination'] ?? 'any';
-                    $combination = in_array($combination, ['any', 'all', 'phrase'], true) ? $combination : 'any';
+                    $this->debug && dump($filterName);
+                    $this->debug && dump($params);
+                    $combinationField = $filterConfig['combinationField'];
+                    $combinationOptions = $filterConfig['combinationOptions'] ?? ['any'];
+                    $combination = $params[$combinationField] ?? 'any';
+                    $combination = in_array($combination, $combinationOptions, true) ? $combination : 'any';
 
                     $ret['value'] = [
                         'text' => $filterValue,
@@ -854,8 +859,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         // Remove colons
         $text = str_replace(':', '', $text);
 
+
         // Check if user does not use advanced syntax
         if (preg_match('/AND|OR|[\/~\-"()]/', $text) === 0) {
+            $text = trim($text);
             if ($value['combination'] == 'phrase') {
                 if (preg_match('/[*?]/', $text) === 0) {
                     $text = '"' . $text . '"';
@@ -864,10 +871,16 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 }
             } elseif ($value['combination'] == 'all') {
                 $text = implode(' AND ', explode(' ', $text));
+            } elseif ($value['combination'] == 'any') {
+                $text = explode(' ', $text);
+                $text = array_map(function($word) {
+                    return "($word)";
+                }, $text);
+                $text = implode(' OR ', $text);
             }
         }
-
-        return (new Query\QueryString($text))->setDefaultField($field);
+        dump($field);
+        return (new Query\QueryString($text))->setDefaultField($field)->setAnalyzer("standard");
     }
 
     public function searchAndAggregate(array $params): array
@@ -924,7 +937,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $query->setTrackTotalHits();
 
         // Filtering
-//        dump($params);
+//        dump($params['filters']);
         $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
         if (count($searchFilters)) {
             $this->debug && dump($searchFilters);

@@ -74,6 +74,8 @@ class Configs implements SearchConfigInterface
 //                'type' => self::FILTER_KEYWORD,
 //                'field' => 'title.keyword'
                 'type' => self::FILTER_TEXT,
+                'combinationField' => 'title_combination',
+                'combinationOptions' => ['any', 'all', 'phrase'],
             ],
             'text' => ['type' => self::FILTER_TEXT],
             'text_lemmas' => ['type' => self::FILTER_TEXT],
