@@ -259,6 +259,10 @@ export default {
                     else {
                         this.enableField(field)
                     }
+                } else if (field.type === 'customNoUiSlider'){
+                    field.min = 1;
+                    field.max = 420;
+
                 }
             }
 
@@ -343,6 +347,7 @@ export default {
         },
     },
     requestFunction (data) {
+        // console.log("req function")
         // Remove unused parameters
         delete data['query']
         delete data['byColumn']

@@ -58,6 +58,8 @@ export default {
                 model: model,
                 min: min,
                 max: max,
+                minInvalid: RANGE_MIN_INVALID,
+                maxInvalid: RANGE_MAX_INVALID,
                 noUiSliderOptions: {
                     connect: true,
                     range: {
