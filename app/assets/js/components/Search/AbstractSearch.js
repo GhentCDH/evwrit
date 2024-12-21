@@ -43,6 +43,7 @@ export default {
             default: null
         }
     },
+
     data () {
         return {
             urls: JSON.parse(this.initUrls),
@@ -71,6 +72,60 @@ export default {
             aggregation: {},
             lastOrder: null,
             countRecords: '',
+            aggregation_min_max_fields: {
+                "kollemata": {
+                    min: "kollemata",
+                    max: "kollemata"
+                },
+                "kollesis": {
+                    min: "kollesis",
+                    max: "kollesis"
+                },
+                "lines": {
+                    min: "lines_min",
+                    max: "lines_max"
+                },
+                "columns": {
+                    min: "columns_min",
+                    max: "columns_max"
+                },
+                "letters_per_line": {
+                    min: "letters_per_line_min",
+                    max: "letters_per_line_max"
+                },
+                "width": {
+                    min: "width",
+                    max: "width"
+                },
+                "height": {
+                    min: "height",
+                    max: "height"
+                },
+                "interlinear_space": {
+                    min: "interlinear_space",
+                    max: "interlinear_space"
+                },
+                "line_height": {
+                    min: "line_height",
+                    max: "line_height"
+                },
+                "margin_left": {
+                    min: "margin_left",
+                    max: "margin_left"
+                },
+                "margin_right": {
+                    min: "margin_right",
+                    max: "margin_right"
+                },
+                "margin_top": {
+                    min: "margin_top",
+                    max: "margin_top"
+                },
+                "margin_bottom": {
+                    min: "margin_bottom",
+                    max: "margin_bottom"
+                },
+            },
         }
     },
     computed: {
@@ -260,8 +315,19 @@ export default {
                         this.enableField(field)
                     }
                 } else if (field.type === 'customNoUiSlider'){
-                    field.min = 1;
-                    field.max = 420;
+                    console.log(this.aggregation_min_max_fields[field.model])
+                    console.log(data.data.aggregation)
+                    if (data.data.aggregation){
+                        let min = data.data.aggregation[this.aggregation_min_max_fields[field.model].min].min;
+                        let max = data.data.aggregation[this.aggregation_min_max_fields[field.model].max].max;
+                        if (min){
+                            field.min = min;
+                        }
+                        if (max){
+                            field.max = max;
+                        }
+                    }
+
 
                 }
             }
