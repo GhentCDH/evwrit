@@ -973,6 +973,7 @@ export default {
         },
 
         loadTextByIndex(index) {
+            const oldHash = window.location.hash;
             let that = this;
             if ( !this.resultSet.count ) return;
 
@@ -986,6 +987,9 @@ export default {
                     that.context.searchIndex = newIndex
                     // update state
                     window.history.replaceState({}, '', that.getTextUrl(id));
+                    const newHash = window.location.hash;
+                    that.updateHashCookie(`${oldHash}_prev_url`, `${newHash}_prev_url`);
+
                     // bind events
                     that.bindEvents();
                     // update input field value
