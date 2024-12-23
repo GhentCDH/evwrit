@@ -280,7 +280,7 @@ export default {
                     this.createRangeSlider('height', 'Height', 0, 300, 0.01, 2),
 
                     this.createRangeSlider('interlinear_space','Interlinear space',0,22,0.01, 2),
-                    this.createRangeSlider('line_height','Line height',0, 5, 0.01, 2),
+                    this.createRangeSlider('line_height','Line height',0, 1, 0.01, 2),
 
                     this.createRangeSlider('margin_left','Margin Left',0,410,0.01, 2),
                     this.createRangeSlider('margin_right','Margin Right',0,410,0.01, 2),

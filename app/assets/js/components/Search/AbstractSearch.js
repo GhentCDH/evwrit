@@ -316,10 +316,18 @@ export default {
                         let min = this.aggregation[this.aggregation_min_max_fields[field.model].min].min;
                         let max = this.aggregation[this.aggregation_min_max_fields[field.model].max].max;
                         if (min != null && max != null){ //keep default values if no min and max in data
-                            if (min > 0){ // some wiggle-room
+                            // some wiggle-room
+                            if (min > 0){
                                 min -= field.step;
                             }
                             max += field.step;
+
+                            // round min and max to the step size
+                            if (field.step < 1){
+                                min = Math.floor(min * field.step**-1)/(field.step**-1);
+                                max = Math.ceil(max * field.step**-1)/(field.step**-1);
+                            }
+
                             field.min = min;
                             field.max = max;
                         }
