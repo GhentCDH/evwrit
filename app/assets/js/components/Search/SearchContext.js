@@ -37,6 +37,22 @@ export default {
         },
         isValidContext() {
             return Object.keys(this.context).length !== 0
+        },
+        navigateToSearchResult(){
+            try {
+                const hash = window.location.hash;
+                const prev_url = this.$cookies.get(`${hash}_prev_url`);
+                if (prev_url){
+                    window.location.href = prev_url;
+                }
+            } catch(e){
+                console.error(e);
+            }
+        },
+        updateHashCookie(oldKey, newKey){
+            const value = this.$cookies.get(oldKey);
+            this.$cookies.remove(oldKey);
+            this.$cookies.set(newKey, value);
         }
     },
 }
