@@ -25,7 +25,7 @@ export default {
         min: function(val) {
             this.slider.noUiSlider.updateOptions({
                 range: {
-                    'min': [this.schema.minInvalid,1],
+                    'min': [this.schema.minInvalid,val-this.schema.minInvalid],
                     '10%': [val,this.schema.step],
                     '90%': [this.max,this.schema.maxInvalid],
                     'max': [this.schema.maxInvalid]
@@ -35,7 +35,7 @@ export default {
         max: function(val) {
             this.slider.noUiSlider.updateOptions({
                 range: {
-                    'min': [this.schema.minInvalid,1],
+                    'min': [this.schema.minInvalid,this.min-this.schema.minInvalid],
                     '10%': [this.min,this.schema.step],
                     '90%': [val,this.schema.maxInvalid],
                     'max': [this.schema.maxInvalid]
