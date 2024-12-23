@@ -9,7 +9,8 @@
         </CoolLightBox>
         <article class="col-sm-9">
             <div class="scrollable scrollable--vertical">
-                <div class="mbottom-small"> 
+                <div class="mbottom-small">
+                    <span class="btn btn-sm btn-primary" @click="navigateToSearchResult">&lt; Return to list</span>
                     <h1 class="inline_title">{{ text.title }}</h1>
                     <h5 class="padding-20 inline_title">{{text.id ? 'EVWRIT ID:' + text.id : ''}} {{text.id && text.tm_id ? '—' : ''}} {{text.tm_id ? 'TM ID:' + text.tm_id : ''}}</h5>
                 </div>
@@ -380,6 +381,7 @@ import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 
 import axios from 'axios'
 import qs from 'qs'
+import SharedSearch from "../components/Search/SharedSearch";
 
 export default {
     name: "TextViewApp",
@@ -740,6 +742,8 @@ export default {
         },
         filterAnnotationsByConfig(annotations) {
             let that = this
+            const hash = window.location.hash;
+            const search_context_annotations = this.$cookies.get(`${hash}_search_context_annotations`);
             return annotations
                 // filter by annotation type
                 .filter( function(annotation) {
@@ -752,6 +756,9 @@ export default {
                 // filter ltsa annotations by ltsa_type
                 .filter( function(annotation) {
                     return annotation.type !== "ltsa" || ( annotation.type === "ltsa" && that.visibleLTSATypes.includes(annotation.properties?.ltsa_type?.name) )
+                })
+                .filter( function(annotation) {
+                    return  !that.config.annotations.showOnlyInSearchContext || search_context_annotations.includes(annotation.id)
                 })
         },
         filterAnnotationsByContext(annotations, context_params) {
@@ -966,6 +973,7 @@ export default {
         },
 
         loadTextByIndex(index) {
+            const oldHash = window.location.hash;
             let that = this;
             if ( !this.resultSet.count ) return;
 
@@ -979,6 +987,9 @@ export default {
                     that.context.searchIndex = newIndex
                     // update state
                     window.history.replaceState({}, '', that.getTextUrl(id));
+                    const newHash = window.location.hash;
+                    that.updateHashCookie(oldHash, newHash);
+
                     // bind events
                     that.bindEvents();
                     // update input field value
