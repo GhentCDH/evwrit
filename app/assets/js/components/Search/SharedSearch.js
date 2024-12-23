@@ -49,7 +49,10 @@ export default {
         handleLinkClick(event){
             event.preventDefault();
             if (event.button === 0 || event.button === 1){
-                this.$cookies.set(`${event.target.getAttribute("href")}_prev_url`, window.location.href, '1d');
+                const href = event.target.getAttribute("href");
+                const url = new URL(href, window.location.origin);
+                const hash = url.hash;
+                this.$cookies.set(`${hash}_prev_url`, window.location.href, '1d');
             }
         },
     },
