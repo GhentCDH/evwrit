@@ -7,60 +7,6 @@ const RANGE_MIN_INVALID = -1
 const RANGE_MAX_INVALID = 10000
 
 export default {
-    aggregation_min_max_fields: {
-        "kollemata": {
-            min: "kollemata",
-            max: "kollemata"
-        },
-        "kollesis": {
-            min: "kollesis",
-            max: "kollesis"
-        },
-        "lines": {
-            min: "lines_min",
-            max: "lines_max"
-        },
-        "columns": {
-            min: "columns_min",
-            max: "columns_max"
-        },
-        "letters_per_line": {
-            min: "letters_per_line_min",
-            max: "letters_per_line_max"
-        },
-        "width": {
-            min: "width",
-            max: "width"
-        },
-        "height": {
-            min: "height",
-            max: "height"
-        },
-        "interlinear_space": {
-            min: "interlinear_space",
-            max: "interlinear_space"
-        },
-        "line_height": {
-            min: "line_height",
-            max: "line_height"
-        },
-        "margin_left": {
-            min: "margin_left",
-            max: "margin_left"
-        },
-        "margin_right": {
-            min: "margin_right",
-            max: "margin_right"
-        },
-        "margin_top": {
-            min: "margin_top",
-            max: "margin_top"
-        },
-        "margin_bottom": {
-            min: "margin_bottom",
-            max: "margin_bottom"
-        },
-    },
     methods: {
         createSelect(label, extra = null, extraSelectOptions = null) {
             let result = {
