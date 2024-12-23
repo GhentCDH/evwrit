@@ -52,9 +52,13 @@ export default {
             }
         },
         updateHashCookie(oldKey, newKey){
-            const value = this.$cookies.get(oldKey);
-            this.$cookies.remove(oldKey);
-            this.$cookies.set(newKey, value);
+            let value = this.$cookies.get(`${oldKey}_prev_url`);
+            this.$cookies.remove(`${oldKey}_prev_url`);
+            this.$cookies.set(`${newKey}_prev_url`, value);
+
+            value = this.$cookies.get(`${oldKey}_search_context_annotations`);
+            this.$cookies.remove(`${oldKey}_search_context_annotations`);
+            this.$cookies.set(`${newKey}_search_context_annotations`, value);
         }
     },
 }
