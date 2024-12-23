@@ -742,8 +742,8 @@ export default {
         },
         filterAnnotationsByConfig(annotations) {
             let that = this
-            const { pathname, search, hash } = window.location;
-            const search_context_annotations = this.$cookies.get(`${pathname}${search}${hash}_search_context_annotations`);
+            const hash = window.location.hash;
+            const search_context_annotations = this.$cookies.get(`${hash}_search_context_annotations`);
             return annotations
                 // filter by annotation type
                 .filter( function(annotation) {
@@ -973,6 +973,7 @@ export default {
         },
 
         loadTextByIndex(index) {
+            const oldHash = window.location.hash;
             let that = this;
             if ( !this.resultSet.count ) return;
 
@@ -986,6 +987,9 @@ export default {
                     that.context.searchIndex = newIndex
                     // update state
                     window.history.replaceState({}, '', that.getTextUrl(id));
+                    const newHash = window.location.hash;
+                    that.updateHashCookie(oldHash, newHash);
+
                     // bind events
                     that.bindEvents();
                     // update input field value
