@@ -6,16 +6,14 @@ import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 import VueMultiselect from 'vue-multiselect'
 // import VueTables from 'vue-tables-2'
-
 import fieldMultiselectClear from '../FormFields/fieldMultiselectClear'
 import fieldCheckboxes from '../FormFields/fieldCheckboxes'
 import fieldNoUiSlider from '../FormFields/fieldNoUiSlider'
+import {ClientTable, Event, ServerTable} from 'vue-tables-2-premium';
 
 
 Vue.use(VueFormGenerator)
 // Vue.use(VueTables.ServerTable)
-
-import {ServerTable, ClientTable, Event} from 'vue-tables-2-premium';
 Vue.use(ClientTable, {}, false, require('../../theme/vue-tables-2/bootstrap3'), {});
 Vue.use(ServerTable, {}, false, require('../../theme/vue-tables-2/bootstrap3'), {});
 
@@ -43,6 +41,7 @@ export default {
             default: null
         }
     },
+
     data () {
         return {
             urls: JSON.parse(this.initUrls),
@@ -71,6 +70,60 @@ export default {
             aggregation: {},
             lastOrder: null,
             countRecords: '',
+            aggregation_min_max_fields: {
+                "kollemata": {
+                    min: "kollemata",
+                    max: "kollemata"
+                },
+                "kollesis": {
+                    min: "kollesis",
+                    max: "kollesis"
+                },
+                "lines": {
+                    min: "lines_min",
+                    max: "lines_max"
+                },
+                "columns": {
+                    min: "columns_min",
+                    max: "columns_max"
+                },
+                "letters_per_line": {
+                    min: "letters_per_line_min",
+                    max: "letters_per_line_max"
+                },
+                "width": {
+                    min: "width",
+                    max: "width"
+                },
+                "height": {
+                    min: "height",
+                    max: "height"
+                },
+                "interlinear_space": {
+                    min: "interlinear_space",
+                    max: "interlinear_space"
+                },
+                "line_height": {
+                    min: "line_height",
+                    max: "line_height"
+                },
+                "margin_left": {
+                    min: "margin_left",
+                    max: "margin_left"
+                },
+                "margin_right": {
+                    min: "margin_right",
+                    max: "margin_right"
+                },
+                "margin_top": {
+                    min: "margin_top",
+                    max: "margin_top"
+                },
+                "margin_bottom": {
+                    min: "margin_bottom",
+                    max: "margin_bottom"
+                },
+            },
         }
     },
     computed: {
@@ -228,7 +281,6 @@ export default {
         },
         onData(data) {
             this.aggregation = data.aggregation
-            // console.log('event onData')
         },
         onLoaded(data) {
             // Update model and ordering if not initialized or history request
@@ -259,6 +311,29 @@ export default {
                     else {
                         this.enableField(field)
                     }
+                } else if (field.type === 'customNoUiSlider'){
+                    if (this.aggregation){
+                        let min = this.aggregation[this.aggregation_min_max_fields[field.model]?.min]?.min;
+                        let max = this.aggregation[this.aggregation_min_max_fields[field.model]?.max]?.max;
+                        if (min != null && max != null){ //keep default values if no min and max in data
+                            // some wiggle-room
+                            if (min > 0){
+                                min -= field.step;
+                            }
+                            max += field.step;
+
+                            // round min and max to the step size
+                            if (field.step < 1){
+                                min = Math.floor(min * field.step**-1)/(field.step**-1);
+                                max = Math.ceil(max * field.step**-1)/(field.step**-1);
+                            }
+
+                            field.min = min;
+                            field.max = max;
+                        }
+                    }
+
+
                 }
             }
 
@@ -343,6 +418,7 @@ export default {
         },
     },
     requestFunction (data) {
+        // console.log("req function")
         // Remove unused parameters
         delete data['query']
         delete data['byColumn']
