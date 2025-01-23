@@ -1264,13 +1264,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $aggFilterValues = array_diff_key($arrFilterValues, array_flip($aggConfig['excludeFilter'] ?? []));
                 unset($aggFilterValues[$aggName]);
 
-//                if (count($aggSearchFilters)) {
-//                if (count($aggFilterValues)) {
-//                    $filterQuery = $this->createSearchQuery($aggFilterValues, [], $aggSearchFilters);
-                $filterQuery = $this->createSearchQuery($aggFilterValues);
-//                } else {
-//                    $filterQuery = new Query\BoolQuery();
-//                }
+                $filterQuery = $this->createSearchQuery($aggFilterValues, $aggFilterConfigs); // todo: dibe fix, check if this works!
 
                 $aggSubQuery = new Aggregation\Filter($aggName);
                 $aggSubQuery->setFilter($filterQuery);
