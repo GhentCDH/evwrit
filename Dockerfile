@@ -80,7 +80,7 @@ WORKDIR "/app"
 ENV APP_ENV=dev
 ENV PHP_MEMORY_LIMIT=1024M
 
-CMD /app/startup-script.sh
+CMD /app/scripts/startup-script.sh
 
 # ----------------------------------------------------------
 # BASE-PRODUCTION
@@ -93,8 +93,12 @@ RUN mkdir -p -m 0600 ~/.ssh && \
     ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 COPY ./app /app
+
+# install composer dependencies
 RUN --mount=type=ssh \
-    composer install --no-scripts --no-dev
+    set -eux; \
+    composer install --no-scripts --no-dev --no-progress; \
+    composer dump-autoload --optimize --no-dev --classmap-authoritative;
 
 # ----------------------------------------------------------
 # PRODUCTION
