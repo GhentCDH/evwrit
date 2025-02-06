@@ -30,7 +30,7 @@ class Configs implements SearchConfigInterface
                 'complementationForm', 'complementationContent', 'complementationContext',
                 'subordinationForm', 'subordinationContent', 'subordinationContext',
                 'relativisationForm', 'relativisationContent', 'relativisationContext',
-                'typeFormulaicity'
+                'typeFormulaicity', 'typeReconstruction'
             ],
             'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
             'gts' => ['part'],
