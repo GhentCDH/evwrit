@@ -2,7 +2,7 @@
 
 namespace App\Service\ElasticSearch\Base;
 
-use App\Resource\BaseResource;
+use App\Resource\ResourceInterface;
 use Elastica\Document;
 use Elastica\Mapping;
 use Illuminate\Http\Resources\Json\ResourceCollection;
@@ -56,7 +56,7 @@ abstract class AbstractIndexService extends AbstractService implements IndexServ
         return $newIndexName;
     }
 
-    public function switchToNewIndex(string $newIndexName)
+    public function switchToNewIndex(string $newIndexName): void
     {
         $oldIndices = $this->client->getStatus()->getIndicesWithAlias($this->getIndexName());
         foreach ($oldIndices as $oldIndex) {
@@ -66,22 +66,16 @@ abstract class AbstractIndexService extends AbstractService implements IndexServ
         $this->client->getIndex($newIndexName)->addAlias($this->getIndexName());
     }
 
-    public function addMultiple(ResourceCollection $resources): void
+    /**
+     * @param ResourceCollection|ResourceInterface[] $resources
+     * @return void
+     */
+    public function addMultiple(ResourceCollection|Array $resources): void
     {
-        /*
-        $json_array = $resources->toJson();
-
-        $bulk_documents = [];
-        while (count($elastics) > 0) {
-            $bulk_contents = array_splice($elastics, 0, 500);
-            foreach ($bulk_contents as $bc) {
-                $bulk_documents[] = new Document($resource->getId(), $resource->getJson());
-            }
-            $this->getIndex()->addDocuments($bulk_documents);
-            $bulk_documents = [];
+        if (count($resources) == 0) {
+            return;
         }
-        $this->getIndex()->refresh();
-        */
+
         $documents = [];
         foreach( $resources as $resource ) {
             $documents[] = new Document($resource->getId(), $resource->toJson());
@@ -90,13 +84,16 @@ abstract class AbstractIndexService extends AbstractService implements IndexServ
         $this->getIndex()->refresh();
     }
 
-    public function add(BaseResource $resource): void
+    public function add(ResourceInterface $resource): void
     {
-        $id = $resource->getId();
-        $json = $resource->toJson();
-
-        $document = new Document($id, $json);
+        $document = new Document($resource->getId(), $resource->toJson());
         $this->getIndex()->addDocument($document);
+        $this->getIndex()->refresh();
+    }
+
+    public function delete(string $id): void
+    {
+        $this->getIndex()->deleteById($id);
         $this->getIndex()->refresh();
     }
 
@@ -106,13 +103,7 @@ abstract class AbstractIndexService extends AbstractService implements IndexServ
         $this->getIndex()->refresh();
     }
 
-    public function delete(int $id): void
-    {
-        $this->getIndex()->deleteById($id);
-        $this->getIndex()->refresh();
-    }
-
-    public function get(int $id) {
+    public function get(string $id): array|string {
         $ret = $this->getIndex()->getDocument($id)->getData();
         return $ret;
     }

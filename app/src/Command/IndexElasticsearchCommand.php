@@ -41,6 +41,7 @@ class IndexElasticsearchCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $chunkSize = 5;
 
         $allowedProjectIds = (array) $this->container->getParameter('app.allowed_project_ids');
 
@@ -61,18 +62,21 @@ class IndexElasticsearchCommand extends Command
                     $progressBar = new ProgressBar($output, $total);
                     $progressBar->start();
 
-                    $repository->findByProjectIds($allowedProjectIds)->chunk(100,
-                        function($res) use ($service, &$count, $progressBar, $maxItems) {
+                    $repository->findByProjectIds($allowedProjectIds)->chunk($chunkSize,
+                        function($texts) use ($service, &$count, $progressBar, $maxItems, $chunkSize) {
                             if ( $maxItems && $count >= $maxItems ) {
                                 return false;
                             }
-                            foreach ($res as $text) {
-                                $res = new ElasticTextResource($text);
-                                $service->add($res);
-                                $count++;
-                            }
-                            $progressBar->advance(100);
-                        });
+
+                            // index traditions
+                            $textResources = ElasticTextResource::collection($texts);
+                            $count += $textResources->count();
+                            $service->addMultiple($textResources);
+
+                            // update progress bar
+                            $progressBar->advance($texts->count());
+                        }
+                    );
 
                     $service->switchToNewIndex($indexName);
 
@@ -92,19 +96,24 @@ class IndexElasticsearchCommand extends Command
                     $progressBar = new ProgressBar($output, $total);
                     $progressBar->start();
 
-                    $repository->findByProjectIds($allowedProjectIds)->chunk(100,
-                        function($res) use ($service, &$count, $progressBar, $maxItems) {
+                    $repository->findByProjectIds($allowedProjectIds)->chunk($chunkSize,
+                        function($texts) use ($service, &$count, $progressBar, $maxItems, $chunkSize) {
                             if ( $maxItems && $count >= $maxItems ) {
                                 return false;
                             }
-                            foreach ($res as $text) {
+
+                            // index levels
+                            $levelResources = [];
+                            foreach ($texts as $text) {
                                 foreach( $text->textLevels as $level ) {
-                                    $res = new ElasticTextLevelIndexResource($level, $text);
-                                    $service->add($res);
+                                    $levelResources[] = new ElasticTextLevelIndexResource($level, $text);
                                 }
                                 $count++;
                             }
-                            $progressBar->advance(100);
+                            $service->addMultiple($levelResources);
+
+                            // update progress bar
+                            $progressBar->advance($texts->count());
                         });
 
                     $service->switchToNewIndex($indexName);
