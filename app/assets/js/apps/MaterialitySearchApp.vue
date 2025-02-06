@@ -78,9 +78,9 @@
                     </template>
 
                     <template v-slot:title="props">
-                        <a :href="getTextUrl(props.row.id, props.index)">
-                            {{ props.row.title }}
-                        </a>
+                        <!--TODO why is title an array when doing a search on title???-->
+                        <a :href="getTextUrl(props.row.id, props.index)" v-html="Array.isArray(props.row.title) ?
+                        props.row.title[0] : props.row.title "/>
                     </template>
                     <template v-slot:id="props">
                         <a :href="getTextUrl(props.row.id, props.index)">
@@ -153,6 +153,7 @@ export default {
         let data = {
             model: {
                 date_search_type: 'exact',
+                title_combination: 'any',
                 lines: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
                 columns: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
                 letters_per_line: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
