@@ -61,7 +61,7 @@ const config = Encore.getWebpackConfig();
 config.plugins.push(new WebpackShellPluginNext({
     onBuildEnd: {
         scripts: [
-            './copy_assets.sh',
+            './scripts/copy_assets.sh',
         ]
     }
 }));

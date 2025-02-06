@@ -10,7 +10,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
 
-class BaseResource extends JsonResource
+class BaseResource extends JsonResource implements ResourceInterface
 {
     public function getId(): string
     {
