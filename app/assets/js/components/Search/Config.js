@@ -430,7 +430,8 @@ export default {
                     ...['morpho_syntactical_coherenceForm', 'morpho_syntactical_coherenceContent', 'morpho_syntactical_coherenceContext',
                         'morpho_syntactical_complementationForm', 'morpho_syntactical_complementationContent', 'morpho_syntactical_complementationContext',
                         'morpho_syntactical_subordinationForm', 'morpho_syntactical_subordinationContent', 'morpho_syntactical_subordinationContext',
-                        'morpho_syntactical_relativisationForm', 'morpho_syntactical_relativisationContent', 'morpho_syntactical_relativisationContext'
+                        'morpho_syntactical_relativisationForm', 'morpho_syntactical_relativisationContent', 'morpho_syntactical_relativisationContext',
+                        'morpho_syntactical_typeFormulaicity', 'morpho_syntactical_typeReconstruction'
                     ].map(
                         field => [
                             this.createOperators(field + '_op', {
@@ -441,6 +442,7 @@ export default {
                             this.createMultiSelect(this.formatPropertyLabel(field, 'morpho_syntactical'), {
                                 model: field,
                                 visible: this.annotationFieldVisible
+                                // visible: true,
                             }),
                         ]
                     ).flat(Infinity),
