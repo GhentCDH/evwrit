@@ -1,5 +1,5 @@
 <template>
-	<div class="slider" :disabled="disabled" :class="{ 'contain-pips': containPips, 'contain-tooltip': containTooltip }"></div>
+    <div :disabled="disabled" :class="{ 'contain-pips': containPips, 'contain-tooltip': containTooltip }"></div>
 </template>
 
 <script>
@@ -17,13 +17,30 @@ export default {
 
 	watch: {
 		value: function() {
-            // console.log(this.value)
-            // console.log(this.value)
-
 			if (window.noUiSlider && this.slider && this.slider.noUiSlider) {
                 this.slider.noUiSlider.set(this.value);
 			}
-		}
+		},
+        min: function(val) {
+            this.slider.noUiSlider.updateOptions({
+                range: {
+                    'min': [this.schema.minInvalid,val-this.schema.minInvalid],
+                    '10%': [val,this.schema.step],
+                    '90%': [this.max,this.schema.maxInvalid],
+                    'max': [this.schema.maxInvalid]
+                }
+            });
+        },
+        max: function(val) {
+            this.slider.noUiSlider.updateOptions({
+                range: {
+                    'min': [this.schema.minInvalid,this.min-this.schema.minInvalid],
+                    '10%': [this.min,this.schema.step],
+                    '90%': [val,this.schema.maxInvalid],
+                    'max': [this.schema.maxInvalid]
+                }
+            });
+        }
 	},
 
 	computed: {
@@ -32,7 +49,13 @@ export default {
 		},
 		containTooltip() {
 			return this.schema.noUiSliderOptions && this.schema.noUiSliderOptions.tooltips;
-		}
+        },
+        min() {
+            return this.schema.min;
+        },
+        max() {
+            return this.schema.max;
+        }
 	},
 
 	methods: {

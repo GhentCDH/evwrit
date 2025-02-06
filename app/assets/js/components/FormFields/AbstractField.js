@@ -58,10 +58,13 @@ export default {
                 model: model,
                 min: min,
                 max: max,
+                minInvalid: RANGE_MIN_INVALID,
+                maxInvalid: RANGE_MAX_INVALID,
+                step: step,
                 noUiSliderOptions: {
                     connect: true,
                     range: {
-                        'min': [RANGE_MIN_INVALID,1],
+                        'min': [RANGE_MIN_INVALID,min-RANGE_MIN_INVALID],
                         '10%': [min,step],
                         '90%': [max,RANGE_MAX_INVALID],
                         'max': [RANGE_MAX_INVALID]
