@@ -4,7 +4,7 @@
 namespace App\Resource;
 
 
-interface ResourceInterface
+interface ResourceInterface extends \JsonSerializable, \ArrayAccess
 {
     public function getId();
 }

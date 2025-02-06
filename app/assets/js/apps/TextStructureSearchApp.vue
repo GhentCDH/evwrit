@@ -87,7 +87,7 @@
                         </a>
                     </template>
                     <template v-slot:tm_id="props">
-                        <a :href="getTextUrl(props.row.id, props.index)" @mouseup="handleLinkClick">
+                        <a :href="getTextUrl(props.row.text_id, props.index)" @mouseup="handleLinkClick">
                             {{ props.row.tm_id }}
                         </a>
                     </template>
