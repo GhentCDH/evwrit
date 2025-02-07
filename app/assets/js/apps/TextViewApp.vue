@@ -744,8 +744,6 @@ export default {
         },
         filterAnnotationsByConfig(annotations) {
             let that = this
-            const hash = window.location.hash;
-            // const search_context_annotations = this.$cookies.get(`${hash}_search_context_annotations`);
             const search_context_annotations = this.context.annotations;
             return annotations
                 // filter by annotation type
@@ -976,7 +974,6 @@ export default {
         },
 
         loadTextByIndex(index) {
-            const oldHash = window.location.hash;
             let that = this;
             if ( !this.resultSet.count ) return;
 
@@ -990,8 +987,6 @@ export default {
                     that.context.searchIndex = newIndex
                     // update state
                     window.history.replaceState({}, '', that.getTextUrl(id));
-                    const newHash = window.location.hash;
-                    that.updateHashCookie(oldHash, newHash);
 
                     // bind events
                     that.bindEvents();
@@ -1001,8 +996,6 @@ export default {
             })
         },
         isValidResultSet() {
-            console.log(this.context?.searchIndex)
-            console.log(this.resultSet?.count)
             return this.context?.searchIndex && this.resultSet?.count
         }
 
@@ -1018,7 +1011,6 @@ export default {
 
         // init context
         this.initContextFromUrl()
-        console.log(this.context)
 
         // init ResultSet based on SearchSession
         if ( this.context?.searchSessionHash ) {

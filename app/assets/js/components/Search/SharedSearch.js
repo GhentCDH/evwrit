@@ -60,18 +60,6 @@ export default {
 
             return params;
         },
-        handleLinkClick(event){
-            event.preventDefault();
-            if (event.button === 0 || event.button === 1){
-                const href = event.target.getAttribute("href");
-                const url = new URL(href, window.location.origin);
-                const hash = url.hash;
-                this.$cookies.set(`${hash}_prev_url`, window.location.href, '1d');
-                const searchContextAnnotations = this.$cookies.get(`${window.location.pathname}_${window.location.search}_search_context_annotations`);
-                this.$cookies.set(`${hash}_search_context_annotations`, searchContextAnnotations, '1d');
-                this.$cookies.remove(`${window.location.pathname}_${window.location.search}_search_context_annotations`)
-            }
-        },
     },
     created() {
         this.initSearchSession({

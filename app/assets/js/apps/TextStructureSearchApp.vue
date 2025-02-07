@@ -78,17 +78,17 @@
 
                     <template v-slot:title="props">
                         <!--TODO why is title an array when doing a search on title???-->
-                        <a :href="getTextUrl(props.row.text_id, props.index)" @mouseup="handleLinkClick"
+                        <a :href="getTextUrl(props.row.text_id, props.index)"
                            v-html="Array.isArray(props.row.title) ?
                            props.row.title[0] : props.row.title "/>
                     </template>
                     <template v-slot:text_id="props">
-                        <a :href="getTextUrl(props.row.text_id, props.index)" @mouseup="handleLinkClick">
+                        <a :href="getTextUrl(props.row.text_id, props.index)">
                             {{ props.row.text_id }}
                         </a>
                     </template>
                     <template v-slot:tm_id="props">
-                        <a :href="getTextUrl(props.row.text_id, props.index)" @mouseup="handleLinkClick">
+                        <a :href="getTextUrl(props.row.text_id, props.index)">
                             {{ props.row.tm_id }}
                         </a>
                     </template>
