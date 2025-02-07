@@ -9,7 +9,7 @@
         </CoolLightBox>
         <article class="col-sm-9">
             <div class="scrollable scrollable--vertical">
-                <div class="mbottom-small"> 
+                <div class="mbottom-small">
                     <h1 class="inline_title">{{ text.title }}</h1>
                     <h5 class="padding-20 inline_title">{{text.id ? 'EVWRIT ID:' + text.id : ''}} {{text.id && text.tm_id ? '—' : ''}} {{text.tm_id ? 'TM ID:' + text.tm_id : ''}}</h5>
                 </div>
@@ -107,6 +107,9 @@
             <div class="widget-container scrollable scrollable--vertical" ref="sidebar">
 
                 <Widget  title="Context" :collapsible="false" class="widget--sticky widget--metadata">
+                    <div class="form-group">
+                        <span class="btn btn-sm btn-primary" @click="navigateToSearchResult">&lt; Return to list</span>
+                    </div>
                     <div v-if="isValidResultSet()" class="row mbottom-default">
                         <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
@@ -380,6 +383,7 @@ import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 
 import axios from 'axios'
 import qs from 'qs'
+import SharedSearch from "../components/Search/SharedSearch";
 
 export default {
     name: "TextViewApp",
@@ -966,6 +970,7 @@ export default {
         },
 
         loadTextByIndex(index) {
+            const oldHash = window.location.hash;
             let that = this;
             if ( !this.resultSet.count ) return;
 
@@ -979,6 +984,9 @@ export default {
                     that.context.searchIndex = newIndex
                     // update state
                     window.history.replaceState({}, '', that.getTextUrl(id));
+                    const newHash = window.location.hash;
+                    that.updateHashCookie(`${oldHash}_prev_url`, `${newHash}_prev_url`);
+
                     // bind events
                     that.bindEvents();
                     // update input field value
