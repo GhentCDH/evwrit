@@ -18,6 +18,18 @@ export default {
                 params: params,
                 count: data?.count ?? 0
             })
+            // Put annotation ids in search context in a cookie to be able to filter in text view
+            let annotations = [];
+            if (data.data){
+                data.data.forEach(text => {
+                    if (text.annotations){
+                        text.annotations.forEach(annotation => {
+                            annotations.push(annotation.id);
+                        })
+                    }
+                })
+            }
+            this.$cookies.set(`${window.location.pathname}_${window.location.search}_search_context_annotations`, annotations);
 
             // update local data
             this.aggregation = data.aggregation
@@ -45,6 +57,18 @@ export default {
             params.limit = params.limit ?? this.tableOptions.perPage ?? 25;
 
             return params;
+        },
+        handleLinkClick(event){
+            event.preventDefault();
+            if (event.button === 0 || event.button === 1){
+                const href = event.target.getAttribute("href");
+                const url = new URL(href, window.location.origin);
+                const hash = url.hash;
+                this.$cookies.set(`${hash}_prev_url`, window.location.href, '1d');
+                const searchContextAnnotations = this.$cookies.get(`${window.location.pathname}_${window.location.search}_search_context_annotations`);
+                this.$cookies.set(`${hash}_search_context_annotations`, searchContextAnnotations, '1d');
+                this.$cookies.remove(`${window.location.pathname}_${window.location.search}_search_context_annotations`)
+            }
         },
     },
     created() {
