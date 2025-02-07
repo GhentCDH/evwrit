@@ -40,16 +40,21 @@ export default {
         },
         navigateToSearchResult(){
             try {
-                const hash = window.location.hash;
-                const prev_url = this.$cookies.get(`${hash}_prev_url`);
-                if (prev_url){
-                    this.$cookies.remove(`${hash}_prev_url`);
-                    this.$cookies.remove(`${hash}_search_context_annotations`);
-                    window.location.href = prev_url;
-                }
+                window.location.href = this.context.prev_url;
             } catch(e){
-                console.error(e);
+                console.log(e)
             }
+            // try {
+            //     const hash = window.location.hash;
+            //     const prev_url = this.$cookies.get(`${hash}_prev_url`);
+            //     if (prev_url){
+            //         this.$cookies.remove(`${hash}_prev_url`);
+            //         this.$cookies.remove(`${hash}_search_context_annotations`);
+            //         window.location.href = prev_url;
+            //     }
+            // } catch(e){
+            //     console.error(e);
+            // }
         },
         updateHashCookie(oldKey, newKey){
             let value = this.$cookies.get(`${oldKey}_prev_url`);

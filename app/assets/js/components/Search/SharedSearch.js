@@ -29,7 +29,7 @@ export default {
                     }
                 })
             }
-            this.$cookies.set(`${window.location.pathname}_${window.location.search}_search_context_annotations`, annotations);
+            window.sessionStorage.setItem(`${window.location.pathname}_${window.location.search}_search_context_annotations`, annotations.toString());
 
             // update local data
             this.aggregation = data.aggregation
@@ -45,7 +45,9 @@ export default {
             let context = {
                 params: this.data.filters,
                 searchIndex: (this.data.search.page - 1) * this.data.search.limit + index, // rely on data or params?
-                searchSessionHash: this.getSearchSessionHash()
+                searchSessionHash: this.getSearchSessionHash(),
+                prev_url: window.location.href,
+                annotations: window.sessionStorage.getItem(`${window.location.pathname}_${window.location.search}_search_context_annotations`).split(",").map(Number)
             }
             return this.urls['text_get_single'].replace('text_id', id) + '#' + this.getContextHash(context)
         },

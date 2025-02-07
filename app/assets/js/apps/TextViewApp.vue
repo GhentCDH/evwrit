@@ -745,7 +745,8 @@ export default {
         filterAnnotationsByConfig(annotations) {
             let that = this
             const hash = window.location.hash;
-            const search_context_annotations = this.$cookies.get(`${hash}_search_context_annotations`);
+            // const search_context_annotations = this.$cookies.get(`${hash}_search_context_annotations`);
+            const search_context_annotations = this.context.annotations;
             return annotations
                 // filter by annotation type
                 .filter( function(annotation) {
@@ -1000,6 +1001,8 @@ export default {
             })
         },
         isValidResultSet() {
+            console.log(this.context?.searchIndex)
+            console.log(this.resultSet?.count)
             return this.context?.searchIndex && this.resultSet?.count
         }
 
@@ -1015,6 +1018,7 @@ export default {
 
         // init context
         this.initContextFromUrl()
+        console.log(this.context)
 
         // init ResultSet based on SearchSession
         if ( this.context?.searchSessionHash ) {
