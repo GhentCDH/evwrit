@@ -267,11 +267,9 @@ export default {
                         max = this.aggregation[field.model]?.max;
 
                         if (min == null && max == null){
-                            console.log("null")
                             min = this.aggregation[`${field.model}_min`]?.min;
                             max = this.aggregation[`${field.model}_max`]?.max;
                         }
-                        console.log(`${field.model} ${min} ${max}`)
 
                         if (min != null && max != null) { //keep default values if no min and max in data
                             // some wiggle-room
