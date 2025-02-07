@@ -1,5 +1,5 @@
 <template>
-    <div class="page-metrics">
+    <div :class=orientation>
         <div>
         </div>
         <div class="margin margin-top">
@@ -67,6 +67,11 @@ export default {
             default: '?'
         }
     },
+    computed: {
+        orientation() {
+            return Number(this.height) > Number(this.width) ? "vertical" : "horizontal"
+        }
+    },
     data() {
         return {
         }
@@ -75,23 +80,42 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.page-metrics {
-  display: grid;
-  grid-template-columns: 40px 100px 40px;
-  grid-template-rows: 32px 180px 32px;
-  width: 180px;
+.horizontal {
+    display: grid;
+    grid-template-rows: 40px 100px 40px;
+    grid-template-columns: 32px 180px 32px;
+    width: 244px;
 
-  border: 1px solid #777;
-  background: #fff;
+    border: 1px solid #777;
+    background: #fff;
 
-  font-size: 12px;
+    font-size: 12px;
 
-  &>div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px dotted #777;
-  }
+    &>div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px dotted #777;
+    }
+
+}
+.vertical {
+    display: grid;
+    grid-template-columns: 40px 100px 40px;
+    grid-template-rows: 32px 180px 32px;
+    width: 180px;
+
+    border: 1px solid #777;
+    background: #fff;
+
+    font-size: 12px;
+
+    &>div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px dotted #777;
+    }
 
 }
 </style>

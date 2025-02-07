@@ -30,7 +30,7 @@ class Configs implements SearchConfigInterface
                 'complementationForm', 'complementationContent', 'complementationContext',
                 'subordinationForm', 'subordinationContent', 'subordinationContext',
                 'relativisationForm', 'relativisationContent', 'relativisationContext',
-                'typeFormulaicity'
+                'typeFormulaicity', 'typeReconstruction'
             ],
             'handshift' => ['abbreviation','accentuation','connectivity','correction','curvature','degreeOfFormality','expansion','lineation','orientation','punctuation','regularity','scriptType','slope','wordSplitting', 'status'],
             'gts' => ['part'],
@@ -74,6 +74,8 @@ class Configs implements SearchConfigInterface
 //                'type' => self::FILTER_KEYWORD,
 //                'field' => 'title.keyword'
                 'type' => self::FILTER_TEXT,
+                'combinationField' => 'title_combination',
+                'combinationOptions' => ['any', 'all', 'phrase'],
             ],
             'text' => ['type' => self::FILTER_TEXT],
             'text_lemmas' => ['type' => self::FILTER_TEXT],
