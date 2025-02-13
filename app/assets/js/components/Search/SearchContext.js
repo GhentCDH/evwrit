@@ -27,13 +27,21 @@ export default {
             let context = {}
             try {
                 let hash = window.location.hash.substring(1);
-                context = JSON.parse(window.atob(hash))
+                // context = JSON.parse(window.atob(hash))
+                context = JSON.parse(localStorage.getItem(hash));
             } catch (e) {
             }
             this.context = _merge({}, this.defaultContext, context)
         },
         getContextHash(data) {
-            return window.btoa(JSON.stringify(data ? data : this.context));
+            let hash = window.btoa(JSON.stringify(data ? data : this.context));
+            let shortHash = localStorage.getItem(hash);
+            if (!shortHash){
+                shortHash = window.btoa(Date.now().toString());
+                localStorage.setItem(hash, shortHash);
+                localStorage.setItem(shortHash, JSON.stringify(data))
+            }
+            return shortHash
         },
         isValidContext() {
             return Object.keys(this.context).length !== 0
@@ -45,14 +53,5 @@ export default {
                 console.log(e)
             }
         },
-        updateHashCookie(oldKey, newKey){
-            let value = this.$cookies.get(`${oldKey}_prev_url`);
-            this.$cookies.remove(`${oldKey}_prev_url`);
-            this.$cookies.set(`${newKey}_prev_url`, value);
-
-            value = this.$cookies.get(`${oldKey}_search_context_annotations`);
-            this.$cookies.remove(`${oldKey}_search_context_annotations`);
-            this.$cookies.set(`${newKey}_search_context_annotations`, value);
-        }
     },
 }

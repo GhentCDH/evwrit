@@ -107,19 +107,19 @@
             <div class="widget-container scrollable scrollable--vertical" ref="sidebar">
 
                 <Widget  title="Context" :collapsible="false" class="widget--sticky widget--metadata">
-                    <div class="form-group">
-                        <span class="btn btn-sm btn-primary" @click="navigateToSearchResult">&lt; Return to list</span>
-                    </div>
                     <div v-if="isValidResultSet()" class="row mbottom-default">
-                        <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex - 1)">&lt;</span>
-                        </div>
-                        <div class="col col-xs-6 text-center"> <input :placeholder="context.searchIndex" type="number" class="form-control input-sm input-no-controls" v-model="indexNumberInputValue" @keydown.enter="loadTextByIndex(indexNumberInputValue)"/> <span> of {{ resultSet.count }}</span></div>
-                        <div class="col col-xs-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex + 1)">&gt;</span>
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex( resultSet.count )">&raquo;</span>
-                        </div>
+                      <div class="form-group">
+                        <span class="btn btn-sm btn-primary" @click="navigateToSearchResult">&lt; Return to list</span>
+                      </div>
+                      <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
+                          <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
+                          <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex - 1)">&lt;</span>
+                      </div>
+                      <div class="col col-xs-6 text-center"> <input :placeholder="context.searchIndex" type="number" class="form-control input-sm input-no-controls" v-model="indexNumberInputValue" @keydown.enter="loadTextByIndex(indexNumberInputValue)"/> <span> of {{ resultSet.count }}</span></div>
+                      <div class="col col-xs-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
+                          <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex + 1)">&gt;</span>
+                          <span class="btn btn-sm btn-primary" @click="loadTextByIndex( resultSet.count )">&raquo;</span>
+                      </div>
                     </div>
                     <div v-if="hasSearchContext" class="form-group">
                         <CheckboxSwitch v-model="config.annotations.showOnlyInSearchContext" class="switch-primary" label="Limit annotations to search context"></CheckboxSwitch>
