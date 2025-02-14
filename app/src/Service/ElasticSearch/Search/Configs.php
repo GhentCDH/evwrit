@@ -407,6 +407,7 @@ class Configs implements SearchConfigInterface
             'drawing' => ['type' => self::FILTER_OBJECT_ID],
             'margin_writing' => ['type' => self::FILTER_OBJECT_ID],
             'margin_filler' => ['type' => self::FILTER_OBJECT_ID],
+            'form' => ['type' => self::FILTER_OBJECT_ID],
         ];
         return $this->mergeFilterDefaults($filters);
     }
@@ -456,6 +457,7 @@ class Configs implements SearchConfigInterface
             'drawing'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'margin_writing'  => ['type' => self::AGG_OBJECT_ID_NAME],
             'margin_filler'  => ['type' => self::AGG_OBJECT_ID_NAME],
+            'form' => ['type' => self::AGG_OBJECT_ID_NAME],
         ];
     }
 
