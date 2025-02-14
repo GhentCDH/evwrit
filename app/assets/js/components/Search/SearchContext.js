@@ -10,7 +10,9 @@ export default {
                 params: {},
                 focus: null,
                 searchIndex: null,
-                searchSessionHash: null
+                searchSessionHash: null,
+                prev_url: null,
+                annotations: null,
             },
         }
     },
