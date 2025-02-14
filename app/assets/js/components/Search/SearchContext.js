@@ -29,20 +29,14 @@ export default {
             let context = {}
             try {
                 let hash = window.location.hash.substring(1);
-                // context = JSON.parse(window.atob(hash))
-                context = JSON.parse(localStorage.getItem(hash));
+                context = this.$cookies.get(hash);
             } catch (e) {
             }
             this.context = _merge({}, this.defaultContext, context)
         },
         getContextHash(data) {
-            let hash = window.btoa(JSON.stringify(data ? data : this.context));
-            let shortHash = localStorage.getItem(hash);
-            if (!shortHash){
-                shortHash = window.btoa(Date.now().toString());
-                localStorage.setItem(hash, shortHash);
-                localStorage.setItem(shortHash, JSON.stringify(data ? data : this.context))
-            }
+            let shortHash = window.btoa(Date.now().toString());
+            this.$cookies.set(shortHash, data ? data : this.context, "1d")
             return shortHash
         },
         isValidContext() {
