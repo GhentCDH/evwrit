@@ -10,7 +10,9 @@ export default {
                 params: {},
                 focus: null,
                 searchIndex: null,
-                searchSessionHash: null
+                searchSessionHash: null,
+                prev_url: null,
+                annotations: null,
             },
         }
     },
@@ -39,7 +41,7 @@ export default {
             if (!shortHash){
                 shortHash = window.btoa(Date.now().toString());
                 localStorage.setItem(hash, shortHash);
-                localStorage.setItem(shortHash, JSON.stringify(data))
+                localStorage.setItem(shortHash, JSON.stringify(data ? data : this.context))
             }
             return shortHash
         },
