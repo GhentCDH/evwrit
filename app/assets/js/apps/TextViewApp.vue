@@ -107,10 +107,10 @@
             <div class="widget-container scrollable scrollable--vertical" ref="sidebar">
 
                 <Widget  title="Context" :collapsible="false" class="widget--sticky widget--metadata">
-                    <div class="form-group">
-                        <span class="btn btn-sm btn-primary" @click="navigateToSearchResult">&lt; Return to list</span>
-                    </div>
                     <div v-if="isValidResultSet()" class="row mbottom-default">
+                        <div class="form-group">
+                            <span class="btn btn-sm btn-primary" @click="navigateToSearchResult">&lt; Return to list</span>
+                        </div>
                         <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex - 1)">&lt;</span>
