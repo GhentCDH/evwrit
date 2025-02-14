@@ -309,6 +309,9 @@ export default {
                     this.createMultiSelect('Margin fillers', {
                         model: 'margin_filler',
                     }),
+                    this.createMultiSelect('Form', {
+                        model: 'form',
+                    }),
 
                 ]
             }
