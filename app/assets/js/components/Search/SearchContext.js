@@ -29,7 +29,6 @@ export default {
             let context = {}
             try {
                 let hash = window.location.hash.substring(1);
-                // context = JSON.parse(window.atob(hash))
                 context = JSON.parse(localStorage.getItem(hash));
             } catch (e) {
             }

@@ -776,17 +776,12 @@ export default {
                 }
             }
 
-            // console.log(annotationTypeFilter)
-            // console.log(annotationPropertyFilters)
-
             let that = this
             return annotations.filter( function(annotation) {
                 // filter only annotations in scope of annotationTypeFilter
                 if ( !annotationTypeFilter.includes(annotation.type) ) {
                     return true
                 }
-
-                // console.log(annotation)
 
                 // filter annotations in scope
                 for (const [contextParam, values] of Object.entries(annotationPropertyFilters)) {
