@@ -178,6 +178,7 @@
                         <LabelValue label="Letters per line" :value="arrayToRange(text.letters_per_line)" type="range"></LabelValue>
                         <LabelValue label="Letters per line (calculated)" :value="text.letters_per_line_auto"></LabelValue>
                         <LabelValue label="Interlinear space" :value="text.interlinear_space" ></LabelValue>
+                        <LabelValue label="Line Height" :value="text.image[0]?.line_height" ></LabelValue>
                     </PropertyGroup>
                 </Widget>
 
