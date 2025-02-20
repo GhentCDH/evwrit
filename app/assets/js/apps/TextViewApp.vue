@@ -175,7 +175,7 @@
                         <LabelValue label="Lines" :value="arrayToRange(text.lines)"  type="range"></LabelValue>
                         <LabelValue label="Lines (calculated)" :value="text.count_lines_auto"></LabelValue>
                         <LabelValue label="Columns" :value="minMaxToRange(text.columns)"  type="range"></LabelValue>
-                        <LabelValue label="Letters per line" :value="arrayToRange(text.letters_per_line)" type="range"></LabelValue>
+                        <LabelValue label="Letters per line" :value="minMaxToRange(text.letters_per_line)" type="range"></LabelValue>
                         <LabelValue label="Letters per line (calculated)" :value="text.letters_per_line_auto"></LabelValue>
                         <LabelValue label="Interlinear space" :value="text.interlinear_space" ></LabelValue>
                     </PropertyGroup>
