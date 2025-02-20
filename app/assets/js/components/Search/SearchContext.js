@@ -64,14 +64,6 @@ export default {
                 localStorage.setItem("context", JSON.stringify(contexts))
             }
             return hash
-            // let hash = window.btoa(JSON.stringify(data ? data : this.context));
-            // let shortHash = localStorage.getItem(hash);
-            // if (!shortHash){
-            //     shortHash = window.btoa(Date.now().toString());
-            //     localStorage.setItem(hash, shortHash);
-            //     localStorage.setItem(shortHash, JSON.stringify(data ? data : this.context))
-            // }
-            // return shortHash
         },
         isValidContext() {
             return Object.keys(this.context).length !== 0

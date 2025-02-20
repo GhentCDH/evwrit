@@ -776,7 +776,7 @@ export default {
             return annotations.filter( function(annotation) {
                 // filter only annotations in scope of annotationTypeFilter
                 if ( !annotationTypeFilter.includes(annotation.type) ) {
-                    return true
+                    return false
                 }
 
                 // filter annotations in scope
