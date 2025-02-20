@@ -759,6 +759,9 @@ export default {
                     return annotation.type !== "ltsa" || ( annotation.type === "ltsa" && that.visibleLTSATypes.includes(annotation.properties?.ltsa_type?.name) )
                 })
                 .filter( function(annotation) {
+                    if (!that.context.annotations){ // don't filter context annotations if there is no context
+                        return true
+                    }
                     return  !that.config.annotations.showOnlyInSearchContext || search_context_annotations.includes(annotation.id)
                 })
         },
