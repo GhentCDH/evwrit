@@ -18,18 +18,6 @@ export default {
                 params: params,
                 count: data?.count ?? 0
             })
-            // Put annotation ids in search context in a cookie to be able to filter in text view
-            let annotations = [];
-            if (data.data){
-                data.data.forEach(text => {
-                    if (text.annotations){
-                        text.annotations.forEach(annotation => {
-                            annotations.push(annotation.id);
-                        })
-                    }
-                })
-            }
-            window.sessionStorage.setItem(`search_context_annotations`, annotations.toString());
 
             // update local data
             this.aggregation = data.aggregation
@@ -47,7 +35,6 @@ export default {
                 searchIndex: (this.data.search.page - 1) * this.data.search.limit + index, // rely on data or params?
                 searchSessionHash: this.getSearchSessionHash(),
                 prev_url: window.location.href,
-                annotations: window.sessionStorage.getItem(`search_context_annotations`).split(",").map(Number)
             }
             return this.urls['text_get_single'].replace('text_id', id) + '#' + this.getContextHash(context)
         },

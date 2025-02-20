@@ -2,6 +2,8 @@ import Vue from 'vue'
 import qs from "qs";
 import { merge as _merge } from "lodash";
 
+const MAX_LOCALSTORAGE_CONTEXTS = 20
+
 export default {
     data() {
         return {
@@ -12,7 +14,6 @@ export default {
                 searchIndex: null,
                 searchSessionHash: null,
                 prev_url: null,
-                annotations: null,
             },
         }
     },
@@ -29,20 +30,48 @@ export default {
             let context = {}
             try {
                 let hash = window.location.hash.substring(1);
-                context = JSON.parse(localStorage.getItem(hash));
+                // context = JSON.parse(localStorage.getItem(hash));
+                context = JSON.parse(localStorage.getItem("context"))[hash]["data"]
             } catch (e) {
             }
             this.context = _merge({}, this.defaultContext, context)
         },
         getContextHash(data) {
-            let hash = window.btoa(JSON.stringify(data ? data : this.context));
-            let shortHash = localStorage.getItem(hash);
-            if (!shortHash){
-                shortHash = window.btoa(Date.now().toString());
-                localStorage.setItem(hash, shortHash);
-                localStorage.setItem(shortHash, JSON.stringify(data ? data : this.context))
+            let hash = window.btoa(Date.now().toString());
+            if (!localStorage.getItem("context")){
+                let init_context = {
+                    "LRU": hash,
+                    "MRU": hash,
+                }
+                init_context[hash] = {
+                    "data": data ? data : this.context,
+                    "next": ""
+                }
+                localStorage.setItem("context", JSON.stringify(init_context))
+            } else {
+                let contexts = JSON.parse(localStorage.getItem("context"));
+                contexts[contexts["MRU"]]["next"] = hash;
+                contexts[hash] = {
+                    "data": data ? data : this.context,
+                    "next": ""
+                }
+                contexts["MRU"] = hash;
+                while (Object.keys(contexts).length > MAX_LOCALSTORAGE_CONTEXTS){
+                    let lru = contexts["LRU"]
+                    contexts["LRU"] = contexts[lru]["next"]
+                    delete contexts[lru]
+                }
+                localStorage.setItem("context", JSON.stringify(contexts))
             }
-            return shortHash
+            return hash
+            // let hash = window.btoa(JSON.stringify(data ? data : this.context));
+            // let shortHash = localStorage.getItem(hash);
+            // if (!shortHash){
+            //     shortHash = window.btoa(Date.now().toString());
+            //     localStorage.setItem(hash, shortHash);
+            //     localStorage.setItem(shortHash, JSON.stringify(data ? data : this.context))
+            // }
+            // return shortHash
         },
         isValidContext() {
             return Object.keys(this.context).length !== 0
