@@ -259,6 +259,35 @@ export default {
                     else {
                         this.enableField(field)
                     }
+                } else if (field.type === 'customNoUiSlider') {
+                    if (this.aggregation) {
+                        let min;
+                        let max;
+                        min = this.aggregation[field.model]?.min;
+                        max = this.aggregation[field.model]?.max;
+
+                        if (min == null && max == null){
+                            min = this.aggregation[`${field.model}_min`]?.min;
+                            max = this.aggregation[`${field.model}_max`]?.max;
+                        }
+
+                        if (min != null && max != null) { //keep default values if no min and max in data
+                            // some wiggle-room
+                            if (min > 0) {
+                                min -= field.step;
+                            }
+                            max += field.step;
+
+                            // round min and max to the step size
+                            if (field.step < 1) {
+                                min = Math.floor(min * field.step ** -1) / (field.step ** -1);
+                                max = Math.ceil(max * field.step ** -1) / (field.step ** -1);
+                            }
+
+                            field.min = min;
+                            field.max = max;
+                        }
+                    }
                 }
             }
 
