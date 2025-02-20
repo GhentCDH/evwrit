@@ -775,7 +775,7 @@ export default {
             let that = this
             return annotations.filter( function(annotation) {
                 // filter only annotations in scope of annotationTypeFilter
-                if ( !annotationTypeFilter.includes(annotation.type) ) {
+                if ( !annotationTypeFilter.includes(annotation.type) && annotationTypeFilter.length !== 0) {
                     return false
                 }
 
@@ -930,7 +930,9 @@ export default {
         getTextUrl(id) {
             let url = this.urls['text_get_single'].replace('text_id', id);
             if (this.isValidContext()) {
-                url += '#' + this.getContextHash()
+                let hash = this.getContextHash();
+                url += '#' + hash;
+                this.saveContextHash(hash, this.context)
             }
             return url
         },
