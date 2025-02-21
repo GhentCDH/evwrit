@@ -369,6 +369,30 @@ class Configs implements SearchConfigInterface
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
                 'ignore' => [-1, 10000]
             ],
+            'total_area' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'central_width' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'central_height' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'used_area' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'whitespace_area' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'whitespace_percentage' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
             'interlinear_space' => [
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
                 'ignore' => [-1, 10000]
@@ -445,6 +469,12 @@ class Configs implements SearchConfigInterface
             'letters_per_line_max' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'letters_per_line.max'],
             'width' => ['type' => self::AGG_GLOBAL_STATS],
             'height' => ['type' => self::AGG_GLOBAL_STATS],
+            'total_area' => ['type' => self::AGG_GLOBAL_STATS],
+            'central_width' => ['type' => self::AGG_GLOBAL_STATS],
+            'central_height' => ['type' => self::AGG_GLOBAL_STATS],
+            'used_area' => ['type' => self::AGG_GLOBAL_STATS],
+            'whitespace_area' => ['type' => self::AGG_GLOBAL_STATS],
+            'whitespace_percentage' => ['type' => self::AGG_GLOBAL_STATS],
             'interlinear_space' => ['type' => self::AGG_GLOBAL_STATS],
             'line_height' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'image.line_height'],
             'margin_left' => ['type' => self::AGG_GLOBAL_STATS],

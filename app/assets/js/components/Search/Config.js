@@ -299,6 +299,14 @@ export default {
                     this.createRangeSlider('margin_top','Margin Top',0,350,0.01, 2),
                     this.createRangeSlider('margin_bottom','Margin Bottom',0,1050,0.01, 2),
 
+                    //whitespace
+                    this.createRangeSlider('whitespace_area', 'Whitespace Area', 0, 10000, 1),
+                    this.createRangeSlider('whitespace_percentage', 'Whitespace %', 0, 100, 1),
+                    this.createRangeSlider('total_area', 'Total Document Area', 0, 10000, 1),
+                    this.createRangeSlider('used_area', 'Used Area', 0, 10000, 1),
+                    this.createRangeSlider('central_width', 'Central Width', 0, 300, 0.01, 2),
+                    this.createRangeSlider('central_height', 'Central Height', 0, 300, 0.01, 2),
+
                     // global typography fields
                     this.createMultiSelect('Drawings', {
                         model: 'drawing',

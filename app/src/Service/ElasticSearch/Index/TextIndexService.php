@@ -59,6 +59,7 @@ class TextIndexService extends AbstractIndexService
             'interlinear_space' => ['type' => 'half_float'],
             'width' => ['type' => 'half_float'],
             'height' => ['type' => 'half_float'],
+            'width_height_ratio' => ['type' => 'half_float'],
 
             'is_recto' => ['type' => 'boolean'],
             'is_verso' => ['type' => 'boolean'],
