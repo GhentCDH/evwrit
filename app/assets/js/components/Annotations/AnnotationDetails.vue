@@ -9,6 +9,7 @@
                     :value="propertyValue(prop)"
                     :inline="true"
                     :class="propertyClass(prop)"
+                    :url="generateUrl(annotationType, prop)"
                     type="id_name"></LabelValue>
 
         <LabelValue label="Preservation status" v-if="annotation.lts_preservationStatus" :value="annotation.lts_preservationStatus" :inline="true" class="mtop-small"></LabelValue>
@@ -30,6 +31,7 @@
 import LabelValue from '../Sidebar/LabelValue'
 import LabelRenaming from './LabelRenaming'
 import AncientPersonDetails from "../Sidebar/AncientPersonMetadata.vue";
+import qs from "qs";
 
 export default {
     name: "AnnotationDetails",
@@ -98,6 +100,17 @@ export default {
             }
         }
     },
+    data() {
+        return {
+            // TODO: is not very clean, but idk where to get the urls from otherwise
+            urls: {
+                'gtsa': "http://localhost:8080/textstructure/search",
+                'ltsa': "http://localhost:8080/textstructure/search",
+                'orthography': "http://localhost:8080/annotation/orthotypo/search",
+                'typography': "http://localhost:8080/annotation/orthotypo/search",
+            }
+        }
+    },
     computed: {
         propertyKeys() {
             return Object.keys(this.annotation.properties)
@@ -138,6 +151,25 @@ export default {
         },
         propertyClass(prop) {
             return this.propertyClasses[prop] ?? [];
+        },
+        generateUrl(type, filter) {
+            if (type in this.urls){
+                return  (value) => {
+                    let filters = [];
+                    if (/^(typography)|(orthography)_.*$/.test(filter)){
+                        filters.push(qs.stringify( { filters: {["annotation_type"]: this.annotation.type} } ) )
+                    }
+                    if (/^gtsa_subtype$/.test(filter)){
+                        filters.push(qs.stringify( { filters: {["gtsa_type"]: this.annotation.properties.gtsa_type.id} } ) );
+                    }
+                    if (/^ltsa_subtype$/.test(filter)){
+                        filters.push(qs.stringify( { filters: {["gtsa_type"]: this.annotation.properties.ltsa_type.id} } ) );
+                    }
+                    filters.push( qs.stringify( { filters: {[filter]: value.id} } ) )
+                    return this.urls[type] + '?' + filters.join("&");
+                }
+            }
+            return null
         }
     }
 }
