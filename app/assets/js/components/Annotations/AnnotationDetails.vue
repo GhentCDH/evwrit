@@ -165,6 +165,13 @@ export default {
                     if (/^ltsa_subtype$/.test(filter)){
                         filters.push(qs.stringify( { filters: {["gtsa_type"]: this.annotation.properties.ltsa_type.id} } ) );
                     }
+                    // the name of the part filter in the search apps and passed in the props of this component are different for some reason
+                    if (/^ltsa_part$/.test(filter)){
+                      filters.push(qs.stringify( { filters: {["lts_part"]: value.id} } ) );
+                    }
+                    if (/^gtsa_part$/.test(filter)){
+                      filters.push(qs.stringify( { filters: {["gts_part"]: value.id} } ) );
+                    }
                     filters.push( qs.stringify( { filters: {[filter]: value.id} } ) )
                     return this.urls[type] + '?' + filters.join("&");
                 }
