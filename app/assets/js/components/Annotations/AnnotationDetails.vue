@@ -108,6 +108,7 @@ export default {
                 'ltsa': "/textstructure/search",
                 'orthography': "/annotation/orthotypo/search",
                 'typography': "/annotation/orthotypo/search",
+                'syntax': "/annotation/linguistic/search",
             }
         }
     },
@@ -158,6 +159,9 @@ export default {
                     let filters = [];
                     if (/^(typography)|(orthography)_.*$/.test(filter)){
                         filters.push(qs.stringify( { filters: {["annotation_type"]: this.annotation.type} } ) )
+                    }
+                    if (type === "syntax") {
+                        filters.push(qs.stringify( { filters: {["annotation_type"]: "morpho_syntactical"} } ) )
                     }
                     if (/^gtsa_subtype$/.test(filter)){
                         filters.push(qs.stringify( { filters: {["gtsa_type"]: this.annotation.properties.gtsa_type.id} } ) );
