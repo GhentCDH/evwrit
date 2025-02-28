@@ -393,6 +393,26 @@ class Configs implements SearchConfigInterface
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
                 'ignore' => [-1, 10000]
             ],
+            'width_height_ratio' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'lineheight_interlinearspace_ratio' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'average_line_space' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'average_letter_space' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
+            'average_words_per_line' => [
+                'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
+                'ignore' => [-1, 10000]
+            ],
             'interlinear_space' => [
                 'type' => self::FILTER_NUMERIC_RANGE_SLIDER,
                 'ignore' => [-1, 10000]
@@ -475,6 +495,11 @@ class Configs implements SearchConfigInterface
             'used_area' => ['type' => self::AGG_GLOBAL_STATS],
             'whitespace_area' => ['type' => self::AGG_GLOBAL_STATS],
             'whitespace_percentage' => ['type' => self::AGG_GLOBAL_STATS],
+            'width_height_ratio' => ['type' => self::AGG_GLOBAL_STATS],
+            'lineheight_interlinearspace_ratio' => ['type' => self::AGG_GLOBAL_STATS],
+            'average_line_space' => ['type' => self::AGG_GLOBAL_STATS],
+            'average_letter_space' => ['type' => self::AGG_GLOBAL_STATS],
+            'average_words_per_line' => ['type' => self::AGG_GLOBAL_STATS],
             'interlinear_space' => ['type' => self::AGG_GLOBAL_STATS],
             'line_height' => ['type' => self::AGG_GLOBAL_STATS, 'field' => 'image.line_height'],
             'margin_left' => ['type' => self::AGG_GLOBAL_STATS],

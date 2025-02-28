@@ -307,6 +307,13 @@ export default {
                     this.createRangeSlider('central_width', 'Central Width', 0, 300, 0.01, 2),
                     this.createRangeSlider('central_height', 'Central Height', 0, 300, 0.01, 2),
 
+                    //other calculated fields
+                    this.createRangeSlider('width_height_ratio', 'Width to Height ratio', 0, 5, 0.01, 2),
+                    this.createRangeSlider('lineheight_interlinearspace_ratio', "Line Height to Interlinear Space ratio", 0, 5, 0.01, 2),
+                    this.createRangeSlider('average_line_space', 'Average Line Space', 0, 100, 0.01, 2),
+                    this.createRangeSlider('average_letter_space', 'Average Letter Space', 0, 10, 0.01, 2),
+                    this.createRangeSlider('average_words_per_line', 'Average Words per Line', 0, 100, 0.01, 2),
+
                     // global typography fields
                     this.createMultiSelect('Drawings', {
                         model: 'drawing',

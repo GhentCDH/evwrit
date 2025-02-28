@@ -92,10 +92,17 @@ class ElasticTextResource extends ElasticBaseResource
         $ret['whitespace_area'] = $ret['total_area'] - $ret['used_area'];
         $ret['whitespace_percentage'] = $ret['whitespace_area'] != 0 && $ret['total_area'] != 0 ? $ret['whitespace_area'] / $ret['total_area'] * 100 : null;
 
+        $ret['width_height_ratio'] = $text->width && $text->height ? $text->width / $text->height: null;
+        $ret['lineheight_interlinearspace_ratio'] = count($text->images) > 0 ? $text->images[0]->line_height && $text->interlinear_space ? $text->images[0]->line_height / $text->interlinear_space : null : null;
+
         // add line count
         $ret['line_count'] = $ret['text'] ? count(explode("\n",$ret['text'])) : 0;
 
-        // flatten level properties
+        $ret['average_line_space'] = $ret['line_count'] != 0 ? $ret['used_area'] / $ret['line_count'] : null;
+        $ret['average_words_per_line'] = $text->count_words && $ret['line_count'] ?   $text->count_words / $ret['line_count'] : null;
+        $ret['average_letter_space'] = $text->letters_per_line_auto && $ret['line_count'] ? $ret['used_area'] / $ret['line_count'] * $text->letters_per_line_auto : null;
+
+            // flatten level properties
         // todo: fix legacy 'ancient_person'
         $textLevels = ElasticTextLevelResource::collection($text->textLevels)->toArray();
         $textLevelProperties = array_merge_recursive(...$textLevels);
