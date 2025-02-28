@@ -104,10 +104,10 @@ export default {
         return {
             // TODO: is not very clean, but idk where to get the urls from otherwise
             urls: {
-                'gtsa': "http://localhost:8080/textstructure/search",
-                'ltsa': "http://localhost:8080/textstructure/search",
-                'orthography': "http://localhost:8080/annotation/orthotypo/search",
-                'typography': "http://localhost:8080/annotation/orthotypo/search",
+                'gtsa': "/textstructure/search",
+                'ltsa': "/textstructure/search",
+                'orthography': "/annotation/orthotypo/search",
+                'typography': "/annotation/orthotypo/search",
             }
         }
     },
@@ -173,6 +173,7 @@ export default {
                       filters.push(qs.stringify( { filters: {["gts_part"]: value.id} } ) );
                     }
                     filters.push( qs.stringify( { filters: {[filter]: value.id} } ) )
+                    console.log(this.urls[type])
                     return this.urls[type] + '?' + filters.join("&");
                 }
             }
