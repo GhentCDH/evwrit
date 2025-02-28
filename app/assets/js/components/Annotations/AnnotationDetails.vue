@@ -102,7 +102,7 @@ export default {
     },
     data() {
         return {
-            // TODO: is not very clean, but idk where to get the urls from otherwise
+            // TODO: is not very clean, fix it in some sort of config or .env file.
             urls: {
                 'gtsa': "/textstructure/search",
                 'ltsa': "/textstructure/search",
