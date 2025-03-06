@@ -102,13 +102,12 @@ export default {
     },
     data() {
         return {
-            // TODO: is not very clean, fix it in some sort of config or .env file.
             urls: {
-                'gtsa': "/textstructure/search",
-                'ltsa': "/textstructure/search",
-                'orthography': "/annotation/orthotypo/search",
-                'typography': "/annotation/orthotypo/search",
-                'syntax': "/annotation/linguistic/search",
+                'gtsa': process.env.VUE_APP_GTSA_URL,
+                'ltsa': process.env.VUE_APP_LTSA_URL,
+                'orthography': process.env.VUE_APP_ORTHOGRAPHY_URL,
+                'typography': process.env.VUE_APP_TYPOGRAPHY_URL,
+                'syntax': process.env.VUE_APP_SYNTAX_URL,
             }
         }
     },
@@ -177,7 +176,6 @@ export default {
                       filters.push(qs.stringify( { filters: {["gts_part"]: value.id} } ) );
                     }
                     filters.push( qs.stringify( { filters: {[filter]: value.id} } ) )
-                    console.log(this.urls[type])
                     return this.urls[type] + '?' + filters.join("&");
                 }
             }

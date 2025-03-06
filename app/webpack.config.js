@@ -1,5 +1,8 @@
 var Encore = require('@symfony/webpack-encore');
 var WebpackShellPluginNext = require('webpack-shell-plugin-next');
+var dotenv = require('dotenv')
+
+dotenv.config({path: '.env.local'})
 
 Encore
     // the project directory where all compiled assets will be stored
@@ -51,6 +54,16 @@ Encore
         // options.port = '9000';
     })
 ;
+
+Encore.configureDefinePlugin(options => {
+    options['process.env'] = {
+        VUE_APP_GTSA_URL: JSON.stringify(process.env.VUE_APP_GTSA_URL),
+        VUE_APP_LTSA_URL: JSON.stringify(process.env.VUE_APP_LTSA_URL),
+        VUE_APP_ORTHOGRAPHY_URL: JSON.stringify(process.env.VUE_APP_ORTHOGRAPHY_URL),
+        VUE_APP_TYPOGRAPHY_URL: JSON.stringify(process.env.VUE_APP_TYPOGRAPHY_URL),
+        VUE_APP_SYNTAX_URL: JSON.stringify(process.env.VUE_APP_SYNTAX_URL),
+    };
+});
 
 Encore.addAliases({ vue$: 'vue/dist/vue.esm.js' });
 
