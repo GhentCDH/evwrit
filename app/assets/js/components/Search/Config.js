@@ -158,21 +158,21 @@ export default {
                             model: 'archive'
                         },
                     ),
-                    this.createSelect('Text type', {model: 'level_category_category'}),
-                    this.createSelect('Text subtype', {
+                    this.createMultiSelect('Text type', {model: 'level_category_category'}),
+                    this.createMultiSelect('Text subtype', {
                         model: 'level_category_subcategory',
                         'dependency': 'level_category_category'
                     }),
-                    this.createSelect('Ancient category', {model: 'greek_latin_label'}),
+                    this.createMultiSelect('Ancient category', {model: 'greek_latin_label'}),
                     this.createMultiSelect('Social distance',
                         {
                             model: 'social_distance'
                         },
                     ),
-                    this.createSelect('Generic agentive role', {model: 'generic_agentive_role'}),
-                    this.createSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
-                    this.createSelect('Communicative goal type', {model: 'communicative_goal_type'}),
-                    this.createSelect('Communicative goal subtype', {
+                    this.createMultiSelect('Generic agentive role', {model: 'generic_agentive_role'}),
+                    this.createMultiSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
+                    this.createMultiSelect('Communicative goal type', {model: 'communicative_goal_type'}),
+                    this.createMultiSelect('Communicative goal subtype', {
                         model: 'communicative_goal_subtype',
                         'dependency': 'communicative_goal_type'
                     }),
@@ -338,7 +338,7 @@ export default {
                         label: 'Text',
                         model: 'annotation_text',
                     },
-                    defaultAnnotationType !== 'language' ? this.createSelect('Type',
+                    defaultAnnotationType !== 'language' ? this.createMultiSelect('Type',
                         {
                             model: 'annotation_type',
                             styleClasses: 'mbottom-large',
