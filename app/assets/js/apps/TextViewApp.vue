@@ -561,7 +561,6 @@ export default {
         },
         annotationsInContext() {
             let annotations = this.text.annotations
-            console.log(annotations)
 
             // filter by search context?
             if ( this.config.annotations.showOnlyInSearchContext && (this.context.params ?? false) ) {
@@ -780,8 +779,6 @@ export default {
                     return false
                 }
 
-                console.log(Object.entries(annotationPropertyFilters))
-
                 // filter annotations in scope
                 for (const [contextParam, values] of Object.entries(annotationPropertyFilters)) {
 
@@ -822,9 +819,7 @@ export default {
         },
         contextIntersectAnnotationMapper(annotation, contextParam){
             let props = annotation.intersect_properties
-            console.log(props)
             contextParam = contextParam.replace('intersect_', '')
-            console.log(contextParam)
             if (!props){
                 return []
             }
