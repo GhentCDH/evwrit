@@ -30,12 +30,27 @@ export default {
             return this.urls[route] ?? ''
         },
         getTextUrl(id, index) {
-            let context = {
-                params: this.data.filters,
-                searchIndex: (this.data.search.page - 1) * this.data.search.limit + index, // rely on data or params?
-                searchSessionHash: this.getSearchSessionHash()
+            let hash = this.getContextHash();
+            sessionStorage.setItem(hash, index);
+            return this.urls['text_get_single'].replace('text_id', id) + '#' + hash;
+        },
+        handleLinkCLick(event){
+            event.preventDefault();
+            if (event.button === 0 || event.button === 1){
+                const href = event.target.getAttribute("href");
+                const url = new URL(href, window.location.origin);
+                const hash = url.hash.substring(1);
+                let index = Number(sessionStorage.getItem(hash));
+                let context = {
+                    params: this.data.filters,
+                    searchIndex: (this.data.search.page - 1) * this.data.search.limit + index, // rely on data or params?
+                    searchSessionHash: this.getSearchSessionHash(),
+                    prev_url: window.location.href,
+                }
+
+                this.saveContextHash(hash, context);
             }
-            return this.urls['text_get_single'].replace('text_id', id) + '#' + this.getContextHash(context)
+
         },
         getSearchParams() {
             let params = qs.parse(window.location.href.split('?',2)[1], { plainObjects: true }) ?? [];

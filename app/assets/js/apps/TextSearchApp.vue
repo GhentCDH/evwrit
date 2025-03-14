@@ -77,17 +77,18 @@
                     </template>
 
                     <template v-slot:title="props">
-<!--                        TODO why is title an array when doing a search on title???-->
-                        <a :href="getTextUrl(props.row.id, props.index)" v-html="Array.isArray(props.row.title) ?
-                        props.row.title[0] : props.row.title "/>
+                        <!--TODO why is title an array when doing a search on title???-->
+                        <a :href="getTextUrl(props.row.id, props.index)" @mouseup="handleLinkCLick"
+                           v-html="Array.isArray(props.row.title) ?
+                           props.row.title[0] : props.row.title "/>
                     </template>
                     <template v-slot:id="props">
-                        <a :href="getTextUrl(props.row.id, props.index)">
+                        <a :href="getTextUrl(props.row.id, props.index)" @mouseup="handleLinkCLick">
                             {{ props.row.id }}
                         </a>
                     </template>
                     <template v-slot:tm_id="props">
-                        <a :href="getTextUrl(props.row.id, props.index)">
+                        <a :href="getTextUrl(props.row.id, props.index)" @mouseup="handleLinkCLick">
                             {{ props.row.tm_id }}
                         </a>
                     </template>
@@ -129,6 +130,10 @@ import SearchAppFields from '../components/Search/Config'
 import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
 import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";
 import VtPaginationCount from "vue-tables-2-premium/compiled/components/VtPaginationCount";
+
+import VueCookies from 'vue-cookies'
+
+Vue.use(VueCookies)
 
 Vue.component('fieldRadio', fieldRadio);
 

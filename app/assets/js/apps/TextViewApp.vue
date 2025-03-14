@@ -9,7 +9,7 @@
         </CoolLightBox>
         <article class="col-sm-9">
             <div class="scrollable scrollable--vertical">
-                <div class="mbottom-small"> 
+                <div class="mbottom-small">
                     <h1 class="inline_title">{{ text.title }}</h1>
                     <h5 class="padding-20 inline_title">{{text.id ? 'EVWRIT ID:' + text.id : ''}} {{text.id && text.tm_id ? '—' : ''}} {{text.tm_id ? 'TM ID:' + text.tm_id : ''}}</h5>
                 </div>
@@ -108,15 +108,18 @@
 
                 <Widget  title="Context" :collapsible="false" class="widget--sticky widget--metadata">
                     <div v-if="isValidResultSet()" class="row mbottom-default">
-                        <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex - 1)">&lt;</span>
-                        </div>
-                        <div class="col col-xs-6 text-center"> <input :placeholder="context.searchIndex" type="number" class="form-control input-sm input-no-controls" v-model="indexNumberInputValue" @keydown.enter="loadTextByIndex(indexNumberInputValue)"/> <span> of {{ resultSet.count }}</span></div>
-                        <div class="col col-xs-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex + 1)">&gt;</span>
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex( resultSet.count )">&raquo;</span>
-                        </div>
+                      <div class="form-group">
+                        <span class="btn btn-sm btn-primary" @click="navigateToSearchResult">&lt; Return to list</span>
+                      </div>
+                      <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
+                          <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
+                          <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex - 1)">&lt;</span>
+                      </div>
+                      <div class="col col-xs-6 text-center"> <input :placeholder="context.searchIndex" type="number" class="form-control input-sm input-no-controls" v-model="indexNumberInputValue" @keydown.enter="loadTextByIndex(indexNumberInputValue)"/> <span> of {{ resultSet.count }}</span></div>
+                      <div class="col col-xs-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
+                          <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex + 1)">&gt;</span>
+                          <span class="btn btn-sm btn-primary" @click="loadTextByIndex( resultSet.count )">&raquo;</span>
+                      </div>
                     </div>
                     <div v-if="hasSearchContext" class="form-group">
                         <CheckboxSwitch v-model="config.annotations.showOnlyInSearchContext" class="switch-primary" label="Limit annotations to search context"></CheckboxSwitch>
@@ -380,6 +383,7 @@ import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 
 import axios from 'axios'
 import qs from 'qs'
+import SharedSearch from "../components/Search/SharedSearch";
 
 export default {
     name: "TextViewApp",
@@ -768,17 +772,12 @@ export default {
                 }
             }
 
-            // console.log(annotationTypeFilter)
-            // console.log(annotationPropertyFilters)
-
             let that = this
             return annotations.filter( function(annotation) {
                 // filter only annotations in scope of annotationTypeFilter
-                if ( !annotationTypeFilter.includes(annotation.type) ) {
-                    return true
+                if ( !annotationTypeFilter.includes(annotation.type) && annotationTypeFilter.length !== 0) {
+                    return false
                 }
-
-                // console.log(annotation)
 
                 // filter annotations in scope
                 for (const [contextParam, values] of Object.entries(annotationPropertyFilters)) {
@@ -931,7 +930,9 @@ export default {
         getTextUrl(id) {
             let url = this.urls['text_get_single'].replace('text_id', id);
             if (this.isValidContext()) {
-                url += '#' + this.getContextHash()
+                let hash = this.getContextHash();
+                url += '#' + hash;
+                this.saveContextHash(hash, this.context)
             }
             return url
         },
@@ -979,6 +980,7 @@ export default {
                     that.context.searchIndex = newIndex
                     // update state
                     window.history.replaceState({}, '', that.getTextUrl(id));
+
                     // bind events
                     that.bindEvents();
                     // update input field value
