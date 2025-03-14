@@ -164,6 +164,7 @@ class ElasticTextResource extends ElasticBaseResource
             $this->annotationIntersect($annotationSource, $handshiftAnnotations);
             $this->annotationIntersect($annotationSource, $genericTextStructure);
             $this->annotationIntersect($annotationSource, $layoutTextStructure);
+            $this->annotationIntersect($annotationSource, $gtsAnnotations);
         }
         // intersect layout text structure annotations with gts, lts, gtsa and handshift
         foreach( $ltsAnnotations as &$annotationSource ) {
@@ -171,18 +172,21 @@ class ElasticTextResource extends ElasticBaseResource
             $this->annotationIntersect($annotationSource, $handshiftAnnotations);
             $this->annotationIntersect($annotationSource, $genericTextStructure);
             $this->annotationIntersect($annotationSource, $layoutTextStructure);
+            $this->annotationIntersect($annotationSource, $ltsAnnotations);
         }
 
         // interset generic text structure  with lts and handshift
         foreach( $genericTextStructure as &$annotationSource ) {
             $this->annotationIntersect($annotationSource, $layoutTextStructure);
             $this->annotationIntersect($annotationSource, $handshiftAnnotations);
+            $this->annotationIntersect($annotationSource, $genericTextStructure);
         }
 
         // interset layout text structure  with gts and handshift
         foreach( $layoutTextStructure as &$annotationSource ) {
             $this->annotationIntersect($annotationSource, $genericTextStructure);
             $this->annotationIntersect($annotationSource, $handshiftAnnotations);
+            $this->annotationIntersect($annotationSource, $layoutTextStructure);
         }
 
         $ret['annotations'] = array_merge(

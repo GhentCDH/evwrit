@@ -127,6 +127,7 @@ class ElasticTextLevelIndexResource extends ElasticBaseResource
             $this->annotationIntersect($annotationSource, $hsa);
             $this->annotationIntersect($annotationSource, $gts);
             $this->annotationIntersect($annotationSource, $lts);
+            $this->annotationIntersect($annotationSource, $gtsa);
         }
         // intersect layout text structure annotations with gts, lts, gtsa and handshift
         foreach( $ltsa as &$annotationSource ) {
@@ -134,18 +135,21 @@ class ElasticTextLevelIndexResource extends ElasticBaseResource
             $this->annotationIntersect($annotationSource, $hsa);
             $this->annotationIntersect($annotationSource, $gts);
             $this->annotationIntersect($annotationSource, $lts);
+            $this->annotationIntersect($annotationSource, $ltsa);
         }
 
         // interset generic text structure  with lts and handshift
         foreach( $gts as &$annotationSource ) {
             $this->annotationIntersect($annotationSource, $lts);
             $this->annotationIntersect($annotationSource, $hsa);
+            $this->annotationIntersect($annotationSource, $gts);
         }
 
         // interset layout text structure  with gts and handshift
         foreach( $lts as &$annotationSource ) {
             $this->annotationIntersect($annotationSource, $gts);
             $this->annotationIntersect($annotationSource, $hsa);
+            $this->annotationIntersect($annotationSource, $lts);
         }
 
         $levelProperties['annotations'] = array_merge(
