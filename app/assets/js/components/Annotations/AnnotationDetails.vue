@@ -9,6 +9,7 @@
                     :value="propertyValue(prop)"
                     :inline="true"
                     :class="propertyClass(prop)"
+                    :url="generateUrl(annotationType, prop)"
                     type="id_name"></LabelValue>
 
         <LabelValue label="Preservation status" v-if="annotation.lts_preservationStatus" :value="annotation.lts_preservationStatus" :inline="true" class="mtop-small"></LabelValue>
@@ -30,6 +31,7 @@
 import LabelValue from '../Sidebar/LabelValue'
 import LabelRenaming from './LabelRenaming'
 import AncientPersonDetails from "../Sidebar/AncientPersonMetadata.vue";
+import qs from "qs";
 
 export default {
     name: "AnnotationDetails",
@@ -98,6 +100,17 @@ export default {
             }
         }
     },
+    data() {
+        return {
+            urls: {
+                'gtsa': process.env.VUE_APP_GTSA_URL,
+                'ltsa': process.env.VUE_APP_LTSA_URL,
+                'orthography': process.env.VUE_APP_ORTHOGRAPHY_URL,
+                'typography': process.env.VUE_APP_TYPOGRAPHY_URL,
+                'syntax': process.env.VUE_APP_SYNTAX_URL,
+            }
+        }
+    },
     computed: {
         propertyKeys() {
             return Object.keys(this.annotation.properties)
@@ -138,6 +151,35 @@ export default {
         },
         propertyClass(prop) {
             return this.propertyClasses[prop] ?? [];
+        },
+        generateUrl(type, filter) {
+            if (type in this.urls){
+                return  (value) => {
+                    let filters = [];
+                    if (/^(typography)|(orthography)_.*$/.test(filter)){
+                        filters.push(qs.stringify( { filters: {["annotation_type"]: this.annotation.type} } ) )
+                    }
+                    if (type === "syntax") {
+                        filters.push(qs.stringify( { filters: {["annotation_type"]: "morpho_syntactical"} } ) )
+                    }
+                    if (/^gtsa_subtype$/.test(filter)){
+                        filters.push(qs.stringify( { filters: {["gtsa_type"]: this.annotation.properties.gtsa_type.id} } ) );
+                    }
+                    if (/^ltsa_subtype$/.test(filter)){
+                        filters.push(qs.stringify( { filters: {["gtsa_type"]: this.annotation.properties.ltsa_type.id} } ) );
+                    }
+                    // the name of the part filter in the search apps and passed in the props of this component are different for some reason
+                    if (/^ltsa_part$/.test(filter)){
+                      filters.push(qs.stringify( { filters: {["lts_part"]: value.id} } ) );
+                    }
+                    if (/^gtsa_part$/.test(filter)){
+                      filters.push(qs.stringify( { filters: {["gts_part"]: value.id} } ) );
+                    }
+                    filters.push( qs.stringify( { filters: {[filter]: value.id} } ) )
+                    return this.urls[type] + '?' + filters.join("&");
+                }
+            }
+            return null
         }
     }
 }
