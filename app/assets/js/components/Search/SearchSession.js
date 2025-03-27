@@ -20,7 +20,7 @@ export default {
         initSearchSession(data) {
             let sessionData = _merge({}, this.defaultSearchSession, data)
             sessionData.hash = Date.now();
-            window.sessionStorage.setItem('search_session', JSON.stringify(sessionData));
+            window.localStorage.setItem('search_session', JSON.stringify(sessionData));
         },
         updateSearchSession(data) {
             let sessionData = this.getSearchSession();
@@ -30,11 +30,11 @@ export default {
             }
             sessionData.params = {} // clear params
             sessionData = _merge({}, sessionData, data)
-            window.sessionStorage.setItem('search_session', JSON.stringify(sessionData));
+            window.localStorage.setItem('search_session', JSON.stringify(sessionData));
         },
         getSearchSession(sessionHash) {
             try {
-                let sessionData = JSON.parse(window.sessionStorage.getItem('search_session'));
+                let sessionData = JSON.parse(window.localStorage.getItem('search_session'));
                 if (sessionHash) {
                     return (sessionData.hash === sessionHash ? sessionData : null)
                 } else {
