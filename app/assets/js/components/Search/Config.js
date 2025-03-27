@@ -356,7 +356,7 @@ export default {
                         label: 'Text',
                         model: 'annotation_text',
                     },
-                    defaultAnnotationType !== 'language' ? this.createMultiSelect('Type',
+                    defaultAnnotationType !== 'language' ? this.createSelect('Type',
                         {
                             model: 'annotation_type',
                             styleClasses: 'mbottom-large',

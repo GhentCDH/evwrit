@@ -62,6 +62,9 @@ Encore.configureDefinePlugin(options => {
         VUE_APP_ORTHOGRAPHY_URL: JSON.stringify(process.env.VUE_APP_ORTHOGRAPHY_URL),
         VUE_APP_TYPOGRAPHY_URL: JSON.stringify(process.env.VUE_APP_TYPOGRAPHY_URL),
         VUE_APP_SYNTAX_URL: JSON.stringify(process.env.VUE_APP_SYNTAX_URL),
+        VUE_APP_MORPHOLOGY_URL: JSON.stringify(process.env.VUE_APP_MORPHOLOGY_URL),
+        VUE_APP_LEXIS_URL: JSON.stringify(process.env.VUE_APP_LEXIS_URL),
+        VUE_APP_LANGUAGE_URL: JSON.stringify(process.env.VUE_APP_LANGUAGE_URL)
     };
 });
 
