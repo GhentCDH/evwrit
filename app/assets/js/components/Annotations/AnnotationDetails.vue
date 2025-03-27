@@ -110,6 +110,7 @@ export default {
                 'syntax': process.env.VUE_APP_SYNTAX_URL,
                 'morphology': process.env.VUE_APP_MORPHOLOGY_URL,
                 'lexis': process.env.VUE_APP_LEXIS_URL,
+                'language': process.env.VUE_APP_LANGUAGE_URL,
             }
         }
     },
@@ -155,13 +156,10 @@ export default {
             return this.propertyClasses[prop] ?? [];
         },
         generateUrl(type, filter) {
-            console.log(type)
-            console.log(filter)
-            console.log(process.env.VUE_APP_LEXIS_URL)
             if (type in this.urls){
                 return  (value) => {
                     let filters = [];
-                    if (/^(typography)|(orthography)|(morphology)|(lexis)_.*$/.test(filter)){
+                    if (/^(typography)|(orthography)|(morphology)|(lexis)|(language)_.*$/.test(filter)){
                         filters.push(qs.stringify( { filters: {["annotation_type"]: this.annotation.type} } ) )
                     }
                     if (type === "syntax") {
