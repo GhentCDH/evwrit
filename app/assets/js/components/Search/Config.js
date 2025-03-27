@@ -158,21 +158,21 @@ export default {
                             model: 'archive'
                         },
                     ),
-                    this.createSelect('Text type', {model: 'level_category_category'}),
-                    this.createSelect('Text subtype', {
+                    this.createMultiSelect('Text type', {model: 'level_category_category'}),
+                    this.createMultiSelect('Text subtype', {
                         model: 'level_category_subcategory',
                         'dependency': 'level_category_category'
                     }),
-                    this.createSelect('Ancient category', {model: 'greek_latin_label'}),
+                    this.createMultiSelect('Ancient category', {model: 'greek_latin_label'}),
                     this.createMultiSelect('Social distance',
                         {
                             model: 'social_distance'
                         },
                     ),
-                    this.createSelect('Generic agentive role', {model: 'generic_agentive_role'}),
-                    this.createSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
-                    this.createSelect('Communicative goal type', {model: 'communicative_goal_type'}),
-                    this.createSelect('Communicative goal subtype', {
+                    this.createMultiSelect('Generic agentive role', {model: 'generic_agentive_role'}),
+                    this.createMultiSelect('Agentive role', {model: 'agentive_role', 'dependency': 'generic_agentive_role'}),
+                    this.createMultiSelect('Communicative goal type', {model: 'communicative_goal_type'}),
+                    this.createMultiSelect('Communicative goal subtype', {
                         model: 'communicative_goal_subtype',
                         'dependency': 'communicative_goal_type'
                     }),
@@ -299,6 +299,21 @@ export default {
                     this.createRangeSlider('margin_top','Margin Top',0,350,0.01, 2),
                     this.createRangeSlider('margin_bottom','Margin Bottom',0,1050,0.01, 2),
 
+                    //whitespace
+                    this.createRangeSlider('whitespace_area', 'Whitespace Area', 0, 10000, 1),
+                    this.createRangeSlider('whitespace_percentage', 'Whitespace %', 0, 100, 1),
+                    this.createRangeSlider('total_area', 'Total Document Area', 0, 10000, 1),
+                    this.createRangeSlider('used_area', 'Used Area', 0, 10000, 1),
+                    this.createRangeSlider('central_width', 'Central Width', 0, 300, 0.01, 2),
+                    this.createRangeSlider('central_height', 'Central Height', 0, 300, 0.01, 2),
+
+                    //other calculated fields
+                    this.createRangeSlider('width_height_ratio', 'Width to Height ratio', 0, 5, 0.01, 2),
+                    this.createRangeSlider('lineheight_interlinearspace_ratio', "Line Height to Interlinear Space ratio", 0, 5, 0.01, 2),
+                    this.createRangeSlider('average_line_space', 'Average Line Space', 0, 100, 0.01, 2),
+                    this.createRangeSlider('average_letter_space', 'Average Letter Space', 0, 10, 0.01, 2),
+                    this.createRangeSlider('average_words_per_line', 'Average Words per Line', 0, 100, 0.01, 2),
+
                     // global typography fields
                     this.createMultiSelect('Drawings', {
                         model: 'drawing',
@@ -308,6 +323,9 @@ export default {
                     }),
                     this.createMultiSelect('Margin fillers', {
                         model: 'margin_filler',
+                    }),
+                    this.createMultiSelect('Form', {
+                        model: 'form',
                     }),
 
                 ]
@@ -338,7 +356,7 @@ export default {
                         label: 'Text',
                         model: 'annotation_text',
                     },
-                    defaultAnnotationType !== 'language' ? this.createSelect('Type',
+                    defaultAnnotationType !== 'language' ? this.createMultiSelect('Type',
                         {
                             model: 'annotation_type',
                             styleClasses: 'mbottom-large',
