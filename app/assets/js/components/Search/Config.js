@@ -442,7 +442,7 @@ export default {
                     ).flat(Infinity),
 
                     // morphology
-                    ...['morphology_standardForm', 'morphology_type', 'morphology_subtype', 'morphology_wordclass', 'morphology_formulaicity', 'morphology_positionInWord', 'morphology_prescription'].map(
+                    ...['morphology_standardForm', 'morphology_type', 'morphology_subtype', 'morphology_wordclass', 'morphology_formulaicity', 'morphology_positionInWord'].map(
                         field => [
                             this.createOperators(field + '_op', {
                                 collapsible: true,
