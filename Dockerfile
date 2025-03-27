@@ -110,9 +110,11 @@ FROM webdevops/php-apache:${PHP_VERSION} AS prod
 COPY --from=symfony-prod --chown=1000:1000 /app /app
 COPY --from=node-prod --chown=1000:1000 /app/public/build /app/public/build
 
+COPY vhost.conf /opt/docker/etc/httpd/vhost.conf
+COPY httpd.conf /opt/docker/etc/httpd/httpd/conf.d/20-custom.conf
+
 ENV APP_ENV=prod
 ENV PHP_MEMORY_LIMIT=1024M
 
 ENV WEB_DOCUMENT_ROOT="/app/public"
 ENV WEB_DOCUMENT_INDEX="/app/public/index.php"
-
