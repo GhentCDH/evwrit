@@ -66,6 +66,9 @@ class ElasticTextResource extends ElasticBaseResource
             'preservation_state' => ElasticIdNameResource::collection($text->preservationStates),
             'preservation_status_w' => new ElasticIdNameResource($text->preservationStatusW),
             'preservation_status_h' => new ElasticIdNameResource($text->preservationStatusH),
+            'total_area' => $text->width !=0 && $text->height != 0 ? $text->width * $text->height : null,
+            'central_width' => $text->width - $text->margin_left - $text->margin_right,
+            'central_height' => $text->height - $text->margin_top - $text->margin_bottom,
 
             'lines' => !is_null($text->count_lines) ? [ 'min' => $text->count_lines, 'max' => $text->count_lines ] : ( is_null($text->lines_min) ? null : [ 'min' => $text->lines_min, 'max' => $text->lines_max ] ),
             'columns' => is_null($text->columns_min) ? null : [ 'min' => $text->columns_min, 'max' => $text->columns_max ],
@@ -85,10 +88,21 @@ class ElasticTextResource extends ElasticBaseResource
             'annotations' => []
         ]);
 
+        $ret['used_area'] = $ret['central_width'] * $ret['central_height'];
+        $ret['whitespace_area'] = $ret['total_area'] - $ret['used_area'];
+        $ret['whitespace_percentage'] = $ret['whitespace_area'] != 0 && $ret['total_area'] != 0 ? $ret['whitespace_area'] / $ret['total_area'] * 100 : null;
+
+        $ret['width_height_ratio'] = $text->width && $text->height ? $text->width / $text->height: null;
+        $ret['lineheight_interlinearspace_ratio'] = count($text->images) > 0 ? $text->images[0]->line_height && $text->interlinear_space ? $text->images[0]->line_height / $text->interlinear_space : null : null;
+
         // add line count
         $ret['line_count'] = $ret['text'] ? count(explode("\n",$ret['text'])) : 0;
 
-        // flatten level properties
+        $ret['average_line_space'] = $ret['line_count'] != 0 ? $ret['used_area'] / $ret['line_count'] : null;
+        $ret['average_words_per_line'] = $text->count_words && $ret['line_count'] ?   $text->count_words / $ret['line_count'] : null;
+        $ret['average_letter_space'] = $text->letters_per_line_auto && $ret['line_count'] ? $ret['used_area'] / $ret['line_count'] * $text->letters_per_line_auto : null;
+
+            // flatten level properties
         // todo: fix legacy 'ancient_person'
         $textLevels = ElasticTextLevelResource::collection($text->textLevels)->toArray();
         $textLevelProperties = array_merge_recursive(...$textLevels);
