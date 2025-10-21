@@ -23,7 +23,9 @@ RUN apt-get update -qq && \
 RUN mkdir -p -m 0600 ~/.ssh && \
     ssh-keyscan github.com >> ~/.ssh/known_hosts
 
+RUN npm install -g corepack@latest
 RUN corepack enable
+RUN corepack prepare pnpm@latest
 
 # NODE-PROD
 FROM node-base AS node-prod
