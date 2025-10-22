@@ -4,11 +4,12 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=7.4",
+        "php": ">=8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
         "composer/package-versions-deprecated": "1.11.99.1",
+        "idci/keycloak-security-bundle": "^2.0",
         "illuminate/http": "^8.40",
         "phpdocumentor/reflection-docblock": "^5.2",
         "ramsey/uuid": "^4.2",
