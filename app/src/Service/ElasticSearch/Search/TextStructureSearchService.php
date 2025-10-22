@@ -76,6 +76,13 @@ class TextStructureSearchService extends AbstractSearchService
 //                        return $carry;
 //                    }, [])
                 ];
+                $filter_name = "intersect_{$type}_{$property}";
+                $field_name = "annotations.intersect_properties.{$type}_{$property}";
+                $aggregationFilters[$filter_name] = [
+                    'type' => self::AGG_NESTED_ID_NAME,
+                    'field' => $field_name,
+                    'nestedPath' => "annotations",
+                ];
             }
         }
 

@@ -181,7 +181,9 @@ export default {
             schema: {
                 groups: [
                     this.genericStructureFields(),
+                    this.genericStructureFieldsIntersections(true),
                     this.layoutStructureFields(),
+                    this.layoutStructureFieldsIntersections(true),
                     this.handshiftFields(),
                     this.generalInformationFields(),
                     this.communicativeInformationFields(true),

@@ -767,7 +767,7 @@ export default {
             let annotationPropertyFilters = {}
             for ( const [key, param] of Object.entries(context_params) ) {
                 for ( const prefix of annotationPropertyPrefixes ) {
-                    if (key.startsWith(prefix + '_') ) {
+                    if (key.startsWith(prefix + '_') || key.startsWith('intersect_' + prefix + '_')) {
                         annotationPropertyFilters[key] = Array.isArray(param.value) ? param.value : [ param.value ]
                     }
                 }
@@ -785,8 +785,12 @@ export default {
 
                     // check if intersection exists between property values of annotation and parameter values of context
                     let valuesMatched = values.filter( function(value) {
-                        // console.log([contextParam, values, that.contextAnnotationMapper(annotation, contextParam)])
-                        return that.contextAnnotationMapper(annotation, contextParam).includes(value)
+                        if (contextParam.startsWith('intersect_')){
+                            return that.contextIntersectAnnotationMapper(annotation, contextParam).includes(value)
+                        } else {
+                            return that.contextAnnotationMapper(annotation, contextParam).includes(value)
+                        }
+
                     })
                     if ( valuesMatched.length === 0 ) {
                         return false
@@ -813,6 +817,16 @@ export default {
                         return [props[contextParam]?.id]
                     return props[contextParam].map( i => i.id )
             }
+        },
+        contextIntersectAnnotationMapper(annotation, contextParam){
+            let props = annotation.intersect_properties
+            contextParam = contextParam.replace('intersect_', '')
+            if (!props){
+                return []
+            }
+            if(!Array.isArray(props[contextParam]))
+                return [props[contextParam]?.id]
+            return props[contextParam].map( i => i.id )
         },
         formatAnnotation(annotation) {
             switch ( annotation.text_selection.selection_start - (annotation.text_selection.selection_end -1) ) {

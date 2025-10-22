@@ -940,6 +940,12 @@ class Configs implements SearchConfigInterface
                     'field' => "annotations.properties.{$subfilter_field}",
                     'type' => self::FILTER_OBJECT_ID
                 ];
+                $subfilter_name = "intersect_{$type}_{$property}";
+                $subfilter_field = "{$type}_{$property}";
+                $searchFilters['annotations']['filters'][$subfilter_name] = [
+                    'field' => "annotations.intersect_properties.{$subfilter_field}",
+                    'type' => self::FILTER_OBJECT_ID
+                ];
             }
         }
 
