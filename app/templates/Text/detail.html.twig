@@ -4,8 +4,9 @@
 
 {% block content %}
     <text-view-app id="text-view-app"
-        init-urls="{{ urls }}"
-        init-data="{{ data }}"
+                   init-urls="{{ urls }}"
+                   init-data="{{ data }}"
+                   :is-view-internal="{{ isViewInternal }}"
     />
 {% endblock %}
 

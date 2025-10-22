@@ -6,6 +6,8 @@ use App\Helper\StreamedCsvResponse;
 use App\Repository\TextRepository;
 use App\Resource\ElasticTextAnnotationsResource;
 use App\Resource\TextSearchFlagsResource;
+use App\Security\Roles;
+use Elastica\Exception\NotFoundException;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -162,7 +164,8 @@ class TextController extends BaseController
             //$this->denyAccessUnlessGranted('ROLE_EDITOR_VIEW');
             try {
                 $resource = $elasticService->get($id);
-            } catch (NotFoundHttpException $e) {
+                $resource = $this->sanitizeText($resource);
+            } catch (NotFoundException $e) {
                 return new JsonResponse(
                     ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
                     Response::HTTP_NOT_FOUND
@@ -172,16 +175,18 @@ class TextController extends BaseController
         } else {
             try {
                 $resource = $elasticService->get($id);
+                $resource = $this->sanitizeText($resource);
                 return $this->render(
                     $this->templateFolder. '/detail.html.twig',
                     [
                         'urls' => json_encode($this->getSharedAppUrls()),
                         'data' => json_encode([
                             'text' => $resource
-                        ])
+                        ]),
+                        'isViewInternal' => $this->isGranted(Roles::ROLE_VIEW_INTERNAL) ? 'true' : 'false',
                     ]
                 );
-            } catch(Exception $e) {
+            } catch(NotFoundException $e) {
                 throw $this->createNotFoundException('The text does not exist');
             }
         }

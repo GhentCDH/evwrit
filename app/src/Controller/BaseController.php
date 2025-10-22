@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller;
 
+use App\Security\Roles;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -101,6 +102,8 @@ class BaseController extends AbstractController
             $this->sanitizeSearchRequest($request->query->all())
         );
 
+        $data = $this->sanitizeSearchResults($data);
+
         return new JsonResponse($data);
     }
 
@@ -111,6 +114,8 @@ class BaseController extends AbstractController
         $data = $elasticService->searchAndAggregate(
             $this->sanitizeSearchRequest($request->query->all())
         );
+
+        $data = $this->sanitizeSearchResults($data);
 
         // urls
         $urls = $this->getSharedAppUrls();
@@ -137,7 +142,29 @@ class BaseController extends AbstractController
      */
     protected function sanitizeSearchRequest(array $params): array
     {
+        // remove aggregations if no permission
+        if (!$this->isGranted(Roles::ROLE_VIEW_INTERNAL)) {
+            unset($params['filters']['has_images']);
+        }
         return $params;
+    }
+
+    protected function sanitizeSearchResults(array $data): array
+    {
+        // remove aggregations if no permission
+        if (!$this->isGranted(Roles::ROLE_VIEW_INTERNAL)) {
+            unset($data['aggregations']['has_images']);
+        }
+        return $data;
+    }
+
+    protected function sanitizeText(array $data): array
+    {
+        // remove critial data if no permission
+        if (!$this->isGranted(Roles::ROLE_VIEW_INTERNAL)) {
+            unset($data['image']);
+        }
+        return $data;
     }
 
     protected function jsonError($message, $data = null): JsonResponse
