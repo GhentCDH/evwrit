@@ -81,6 +81,7 @@ WORKDIR "/app"
 
 ENV APP_ENV=dev
 ENV PHP_MEMORY_LIMIT=1024M
+ENV PHP_DISMOD=ioncube,opcache
 
 CMD /app/scripts/startup-script.sh
 
@@ -114,6 +115,7 @@ COPY --from=node-prod --chown=1000:1000 /app/public/build /app/public/build
 
 ENV APP_ENV=prod
 ENV PHP_MEMORY_LIMIT=1024M
+ENV PHP_DISMOD=ioncube,xcache
 
 ENV WEB_DOCUMENT_ROOT="/app/public"
 ENV WEB_DOCUMENT_INDEX="/app/public/index.php"
