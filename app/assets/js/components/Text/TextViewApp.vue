@@ -1,7 +1,7 @@
 <template>
     <div class="row">
         <CoolLightBox
-                :items="images"
+                :items="imagesLightBox"
                 :index="imageIndex"
                 @close="imageIndex = null"
                 overlay-color="rgba(30, 30, 30, .3)"
@@ -36,7 +36,7 @@
                     </div>
 
                     <!-- Generic Text Structure -->
-                    <div v-if="config.genericTextStructure.show && genericTextStructure.length" :class="textContainerClass" class="text-structure">
+                    <div v-if="config.genericTextStructure.show && arrayIsNotEmpty(genericTextStructure)" :class="textContainerClass" class="text-structure">
                         <h2>Generic structure</h2>
                         <template v-if="config.genericTextStructure.groupByLevel">
                             <div :class="getLevelClass(getTextLevel(level.id))" v-for="level in genericTextStructureGroupedByLevel">
@@ -88,7 +88,7 @@
                     </div>
 
                     <!-- Layout Text Structure -->
-                    <div v-if="config.layoutTextStructure.show && layoutTextStructure.length" :class="textContainerClass" class="text-structure">
+                    <div v-if="config.layoutTextStructure.show && arrayIsNotEmpty(layoutTextStructure)" :class="textContainerClass" class="text-structure">
                         <h2>Layout structure</h2>
                         <div :class="getStructureClass(textStructure)" v-for="textStructure in layoutTextStructure">
                             <label @click="onClickAnnotation(textStructure)">
@@ -140,7 +140,7 @@
                     </div>
 
                     <!-- Translations -->
-                    <div v-if="config.translation.show && text.translation.length" :class="textContainerClass" class="text-translations">
+                    <div v-if="config.translation.show && arrayIsNotEmpty(text?.translation)" :class="textContainerClass" class="text-translations">
                         <div v-for="translation in text.translation" class="greek">
                             <h2>{{ translation.language.name}} Translation</h2>
                             <GreekText :text="translation.text"></GreekText>
@@ -231,13 +231,13 @@
                     <text-metadata :text="text" :url-generator="urlGeneratorIdName"></text-metadata>
                 </Widget>
 
-                <Widget title="Images" :count="text.image.length" :collapsed.sync="config.widgets.images.isCollapsed">
-                    <Gallery :images="images" :onClick="(index,url) => (imageIndex = index)" />
+                <Widget title="Images" :count="arrayGetLength(images)" :collapsed.sync="config.widgets.images.isCollapsed" v-if="isViewInternal">
+                    <Gallery :images="imagesLightBox" :onClick="(index,url) => (imageIndex = index)" />
                 </Widget>
 
-                <Widget title="Translations" :count="text.translation.length"  :collapsed.sync="config.widgets.translations.isCollapsed">
+                <Widget title="Translations" :count="arrayGetLength(text.translation)" :collapsed.sync="config.widgets.translations.isCollapsed">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.translation.show" class="switch-primary" label="Show translation(s)" :disabled="text.translation.length === 0"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.translation.show" class="switch-primary" label="Show translation(s)" :disabled="arrayGetLength(text.translation) === 0"></CheckboxSwitch>
                     </div>
                 </Widget>
 
@@ -252,26 +252,26 @@
 
                 <Widget title="Materiality" :collapsed.sync="config.widgets.materiality.isCollapsed">
                     <PropertyGroup>
-                        <LabelValue type="id_name" label="Production stage" :value="text.production_stage" :url="urlGeneratorIdName('materiality_search','production_stage')"></LabelValue>
-                        <LabelValue type="id_name" label="Material" :value="text.material" :url="urlGeneratorIdName('materiality_search','material')"></LabelValue>
-                        <LabelValue type="id_name" label="Writing direction" :value="text.writing_direction" :url="urlGeneratorIdName('materiality_search','writing_direction')"></LabelValue>
-                        <LabelValue type="id_name" label="Format" :value="text.text_format" :url="urlGeneratorIdName('materiality_search','text_format')"></LabelValue>
+                        <LabelValue type="id_name" label="Production stage" :value="text?.production_stage" :url="urlGeneratorIdName('materiality_search','production_stage')"></LabelValue>
+                        <LabelValue type="id_name" label="Material" :value="text?.material" :url="urlGeneratorIdName('materiality_search','material')"></LabelValue>
+                        <LabelValue type="id_name" label="Writing direction" :value="text?.writing_direction" :url="urlGeneratorIdName('materiality_search','writing_direction')"></LabelValue>
+                        <LabelValue type="id_name" label="Format" :value="text?.text_format" :url="urlGeneratorIdName('materiality_search','text_format')"></LabelValue>
                     </PropertyGroup>
                     <PropertyGroup>
                         <PageMetrics v-bind="text" unit="cm"></PageMetrics>
                     </PropertyGroup>
                     <PropertyGroup>
-                        <LabelValue label="Lines" :value="arrayToRange(text.lines)"  type="range"></LabelValue>
-                        <LabelValue label="Lines (calculated)" :value="text.count_lines_auto"></LabelValue>
-                        <LabelValue label="Columns" :value="minMaxToRange(text.columns)"  type="range"></LabelValue>
-                        <LabelValue label="Letters per line" :value="minMaxToRange(text.letters_per_line)" type="range"></LabelValue>
-                        <LabelValue label="Letters per line (calculated)" :value="text.letters_per_line_auto"></LabelValue>
-                        <LabelValue label="Interlinear space" :value="text.interlinear_space" ></LabelValue>
-                        <LabelValue label="Line Height" :value="text.image[0]?.line_height" ></LabelValue>
+                        <LabelValue label="Lines" :value="arrayToRange(text?.lines)"  type="range"></LabelValue>
+                        <LabelValue label="Lines (calculated)" :value="text?.count_lines_auto"></LabelValue>
+                        <LabelValue label="Columns" :value="minMaxToRange(text?.columns)"  type="range"></LabelValue>
+                        <LabelValue label="Letters per line" :value="minMaxToRange(text?.letters_per_line)" type="range"></LabelValue>
+                        <LabelValue label="Letters per line (calculated)" :value="text?.letters_per_line_auto"></LabelValue>
+                        <LabelValue label="Interlinear space" :value="text?.interlinear_space" ></LabelValue>
+                        <LabelValue label="Line Height" :value="text?.image?.[0]?.line_height" ></LabelValue>
                     </PropertyGroup>
                 </Widget>
 
-                <Widget title="People"  :collapsed.sync="config.widgets.attestation.isCollapsed" :count="people.length">
+                <Widget title="People" :collapsed.sync="config.widgets.attestation.isCollapsed" :count="arrayGetLength(people)">
                     <ancient-person-details v-for="person in people" :person="person" :key="'key_person:' + person.id"
                                             :export-mode="config.expertMode"
                                             :url-generator="urlGeneratorIdName"
@@ -346,10 +346,10 @@
 
                 </Widget>
 
-                <Widget title="Generic Structure" :collapsed.sync="config.widgets.genericTextStructure.isCollapsed" :count="genericTextStructure.length">
+                <Widget title="Generic Structure" :collapsed.sync="config.widgets.genericTextStructure.isCollapsed" :count="arrayGetLength(genericTextStructure)">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic structure" :disabled="!genericTextStructure.length">
-                            <span class="count pull-right">{{ genericTextStructure.length }}</span>
+                        <CheckboxSwitch v-model="config.genericTextStructure.show" class="switch-primary" label="Show generic structure" :disabled="arrayGetLength(genericTextStructure) === 0">
+                            <span class="count pull-right">{{ arrayGetLength(genericTextStructure) }}</span>
                         </CheckboxSwitch>
                     </div>
                     <div class="form-group">
@@ -387,9 +387,9 @@
                     </div>
                 </Widget>
 
-                <Widget title="Layout Structure" :collapsed.sync="config.widgets.layoutTextStructure.isCollapsed" :count="layoutTextStructure.length">
+                <Widget title="Layout Structure" :collapsed.sync="config.widgets.layoutTextStructure.isCollapsed" :count="arrayGetLength(layoutTextStructure)">
                     <div class="form-group">
-                        <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout structure" :disabled="!layoutTextStructure.length">
+                        <CheckboxSwitch v-model="config.layoutTextStructure.show" class="switch-primary" label="Show layout structure" :disabled="!arrayGetLength(layoutTextStructure)">
                             <span class="count pull-right">{{ countAnnotations('lts') }}</span>
                         </CheckboxSwitch>
                     </div>
@@ -428,7 +428,7 @@
                     </div>
                 </Widget>
 
-                <Widget title="Links" :count="links.length" :collapsed.sync="config.widgets.links.isCollapsed">
+                <Widget title="Links" :count="arrayGetLength(links)" :collapsed.sync="config.widgets.links.isCollapsed">
                     <div v-for="link in links">
                         <a :href="link.url" target="_blank">{{ link.title }}</a>
                     </div>
@@ -499,6 +499,11 @@ export default {
         },
         debug: {
             type: Boolean|String,
+            required: false,
+            default: false
+        },
+        isViewInternal: {
+            type: Boolean,
             required: false,
             default: false
         }
@@ -589,9 +594,13 @@ export default {
             return this.data.text
         },
         images: function() {
+            return this.data.text?.image ?? []
+        },
+        imagesLightBox: function() {
             let result = []
-            if ( this.data.text.hasOwnProperty('image') && this.data.text.image.length ) {
-                this.data.text.image.forEach( function(image,index) {
+            const images = this.data.text?.image ?? []
+            if ( this.arrayGetLength(images) ) {
+                images.forEach( function(image,index) {
                     result.push({
                         description: [
                             image.source ? 'Source: ' + image.source : null,
@@ -604,7 +613,7 @@ export default {
             return result
         },
         links: function() {
-            let links = this.text?.link ?? []
+            const links = this.text?.link ?? []
             if ( this.text?.tm_id ) {
                 links.push({
                     title: "Trismegistos",
@@ -616,7 +625,7 @@ export default {
         people: function() {
             if (this.text.ancient_person) {
                 return this.text.ancient_person.filter(
-                    person => person?.role && person?.role.length // && !['Unknown','unknown'].includes(person.role)
+                    person => this.arrayGetLength(person?.role) // && !['Unknown','unknown'].includes(person.role)
                 )
             }
             return [];
@@ -668,7 +677,7 @@ export default {
             return ret;
         },
         annotationsInContext() {
-            let annotations = this.text.annotations
+            let annotations = this.text?.annotations ?? []
 
             // filter by search context?
             if ( this.config.annotations.showOnlyInSearchContext && (this.context.params ?? false) ) {
@@ -729,27 +738,23 @@ export default {
         },
         // get generic text structure annotations
         genericTextStructure() {
-            let ret = {}
+            const annotations = this.data.text?.annotations ?? []
 
-            ret = this.data.text.annotations
+            return annotations
                 .filter( function(annotation) {
                     return annotation.type === 'gts'
                 })
                 .sort( (a,b) => a.text_selection.selection_start - b.text_selection.selection_start )
-
-            return ret
         },
         // get layout text structure annotations
         layoutTextStructure() {
-            let ret = []
+            const annotations = this.data.text?.annotations ?? []
 
-            ret = this.data.text.annotations
+            return annotations
                 .filter( function(annotation) {
                     return annotation.type === 'lts'
                 })
                 .sort( (a,b) => a.text_selection.selection_start - b.text_selection.selection_start )
-
-            return ret
         },
         // group text structure annotations by level number
         // catch: not all annotations have a level assigned
@@ -1182,6 +1187,12 @@ export default {
         },
         isValidResultSet() {
             return this.context?.searchIndex && this.resultSet?.count
+        },
+        arrayGetLength(data) {
+            return Array.isArray(data) ? data.length : 0;
+        },
+        arrayIsNotEmpty(data) {
+            return Array.isArray(data) && data.length > 0;
         }
 
     },
@@ -1206,7 +1217,6 @@ export default {
         }
     },
 }
-
 </script>
 
 <style scoped lang="scss">
