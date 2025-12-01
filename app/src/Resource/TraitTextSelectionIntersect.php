@@ -24,8 +24,16 @@ trait TraitTextSelectionIntersect {
         foreach ($additionalProperties as $propertyKey => $propertyValues) {
             $additionalProperties[$propertyKey] = array_values($propertyValues);
         }
+        if (!array_key_exists('intersect_properties', $annotationSource)){
+            $annotationSource = array_merge($annotationSource, ['intersect_properties' => array_map(fn($value)=>[$value], $annotationSource['properties'])]);
+        }
         // merge additional properties with existing properties
-        $annotationSource['properties'] += $additionalProperties;
+        foreach ($additionalProperties as $propertyKey => $propertyValues) {
+            if (!array_key_exists($propertyKey, $annotationSource['intersect_properties'])){
+                $annotationSource['intersect_properties'] = array_merge($annotationSource['intersect_properties'], [$propertyKey => $propertyValues]);
+            }
+            $annotationSource['intersect_properties'][$propertyKey] = array_merge($propertyValues, $annotationSource['intersect_properties'][$propertyKey]);
+        }
     }
 
     private function textSelectionIntersect($a, $b): ?array

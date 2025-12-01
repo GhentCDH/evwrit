@@ -531,6 +531,27 @@ export default {
                 ]
             }
         },
+        genericStructureFieldsIntersections(expertOnly = false) {
+            return {
+                expertOnly: expertOnly,
+                visible: this.fieldVisible,
+                collapsible: true,
+                collapsed: this.groupCollapsed,
+                legend: 'Generic structure intersections',
+                id: 'gtsi',
+                fields: [
+                    this.createMultiSelect('Part', {model: 'intersect_gts_part'}),
+                    this.createMultiSelect('Type', {model: 'intersect_gtsa_type'}),
+                    this.createMultiSelect('Subtype', {model: 'intersect_gtsa_subtype', 'dependency': 'intersect_gtsa_type'}),
+                    this.createMultiSelect('Speech act', {model: 'intersect_gtsa_speechAct'}),
+                    this.createMultiSelect('Information status', {model: 'intersect_gtsa_informationStatus'}),
+                    this.createMultiSelect('Standard form', {model: 'intersect_gtsa_standardForm'}),
+                    this.createMultiSelect('Attached to', {model: 'intersect_gtsa_attachedTo'}),
+                    this.createMultiSelect('Type Attachment', {model: 'intersect_gtsa_attachmentType'}),
+
+                ]
+            }
+        },
         genericStructureFieldsAnnotations(expertOnly = false) {
             return {
                 expertOnly: expertOnly,
@@ -570,6 +591,29 @@ export default {
                     this.createMultiSelect('Lectional signs', {model: 'ltsa_lectionalSigns'}),
                     this.createMultiSelect('Lineation', {model: 'ltsa_lineation'}),
                     this.createMultiSelect('Pagination', {model: 'ltsa_pagination'}),
+                ]
+            }
+        },
+        layoutStructureFieldsIntersections(expertOnly = false) {
+            return {
+                expertOnly: expertOnly,
+                visible: this.fieldVisible,
+                collapsible: true,
+                collapsed: this.groupCollapsed,
+                legend: 'Layout structure intersections',
+                id: 'ltsi',
+                fields: [
+                    this.createMultiSelect('Part', {model: 'intersect_lts_part'}),
+                    this.createMultiSelect('Type', {model: 'intersect_ltsa_type'}),
+                    this.createMultiSelect('Subtype', {model: 'intersect_ltsa_subtype', 'dependency': 'intersect_ltsa_type'}),
+                    this.createMultiSelect('Spacing', {model: 'intersect_ltsa_spacing'}),
+                    this.createMultiSelect('Separation', {model: 'intersect_ltsa_separation'}),
+                    this.createMultiSelect('Orientation', {model: 'intersect_ltsa_orientation'}),
+                    this.createMultiSelect('Alignment', {model: 'intersect_ltsa_alignment'}),
+                    this.createMultiSelect('Indentation', {model: 'intersect_ltsa_indentation'}),
+                    this.createMultiSelect('Lectional signs', {model: 'intersect_ltsa_lectionalSigns'}),
+                    this.createMultiSelect('Lineation', {model: 'intersect_ltsa_lineation'}),
+                    this.createMultiSelect('Pagination', {model: 'intersect_ltsa_pagination'}),
                 ]
             }
         },
