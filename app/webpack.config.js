@@ -18,8 +18,12 @@ Encore
     // allow pug templates in vue components
     .enableVueLoader(() => {}, { runtimeCompilerBuild: false })
 
+    // // Enable TypeScript
+    .enableTypeScriptLoader()
+
     // Add javascripts
     .autoProvidejQuery()
+
     .addEntry('main', './assets/js/main/main.js')
     .addEntry('text-search', './assets/js/main/text-search.js')
     .addEntry('materiality-search', './assets/js/main/materiality-search.js')
@@ -92,3 +96,10 @@ config.watchOptions = {
 
 // Export the final configuration
 module.exports = config;
+
+// Add TypeScript file extensions
+config.resolve = {
+    ...config.resolve,
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.vue', '.json']
+};
+
