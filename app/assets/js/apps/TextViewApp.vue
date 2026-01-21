@@ -19,7 +19,20 @@
                     <!-- Text -->
                     <div v-if="showText" :class="textContainerClass" class="text">
                         <h2>Text</h2>
-                        <GreekText :text="text.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="1"/>
+                        <div class="row">
+                            <div :class="textViewerClass" v-if="config.legacyMode">
+                                <h3>Legacy viewer</h3>
+                                <GreekText :text="text.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="1"/>
+                            </div>
+                            <div :class="textViewerClass">
+                                <h3 v-if="config.legacyMode">SVG viewer</h3>
+                                <AnnotatedText :text="text.text"
+                                               :annotations="visibleAnnotationsFormattedNew"
+                                               @annotation-click="onClickAnnotationNew"
+                                               :annotationOffset="1"
+                                ></AnnotatedText>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Generic Text Structure -->
@@ -31,7 +44,21 @@
                                 <label class="level__category" @click.stop="onClickLevel(getTextLevel(level.id))" v-if="level.id" v-for="category in formatLevelCategory(getTextLevel(level.id))"><span>{{ category }}</span></label>
                                 <div :class="getStructureClass(textStructure)" v-for="textStructure in level.genericTextStructure">
                                     <label @click="onClickAnnotation(textStructure)"><span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span></label>
-                                    <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormattedNoLts" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                                    <div class="row">
+                                        <div :class="textViewerClass" v-if="config.legacyMode">
+                                            <h3>Legacy viewer</h3>
+                                            <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormattedNoLts" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                                        </div>
+                                        <div :class="textViewerClass">
+                                            <h3 v-if="config.legacyMode">SVG viewer</h3>
+                                            <AnnotatedText :text="textStructure.text_selection.text"
+                                                           :annotations="visibleAnnotationsFormattedNoLtsNew"
+                                                           @annotation-click="onClickAnnotationNew"
+                                                           :annotationOffset="textStructure.text_selection.selection_start"
+                                            ></AnnotatedText>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </template>
@@ -41,7 +68,21 @@
                                     <span v-if="textStructure.gts_textLevel">Level {{ textStructure.gts_textLevel.number }}</span>
                                     <span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span>
                                 </label>
-                                <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormattedNoLts" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                                <div class="row">
+                                    <div :class="textViewerClass" v-if="config.legacyMode">
+                                        <h3>Legacy viewer</h3>
+                                        <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormattedNoLts" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                                    </div>
+                                    <div :class="textViewerClass">
+                                        <h3 v-if="config.legacyMode">SVG viewer</h3>
+                                        <AnnotatedText :text="textStructure.text_selection.text"
+                                                       :annotations="visibleAnnotationsFormattedNoLtsNew"
+                                                       @annotation-click="onClickAnnotationNew"
+                                                       :annotationOffset="textStructure.text_selection.selection_start"
+                                        ></AnnotatedText>
+                                    </div>
+                                </div>
+
                             </div>
                         </template>
                     </div>
@@ -53,20 +94,49 @@
                             <label @click="onClickAnnotation(textStructure)">
                                 <span>{{ textStructure.properties.lts_part.name }}</span>
                             </label>
-                            <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormattedNoGts" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                            <div :class="textViewerClass" v-if="config.legacyMode">
+                                <h3>Legacy viewer</h3>
+                                <GreekText :text="textStructure.text_selection.text" :annotations="visibleAnnotationsFormattedNoGts" :annotation-offset="textStructure.text_selection.selection_start"></GreekText>
+                            </div>
+                            <div :class="textViewerClass">
+                                <h3 v-if="config.legacyMode">SVG viewer</h3>
+                                <AnnotatedText :text="textStructure.text_selection.text"
+                                               :annotations="visibleAnnotationsFormattedNoGts"
+                                               @annotation-click="onClickAnnotationNew"
+                                               :annotationOffset="textStructure.text_selection.selection_start"
+                                ></AnnotatedText>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Lemmas -->
                     <div v-if="config.text.showLemmas && text.text_lemmas" :class="textContainerClass" class="text-lemmas">
                         <h2>Lemmas</h2>
-                        <GreekText :text="text.text_lemmas"   />
+                        <div class="row">
+                            <div :class="textViewerClass" v-if="config.legacyMode">
+                                <h3>Legacy viewer</h3>
+                        <GreekText :text="text.text_lemmas" />
+                            </div>
+                            <div :class="textViewerClass">
+                                <h3 v-if="config.legacyMode">SVG viewer</h3>
+                                <AnnotatedText :text="text.text_lemmas" />
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Apparatus -->
                     <div v-if="config.text.showApparatus && text.apparatus" :class="textContainerClass" class="text-lemmas">
                         <h2>Apparatus</h2>
-                        <GreekText :text="text.apparatus"   />
+                        <div class="row">
+                            <div :class="textViewerClass" v-if="config.legacyMode">
+                                <h3>Legacy viewer</h3>
+                        <GreekText :text="text.apparatus" />
+                            </div>
+                            <div :class="textViewerClass">
+                                <h3 v-if="config.legacyMode">SVG viewer</h3>
+                                <AnnotatedText :text="text.apparatus" />
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Translations -->
@@ -80,7 +150,6 @@
                 </div>
 
                 <div class="row mbottom-large">
-
                     <!-- Annotations -->
                     <div v-if="config.annotations.showList" class="col-xs-12">
                         <h2 v-if="showText || config.text.showLemmas || config.genericTextStructure.show">Annotations</h2>
@@ -360,7 +429,6 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import Widget from '../components/Sidebar/Widget'
 import LabelValue from '../components/Sidebar/LabelValue'
 import PageMetrics from '../components/Sidebar/PageMetrics'
@@ -386,11 +454,14 @@ import axios from 'axios'
 import qs from 'qs'
 import SharedSearch from "../components/Search/SharedSearch";
 
+import AnnotatedText from "../components/Text/AnnotatedText.vue";
+
 export default {
     name: "TextViewApp",
     components: {
         Widget, LabelValue, PageMetrics, GreekText, CoolLightBox, PropertyGroup, Gallery, CheckboxSwitch, AnnotationDetailsFlat, AnnotationDetails,
-        AncientPersonDetails: AncientPersonMetadata, LevelDetails: LevelMetadata, TextMetadata
+        AncientPersonDetails: AncientPersonMetadata, LevelDetails: LevelMetadata, TextMetadata,
+        AnnotatedText,
     },
     mixins: [
         PersistentConfig('TextViewConfig'),
@@ -414,6 +485,7 @@ export default {
             data: JSON.parse(this.initData),
             defaultConfig: {
                 expertMode: false,
+                legacyMode: false,
                 search: {
                     useContext: true,
                 },
@@ -590,11 +662,20 @@ export default {
         visibleAnnotationsFormatted() {
             return this.visibleAnnotations.reduce( (result, annotation) => result.concat(this.formatAnnotation(annotation)), [] );
         },
+        visibleAnnotationsFormattedNew() {
+            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(this.formatAnnotationNew(annotation)), [] );
+        },
         visibleAnnotationsFormattedNoGts() {
             return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type != 'gtsa' ? this.formatAnnotation(annotation) : []), [] );
         },
+        visibleAnnotationsFormattedNoGtsNew() {
+            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type != 'gtsa' ? this.formatAnnotationNew(annotation) : []), [] );
+        },
         visibleAnnotationsFormattedNoLts() {
             return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type != 'ltsa' ? this.formatAnnotation(annotation) : []), [] );
+        },
+        visibleAnnotationsFormattedNoLtsNew() {
+            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type != 'ltsa' ? this.formatAnnotationNew(annotation) : []), [] );
         },
         showText() {
             return  (!this.config.genericTextStructure.show || !this.genericTextStructure.length) && (!this.config.layoutTextStructure.show || !this.layoutTextStructure.length)
@@ -690,9 +771,13 @@ export default {
             }
             return strClass;
         },
+        textViewerClass() {
+            return this.config.legacyMode ? 'col-xs-6' : 'col-xs-12'
+        },
         hasSelection() {
             return Object.values(this.selection).filter(item => item).length !== 0
         },
+
     },
     methods: {
         openSelectionWidget() {
@@ -703,6 +788,15 @@ export default {
             Object.keys(this.selection).map( key =>
                 this.$set(this.selection, key, null)
             )
+        },
+        onClickAnnotationNew(annotation) {
+            if (this.selection?.annotationId === annotation.id )
+                this.$set(this.selection, 'annotationId', null)
+            else {
+                this.resetSelection()
+                this.$set(this.selection, 'annotationId', annotation.id)
+                this.openSelectionWidget()
+            }
         },
         onClickAnnotation(annotation) {
             if (this.selection?.annotationId === this.getAnnotationTypeId(annotation) )
@@ -856,6 +950,66 @@ export default {
                         ]
                     ]
             }
+        },
+        formatAnnotationNew(annotation) {
+
+            const indexOffset = 0; // annotated-text uses 0-based indexing
+
+            const weights = {
+                "unit": 4,
+                "subunit": 3,
+                "element": 2,
+                "modifier": 1,
+            }
+
+            let style = null;
+            let weight = null;
+            let render = 'highlight';
+            style = annotation.type;
+            switch (annotation.type) {
+                case 'typography':
+                case 'orthography':
+                case 'language':
+                case 'morpho_syntactical':
+                case 'lexis':
+                case 'morphology':
+                    style = annotation.type;
+                    break;
+                case 'gtsa':
+                    render = 'underline';
+                    if ( annotation.properties?.gtsa_type?.name ) {
+                        style = annotation.properties.gtsa_type.name.toLowerCase();
+                        weight = weights[style] ?? 0;
+                    }
+                    break;
+                case 'ltsa':
+                    render = 'underline';
+                    if ( annotation.properties?.ltsa_type?.name ) {
+                        style = annotation.properties.ltsa_type.name.toLowerCase();
+                        weight = weights[style] ?? 0;
+                    }
+                    break;
+                case 'handshift':
+                    render = 'gutter';
+                    if ( annotation.internal_hand_num && annotation.internal_hand_num.match(/(\d+)/) ) {
+                        style = 'handshift-' + annotation.internal_hand_num.match(/(\d+)/)[0];
+                    }
+                    break;
+            }
+
+            const ret = {
+                id: annotation.type + ':' + annotation.id,
+                start: annotation.text_selection.selection_start - indexOffset,
+                end: annotation.text_selection.selection_end - indexOffset,
+                render,
+                style,
+            }
+
+            if ( weight !== null ) {
+                ret.weight = weight;
+            }
+
+            return ret;
         },
         getAnnotationClass(annotation, extra = null) {
             let classes = [];
@@ -1015,6 +1169,7 @@ export default {
         }
     },
 }
+
 </script>
 
 <style scoped lang="scss">
