@@ -198,6 +198,12 @@
                     </div>
                 </Widget>
 
+                <Widget title="Debug" class="widget--debug" v-if="debug && config.expertMode" :collapsed.sync="config.widgets.debug.isCollapsed">
+                    <CheckboxSwitch v-model="config.legacyMode" class="switch-primary" label="Show legacy viewer"></CheckboxSwitch>
+                    <AnnotationDetailsDebug v-if="selection.annotationId" :annotation="annotationsByTypeId[selection.annotationId]">
+                    </AnnotationDetailsDebug>
+                </Widget>
+
                 <Widget title="Selection details" class="widget--selection-details" v-if="hasSelection" :collapsed.sync="config.widgets.selectionDetails.isCollapsed">
                     <AnnotationDetails v-if="selection.annotationId" :annotation="annotationsByTypeId[selection.annotationId]"
                                        :class="getAnnotationClass(annotationsByTypeId[selection.annotationId])"
@@ -437,6 +443,7 @@ import PropertyGroup from '../components/Sidebar/PropertyGroup'
 import Gallery from '../components/Sidebar/Gallery'
 import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
 import AnnotationDetailsFlat from '../components/Annotations/AnnotationDetailsFlat'
+import AnnotationDetailsDebug from '../components/Annotations/AnnotationDetailsDebug'
 import AnnotationDetails from '../components/Annotations/AnnotationDetails'
 import AncientPersonMetadata from "../components/Sidebar/AncientPersonMetadata.vue";
 import LevelMetadata from "../components/Sidebar/LevelMetadata.vue";
@@ -459,6 +466,7 @@ import AnnotatedText from "../components/Text/AnnotatedText.vue";
 export default {
     name: "TextViewApp",
     components: {
+        AnnotationDetailsDebug,
         Widget, LabelValue, PageMetrics, GreekText, CoolLightBox, PropertyGroup, Gallery, CheckboxSwitch, AnnotationDetailsFlat, AnnotationDetails,
         AncientPersonDetails: AncientPersonMetadata, LevelDetails: LevelMetadata, TextMetadata,
         AnnotatedText,
@@ -477,6 +485,11 @@ export default {
         initData: {
             type: String,
             required: true
+        },
+        debug: {
+            type: String,
+            required: false,
+            default: true
         }
     },
     data() {
@@ -540,6 +553,7 @@ export default {
                     layoutTextStructure: { isCollapsed: true },
                     images: { isCollapsed: true },
                     links: { isCollapsed: true },
+                    debug: { isCollapsed: true },
                 }
             },
             selection: {},
