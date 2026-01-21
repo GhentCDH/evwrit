@@ -199,7 +199,18 @@
                 </Widget>
 
                 <Widget title="Debug" class="widget--debug" v-if="debug && config.expertMode" :collapsed.sync="config.widgets.debug.isCollapsed">
-                    <CheckboxSwitch v-model="config.legacyMode" class="switch-primary" label="Show legacy viewer"></CheckboxSwitch>
+                    <div class="form-group">
+                        <CheckboxSwitch v-model="config.legacyMode" class="switch-primary" label="Show legacy viewer"></CheckboxSwitch>
+                        <CheckboxSwitch v-model="config.annotations.showOverridesOnly" class="switch-primary" label="Only show annotations with overrides"></CheckboxSwitch>
+                    </div>
+                    <div class="form-group">
+                        <label>Add Start offset</label> <input type="number" size="2" v-model="config.annotationOffsets.start"/> <br/>
+                        <label>Add End offset</label> <input type="number" size="2" v-model="config.annotationOffsets.end"/> <br/>
+                    </div>
+                    <div class="form-group">
+                        <label>Add Start offset (overrides)</label> <input type="number" size="2" v-model="config.annotationOffsets.startOverride"/><br/>
+                        <label>Add End offset (overrides)</label> <input type="number" size="2" v-model="config.annotationOffsets.endOverride"/>
+                    </div>
                     <AnnotationDetailsDebug v-if="selection.annotationId" :annotation="annotationsByTypeId[selection.annotationId]">
                     </AnnotationDetailsDebug>
                 </Widget>
@@ -523,6 +534,7 @@ export default {
                     showLexis: false,
                     showMorphoSyntactical: false,
                     showHandshift: false,
+                    showOverridesOnly: false,
                 },
                 genericTextStructure: {
                     show: false,
@@ -554,6 +566,12 @@ export default {
                     images: { isCollapsed: true },
                     links: { isCollapsed: true },
                     debug: { isCollapsed: true },
+                },
+                annotationOffsets: {
+                    startOverride: 0,
+                    endOverride: 0,
+                    start: 0,
+                    end: 0,
                 }
             },
             selection: {},
@@ -866,6 +884,10 @@ export default {
                 .filter( function(annotation) {
                     return annotation.type !== "ltsa" || ( annotation.type === "ltsa" && that.visibleLTSATypes.includes(annotation.properties?.ltsa_type?.name) )
                 })
+                // filter by overrides only (if set)
+                .filter( function(annotation) {
+                    return !that.config.annotations.showOverridesOnly || ( that.config.annotations.showOverridesOnly && (annotation?.hasOverride ?? false) )
+                })
         },
         filterAnnotationsByContext(annotations, context_params) {
             // todo: add support for operators
@@ -967,8 +989,6 @@ export default {
         },
         formatAnnotationNew(annotation) {
 
-            const indexOffset = 0; // annotated-text uses 0-based indexing
-
             const weights = {
                 "unit": 4,
                 "subunit": 3,
@@ -1013,8 +1033,8 @@ export default {
 
             const ret = {
                 id: annotation.type + ':' + annotation.id,
-                start: annotation.text_selection.selection_start - indexOffset,
-                end: annotation.text_selection.selection_end - indexOffset,
+                start: annotation.text_selection.selection_start + parseInt(annotation?.hasOverride ? this.config.annotationOffsets.startOverride : this.config.annotationOffsets.start),
+                end: annotation.text_selection.selection_end + parseInt(annotation?.hasOverride ? this.config.annotationOffsets.endOverride : this.config.annotationOffsets.end),
                 render,
                 style,
             }
