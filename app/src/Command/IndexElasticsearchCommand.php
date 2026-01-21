@@ -35,13 +35,14 @@ class IndexElasticsearchCommand extends Command
             ->setDescription(self::$defaultDescription)
             ->addArgument('index', InputArgument::REQUIRED, 'Which index should be reindexed?')
             ->addArgument('maxItems', InputArgument::OPTIONAL, 'Max number of items to index')
+            ->addOption('chunk-size', null, InputArgument::OPTIONAL, 'Number of items to index per chunk', 50)
             ->setHelp('This command allows you to reindex elasticsearch.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $chunkSize = 5;
+        $chunkSize = $input->getOption('chunk-size');
 
         $allowedProjectIds = (array) $this->container->getParameter('app.allowed_project_ids');
 
@@ -80,7 +81,9 @@ class IndexElasticsearchCommand extends Command
 
                     $service->switchToNewIndex($indexName);
 
-                    $progressBar->finish();
+                    if (!$maxItems || $count < $maxItems ) {
+                        $progressBar->setProgress($total);
+                    }
 
                     break;
                 case "level": {
@@ -118,7 +121,9 @@ class IndexElasticsearchCommand extends Command
 
                     $service->switchToNewIndex($indexName);
 
-                    $progressBar->finish();
+                    if (!$maxItems || $count < $maxItems ) {
+                        $progressBar->setProgress($total);
+                    }
                 }
             }
         }
