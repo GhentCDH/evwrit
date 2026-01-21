@@ -6,10 +6,31 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
+
+    public function __construct(string $environment, bool $debug)
+    {
+        parent::__construct($environment, $debug);
+
+        // add annotation Morph Map
+        Relation::enforceMorphMap([
+            'language' => 'App\Model\LanguageAnnotation',
+            'lexis' => 'App\Model\LexisAnnotation',
+            'morphology' => 'App\Model\MorphologyAnnotation',
+            'handshift' => 'App\Model\HandshiftAnnotation',
+            'morpho_syntactical' => 'App\Model\MorphoSyntacticalAnnotation',
+            'orthography' => 'App\Model\OrthographyAnnotation',
+            'typography' => 'App\Model\TypographyAnnotation',
+            'ltsa' => 'App\Model\LayoutTextStructureAnnotation',
+            'gtsa' => 'App\Model\GenericTextStructureAnnotation',
+            'gts' => 'App\Model\GenericTextStructure',
+            'lts' => 'App\Model\LayoutTextStructure',
+        ]);
+    }
 
     protected function configureContainer(ContainerConfigurator $container): void
     {
