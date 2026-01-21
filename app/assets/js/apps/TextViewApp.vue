@@ -29,7 +29,7 @@
                                 <AnnotatedText :text="text.text"
                                                :annotations="visibleAnnotationsFormattedNew"
                                                @annotation-click="onClickAnnotationNew"
-                                               :annotationOffset="1"
+                                               :textOffset="1"
                                 ></AnnotatedText>
                             </div>
                         </div>
@@ -54,7 +54,7 @@
                                             <AnnotatedText :text="textStructure.text_selection.text"
                                                            :annotations="visibleAnnotationsFormattedNoLtsNew"
                                                            @annotation-click="onClickAnnotationNew"
-                                                           :annotationOffset="textStructure.text_selection.selection_start"
+                                                           :textOffset="textStructure.text_selection.selection_start"
                                             ></AnnotatedText>
                                         </div>
                                     </div>
@@ -78,7 +78,7 @@
                                         <AnnotatedText :text="textStructure.text_selection.text"
                                                        :annotations="visibleAnnotationsFormattedNoLtsNew"
                                                        @annotation-click="onClickAnnotationNew"
-                                                       :annotationOffset="textStructure.text_selection.selection_start"
+                                                       :textOffset="textStructure.text_selection.selection_start"
                                         ></AnnotatedText>
                                     </div>
                                 </div>
@@ -103,7 +103,7 @@
                                 <AnnotatedText :text="textStructure.text_selection.text"
                                                :annotations="visibleAnnotationsFormattedNoGts"
                                                @annotation-click="onClickAnnotationNew"
-                                               :annotationOffset="textStructure.text_selection.selection_start"
+                                               :textOffset="textStructure.text_selection.selection_start"
                                 ></AnnotatedText>
                             </div>
                         </div>

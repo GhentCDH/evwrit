@@ -9,7 +9,7 @@ export type RenderedAnnotation = Annotation & {
 
 
 <script setup lang="ts">
-import {computed, ref, toRefs, watch, onMounted, onUnmounted, PropType} from 'vue'
+import {ref, toRefs, watch, onMounted, onUnmounted, PropType} from 'vue'
 import {createAnnotatedText, TextLineAdapter, UnderLineAnnotationRender, GutterAnnotationRender, TextAnnotationRender} from '@ghentcdh/annotated-text';
 import {defaultAnnotationStyles} from './AnnotatedTextDefaults';
 
@@ -35,9 +35,9 @@ const props = defineProps({
         type: String,
         default: null
     },
-    annotationOffset: {
+    textOffset: {
         type: Number,
-        default: 0
+        default: 1
     }
 })
 
@@ -46,24 +46,13 @@ const emit = defineEmits<{
    'annotation-click': (annotation: Annotation) => void
 }>();
 
-const { text, annotations, annotationOffset, styles } = toRefs(props);
+const { text, annotations, textOffset, styles } = toRefs(props);
 const id = props.id || `annotated-text-${Math.random().toString(36).substring(2, 15)}`;
 
 const annotatedText = ref(null);
 
-// Computed
-const adjustedAnnotations = computed(() => {
-    return annotations.value.map((i: Annotation) => {
-        return {
-            ...i,
-            start: i.start - annotationOffset.value,
-            end: i.end - annotationOffset.value,
-        }
-    })
-});
-
 // Watchers
-watch([text, adjustedAnnotations], ([newText, newAnnotations]) => {
+watch([text, annotations], ([newText, newAnnotations]) => {
     if (annotatedText.value) {
         annotatedText.value
             .setText(newText)
@@ -75,26 +64,12 @@ const onAnnotationClick = ({ mouseEvent, event, data }) => {
     emit('annotation-click', data.annotation);
 }
 
-const customRenderFn = (annotation: RenderedAnnotation) => {
-    console.log(annotation)
-    if (annotation?.target === "gutter") {
-        return GutterAnnotationRender;
-    }
-    if (annotation.id.toString().startsWith('gtsa')) {
-        return UnderLineAnnotationRender;
-    }
-    if (annotation.id.toString().startsWith('ltsa')) {
-        return UnderLineAnnotationRender;
-    }
-
-    return TextAnnotationRender;
-};
-
-
 // Hooks
 onMounted(() => {
     annotatedText.value = createAnnotatedText(id, {
-        text: TextLineAdapter(),
+        text: TextLineAdapter({
+            textOffset: textOffset.value
+        }),
         annotation: {
             style: {
                 styleFn: (annotation) => {
@@ -104,7 +79,7 @@ onMounted(() => {
             render: {
                 renderFn: (annotation) => annotation.render,
             },
-        }
+        },
     })
     .registerStyles(styles.value)
     .updateRenderStyle('highlight', {
@@ -113,7 +88,7 @@ onMounted(() => {
         padding: 4,
     })
     .setText(text.value)
-    .setAnnotations(adjustedAnnotations.value as Annotation[])
+    .setAnnotations(annotations.value as Annotation[])
     .on('click', onAnnotationClick)
     .on('mouse-enter', () => {
         document.body.style.cursor = 'pointer';
