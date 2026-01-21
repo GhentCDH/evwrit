@@ -83,10 +83,6 @@ class ElasticTextLevelIndexResource extends ElasticBaseResource
             $text->handshiftAnnotations->map( fn($a) => new ElasticHandshiftAnnotationResource($a, $text) )
         )->toArray();
 
-//        dump($gts);
-//        dump($lts);
-//        dump($ltsa);
-
         /// if level number === 0, don't filter lts, ltsa and hsa
         /// if level number !== 0, check overlap with gts
         if ($level->number !== 0) {
