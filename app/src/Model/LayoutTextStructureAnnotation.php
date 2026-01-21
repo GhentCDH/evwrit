@@ -32,7 +32,9 @@ class LayoutTextStructureAnnotation extends AbstractAnnotationModel
 //        'textSelection.sourceText',
         'type', 'subtype',
         'layoutTextStructure', 'layoutTextStructure.part',
-        'spacing', 'separation', 'orientation', 'alignment', 'indentation', 'lectionalSigns', 'lineation', 'pagination'];
+        'spacing', 'separation', 'orientation', 'alignment', 'indentation', 'lectionalSigns', 'lineation', 'pagination',
+        'override'
+    ];
 
     public function getAnnotationType(): string
     {

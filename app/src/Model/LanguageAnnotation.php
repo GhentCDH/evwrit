@@ -43,9 +43,11 @@ use ReflectionException;
  */
 class LanguageAnnotation extends AbstractAnnotationModel
 {
-    protected $with = ['textSelection',
-//        'textSelection.sourceText',
-        'bigraphismComments','bigraphismDomain','bigraphismFormulaicity','bigraphismRank','bigraphismType','codeswitchingComments','codeswitchingDomain','codeswitchingRank','codeswitchingType','otherComments','otherDomain','otherFormulaicity','otherRank','otherType'];
+    protected $with = [
+        'textSelection',
+        'bigraphismComments','bigraphismDomain','bigraphismFormulaicity','bigraphismRank','bigraphismType','codeswitchingComments','codeswitchingDomain','codeswitchingRank','codeswitchingType','otherComments','otherDomain','otherFormulaicity','otherRank','otherType',
+        'override'
+    ];
 
     public function getAnnotationType(): string
     {
