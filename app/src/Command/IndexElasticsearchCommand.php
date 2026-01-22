@@ -20,8 +20,8 @@ class IndexElasticsearchCommand extends Command
     protected static $defaultName = 'app:elasticsearch:index';
     protected static $defaultDescription = 'Drops the old elasticsearch index and recreates it.';
 
-    protected $container = [];
-    protected $di = [];
+    protected ContainerInterface $container;
+    protected array $di = [];
 
     public function __construct(ContainerInterface $container)
     {
@@ -29,7 +29,7 @@ class IndexElasticsearchCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription(self::$defaultDescription)
@@ -76,6 +76,7 @@ class IndexElasticsearchCommand extends Command
 
                             // update progress bar
                             $progressBar->advance($texts->count());
+                            return true;
                         }
                     );
 
@@ -117,6 +118,7 @@ class IndexElasticsearchCommand extends Command
 
                             // update progress bar
                             $progressBar->advance($texts->count());
+                            return true;
                         });
 
                     $service->switchToNewIndex($indexName);

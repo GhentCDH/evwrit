@@ -9,6 +9,6 @@ use App\Model\LanguageAnnotation;
 
 class LanguageAnnotationRepository extends AbstractRepository
 {
-    protected $relations = [];
-    protected $model = LanguageAnnotation::class;
+    protected array $relations = [];
+    protected string $model = LanguageAnnotation::class;
 }

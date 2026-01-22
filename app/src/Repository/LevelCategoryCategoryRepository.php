@@ -9,8 +9,8 @@ use App\Model\Lookup\LevelCategoryCategory;
 
 class LevelCategoryCategoryRepository extends AbstractRepository
 {
-    protected $relations = [
+    protected array $relations = [
     ];
-    protected $model = LevelCategoryCategory::class;
+    protected string $model = LevelCategoryCategory::class;
 
 }

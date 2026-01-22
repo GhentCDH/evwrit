@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class LinguisticAnnotationController extends BaseController
 {
-    protected $templateFolder = 'BaseAnnotation';
+    protected string $templateFolder = 'BaseAnnotation';
 
     protected const searchServiceName = "linguistic_annotation_search_service";
     protected const indexServiceName = "text_index_service";
@@ -24,7 +24,8 @@ class LinguisticAnnotationController extends BaseController
      */
     public function search(
         Request $request
-    ) {
+    ): Response
+    {
         return $this->_search(
             $request,
             [
@@ -46,7 +47,8 @@ class LinguisticAnnotationController extends BaseController
      */
     public function search_api(
         Request $request
-    ) {
+    ): JsonResponse
+    {
         return $this->_search_api($request);
     }
 
@@ -57,7 +59,8 @@ class LinguisticAnnotationController extends BaseController
      */
     public function paginate(
         Request $request
-    ) {
+    ): JsonResponse
+    {
         return $this->_paginate($request);
     }
 
@@ -69,7 +72,8 @@ class LinguisticAnnotationController extends BaseController
      */
     public function exportCSV(
         Request $request
-    ) {
+    ): StreamedCsvResponse
+    {
         $elasticService = $this->getContainer()->get(static::searchServiceName);
 
         // search

@@ -9,6 +9,6 @@ use App\Model\GenericTextStructureAnnotation;
 
 class GenericTextStructureAnnotationRepository extends AbstractRepository
 {
-    protected $relations = [];
-    protected $model = GenericTextStructureAnnotation::class;
+    protected array $relations = [];
+    protected string $model = GenericTextStructureAnnotation::class;
 }

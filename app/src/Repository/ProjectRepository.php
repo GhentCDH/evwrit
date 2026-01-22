@@ -9,8 +9,8 @@ use App\Model\Project;
 
 class ProjectRepository extends AbstractRepository
 {
-    protected $relations = [
+    protected array $relations = [
     ];
-    protected $model = Project::class;
+    protected string $model = Project::class;
 
 }

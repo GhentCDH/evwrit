@@ -303,7 +303,7 @@ class Text extends AbstractModel
      * @return BelongsToMany|Location[]
      * @throws ReflectionException
      */
-    public function locationsFound()
+    public function locationsFound(): BelongsToMany|array
     {
         //return Location::join('text__location','location.location_id','text__location.location_id')->select('location.*')->where('text__location.is_found',1)->where('text__location.text_id', $this->getId())->get();
         return $this->locations()->wherePivot('is_found', 1);
@@ -313,7 +313,7 @@ class Text extends AbstractModel
      * @return BelongsToMany|Location[]
      * @throws ReflectionException
      */
-    public function locationsWritten()
+    public function locationsWritten(): BelongsToMany|array
     {
         return $this->locations()->wherePivot('is_written',1);
     }
@@ -329,7 +329,7 @@ class Text extends AbstractModel
     /**
      * @return HasManyThrough|LexisAnnotation[]
      */
-    public function lexisAnnotations()
+    public function lexisAnnotations(): HasManyThrough|array
     {
         return $this->hasManyThrough(LexisAnnotation::class, TextSelection::class);
     }
@@ -337,7 +337,7 @@ class Text extends AbstractModel
     /**
      * @return HasManyThrough|LanguageAnnotation[]
      */
-    public function languageAnnotations()
+    public function languageAnnotations(): HasManyThrough|array
     {
         return $this->hasManyThrough(LanguageAnnotation::class, TextSelection::class);
     }
@@ -345,7 +345,7 @@ class Text extends AbstractModel
     /**
      * @return HasManyThrough|TypographyAnnotation[]
      */
-    public function typographyAnnotations()
+    public function typographyAnnotations(): array|HasManyThrough
     {
         return $this->hasManyThrough(TypographyAnnotation::class, TextSelection::class);
     }
@@ -353,7 +353,7 @@ class Text extends AbstractModel
     /**
      * @return HasManyThrough|OrthographyAnnotation[]
      */
-    public function orthographyAnnotations()
+    public function orthographyAnnotations(): HasManyThrough|array
     {
         return $this->hasManyThrough(OrthographyAnnotation::class, TextSelection::class);
     }
@@ -361,7 +361,7 @@ class Text extends AbstractModel
     /**
      * @return HasManyThrough|OrthographyAnnotation[]
      */
-    public function morphologyAnnotations()
+    public function morphologyAnnotations(): HasManyThrough|array
     {
         return $this->hasManyThrough(MorphologyAnnotation::class, TextSelection::class);
     }
@@ -369,7 +369,7 @@ class Text extends AbstractModel
     /**
      * @return HasManyThrough|MorphoSyntacticalAnnotation[]
      */
-    public function morphoSyntacticalAnnotations()
+    public function morphoSyntacticalAnnotations(): HasManyThrough|array
     {
         return $this->hasManyThrough(MorphoSyntacticalAnnotation::class, TextSelection::class);
     }
@@ -377,7 +377,7 @@ class Text extends AbstractModel
     /**
      * @return HasManyThrough|HandshiftAnnotation[]
      */
-    public function handshiftAnnotations()
+    public function handshiftAnnotations(): array|HasManyThrough
     {
         return $this->hasManyThrough(HandshiftAnnotation::class, TextSelection::class);
     }
@@ -385,7 +385,7 @@ class Text extends AbstractModel
     /**
      * @return HasManyThrough|GenericTextStructure[]
      */
-    public function genericTextStructures()
+    public function genericTextStructures(): array|HasManyThrough
     {
         return $this->hasManyThrough(GenericTextStructure::class, TextSelection::class);
     }
@@ -393,7 +393,7 @@ class Text extends AbstractModel
     /**
      * @return HasManyThrough|GenericTextStructureAnnotation[]
      */
-    public function genericTextStructureAnnotations()
+    public function genericTextStructureAnnotations(): HasManyThrough|array
     {
         return $this->hasManyThrough(GenericTextStructureAnnotation::class, TextSelection::class);
     }
@@ -401,7 +401,7 @@ class Text extends AbstractModel
     /**
      * @return HasManyThrough|LayoutTextStructure[]
      */
-    public function layoutTextStructures()
+    public function layoutTextStructures(): array|HasManyThrough
     {
         return $this->hasManyThrough(LayoutTextStructure::class, TextSelection::class);
     }
@@ -409,7 +409,7 @@ class Text extends AbstractModel
     /**
      * @return HasManyThrough|LayoutTextStructureAnnotation[]
      */
-    public function layoutTextStructureAnnotations()
+    public function layoutTextStructureAnnotations(): HasManyThrough|array
     {
         return $this->hasManyThrough(LayoutTextStructureAnnotation::class, TextSelection::class);
     }

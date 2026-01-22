@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\Json;
 
 class OrthoTypoAnnotation extends BaseController
 {
-    protected $templateFolder = 'BaseAnnotation';
+    protected string $templateFolder = 'BaseAnnotation';
 
     protected const searchServiceName = "orthotypo_annotation_search_service";
     protected const indexServiceName = "text_index_service";
@@ -24,7 +24,7 @@ class OrthoTypoAnnotation extends BaseController
      * @param Request $request
      * @return RedirectResponse
      */
-    public function index(Request $request)
+    public function index(Request $request): RedirectResponse
     {
         return $this->redirectToRoute('orthotypo_annotation_search', ['request' =>  $request], 301);
     }
@@ -36,7 +36,8 @@ class OrthoTypoAnnotation extends BaseController
      */
     public function search(
         Request $request
-    ) {
+    ): Response
+    {
         return $this->_search(
             $request,
             [
@@ -76,7 +77,8 @@ class OrthoTypoAnnotation extends BaseController
      */
     public function exportCSV(
         Request $request
-    ) {
+    ): StreamedCsvResponse
+    {
         $elasticService = $this->getContainer()->get(static::searchServiceName);
 
         // search

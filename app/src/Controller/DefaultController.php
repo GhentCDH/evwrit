@@ -9,14 +9,14 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DefaultController extends AbstractController
 {
-    protected $templateFolder = 'Default';
+    protected string $templateFolder = 'Default';
 
     /**
      * @Route("/", name="default", methods={"GET"})
      * @param Request $request
      * @return Response
      */
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         return $this->render(
             $this->templateFolder. '/index.html.twig');

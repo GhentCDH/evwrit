@@ -20,7 +20,6 @@ use App\Model\Lookup\AnnotationComplementationForm;
 use App\Model\Lookup\AnnotationModalityContent;
 use App\Model\Lookup\AnnotationModalityContext;
 use App\Model\Lookup\AnnotationModalityForm;
-use App\Model\Lookup\AnnotationOrderContent;
 use App\Model\Lookup\AnnotationRelativisationContent;
 use App\Model\Lookup\AnnotationRelativisationContext;
 use App\Model\Lookup\AnnotationRelativisationForm;

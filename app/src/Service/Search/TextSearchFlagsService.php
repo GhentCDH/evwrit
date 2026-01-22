@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class TextSearchFlagsService
 {
+    protected ContainerInterface $mycontainer;
 
     public function __construct(ContainerInterface $container)
     {
@@ -16,7 +17,7 @@ class TextSearchFlagsService
     }
 
 
-    protected function getContainer()
+    protected function getContainer(): ContainerInterface
     {
         return $this->mycontainer;
     }
@@ -60,7 +61,7 @@ class TextSearchFlagsService
         return $result;
     }
 
-    private function getAscending(array $params)
+    private function getAscending(array $params): string
     {
         $ascending = isset($params['ascending']) ? $params['ascending'] : 1;
         if (($ascending == '0' || $ascending == '1')) {
@@ -91,7 +92,7 @@ class TextSearchFlagsService
         return $orderBy;
     }
 
-    private function getFieldConfig()
+    private function getFieldConfig(): array
     {
         $mapInt = function ($value) {
             if (is_array($value)) {
@@ -158,7 +159,7 @@ class TextSearchFlagsService
     }
 
 
-    public function sanitizeSearchFilters(array $config, array $filters)
+    public function sanitizeSearchFilters(array $config, array $filters): array
     {
         $fieldConfig = $config['config'];
         $allowedFilters = $config['allowedFilters'];
@@ -182,10 +183,8 @@ class TextSearchFlagsService
             }
         }
 
-
         return $result;
     }
-
 
     public function filters(): array
     {
@@ -199,7 +198,6 @@ class TextSearchFlagsService
             'project' => ElasticIdNameResource::collection($projectData)->toArray(),
             'flag_review_done' => [['id' => null, 'name' => 'Alles',], ['id' => false, 'name' => 'Nee',], ['id' => true, 'name' => 'Ja'],],
             'flag_needs_attention' => [['id' => null, 'name' => 'Alles',], ['id' => false, 'name' => 'Nee',], ['id' => true, 'name' => 'Ja'],]];
-
     }
 
     private function buildQuery(array $where, string $orderBy, string $ascending)
@@ -231,7 +229,7 @@ class TextSearchFlagsService
         return $query;
     }
 
-    private function mapData($data)
+    private function mapData($data): array
     {
         $result = [];
 

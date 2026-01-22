@@ -9,8 +9,8 @@ use App\Model\Lookup\Era;
 
 class EraRepository extends AbstractRepository
 {
-    protected $relations = [
+    protected array $relations = [
     ];
-    protected $model = Era::class;
+    protected string $model = Era::class;
 
 }

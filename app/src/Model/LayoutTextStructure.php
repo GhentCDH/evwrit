@@ -5,6 +5,7 @@ namespace App\Model;
 
 use App\Model\Lookup\LayoutTextStructurePart;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use ReflectionException;
 
 /**
@@ -57,12 +58,12 @@ class LayoutTextStructure extends AbstractModel
      * @return Text|BelongsTo
      * @throws ReflectionException
      */
-    public function sourceText()
+    public function sourceText(): Text
     {
         return $this->textSelection->sourceText;
     }
 
-    public function override()
+    public function override(): MorphOne
     {
         return $this->morphOne(AnnotationOverride::class, 'annotation');
     }

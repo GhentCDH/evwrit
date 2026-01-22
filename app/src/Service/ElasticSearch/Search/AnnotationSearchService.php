@@ -6,7 +6,6 @@ use App\Service\ElasticSearch\Base\AbstractSearchService;
 use App\Service\ElasticSearch\Client;
 use Elastica\Query;
 use Elastica\Script;
-use Elastica\Settings;
 
 class AnnotationSearchService extends AbstractSearchService
 {

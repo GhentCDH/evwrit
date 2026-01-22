@@ -9,8 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 abstract class AbstractRepository implements RepositoryInterface
 {
-    protected $relations = [];
-    protected $model;
+    protected array $relations = [];
 
     public function builder(): Builder
     {

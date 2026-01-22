@@ -12,7 +12,7 @@ trait TraitTextSelectionIntersect {
         foreach( $annotations as $annotationTest ) {
             $type = $annotationTest['type'];
             if ($this->textSelectionIntersect($annotationSource['text_selection'], $annotationTest['text_selection'])) {
-                $properties = count($limitProperties) ? array_intersect_key($annotationTest['properties'], array_flip($limitProperties)) : array_filter($annotationTest['properties'], fn($v,$k) => $v && strpos( $k , $type ) === 0, ARRAY_FILTER_USE_BOTH);
+                $properties = count($limitProperties) ? array_intersect_key($annotationTest['properties'], array_flip($limitProperties)) : array_filter($annotationTest['properties'], fn($v,$k) => $v && str_starts_with($k, $type), ARRAY_FILTER_USE_BOTH);
                 foreach ($properties as $propertyKey => $propertyValue) {
                     if ( $propertyValue['id'] ?? $propertyValue['number'] ?? null) { // todo: dirty!
                         $additionalProperties[$propertyKey][$propertyValue['id'] ?? $propertyValue['number']] = $propertyValue;

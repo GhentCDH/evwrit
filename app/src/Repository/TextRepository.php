@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class TextRepository extends AbstractRepository
 {
-    protected $relations = [
+    protected array $relations = [
         'era',
         'scripts',
         'forms',
@@ -37,27 +37,37 @@ class TextRepository extends AbstractRepository
         'translations',
         'typographyAnnotations',
         'typographyAnnotations.textSelection',
+        'typographyAnnotations.override',
         'morphologyAnnotations',
         'morphologyAnnotations.textSelection',
+        'morphologyAnnotations.override',
         'lexisAnnotations',
         'lexisAnnotations.textSelection',
+        'lexisAnnotations.override',
         'orthographyAnnotations',
         'orthographyAnnotations.textSelection',
+        'orthographyAnnotations.override',
         'morphoSyntacticalAnnotations',
         'morphoSyntacticalAnnotations.textSelection',
+        'morphoSyntacticalAnnotations.override',
         'handshiftAnnotations',
         'handshiftAnnotations.textSelection',
-        'handshiftAnnotations.attestation.ancientPerson',
+        'handshiftAnnotations.override',
         'languageAnnotations',
         'languageAnnotations.textSelection',
+        'languageAnnotations.override',
         'genericTextStructures',
         'genericTextStructures.textSelection',
+        'genericTextStructures.override',
         'layoutTextStructures',
         'layoutTextStructures.textSelection',
+        'layoutTextStructures.override',
         'genericTextStructureAnnotations',
         'genericTextStructureAnnotations.textSelection',
+        'genericTextStructureAnnotations.override',
         'layoutTextStructureAnnotations',
         'layoutTextStructureAnnotations.textSelection',
+        'layoutTextStructureAnnotations.override',
         'textLevels',
         'textLevels.attestations',
         'textLevels.attestations.ancientPerson',
@@ -82,7 +92,7 @@ class TextRepository extends AbstractRepository
         'textLevels.greekLatins',
         'flags'
     ];
-    protected $model = Text::class;
+    protected string $model = Text::class;
 
     /**
      * @param array $project_ids
@@ -90,19 +100,19 @@ class TextRepository extends AbstractRepository
      */
     public function findByProjectIds(array $project_ids): Builder
     {
-        return $this->indexQuery()->whereHas('projects', function(Builder $query) use ($project_ids) {
+        return $this->defaultQuery()->whereHas('projects', function(Builder $query) use ($project_ids) {
             $query->whereIn('project.project_id', $project_ids);
         });
     }
 
     /**
-     * @param array $project_ids
+     * @param array $project_names
      * @return Builder
      */
     public function findByProjectNames(array $project_names): Builder
     {
         // todo: does this work?
-        return $this->indexQuery()->whereHas('projects', function(Builder $query) use ($project_names) {
+        return $this->defaultQuery()->whereHas('projects', function(Builder $query) use ($project_names) {
             $query->whereIn('project.name', $project_names);
         });
     }

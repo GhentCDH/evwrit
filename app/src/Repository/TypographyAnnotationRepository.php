@@ -9,6 +9,6 @@ use App\Model\TypographyAnnotation;
 
 class TypographyAnnotationRepository extends AbstractRepository
 {
-    protected $relations = [];
-    protected $model = TypographyAnnotation::class;
+    protected array $relations = [];
+    protected string $model = TypographyAnnotation::class;
 }
