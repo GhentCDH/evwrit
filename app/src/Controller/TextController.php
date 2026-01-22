@@ -241,7 +241,7 @@ class TextController extends BaseController
         $repo = $this->getContainer()->get('text_repository');
 
         try {
-            $text = $repo->find($id, $preloadRelations);
+            $text = $repo->query()->with($preloadRelations)->find($id);
             if (!$text) {
                 throw new Exception('Text not found');
             }
@@ -280,8 +280,7 @@ class TextController extends BaseController
 
         try {
             $repo = $this->getContainer()->get('text_repository');
-            $record = $repo->find($id, ['flags']);
-
+            $record = $repo->query()->with(['flags'])->find($id);
 
             if (!$record) {
                 return $this->jsonFail("Text not found", $id);
@@ -320,7 +319,8 @@ class TextController extends BaseController
             /** @var class-string<AbstractAnnotationModel> $modelClass */
             $modelClass = $morphMap[$annotationType];
 
-            $record = $model::find($annotationId);
+            /** @var AbstractAnnotationModel $record */
+            $record = $modelClass::query()->find($annotationId);
             if (!$record) {
                 return $this->jsonFail("Annotation not found", $annotation);
             }

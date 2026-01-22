@@ -44,7 +44,7 @@ class IndexTextElasticsearchCommand extends Command
         /** @var TextIndexService $service */
         $service = $this->container->get('text_index_service');
 
-        $text = $repository->find($textId);
+        $text = $repository->defaultQuery()->find($textId);
 
         if (!$text) {
             $io->error("Text with ID {$textId} not found.");

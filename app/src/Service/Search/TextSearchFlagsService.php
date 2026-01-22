@@ -188,10 +188,9 @@ class TextSearchFlagsService
 
     public function filters(): array
     {
-        $eraData = $this->getContainer()->get('era_repository')->findAll(10000);
-        $projectData = $this->getContainer()->get('project_repository')->findAll(10000);
-        $levelCategoryCategoryData = $this->getContainer()->get('level_category_category_repository')->findAll(10000);
-
+        $eraData = $this->getContainer()->get('era_repository')->query()->limit(10000)->get();
+        $projectData = $this->getContainer()->get('project_repository')->query()->limit(10000)->get();
+        $levelCategoryCategoryData = $this->getContainer()->get('level_category_category_repository')->query()->limit(10000)->get();
 
         return ['era' => ElasticIdNameResource::collection($eraData)->toArray(),
             'level_category_category' => ElasticIdNameResource::collection($levelCategoryCategoryData)->toArray(),
