@@ -198,7 +198,7 @@
                     </div>
                 </Widget>
 
-                <Widget title="Debug" class="widget--debug" v-if="debug && config.expertMode" :collapsed.sync="config.widgets.debug.isCollapsed">
+                <Widget title="Debug" class="widget--debug" v-if="isDebugMode && config.expertMode" :collapsed.sync="config.widgets.debug.isCollapsed">
                     <div class="form-group">
                         <CheckboxSwitch v-model="config.legacyMode" class="switch-primary" label="Show legacy viewer"></CheckboxSwitch>
                         <CheckboxSwitch v-model="config.annotations.showOverridesOnly" class="switch-primary" label="Only show annotations with overrides"></CheckboxSwitch>
@@ -498,9 +498,9 @@ export default {
             required: true
         },
         debug: {
-            type: String,
+            type: Boolean|String,
             required: false,
-            default: true
+            default: false
         }
     },
     data() {
@@ -582,6 +582,9 @@ export default {
         return data
     },
     computed: {
+        isDebugMode() {
+            return this.debug === true || this.debug === 'true'
+        },
         text: function() {
             return this.data.text
         },

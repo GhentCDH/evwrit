@@ -183,11 +183,12 @@ class TextController extends BaseController
                         'urls' => json_encode($this->getSharedAppUrls()),
                         'data' => json_encode([
                             'text' => $resource
-                        ])
+                        ]),
+                        'debug' => $this->getParameter('textviewer.debug')
                     ]
                 );
             } catch(Exception $e) {
-                throw $this->createNotFoundException('The text does not exist');
+                throw $this->createNotFoundException("The text does not exist.");
             }
         }
     }
