@@ -805,7 +805,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         }
     }
 
-    protected function isNestedFilter($config)
+    protected function isNestedFilter($config): bool
     {
         return (in_array($config['type'], [self::FILTER_NESTED_ID, self::FILTER_NESTED_MULTIPLE], true) || ($config['nestedPath'] ?? false));
     }
@@ -1183,14 +1183,14 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             // Remove \r
             $line = trim($line);
             // Each word is marked separately, so we only need the lines with <mark> in them
-            if (strpos($line, '<mark>') !== false) {
+            if (str_contains($line, '<mark>')) {
                 $result[$number] = $line;
             }
         }
         return $result;
     }
 
-    protected function sanitizeSearchResult(array $result)
+    protected function sanitizeSearchResult(array $result): array
     {
         return $result;
     }
@@ -1646,7 +1646,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $result;
     }
 
-    protected function sortAggregationResult(?array &$agg_result)
+    protected function sortAggregationResult(?array &$agg_result): void
     {
         if (!$agg_result) {
             return;

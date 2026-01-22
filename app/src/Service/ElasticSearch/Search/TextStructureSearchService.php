@@ -4,7 +4,6 @@ namespace App\Service\ElasticSearch\Search;
 
 use App\Service\ElasticSearch\Base\AbstractSearchService;
 use App\Service\ElasticSearch\Client;
-use Elastica\Settings;
 
 class TextStructureSearchService extends AbstractSearchService
 {
@@ -12,10 +11,9 @@ class TextStructureSearchService extends AbstractSearchService
 
     const ignoreUnknownUncertain = ['unknown','uncertain', 'Unknown', 'Uncertain', 'Unknwon'];
 
-    public function __construct(Client $client, string $indexPrefix, Configs $config, bool $debug = false)
+    public function __construct(Client $client, string $indexPrefix, protected Configs $config, bool $debug = false)
     {
         parent::__construct($client, $indexPrefix, $debug);
-        $this->config = $config;
     }
     
     protected function initSearchConfig(): array {

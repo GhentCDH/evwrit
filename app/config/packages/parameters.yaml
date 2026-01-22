@@ -3,7 +3,11 @@ parameters:
       host: '%env(string:ELASTICSEARCH_HOST)%'
       port: '%env(int:ELASTICSEARCH_PORT)%'
   elasticsearch.index_prefix: '%env(string:ELASTICSEARCH_INDEX_PREFIX)%'
-  elasticsearch.debug: '%env(bool:ELASTICSEARCH_DEBUG)%'
+  elasticsearch.debug: '%env(bool:default:ELASTICSEARCH_DEBUG:false)%'
 
   app.allowed_project_ids: '%env(csv:ALLOWED_PROJECT_IDS)%'
   app.default_project_id: '%env(int:DEFAULT_PROJECT_ID)%'
+
+  textviewer_debug_default: false
+  textviewer.debug: '%env(default:textviewer_debug_default:bool:TEXTVIEWER_DEBUG)%'
+

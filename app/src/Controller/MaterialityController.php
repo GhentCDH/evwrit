@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MaterialityController extends BaseController
 {
-    protected $templateFolder = 'Materiality';
+    protected string $templateFolder = 'Materiality';
 
     protected const searchServiceName = "text_materiality_search_service";
     protected const indexServiceName = "text_index_service";
@@ -22,7 +22,7 @@ class MaterialityController extends BaseController
      * @param Request $request
      * @return RedirectResponse
      */
-    public function index(Request $request)
+    public function index(Request $request): RedirectResponse
     {
         return $this->redirectToRoute('materiality_search', ['request' =>  $request], 301);
     }
@@ -34,7 +34,8 @@ class MaterialityController extends BaseController
      */
     public function search(
         Request $request
-    ) {
+    ): Response
+    {
         return $this->_search(
             $request,
             [
@@ -56,7 +57,8 @@ class MaterialityController extends BaseController
      */
     public function search_api(
         Request $request
-    ) {
+    ): JsonResponse
+    {
         return $this->_search_api($request);
     }
 
@@ -67,7 +69,8 @@ class MaterialityController extends BaseController
      */
     public function paginate(
         Request $request
-    ) {
+    ): JsonResponse
+    {
         return $this->_paginate($request);
     }
 
@@ -80,7 +83,8 @@ class MaterialityController extends BaseController
     public function exportCSV(
         Request $request,
         TextMaterialitySearchService $elasticService
-    ) {
+    ): StreamedCsvResponse
+    {
         $elasticService = $this->getContainer()->get(static::searchServiceName);
 
         // search
@@ -166,7 +170,7 @@ class MaterialityController extends BaseController
         }
 
         // @assert $key contains a dot notated string
-        if (strpos($key, '.') !== false)
+        if (str_contains($key, '.'))
         {
             $keys = explode('.', $key);
 
@@ -187,7 +191,7 @@ class MaterialityController extends BaseController
         return $data[$key] ?? $default;
     }
 
-    protected function is_associative(array $inpt_arr)
+    protected function is_associative(array $inpt_arr): bool
     {
         if ([] === $inpt_arr) {
             return true;

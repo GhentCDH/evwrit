@@ -13,7 +13,6 @@ class Configs implements SearchConfigInterface
 
     private array $allowedProjectIds = [];
     private ?int $defaultProjectId = null;
-    private ?ContainerInterface $container = null;
 
     private array $baseAnnotationTypes = [
         'typography', 'lexis', 'orthography', 'morphology', 'language', 'morpho_syntactical'
@@ -39,7 +38,6 @@ class Configs implements SearchConfigInterface
 
     public function __construct(ContainerInterface $container)
     {
-        $this->container = $container;
         if ($container->hasParameter('app.allowed_project_ids')) {
             $this->allowedProjectIds = array_map(fn($i) => (int) $i, (array) $container->getParameter('app.allowed_project_ids'));
         }

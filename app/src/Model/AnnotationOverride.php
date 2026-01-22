@@ -26,7 +26,7 @@ class AnnotationOverride extends AbstractModel
     const UPDATED_AT = 'modified';
 
     /**
-     * @return BelongsTo|TextSelection
+     * @return MorphTo
      * @throws ReflectionException
      */
     public function annotation(): morphTo

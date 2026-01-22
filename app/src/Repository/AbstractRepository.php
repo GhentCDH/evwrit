@@ -9,31 +9,23 @@ use Illuminate\Database\Eloquent\Model;
 
 abstract class AbstractRepository implements RepositoryInterface
 {
-    protected $relations = [];
-    protected $model;
+    protected array $relations = [];
 
-    public function builder(): Builder
+    /** @var class-string<Model> */
+    protected string $model;
+
+    public function query(): Builder
     {
         return $this->model::query();
     }
 
     public function defaultQuery(): Builder
     {
-        return $this->builder();
+        return $this->query()->with($this->relations);
     }
 
-    public function indexQuery(): Builder
+    public function getDefaultRelations(): array
     {
-        return $this->defaultQuery()->with($this->relations);
-    }
-
-    public function find(int $id, $relations = []): ?Model
-    {
-        return $this->indexQuery()->with($relations)->find($id);
-    }
-
-    public function findAll(int $limit = 0, $relations = []): Collection
-    {
-        return $this->indexQuery()->with($relations)->limit($limit)->get();
+        return $this->relations;
     }
 }

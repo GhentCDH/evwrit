@@ -20,8 +20,8 @@ class IndexElasticsearchCommand extends Command
     protected static $defaultName = 'app:elasticsearch:index';
     protected static $defaultDescription = 'Drops the old elasticsearch index and recreates it.';
 
-    protected $container = [];
-    protected $di = [];
+    protected ContainerInterface $container;
+    protected array $di = [];
 
     public function __construct(ContainerInterface $container)
     {
@@ -29,19 +29,20 @@ class IndexElasticsearchCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription(self::$defaultDescription)
             ->addArgument('index', InputArgument::REQUIRED, 'Which index should be reindexed?')
             ->addArgument('maxItems', InputArgument::OPTIONAL, 'Max number of items to index')
+            ->addOption('chunk-size', null, InputArgument::OPTIONAL, 'Number of items to index per chunk', 50)
             ->setHelp('This command allows you to reindex elasticsearch.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $chunkSize = 5;
+        $chunkSize = $input->getOption('chunk-size');
 
         $allowedProjectIds = (array) $this->container->getParameter('app.allowed_project_ids');
 
@@ -75,12 +76,15 @@ class IndexElasticsearchCommand extends Command
 
                             // update progress bar
                             $progressBar->advance($texts->count());
+                            return true;
                         }
                     );
 
                     $service->switchToNewIndex($indexName);
 
-                    $progressBar->finish();
+                    if (!$maxItems || $count < $maxItems ) {
+                        $progressBar->setProgress($total);
+                    }
 
                     break;
                 case "level": {
@@ -114,11 +118,14 @@ class IndexElasticsearchCommand extends Command
 
                             // update progress bar
                             $progressBar->advance($texts->count());
+                            return true;
                         });
 
                     $service->switchToNewIndex($indexName);
 
-                    $progressBar->finish();
+                    if (!$maxItems || $count < $maxItems ) {
+                        $progressBar->setProgress($total);
+                    }
                 }
             }
         }

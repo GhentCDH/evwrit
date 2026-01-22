@@ -4,6 +4,7 @@ namespace App\Resource;
 
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
+use JsonSerializable;
 
 class BaseResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousResourceCollection
 {
@@ -12,12 +13,12 @@ class BaseResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousRe
      * Transform the resource into a JSON array.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @return array|Arrayable|\JsonSerializable
      */
     public function toArray($request = null): array
     {
         return array_filter(
-            $this->collection->map->toArray($request)->all(),
+            $this->collection->map->toArray($request)->all(), // todo: check!
             fn($item) => $item,
         );
     }
@@ -27,9 +28,9 @@ class BaseResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousRe
      *
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
-        return $this->resolve(null);
+        return $this->resolve();
     }
 
     /**

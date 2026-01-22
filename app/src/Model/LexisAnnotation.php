@@ -31,7 +31,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class LexisAnnotation extends AbstractAnnotationModel
 {
-    protected $with = ['textSelection','textSelection.sourceText','standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','positionInWord','identifier','textSelection'];
+    protected $with = [
+        'textSelection',
+        'textSelection.sourceText','standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','positionInWord','identifier','textSelection',
+        'override'
+    ];
 
     public function getAnnotationType(): string
     {

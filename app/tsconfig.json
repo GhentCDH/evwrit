@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "ESNext",
+    "strict": false,
+    "jsx": "preserve",
+    "moduleResolution": "Node",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "types": [
+      "node"
+    ],
+    "noImplicitAny": false,
+    "paths": {
+      "@/*": ["./assets/*"],
+      "vue$": ["node_modules/vue/dist/vue.esm.js"]
+    },
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable",
+      "ScriptHost"
+    ],
+    "experimentalDecorators": true,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "assets/**/*.ts",
+    "assets/**/*.tsx",
+    "assets/**/*.vue"
+  ],
+  "exclude": [
+    "node_modules",
+    "public",
+    "var",
+    "vendor"
+  ]
+}
+

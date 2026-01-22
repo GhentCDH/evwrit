@@ -9,6 +9,6 @@ use App\Model\LayoutTextStructureAnnotation;
 
 class LayoutTextStructureAnnotationRepository extends AbstractRepository
 {
-    protected $relations = [];
-    protected $model = LayoutTextStructureAnnotation::class;
+    protected array $relations = [];
+    protected string $model = LayoutTextStructureAnnotation::class;
 }

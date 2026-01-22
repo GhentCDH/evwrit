@@ -31,9 +31,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class OrthographyAnnotation extends AbstractAnnotationModel
 {
-    protected $with = ['textSelection',
-//        'textSelection.sourceText',
-        'standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','positionInWord','identifier'];
+    protected $with = [
+        'textSelection',
+        'standardForm','type','subtype','wordclass','formulaicity','prescription','proscription','positionInWord','identifier',
+        'override'
+    ];
 
     public function getAnnotationType(): string
     {

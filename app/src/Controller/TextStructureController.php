@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TextStructureController extends BaseController
 {
-    protected $templateFolder = 'TextStructure';
+    protected string $templateFolder = 'TextStructure';
 
     protected const searchServiceName = "text_structure_search_service";
     protected const indexServiceName = "text_index_service";
@@ -21,7 +21,8 @@ class TextStructureController extends BaseController
      */
     public function search(
         Request $request
-    ) {
+    ): Response
+    {
         return $this->_search(
             $request,
             [
@@ -42,7 +43,8 @@ class TextStructureController extends BaseController
      */
     public function search_api(
         Request $request
-    ) {
+    ): JsonResponse
+    {
         return $this->_search_api($request);
     }
 
@@ -53,7 +55,8 @@ class TextStructureController extends BaseController
      */
     public function paginate(
         Request $request
-    ) {
+    ): JsonResponse
+    {
         return $this->_paginate($request, 'text_id');
     }
 

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Helper\StreamedCsvResponse;
+use App\Model\AbstractAnnotationModel;
 use App\Repository\TextRepository;
 use App\Resource\ElasticTextAnnotationsResource;
 use App\Resource\TextSearchFlagsResource;
@@ -19,7 +20,7 @@ use Throwable;
 
 class TextController extends BaseController
 {
-    protected $templateFolder = 'Text';
+    protected string $templateFolder = 'Text';
 
     protected const searchServiceName = "text_basic_search_service";
     protected const indexServiceName = "text_index_service";
@@ -30,7 +31,7 @@ class TextController extends BaseController
      * @param Request $request
      * @return RedirectResponse
      */
-    public function index(Request $request)
+    public function index(Request $request): RedirectResponse
     {
         return $this->redirectToRoute('text_search', ['request' =>  $request], 301);
     }
@@ -42,7 +43,8 @@ class TextController extends BaseController
      */
     public function search(
         Request $request
-    ) {
+    ): Response
+    {
         return $this->_search(
             $request,
             [
@@ -63,7 +65,8 @@ class TextController extends BaseController
      */
     public function search_api(
         Request $request
-    ) {
+    ): JsonResponse
+    {
         return $this->_search_api($request);
     }
 
@@ -74,7 +77,7 @@ class TextController extends BaseController
      */
     public function search_flags_filters(
         Request $request
-    )
+    ): JsonResponse
     {
         $search_service = $this->getContainer()->get(static::searchFlagServiceName);
         $data = $search_service->filters($request);
@@ -89,7 +92,7 @@ class TextController extends BaseController
      */
     public function search_flags(
         Request $request
-    )
+    ): JsonResponse
     {
         $search_service = $this->getContainer()->get(static::searchFlagServiceName);
         $data = $search_service->search($request);
@@ -104,7 +107,8 @@ class TextController extends BaseController
      */
     public function paginate(
         Request $request
-    ) {
+    ): JsonResponse
+    {
         return $this->_paginate($request);
     }
 
@@ -115,7 +119,8 @@ class TextController extends BaseController
      */
     public function exportCSV(
         Request $request
-    ) {
+    ): StreamedCsvResponse
+    {
         $elasticService = $this->getContainer()->get(static::searchServiceName);
 
         $header = [];
@@ -154,7 +159,7 @@ class TextController extends BaseController
      * @param Request $request
      * @return JsonResponse|Response
      */
-    public function getSingle(int $id, Request $request)
+    public function getSingle(int $id, Request $request): JsonResponse|Response
     {
         $elasticService = $this->getContainer()->get(self::indexServiceName);
 
@@ -178,11 +183,12 @@ class TextController extends BaseController
                         'urls' => json_encode($this->getSharedAppUrls()),
                         'data' => json_encode([
                             'text' => $resource
-                        ])
+                        ]),
+                        'debug' => $this->getParameter('textviewer.debug')
                     ]
                 );
             } catch(Exception $e) {
-                throw $this->createNotFoundException('The text does not exist');
+                throw $this->createNotFoundException("The text does not exist.");
             }
         }
     }
@@ -193,7 +199,7 @@ class TextController extends BaseController
      * @param Request $request
      * @return JsonResponse|Response
      */
-    public function getAnnotations(int $id, Request $request)
+    public function getAnnotations(int $id, Request $request): JsonResponse|Response
     {
         $preloadRelations = [
             'typographyAnnotations',
@@ -236,7 +242,7 @@ class TextController extends BaseController
         $repo = $this->getContainer()->get('text_repository');
 
         try {
-            $text = $repo->find($id, $preloadRelations);
+            $text = $repo->query()->with($preloadRelations)->find($id);
             if (!$text) {
                 throw new Exception('Text not found');
             }
@@ -275,8 +281,7 @@ class TextController extends BaseController
 
         try {
             $repo = $this->getContainer()->get('text_repository');
-            $record = $repo->find($id, ['flags']);
-
+            $record = $repo->query()->with(['flags'])->find($id);
 
             if (!$record) {
                 return $this->jsonFail("Text not found", $id);
@@ -286,7 +291,7 @@ class TextController extends BaseController
 
             return $this->jsonSuccess('Annotation override successful', $flags);
         } catch (Throwable $e) {
-            return $this->jsonError($e->getMessage(), $id, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->jsonError($e->getMessage(), $id);
         }
     }
 
@@ -312,11 +317,11 @@ class TextController extends BaseController
 
         // insert/update annotation overrides
         try {
+            /** @var class-string<AbstractAnnotationModel> $modelClass */
             $modelClass = $morphMap[$annotationType];
-            /** @var Model $model */
-            $model = new $modelClass();
 
-            $record = $model::find($annotationId);
+            /** @var AbstractAnnotationModel $record */
+            $record = $modelClass::query()->find($annotationId);
             if (!$record) {
                 return $this->jsonFail("Annotation not found", $annotation);
             }
@@ -325,7 +330,7 @@ class TextController extends BaseController
 
             return $this->jsonSuccess('Annotation override successful', $annotation);
         } catch (Throwable $e) {
-            return $this->jsonError($e->getMessage(), $annotation, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->jsonError($e->getMessage(), $annotation);
         }
     }
 

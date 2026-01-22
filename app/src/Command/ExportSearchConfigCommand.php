@@ -19,8 +19,8 @@ class ExportSearchConfigCommand extends Command
     protected static $defaultName = 'app:exportconfig:search';
     protected static $defaultDescription = 'Export search filter id\'s.';
 
-    protected $container = [];
-    protected $di = [];
+    protected ContainerInterface $container;
+    protected array $di = [];
 
     public function __construct(ContainerInterface $container)
     {
@@ -28,15 +28,13 @@ class ExportSearchConfigCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setDescription(self::$defaultDescription);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-
         $keys = [];
         $keys['metadata'] = array_keys(Configs::filterPhysicalInfo());
         $keys['administrative'] = array_keys(Configs::filterAdministrative());
@@ -47,6 +45,6 @@ class ExportSearchConfigCommand extends Command
         $keys['text_structure'] = array_keys(Configs::filterTextStructure()['annotations']['filters']);
 
         print_r($keys);
-
+        return 0;
     }
 }

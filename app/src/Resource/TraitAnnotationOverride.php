@@ -16,6 +16,7 @@ trait TraitAnnotationOverride
             }
             // override text selection properties
             $textSelection = $ret['text_selection'];
+            $ret['text_selection_original'] = $textSelection;
             $textSelection['selection_start'] = $override->selection_start;
             $textSelection['selection_end'] = $override->selection_end;
             $textSelection['selection_length'] = $override->selection_length;

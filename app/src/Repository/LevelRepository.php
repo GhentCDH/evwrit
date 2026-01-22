@@ -9,8 +9,8 @@ use App\Model\Level;
 
 class LevelRepository extends AbstractRepository
 {
-    protected $relations = [
+    protected array $relations = [
     ];
-    protected $model = Level::class;
+    protected string $model = Level::class;
 
 }

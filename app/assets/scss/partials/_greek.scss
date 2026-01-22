@@ -62,6 +62,23 @@ $nau-font-path: '../../fonts/new-athena-unicode';
 
 }
 
+.annotated-text {
+  &.greek-text-lines {
+    .gutter.text {
+      color: #ccc;
+    }
+
+    .content {
+      font-family: NewAthenaUnicode, Arial, sans-serif;
+      word-break: break-word;
+    }
+  }
+
+  .ghent-cdh-annotation-svg {
+    top: -4px; // todo: should be fixed in annotated-text-component
+  }
+}
+
 .modal-title {
   .greek {
     font-size: $fz-medium;

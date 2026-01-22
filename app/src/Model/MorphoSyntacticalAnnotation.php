@@ -20,7 +20,6 @@ use App\Model\Lookup\AnnotationComplementationForm;
 use App\Model\Lookup\AnnotationModalityContent;
 use App\Model\Lookup\AnnotationModalityContext;
 use App\Model\Lookup\AnnotationModalityForm;
-use App\Model\Lookup\AnnotationOrderContent;
 use App\Model\Lookup\AnnotationRelativisationContent;
 use App\Model\Lookup\AnnotationRelativisationContext;
 use App\Model\Lookup\AnnotationRelativisationForm;
@@ -43,17 +42,18 @@ use ReflectionException;
  */
 class MorphoSyntacticalAnnotation extends AbstractAnnotationModel
 {
-    protected $with = ['textSelection',
-//        'textSelection.sourceText',
+    protected $with = [
+        'textSelection',
         'complementationContent','complementationContext','complementationForm',
         'coherenceContent','coherenceContext','coherenceForm',
         'subordinationContent','subordinationForm','subordinationContext',
         'relativisationContent','relativisationContext','relativisationForm',
-        'typeFormulaicity', 'typeReconstruction'
+        'typeFormulaicity', 'typeReconstruction',
 //        'aspectContent','aspectContext','aspectForm',
 //        'modalityContent','modalityContext','modalityForm',
 //        'cliticContent','cliticContext','cliticForm',
 //        'caseContent','caseContext','caseForm',
+        'override'
     ];
 
     public function getAnnotationType(): string

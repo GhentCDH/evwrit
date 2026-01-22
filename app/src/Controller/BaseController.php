@@ -15,18 +15,18 @@ class BaseController extends AbstractController
      *
      * @var string
      */
-    protected $templateFolder;
+    protected string $templateFolder;
 
     /**
      * @var ContainerInterface
      */
-    protected $mycontainer;
+    protected ContainerInterface $mycontainer;
 
     public function __construct(ContainerInterface $container) {
         $this->mycontainer = $container;
     }
 
-    protected function getContainer() {
+    protected function getContainer(): ContainerInterface {
         return $this->mycontainer;
     }
 
@@ -34,7 +34,7 @@ class BaseController extends AbstractController
      * Return shared urls
      * @return array
      */
-    protected function getSharedAppUrls() {
+    protected function getSharedAppUrls(): array {
         // urls
         $urls = [
             // searches
@@ -75,7 +75,7 @@ class BaseController extends AbstractController
     }
 
 
-    protected function _paginate(Request $request, $returnField = 'id') {
+    protected function _paginate(Request $request, $returnField = 'id'): JsonResponse {
         $elasticService = $this->getContainer()->get(static::searchServiceName);
 
         // search
@@ -93,7 +93,8 @@ class BaseController extends AbstractController
         return new JsonResponse($result);
     }
 
-    protected function _search_api(Request $request) {
+    protected function _search_api(Request $request): JsonResponse
+    {
         $elasticService = $this->getContainer()->get(static::searchServiceName);
 
         // get data
@@ -104,7 +105,8 @@ class BaseController extends AbstractController
         return new JsonResponse($data);
     }
 
-    protected function _search(Request $request, array $props = [], array $extraRoutes = []) {
+    protected function _search(Request $request, array $props = [], array $extraRoutes = []): Response
+    {
         $elasticService = $this->getContainer()->get(static::searchServiceName);
 
         // get data

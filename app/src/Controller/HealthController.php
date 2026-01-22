@@ -15,7 +15,7 @@ class HealthController extends BaseController
      * @param Request $request
      * @return JsonResponse
      */
-    public function health(Request $request)
+    public function health(Request $request): JsonResponse
     {
         return new JsonResponse(['status' => 'ok']);
     }

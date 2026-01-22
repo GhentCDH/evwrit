@@ -108,19 +108,20 @@ abstract class AbstractIndexService extends AbstractService implements IndexServ
         return $ret;
     }
 
-    /*
-    public function updateMultiple(array $data): void
+    public function update(ResourceInterface $resource): void
     {
-        $bulk_documents = [];
-        while (count($data) > 0) {
-            $bulk_contents = array_splice($data, 0, 500);
-            foreach ($bulk_contents as $bc) {
-                $bulk_documents[] = new Document($bc['id'], $bc);
-            }
-            $this->getIndex()->updateDocuments($bulk_documents);
-            $bulk_documents = [];
-        }
+        $document = new Document($resource->getId(), $resource->jsonSerialize());
+        $this->getIndex()->updateDocument($document);
         $this->getIndex()->refresh();
     }
-    */
+
+    public function updateMultiple(ResourceCollection $resources): void
+    {
+        $documents = [];
+        foreach( $resources as $resource ) {
+            $documents[] = new Document($resource->getId(), $resource->toJson());
+        }
+        $this->getIndex()->updateDocuments($documents);
+        $this->getIndex()->refresh();
+    }
 }

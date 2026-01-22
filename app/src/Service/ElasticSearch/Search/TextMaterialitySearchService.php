@@ -8,10 +8,9 @@ use App\Service\ElasticSearch\Client;
 class TextMaterialitySearchService extends AbstractSearchService
 {
     protected const indexName = "texts";
-    public function __construct(Client $client, string $indexPrefix, Configs $config, bool $debug = false)
+    public function __construct(Client $client, string $indexPrefix, protected Configs $config, bool $debug = false)
     {
         parent::__construct($client, $indexPrefix, $debug);
-        $this->config = $config;
     }
     
     protected function initSearchConfig(): array {

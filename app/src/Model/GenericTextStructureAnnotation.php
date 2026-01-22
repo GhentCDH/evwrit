@@ -31,7 +31,9 @@ class GenericTextStructureAnnotation extends AbstractAnnotationModel
 //        'textSelection.sourceText',
         'type', 'subtype','genericTextStructure', 'genericTextStructure.part','genericTextStructure.textLevel',
         'genericTextStructure', 'genericTextStructure.part', 'genericTextStructure.textLevel',
-        'standardForm', 'attachedTo', 'attachmentType','speechAct','informationStatus',];
+        'standardForm', 'attachedTo', 'attachmentType','speechAct','informationStatus',
+        'override'
+    ];
 
     public function getAnnotationType(): string
     {
