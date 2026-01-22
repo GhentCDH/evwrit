@@ -10,7 +10,7 @@ export type RenderedAnnotation = Annotation & {
 
 <script setup lang="ts">
 import {ref, toRefs, watch, onMounted, onUnmounted, PropType} from 'vue'
-import {createAnnotatedText, TextLineAdapter, UnderLineAnnotationRender, GutterAnnotationRender, TextAnnotationRender} from '@ghentcdh/annotated-text';
+import {createAnnotatedText, TextLineAdapter} from '@ghentcdh/annotated-text';
 import {defaultAnnotationStyles} from './AnnotatedTextDefaults';
 
 // Props
@@ -72,7 +72,7 @@ onMounted(() => {
         }),
         annotation: {
             style: {
-                styleFn: (annotation) => {
+                styleFn: (annotation: any) => {
                     return annotation.style ?? "default";
                 }
             },
