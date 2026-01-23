@@ -1,4 +1,5 @@
 .pageheader {
+
   .navbar-default {
     .nav-primary {
       >li.dropdown {
@@ -11,6 +12,10 @@
           }
         }
       }
+    }
+
+    .nav-tertiary > li > a {
+      z-index: 100; // Ensure tertiary nav links are above header title
     }
   }
 
