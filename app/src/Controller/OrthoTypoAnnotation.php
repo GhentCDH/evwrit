@@ -8,8 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Constraints\Json;
+use Symfony\Component\Routing\Attribute\Route;
 
 
 class OrthoTypoAnnotation extends BaseController
@@ -19,21 +18,13 @@ class OrthoTypoAnnotation extends BaseController
     protected const searchServiceName = "orthotypo_annotation_search_service";
     protected const indexServiceName = "text_index_service";
 
-    /**
-     * @Route("/annotation", name="annotation", methods={"GET"})
-     * @param Request $request
-     * @return RedirectResponse
-     */
+    #[Route('/annotation', name: 'annotation', methods: ['GET'])]
     public function index(Request $request): RedirectResponse
     {
         return $this->redirectToRoute('orthotypo_annotation_search', ['request' =>  $request], 301);
     }
 
-    /**
-     * @Route("/annotation/orthotypo/search", name="orthotypo_annotation_search", methods={"GET"})
-     * @param Request $request
-     * @return Response
-     */
+    #[Route('/annotation/orthotypo/search', name: 'orthotypo_annotation_search', methods: ['GET'])]
     public function search(
         Request $request
     ): Response
@@ -52,29 +43,17 @@ class OrthoTypoAnnotation extends BaseController
         );
     }
 
-    /**
-     * @Route("/annotation/orthotypo/search_api", name="orthotypo_annotation_search_api", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/annotation/orthotypo/search_api', name: 'orthotypo_annotation_search_api', methods: ['GET'])]
     public function search_api(Request $request): JsonResponse {
         return $this->_search_api($request);
     }
 
-    /**
-     * @Route("/annotation/orthotypo/paginate", name="orthotypo_annotation_paginate", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/annotation/orthotypo/paginate', name: 'orthotypo_annotation_paginate', methods: ['GET'])]
     public function paginate(Request $request): JsonResponse {
         return $this->_paginate($request);
     }
 
-    /**
-     * @Route("/annotation/orthotypo/export/csv", name="orthotypo_annotation_export_csv", methods={"GET"})
-     * @param Request $request
-     * @return StreamedCsvResponse
-     */
+    #[Route('/annotation/orthotypo/export/csv', name: 'orthotypo_annotation_export_csv', methods: ['GET'])]
     public function exportCSV(
         Request $request
     ): StreamedCsvResponse

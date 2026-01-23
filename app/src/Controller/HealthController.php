@@ -3,18 +3,13 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class HealthController extends BaseController
 {
 
-    /**
-     * @Route("/health", name="health", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/health', name: 'health', methods: ['GET'])]
     public function health(Request $request): JsonResponse
     {
         return new JsonResponse(['status' => 'ok']);

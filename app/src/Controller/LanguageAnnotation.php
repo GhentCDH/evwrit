@@ -8,8 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Constraints\Json;
+use Symfony\Component\Routing\Attribute\Route;
 
 
 class LanguageAnnotation extends BaseController
@@ -19,21 +18,13 @@ class LanguageAnnotation extends BaseController
     protected const searchServiceName = "language_annotation_search_service";
     protected const indexServiceName = "text_index_service";
 
-    /**
-     * @Route("/annotation/language", name="annotation", methods={"GET"})
-     * @param Request $request
-     * @return RedirectResponse
-     */
+    #[Route('/annotation/language', name: 'annotation', methods: ['GET'])]
     public function index(Request $request): RedirectResponse
     {
         return $this->redirectToRoute('language_annotation_search', ['request' =>  $request], 301);
     }
 
-    /**
-     * @Route("/annotation/language/search", name="language_annotation_search", methods={"GET"})
-     * @param Request $request
-     * @return Response
-     */
+    #[Route('/annotation/language/search', name: 'language_annotation_search', methods: ['GET'])]
     public function search(
         Request $request
     ): Response {
@@ -51,29 +42,17 @@ class LanguageAnnotation extends BaseController
         );
     }
 
-    /**
-     * @Route("/annotation/language/search_api", name="language_annotation_search_api", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/annotation/language/search_api', name: 'language_annotation_search_api', methods: ['GET'])]
     public function search_api(Request $request): JsonResponse {
         return $this->_search_api($request);
     }
 
-    /**
-     * @Route("/annotation/language/paginate", name="language_annotation_paginate", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/annotation/language/paginate', name: 'language_annotation_paginate', methods: ['GET'])]
     public function paginate(Request $request): JsonResponse {
         return $this->_paginate($request);
     }
 
-    /**
-     * @Route("/annotation/language/export/csv", name="language_annotation_export_csv", methods={"GET"})
-     * @param Request $request
-     * @return StreamedCsvResponse
-     */
+    #[Route('/annotation/language/export/csv', name: 'language_annotation_export_csv', methods: ['GET'])]
     public function exportCSV(
         Request $request
     ): StreamedCsvResponse {

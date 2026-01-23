@@ -7,7 +7,7 @@ use App\Service\ElasticSearch\Search\LexicogrammerAnnotationSearchService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class LinguisticAnnotationController extends BaseController
 {
@@ -16,12 +16,7 @@ class LinguisticAnnotationController extends BaseController
     protected const searchServiceName = "linguistic_annotation_search_service";
     protected const indexServiceName = "text_index_service";
 
-    /**
-     * @Route("/annotation/linguistic/search", name="linguistic_annotation_search", methods={"GET"})
-     * @param Request $request
-     * @param LexicogrammerAnnotationSearchService $elasticService
-     * @return Response
-     */
+    #[Route('/annotation/linguistic/search', name: 'linguistic_annotation_search', methods: ['GET'])]
     public function search(
         Request $request
     ): Response
@@ -40,11 +35,7 @@ class LinguisticAnnotationController extends BaseController
         );
     }
 
-    /**
-     * @Route("/annotation/linguistic/search_api", name="linguistic_annotation_search_api", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/annotation/linguistic/search_api', name: 'linguistic_annotation_search_api', methods: ['GET'])]
     public function search_api(
         Request $request
     ): JsonResponse
@@ -52,11 +43,7 @@ class LinguisticAnnotationController extends BaseController
         return $this->_search_api($request);
     }
 
-    /**
-     * @Route("/annotation/linguistic/paginate", name="linguistic_annotation_paginate", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/annotation/linguistic/paginate', name: 'linguistic_annotation_paginate', methods: ['GET'])]
     public function paginate(
         Request $request
     ): JsonResponse
@@ -65,11 +52,7 @@ class LinguisticAnnotationController extends BaseController
     }
 
 
-    /**
-     * @Route("/annotation/linguistic/export/csv", name="linguistic_annotation_export_csv", methods={"GET"})
-     * @param Request $request
-     * @return StreamedCsvResponse
-     */
+    #[Route('/annotation/linguistic/export/csv', name: 'linguistic_annotation_export_csv', methods: ['GET'])]
     public function exportCSV(
         Request $request
     ): StreamedCsvResponse
