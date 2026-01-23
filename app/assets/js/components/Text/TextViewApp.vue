@@ -231,7 +231,7 @@
                     <text-metadata :text="text" :url-generator="urlGeneratorIdName"></text-metadata>
                 </Widget>
 
-                <Widget title="Images" :count="arrayGetLength(images)" :collapsed.sync="config.widgets.images.isCollapsed" v-if="isViewInternal">
+                <Widget title="Images" :count="arrayGetLength(images)" :collapsed.sync="config.widgets.images.isCollapsed" v-if="userIsAuthenticated">
                     <Gallery :images="imagesLightBox" :onClick="(index,url) => (imageIndex = index)" />
                 </Widget>
 
@@ -497,21 +497,21 @@ export default {
             type: String,
             required: true
         },
+        initUser: {
+            type: String,
+            required: true
+        },
         debug: {
             type: Boolean|String,
             required: false,
             default: false
         },
-        isViewInternal: {
-            type: Boolean,
-            required: false,
-            default: false
-        }
     },
     data() {
         let data = {
             urls: JSON.parse(this.initUrls),
             data: JSON.parse(this.initData),
+            user: JSON.parse(this.initUser),
             defaultConfig: {
                 expertMode: false,
                 legacyMode: false,
@@ -589,6 +589,13 @@ export default {
     computed: {
         isDebugMode() {
             return this.debug === true || this.debug === 'true'
+        },
+        userIsAuthenticated() {
+            console.log('user', this.user)
+            return this.user ? (this.user?.isAuthenticated ?? false) : false
+        },
+        userRoles() {
+            return this.user ? (this.user?.roles ?? []) : [];
         },
         text: function() {
             return this.data.text

@@ -6,7 +6,6 @@ use App\Helper\StreamedCsvResponse;
 use App\Model\AbstractAnnotationModel;
 use App\Repository\TextRepository;
 use App\Resource\ElasticTextAnnotationsResource;
-use App\Security\Roles;
 use Elastica\Exception\NotFoundException;
 use Exception;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -185,8 +184,11 @@ class TextController extends BaseController
                         'data' => json_encode([
                             'text' => $resource
                         ]),
+                        'user' => json_encode([
+                            'isAuthenticated' => (bool)$this->getUser(),
+                            'roles' => $this->getUser() ? $this->getUser()->getRoles() : [],
+                        ]),
                         'debug' => $this->getParameter('textviewer.debug'),
-                        'isViewInternal' => $this->isGranted(Roles::ROLE_VIEW_INTERNAL) ? 'true' : 'false',
                     ]
                 );
             } catch(NotFoundException $e) {

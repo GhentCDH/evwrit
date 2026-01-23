@@ -145,7 +145,7 @@ class BaseController extends AbstractController
     protected function sanitizeSearchRequest(array $params): array
     {
         // remove aggregations if no permission
-        if (!$this->isGranted(Roles::ROLE_VIEW_INTERNAL)) {
+        if (!$this->isGranted(Roles::User)) {
             unset($params['filters']['has_images']);
         }
         return $params;
@@ -154,7 +154,7 @@ class BaseController extends AbstractController
     protected function sanitizeSearchResults(array $data): array
     {
         // remove aggregations if no permission
-        if (!$this->isGranted(Roles::ROLE_VIEW_INTERNAL)) {
+        if (!$this->isGranted(Roles::User)) {
             unset($data['aggregations']['has_images']);
         }
         return $data;
@@ -163,7 +163,7 @@ class BaseController extends AbstractController
     protected function sanitizeText(array $data): array
     {
         // remove critial data if no permission
-        if (!$this->isGranted(Roles::ROLE_VIEW_INTERNAL)) {
+        if (!$this->isGranted(Roles::User)) {
             unset($data['image']);
         }
         return $data;
