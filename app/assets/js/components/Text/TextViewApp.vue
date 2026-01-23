@@ -446,33 +446,33 @@
 </template>
 
 <script>
-import Widget from '../components/Sidebar/Widget'
-import LabelValue from '../components/Sidebar/LabelValue'
-import PageMetrics from '../components/Sidebar/PageMetrics'
-import GreekText from '../components/Text/GreekText'
-import PropertyGroup from '../components/Sidebar/PropertyGroup'
-import Gallery from '../components/Sidebar/Gallery'
-import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
-import AnnotationDetailsFlat from '../components/Annotations/AnnotationDetailsFlat'
-import AnnotationDetailsDebug from '../components/Annotations/AnnotationDetailsDebug'
-import AnnotationDetails from '../components/Annotations/AnnotationDetails'
-import AncientPersonMetadata from "../components/Sidebar/AncientPersonMetadata.vue";
-import LevelMetadata from "../components/Sidebar/LevelMetadata.vue";
-import TextMetadata from "../components/Sidebar/TextMetadata.vue";
+import Widget from '../Sidebar/Widget'
+import LabelValue from '../Sidebar/LabelValue'
+import PageMetrics from '../Sidebar/PageMetrics'
+import GreekText from '../Text/GreekText'
+import PropertyGroup from '../Sidebar/PropertyGroup'
+import Gallery from '../Sidebar/Gallery'
+import CheckboxSwitch from '../FormFields/CheckboxSwitch'
+import AnnotationDetailsFlat from '../Annotations/AnnotationDetailsFlat'
+import AnnotationDetailsDebug from '../Annotations/AnnotationDetailsDebug'
+import AnnotationDetails from '../Annotations/AnnotationDetails'
+import AncientPersonMetadata from "../Sidebar/AncientPersonMetadata.vue";
+import LevelMetadata from "../Sidebar/LevelMetadata.vue";
+import TextMetadata from "../Sidebar/TextMetadata.vue";
 
-import PersistentConfig from "../components/Shared/PersistentConfig";
-import ResultSet from "../components/Search/ResultSet";
-import SearchSession from "../components/Search/SearchSession";
-import SearchContext from "../components/Search/SearchContext";
+import PersistentConfig from "../Shared/PersistentConfig";
+import ResultSet from "../Search/ResultSet";
+import SearchSession from "../Search/SearchSession";
+import SearchContext from "../Search/SearchContext";
 
 import CoolLightBox from 'vue-cool-lightbox'
 import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 
 import axios from 'axios'
 import qs from 'qs'
-import SharedSearch from "../components/Search/SharedSearch";
+import SharedSearch from "../Search/SharedSearch";
 
-import AnnotatedText from "../components/Text/AnnotatedText.vue";
+import AnnotatedText from "./AnnotatedText";
 
 export default {
     name: "TextViewApp",
