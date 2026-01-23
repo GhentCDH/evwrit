@@ -14,25 +14,21 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class IndexElasticsearchCommand extends Command
 {
-    protected static $defaultName = 'app:elasticsearch:index';
-    protected static $defaultDescription = 'Drops the old elasticsearch index and recreates it.';
-
-    protected ContainerInterface $container;
     protected array $di = [];
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(protected TextIndexService $textIndexService, protected LevelIndexService $levelIndexService, protected ParameterBagInterface $params)
     {
-        $this->container = $container;
-        parent::__construct();
+        parent::__construct('app:elasticsearch:index');
     }
 
     protected function configure(): void
     {
         $this
-            ->setDescription(self::$defaultDescription)
+            ->setDescription('Drops the old elasticsearch index and recreates it.')
             ->addArgument('index', InputArgument::REQUIRED, 'Which index should be reindexed?')
             ->addArgument('maxItems', InputArgument::OPTIONAL, 'Max number of items to index')
             ->addOption('chunk-size', null, InputArgument::OPTIONAL, 'Number of items to index per chunk', 50)
@@ -44,19 +40,17 @@ class IndexElasticsearchCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $chunkSize = $input->getOption('chunk-size');
 
-        $allowedProjectIds = (array) $this->container->getParameter('app.allowed_project_ids');
+        $allowedProjectIds = (array) $this->params->get('app.allowed_project_ids');
 
         $count = 0;
         $maxItems = $input->getArgument('maxItems');
         if ($index = $input->getArgument('index')) {
             switch ($index) {
                 case 'text':
-                    /** @var $repository TextRepository */
-                    $repository = $this->container->get('text_repository' );
+                    $repository = new TextRepository();
 
-                    /** @var $service TextIndexService */
-                    $service = $this->container->get('text_index_service');
-                    $indexName = $service->createNewIndex();
+                    $service = $this->textIndexService;
+                    $indexName = $this->textIndexService->createNewIndex();
 
                     $total = $repository->findByProjectIds($allowedProjectIds)->count();
 
@@ -88,11 +82,9 @@ class IndexElasticsearchCommand extends Command
 
                     break;
                 case "level": {
-                    /** @var $repository TextRepository */
-                    $repository = $this->container->get('text_repository' );
+                    $repository = new TextRepository();
 
-                    /** @var $service LevelIndexService */
-                    $service = $this->container->get('level_index_service');
+                    $service = $this->levelIndexService;
                     $indexName = $service->createNewIndex();
 
                     $total = $repository->findByProjectIds($allowedProjectIds)->count();
