@@ -9,10 +9,10 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
     ports:
-      - "5432:5432"
+      - "127.0.0.1:${POSTGRES_EXTERNAL_TCP_PORT:-5432}:5432"
     volumes:
       - ./var/postgres/data:/var/lib/postgresql/data
-      - ./initdb:/docker-entrypoint-initdb.d
+      - ./init/db:/docker-entrypoint-initdb.d
   
   elasticsearch:
     build: 
@@ -31,8 +31,7 @@ services:
       TAKE_FILE_OWNERSHIP: 1
       ELASTIC_PASSWORD: "elastic"
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - "127.0.0.1:${ELASTICSEARCH_EXTERNAL_TCP_PORT:-9200}:9200"
     volumes:
       - ./var/elasticsearch/data:/usr/share/elasticsearch/data
     ulimits:
@@ -50,14 +49,20 @@ services:
       target: dev
     env_file:
       - .env
+    environment:
+      PHP_IDE_CONFIG: serverName=localhost
+      XDEBUG_MODE: debug
+      XDEBUG_CONFIG: client_host=host.docker.internal client_port=9003
     ports:
-      - "8080:8000"
+      - "127.0.0.1:${APP_EXTERNAL_TCP_PORT:-8080}:8000"
     volumes:
       - ./app:/app
     depends_on:
       - postgresql
       - elasticsearch
-  
+      - keycloak
+      - node
+
   node:
     build:
       context: .
@@ -65,3 +70,46 @@ services:
       target: node-dev
     volumes:
       - ./app:/app
+
+  # Keycloak uses a postgres database
+  keycloak_database:
+    image: postgres:16.1-bookworm
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: "256M"
+    ports:
+      - "127.0.0.1:${KEYCLOAK_DATABASE_EXTERNAL_TCP_PORT:-15432}:5432"
+    volumes:
+      - ./var/keycloak_database/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: $KEYCLOAK_DATABASE_USER
+      POSTGRES_PASSWORD: $KEYCLOAK_DATABASE_PASSWORD
+      POSTGRES_DB: $KEYCLOAK_DATABASE_NAME
+
+  # The keycloack service itself, depends on the availability of the database
+  keycloak:
+    image: keycloak/keycloak:23.0.6
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: "2G"
+    depends_on:
+      - keycloak_database
+    user: 0:1000
+    ports:
+      - "127.0.0.1:${KEYCLOAK_EXTERNAL_TCP_PORT:-8081}:8081"
+    volumes:
+      - ./init/keycloak:/opt/keycloak/data/import
+    environment:
+      - KEYCLOAK_ADMIN=$KEYCLOAK_ADMIN
+      - KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://keycloak_database:5432/$KEYCLOAK_DATABASE_NAME
+      - KC_DB_USERNAME=$KEYCLOAK_DATABASE_USER
+      - KC_DB_PASSWORD=$KEYCLOAK_DATABASE_PASSWORD
+      - KC_HTTP_PORT=8081
+
+    command: start-dev --import-realm

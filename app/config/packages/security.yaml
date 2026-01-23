@@ -1,24 +1,19 @@
+imports:
+  # Import Keycloak security providers
+  - { resource: '@IDCIKeycloakSecurityBundle/Resources/config/security.yaml' }
+
 security:
-    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
-    providers:
-        users_in_memory: { memory: null }
-    firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
-        main:
-            anonymous: true
-            lazy: true
-            provider: users_in_memory
+  enable_authenticator_manager: true
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#firewalls-authentication
+  firewalls:
+    main:
+      pattern: ^/
+      provider: idci_keycloak_security_provider
+      entry_point: IDCI\Bundle\KeycloakSecurityBundle\Security\EntryPoint\AuthenticationEntryPoint
+      custom_authenticators:
+        - IDCI\Bundle\KeycloakSecurityBundle\Security\Authenticator\KeycloakAuthenticator
+      logout:
+        path: idci_keycloak_security_auth_logout
 
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
-    access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+  access_control: # access control is configured in controllers
+    - { path: ^/, roles: PUBLIC_ACCESS }

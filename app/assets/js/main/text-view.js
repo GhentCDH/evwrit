@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import TextViewApp from '../apps/TextViewApp'
+import TextViewApp from '../components/Text/TextViewApp.vue'
 
 new Vue({
     el: '#text-view-app',

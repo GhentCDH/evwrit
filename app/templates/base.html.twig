@@ -53,10 +53,6 @@
                                         <img src="{{ asset('build/static/images/logo_ugent_en.svg') }}" alt="Ghent University">
                                     </a>
                                 </div>
-                                <a href="#" class="toggle-search">
-                                    <i class="glyphicon glyphicon-search"></i>
-                                    <span>ZOEK</span>
-                                </a>
                                 <a href="#" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar" role="button">
                                     <span class="">MENU</span>
                                     <div class="block">
@@ -73,22 +69,16 @@
                                             <div class="row">
                                                 <div class="col-xs-12">
                                                     <ul class="nav-tertiary nav navbar-nav navbar-right">
-                                                        <li>
-                                                            <a href="https://www.ugent.be/lw/en" title="Home Faculty of Arts and Philosophy">Home Faculty of Arts and Philosophy</a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="https://www.ugent.be/en" title="Home Ghent University">Home Ghent University</a>
-                                                        </li>
-                                                        {% if is_granted("ROLE_USER") %}
+                                                        {% if app.user %}
                                                             <li>
-                                                                <span><i class="fa fa-key"></i>&nbsp;{{ app.user.getUsername() }}</span>
+                                                                <span><i class="fa fa-key"></i>&nbsp;{{ app.user.getDisplayName() }}</span>
                                                             </li>
                                                             <li>
-{#                                                                <a href="{{ path('saml_logout') }}">Log out</a>#}
+                                                                <a href="{{ path('logout') }}">Log out</a>
                                                             </li>
                                                         {% else %}
                                                             <li>
-{#                                                                <a href="{{ path('saml_login') }}">Login</a>#}
+                                                                <a href="{{ path('login') }}">Login</a>
                                                             </li>
                                                         {% endif %}
                                                     </ul>

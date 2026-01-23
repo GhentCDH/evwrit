@@ -6,15 +6,13 @@ use App\Helper\StreamedCsvResponse;
 use App\Model\AbstractAnnotationModel;
 use App\Repository\TextRepository;
 use App\Resource\ElasticTextAnnotationsResource;
-use App\Resource\TextSearchFlagsResource;
+use Elastica\Exception\NotFoundException;
 use Exception;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Throwable;
 
@@ -167,7 +165,8 @@ class TextController extends BaseController
             //$this->denyAccessUnlessGranted('ROLE_EDITOR_VIEW');
             try {
                 $resource = $elasticService->get($id);
-            } catch (NotFoundHttpException $e) {
+                $resource = $this->sanitizeText($resource);
+            } catch (NotFoundException $e) {
                 return new JsonResponse(
                     ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
                     Response::HTTP_NOT_FOUND
@@ -177,6 +176,7 @@ class TextController extends BaseController
         } else {
             try {
                 $resource = $elasticService->get($id);
+                $resource = $this->sanitizeText($resource);
                 return $this->render(
                     $this->templateFolder. '/detail.html.twig',
                     [
@@ -184,11 +184,15 @@ class TextController extends BaseController
                         'data' => json_encode([
                             'text' => $resource
                         ]),
-                        'debug' => $this->getParameter('textviewer.debug')
+                        'user' => json_encode([
+                            'isAuthenticated' => (bool)$this->getUser(),
+                            'roles' => $this->getUser() ? $this->getUser()->getRoles() : [],
+                        ]),
+                        'debug' => $this->getParameter('textviewer.debug'),
                     ]
                 );
-            } catch(Exception $e) {
-                throw $this->createNotFoundException("The text does not exist.");
+            } catch(NotFoundException $e) {
+                throw $this->createNotFoundException('The text does not exist');
             }
         }
     }

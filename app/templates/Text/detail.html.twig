@@ -4,10 +4,10 @@
 
 {% block content %}
     <text-view-app id="text-view-app"
-        init-urls="{{ urls }}"
-        init-data="{{ data }}"
-        debug="{{ debug ? 'true' : 'false' }}"
-    />
+                   init-urls="{{ urls }}"
+                   init-data="{{ data }}"
+                   init-user="{{ user }}"
+                   debug="{{ debug ? 'true' : 'false' }}"></text-view-app>
 {% endblock %}
 
 {% block javascript %}
