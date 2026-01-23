@@ -15,7 +15,7 @@ services:
       - ./init/db:/docker-entrypoint-initdb.d
   
   elasticsearch:
-    build: 
+    build:
       context: .
       dockerfile: elasticsearch.Dockerfile
     environment:
@@ -43,16 +43,18 @@ services:
         hard: 65536
 
   symfony:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
       target: dev
+      args:
+        PHP_VERSION: 8.2
     env_file:
       - .env
-    environment:
-      PHP_IDE_CONFIG: serverName=localhost
-      XDEBUG_MODE: debug
-      XDEBUG_CONFIG: client_host=host.docker.internal client_port=9003
+    #    environment:
+    #      PHP_IDE_CONFIG: serverName=localhost
+    #      XDEBUG_MODE: debug
+    #      XDEBUG_CONFIG: client_host=host.docker.internal client_port=9003
     ports:
       - "127.0.0.1:${APP_EXTERNAL_TCP_PORT:-8080}:8000"
     volumes:
