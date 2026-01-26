@@ -113,10 +113,17 @@ FROM webdevops/php-apache:${PHP_VERSION} AS prod
 COPY --from=symfony-prod --chown=1000:1000 /app /app
 COPY --from=node-prod --chown=1000:1000 /app/public/build /app/public/build
 
+# Copy entrypoint script for Apache port configuration
+COPY --chown=application:application app/scripts/entrypoint.d/10-configure-apache-port.sh /opt/docker/provision/entrypoint.d/
+RUN chmod +x /opt/docker/provision/entrypoint.d/10-configure-apache-port.sh
+
 ENV APP_ENV=prod
 ENV PHP_MEMORY_LIMIT=1024M
 ENV PHP_DISMOD=ioncube,xcache
+ENV APACHE_HTTP_PORT=80
 
 ENV WEB_DOCUMENT_ROOT="/app/public"
 ENV WEB_DOCUMENT_INDEX="/app/public/index.php"
 
+# Expose the Apache port (can be overridden at runtime)
+EXPOSE ${APACHE_HTTP_PORT}
