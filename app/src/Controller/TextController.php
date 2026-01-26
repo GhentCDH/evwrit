@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Throwable;
 
 class TextController extends BaseController
@@ -24,21 +24,13 @@ class TextController extends BaseController
     protected const indexServiceName = "text_index_service";
     protected const searchFlagServiceName = "text_search_flags_service";
 
-    /**
-     * @Route("/text", name="text", methods={"GET"})
-     * @param Request $request
-     * @return RedirectResponse
-     */
+    #[Route('/text', name: 'text', methods: ['GET'])]
     public function index(Request $request): RedirectResponse
     {
         return $this->redirectToRoute('text_search', ['request' =>  $request], 301);
     }
 
-    /**
-     * @Route("/text/search", name="text_search", methods={"GET"})
-     * @param Request $request
-     * @return Response
-     */
+    #[Route('/text/search', name: 'text_search', methods: ['GET'])]
     public function search(
         Request $request
     ): Response
@@ -56,11 +48,7 @@ class TextController extends BaseController
         );
     }
 
-    /**
-     * @Route("/text/search_api", name="text_search_api", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/text/search_api', name: 'text_search_api', methods: ['GET'])]
     public function search_api(
         Request $request
     ): JsonResponse
@@ -68,11 +56,7 @@ class TextController extends BaseController
         return $this->_search_api($request);
     }
 
-    /**
-     * @Route("/text/search_flags/filters", name="text_search_flags_filters", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/text/search_flags/filters', name: 'text_search_flags_filters', methods: ['GET'])]
     public function search_flags_filters(
         Request $request
     ): JsonResponse
@@ -83,11 +67,7 @@ class TextController extends BaseController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Route("/text/search_flags", name="text_search_flags", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/text/search_flags', name: 'text_search_flags', methods: ['GET'])]
     public function search_flags(
         Request $request
     ): JsonResponse
@@ -98,11 +78,7 @@ class TextController extends BaseController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Route("/text/paginate", name="text_paginate", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/text/paginate', name: 'text_paginate', methods: ['GET'])]
     public function paginate(
         Request $request
     ): JsonResponse
@@ -110,11 +86,7 @@ class TextController extends BaseController
         return $this->_paginate($request);
     }
 
-    /**
-     * @Route("/text/export/csv", name="text_export_csv", methods={"GET"})
-     * @param Request $request
-     * @return StreamedCsvResponse
-     */
+    #[Route('/text/export/csv', name: 'text_export_csv', methods: ['GET'])]
     public function exportCSV(
         Request $request
     ): StreamedCsvResponse
@@ -151,12 +123,7 @@ class TextController extends BaseController
     }
 
 
-    /**
-     * @Route("/text/{id}", name="text_get_single", methods={"GET"})
-     * @param int $id
-     * @param Request $request
-     * @return JsonResponse|Response
-     */
+    #[Route('/text/{id}', name: 'text_get_single', methods: ['GET'])]
     public function getSingle(int $id, Request $request): JsonResponse|Response
     {
         $elasticService = $this->getContainer()->get(self::indexServiceName);
@@ -197,12 +164,7 @@ class TextController extends BaseController
         }
     }
 
-    /**
-     * @Route("/text/{id}/annotations", name="text_get_annotations", methods={"GET"})
-     * @param int $id
-     * @param Request $request
-     * @return JsonResponse|Response
-     */
+    #[Route('/text/{id}/annotations', name: 'text_get_annotations', methods: ['GET'])]
     public function getAnnotations(int $id, Request $request): JsonResponse|Response
     {
         $preloadRelations = [
@@ -261,12 +223,7 @@ class TextController extends BaseController
         }
     }
 
-    /**
-     * @Route("/text/{id}/flags", name="text_flags_update", methods={"PATCH"})
-     * @param int $id
-     * @param Request $request
-     * @return JsonResponse|Response
-     */
+    #[Route('/text/{id}/flags', name: 'text_flags_update', methods: ['PATCH'])]
     public function patchTextFlags(string $id, Request $request): JsonResponse
     {
 
@@ -299,9 +256,7 @@ class TextController extends BaseController
         }
     }
 
-    /**
-     * @Route("/annotation/{annotationType}/{annotationId}/override", name="annotation_override", methods={"PATCH"})
-     */
+    #[Route('/annotation/{annotationType}/{annotationId}/override', name: 'annotation_override', methods: ['PATCH'])]
     public function overrideAnnotation(string $annotationType, int $annotationId, Request $request): JsonResponse
     {
         // get morphMap

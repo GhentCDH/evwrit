@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class MaterialityController extends BaseController
 {
@@ -17,21 +17,13 @@ class MaterialityController extends BaseController
     protected const searchServiceName = "text_materiality_search_service";
     protected const indexServiceName = "text_index_service";
 
-    /**
-     * @Route("/materiality", name="materiality", methods={"GET"})
-     * @param Request $request
-     * @return RedirectResponse
-     */
+    #[Route('/materiality', name: 'materiality', methods: ['GET'])]
     public function index(Request $request): RedirectResponse
     {
         return $this->redirectToRoute('materiality_search', ['request' =>  $request], 301);
     }
 
-    /**
-     * @Route("/materiality/search", name="materiality_search", methods={"GET"})
-     * @param Request $request
-     * @return Response
-     */
+    #[Route('/materiality/search', name: 'materiality_search', methods: ['GET'])]
     public function search(
         Request $request
     ): Response
@@ -50,11 +42,7 @@ class MaterialityController extends BaseController
         );
     }
 
-    /**
-     * @Route("/materiality/search_api", name="materiality_search_api", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/materiality/search_api', name: 'materiality_search_api', methods: ['GET'])]
     public function search_api(
         Request $request
     ): JsonResponse
@@ -62,11 +50,7 @@ class MaterialityController extends BaseController
         return $this->_search_api($request);
     }
 
-    /**
-     * @Route("/materiality/paginate", name="materiality_paginate", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/materiality/paginate', name: 'materiality_paginate', methods: ['GET'])]
     public function paginate(
         Request $request
     ): JsonResponse
@@ -74,12 +58,7 @@ class MaterialityController extends BaseController
         return $this->_paginate($request);
     }
 
-    /**
-     * @Route("/materiality/export/csv", name="materiality_export_csv", methods={"GET"})
-     * @param Request $request
-     * @param TextMaterialitySearchService $elasticService
-     * @return StreamedCsvResponse
-     */
+    #[Route('/materiality/export/csv', name: 'materiality_export_csv', methods: ['GET'])]
     public function exportCSV(
         Request $request,
         TextMaterialitySearchService $elasticService

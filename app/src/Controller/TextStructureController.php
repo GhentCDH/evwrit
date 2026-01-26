@@ -5,7 +5,7 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class TextStructureController extends BaseController
 {
@@ -14,11 +14,7 @@ class TextStructureController extends BaseController
     protected const searchServiceName = "text_structure_search_service";
     protected const indexServiceName = "text_index_service";
 
-    /**
-     * @Route("/textstructure/search", name="text_structure_search", methods={"GET"})
-     * @param Request $request
-     * @return Response
-     */
+    #[Route('/textstructure/search', name: 'text_structure_search', methods: ['GET'])]
     public function search(
         Request $request
     ): Response
@@ -36,11 +32,7 @@ class TextStructureController extends BaseController
         );
     }
 
-    /**
-     * @Route("/textstructure/search_api", name="text_structure_search_api", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/textstructure/search_api', name: 'text_structure_search_api', methods: ['GET'])]
     public function search_api(
         Request $request
     ): JsonResponse
@@ -48,11 +40,7 @@ class TextStructureController extends BaseController
         return $this->_search_api($request);
     }
 
-    /**
-     * @Route("/textstructure/paginate", name="text_structure_paginate", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
-     */
+    #[Route('/textstructure/paginate', name: 'text_structure_paginate', methods: ['GET'])]
     public function paginate(
         Request $request
     ): JsonResponse

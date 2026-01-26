@@ -14,21 +14,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class IndexTextElasticsearchCommand extends Command
 {
-    protected static $defaultName = 'app:elasticsearch:index-text';
-    protected static $defaultDescription = 'Index or update a single text in Elasticsearch.';
-
-    private ContainerInterface $container;
-
-    public function __construct(ContainerInterface $container)
+    public function __construct(protected TextIndexService $textIndexService)
     {
-        $this->container = $container;
-        parent::__construct();
+        parent::__construct('app:elasticsearch:index-text');
     }
 
     protected function configure(): void
     {
         $this
-            ->setDescription(self::$defaultDescription)
+            ->setDescription('Index or update a single text in Elasticsearch.')
             ->addArgument('text_id', InputArgument::REQUIRED, 'The ID of the text to index')
             ->setHelp('This command allows you to index or update a single text in Elasticsearch by its ID.');
     }
@@ -38,11 +32,9 @@ class IndexTextElasticsearchCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $textId = $input->getArgument('text_id');
 
-        /** @var TextRepository $repository */
-        $repository = $this->container->get('text_repository');
+        $repository = new TextRepository();
 
-        /** @var TextIndexService $service */
-        $service = $this->container->get('text_index_service');
+        $service = $this->textIndexService;
 
         $text = $repository->defaultQuery()->find($textId);
 
@@ -52,7 +44,7 @@ class IndexTextElasticsearchCommand extends Command
         }
 
         $textResource = new ElasticTextResource($text);
-        $service->update($textResource);
+        $service->add($textResource);
 
         $io->success("Successfully indexed text with ID {$textId}");
 

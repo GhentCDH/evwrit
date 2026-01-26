@@ -2,35 +2,23 @@
 
 namespace App\Command;
 
-use App\Repository\TextRepository;
-use App\Resource\ElasticCommunicativeGoalResource;
-use App\Resource\ElasticTextResource;
 use App\Service\ElasticSearch\Search\Configs;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ExportSearchConfigCommand extends Command
 {
-    protected static $defaultName = 'app:exportconfig:search';
-    protected static $defaultDescription = 'Export search filter id\'s.';
-
-    protected ContainerInterface $container;
     protected array $di = [];
 
-    public function __construct(ContainerInterface $container)
+    public function __construct()
     {
-        $this->container = $container;
-        parent::__construct();
+        parent::__construct('app:exportconfig:search');
     }
 
     protected function configure(): void
     {
-        $this->setDescription(self::$defaultDescription);
+        $this->setDescription('Export search filter id\'s.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
