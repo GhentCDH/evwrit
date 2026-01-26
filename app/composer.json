@@ -1,7 +1,10 @@
 {
+    "name": "ghentcdh/evwrit",
+    "description": "Source code of the Everyday Writing database",
     "type": "project",
-    "license": "proprietary",
     "version": "0.92.0",
+    "homepage": "https://github.com/GhentCDH/evwrit",
+    "license": "MIT",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
@@ -83,8 +86,7 @@
     },
     "replace": {
         "symfony/polyfill-ctype": "*",
-        "symfony/polyfill-iconv": "*",
-        "symfony/polyfill-php72": "*"
+        "symfony/polyfill-iconv": "*"
     },
     "scripts": {
         "auto-scripts": {
