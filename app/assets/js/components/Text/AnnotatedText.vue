@@ -20,7 +20,7 @@ const props = defineProps({
         required: true
     },
     annotations: {
-        type: Array<RenderedAnnotation>,
+        type: Array as PropType<RenderedAnnotation[]>,
         default: function() {
             return [];
         }
@@ -42,9 +42,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits<{
-   'annotation-click': (annotation: Annotation) => void
-}>();
+const emit = defineEmits(['annotation-click']);
 
 const { text, annotations, textOffset, styles } = toRefs(props);
 const id = props.id || `annotated-text-${Math.random().toString(36).substring(2, 15)}`;
@@ -55,39 +53,40 @@ const annotatedText = ref(null);
 watch([text, annotations], ([newText, newAnnotations]) => {
     if (annotatedText.value) {
         annotatedText.value
-            .setText(newText)
-            .setAnnotations(newAnnotations);
+            .setText(newText as string)
+            .setAnnotations(newAnnotations as Annotation[]);
     }
 });
 
-const onAnnotationClick = ({ mouseEvent, event, data }) => {
+const onAnnotationClick = ({ mouseEvent: _mouseEvent, event: _event, data }) => {
     emit('annotation-click', data.annotation);
 }
 
 // Hooks
 onMounted(() => {
-    annotatedText.value = createAnnotatedText(id, {
+    annotatedText.value = createAnnotatedText(id as string, {
         text: TextLineAdapter({
-            textOffset: textOffset.value
+            textOffset: textOffset.value as number
         }),
         annotation: {
             style: {
-                styleFn: (annotation: any) => {
-                    return annotation.style ?? "default";
+                // @ts-nocheck
+                styleFn: (annotation: any): string => {
+                    return ((annotation.style as string) ?? "default");
                 }
             },
             render: {
-                renderFn: (annotation) => annotation.render,
+                renderFn: (annotation: any): string => annotation.render as string,
             },
         },
-    })
-    .registerStyles(styles.value)
+    } as any)
+    .registerStyles(styles.value as Record<string, AnnotationStyle>)
     .updateRenderStyle('highlight', {
         borderWidth: 1,
         borderRadius: 2,
         padding: 4,
-    })
-    .setText(text.value)
+    } as any)
+    .setText(text.value as string)
     .setAnnotations(annotations.value as Annotation[])
     .on('click', onAnnotationClick)
     .on('mouse-enter', () => {
