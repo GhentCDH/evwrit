@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class CustomAuthController extends AbstractController
 {
-    #[Route(path: '/login', name: 'login', methods: ['GET'])]
+    #[Route(path: '/user/login', name: 'login', methods: ['GET'])]
     public function login(Request $request, SessionInterface $session): RedirectResponse
     {
         $referer = $request->headers->get('referer', $request->getUri());
@@ -20,7 +20,7 @@ class CustomAuthController extends AbstractController
         return $this->redirectToRoute('idci_keycloak_security_auth_connect');
     }
 
-    #[Route(path: '/logout', name: 'logout', methods: ['GET'])]
+    #[Route(path: '/user/logout', name: 'logout', methods: ['GET'])]
     public function logout(Request $request, SessionInterface $session): RedirectResponse
     {
         $referer = $request->headers->get('referer', $this->generateUrl('default'));
