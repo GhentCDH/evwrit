@@ -2,7 +2,7 @@
     "name": "ghentcdh/evwrit",
     "description": "Source code of the Everyday Writing database",
     "type": "project",
-    "version": "0.93.1",
+    "version": "0.93.2",
     "homepage": "https://github.com/GhentCDH/evwrit",
     "license": "MIT",
     "minimum-stability": "dev",
