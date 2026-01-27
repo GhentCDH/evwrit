@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Throwable;
 
 class TextController extends BaseController
@@ -165,6 +166,7 @@ class TextController extends BaseController
     }
 
     #[Route('/text/{id}/annotations', name: 'text_get_annotations', methods: ['GET'])]
+    #[IsGranted('ROLE_EDITOR')]
     public function getAnnotations(int $id, Request $request): JsonResponse|Response
     {
         $preloadRelations = [
@@ -224,6 +226,7 @@ class TextController extends BaseController
     }
 
     #[Route('/text/{id}/flags', name: 'text_flags_update', methods: ['PATCH'])]
+    #[IsGranted('ROLE_EDITOR')]
     public function patchTextFlags(string $id, Request $request): JsonResponse
     {
 
@@ -257,6 +260,7 @@ class TextController extends BaseController
     }
 
     #[Route('/annotation/{annotationType}/{annotationId}/override', name: 'annotation_override', methods: ['PATCH'])]
+    #[IsGranted('ROLE_EDITOR')]
     public function overrideAnnotation(string $annotationType, int $annotationId, Request $request): JsonResponse
     {
         // get morphMap
