@@ -179,12 +179,7 @@ class BaseController extends AbstractController
                 'data' => $data
             ],
             $httpStatusCode ?: Response::HTTP_OK,
-            $httpHeaders ?: [
-                // cors headers
-                'Access-Control-Allow-Origin' => '*',
-                'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, PATCH, DELETE, PUT',
-                'Access-Control-Allow-Headers' => 'Content-Type, Authorization, Accept'
-            ]
+            $httpHeaders ?: []
         );
     }
 
