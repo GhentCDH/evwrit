@@ -57,28 +57,6 @@ class TextController extends BaseController
         return $this->_search_api($request);
     }
 
-    #[Route('/text/search_flags/filters', name: 'text_search_flags_filters', methods: ['GET'])]
-    public function search_flags_filters(
-        Request $request
-    ): JsonResponse
-    {
-        $search_service = $this->getContainer()->get(static::searchFlagServiceName);
-        $data = $search_service->filters($request);
-
-        return new JsonResponse($data);
-    }
-
-    #[Route('/text/search_flags', name: 'text_search_flags', methods: ['GET'])]
-    public function search_flags(
-        Request $request
-    ): JsonResponse
-    {
-        $search_service = $this->getContainer()->get(static::searchFlagServiceName);
-        $data = $search_service->search($request);
-
-        return new JsonResponse($data);
-    }
-
     #[Route('/text/paginate', name: 'text_paginate', methods: ['GET'])]
     public function paginate(
         Request $request
@@ -129,43 +107,76 @@ class TextController extends BaseController
     {
         $elasticService = $this->getContainer()->get(self::indexServiceName);
 
+        try {
+            $resource = $elasticService->get($id);
+            $resource = $this->sanitizeText($resource);
+        } catch (NotFoundException $e) {
+            throw $this->createNotFoundException('The text does not exist');
+        }
+
         if (in_array('application/json', $request->getAcceptableContentTypes())) {
-            //$this->denyAccessUnlessGranted('ROLE_EDITOR_VIEW');
-            try {
-                $resource = $elasticService->get($id);
-                $resource = $this->sanitizeText($resource);
-            } catch (NotFoundException $e) {
-                return new JsonResponse(
-                    ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
-                    Response::HTTP_NOT_FOUND
-                );
-            }
             return new JsonResponse($resource);
         } else {
-            try {
-                $resource = $elasticService->get($id);
-                $resource = $this->sanitizeText($resource);
-                return $this->render(
-                    $this->templateFolder. '/detail.html.twig',
-                    [
-                        'urls' => json_encode($this->getSharedAppUrls()),
-                        'data' => json_encode([
-                            'text' => $resource
-                        ]),
-                        'user' => json_encode([
-                            'isAuthenticated' => (bool)$this->getUser(),
-                            'roles' => $this->getUser() ? $this->getUser()->getRoles() : [],
-                        ]),
-                        'debug' => $this->getParameter('textviewer.debug'),
-                    ]
-                );
-            } catch(NotFoundException $e) {
-                throw $this->createNotFoundException('The text does not exist');
-            }
+            return $this->render(
+                $this->templateFolder. '/detail.html.twig',
+                [
+                    'urls' => json_encode($this->getSharedAppUrls()),
+                    'data' => json_encode([
+                        'text' => $resource
+                    ]),
+                    'user' => json_encode([
+                        'isAuthenticated' => (bool)$this->getUser(),
+                        'roles' => $this->getUser() ? $this->getUser()->getRoles() : [],
+                    ]),
+                    'debug' => $this->getParameter('textviewer.debug'),
+                ]
+            );
         }
     }
 
-    #[Route('/text/{id}/annotations', name: 'text_get_annotations', methods: ['GET'])]
+    /* Annotation Flow endpoints */
+
+    #[Route('/api/text/search_flags/filters', name: 'text_search_flags_filters', methods: ['GET'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function search_flags_filters(
+        Request $request
+    ): JsonResponse
+    {
+        $search_service = $this->getContainer()->get(static::searchFlagServiceName);
+        $data = $search_service->filters($request);
+
+        return $this->jsonResponseData($data);
+    }
+
+    #[Route('/api/text/search_flags/filters', name: 'text_search_flags_filters_options', methods: ['OPTIONS'])]
+    public function search_flags_filters_options(
+        Request $request
+    ): JsonResponse
+    {
+        return $this->jsonResponseData(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/api/text/search_flags', name: 'text_search_flags', methods: ['GET'])]
+    #[IsGranted('ROLE_EDITOR')]
+    public function search_flags(
+        Request $request
+    ): JsonResponse
+    {
+        $search_service = $this->getContainer()->get(static::searchFlagServiceName);
+        $data = $search_service->search($request);
+
+        return $this->jsonResponseData($data);
+    }
+
+    #[Route('/api/text/search_flags', name: 'text_search_flags_options', methods: ['OPTIONS'])]
+    public function search_flags_options(
+        Request $request
+    ): JsonResponse
+    {
+        return $this->jsonResponseData(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/api/text/{id}/annotations', name: 'text_get_annotations', methods: ['GET'])]
     #[IsGranted('ROLE_EDITOR')]
     public function getAnnotations(int $id, Request $request): JsonResponse|Response
     {
@@ -216,33 +227,35 @@ class TextController extends BaseController
             }
 
             $res = new ElasticTextAnnotationsResource($text);
-            return new JsonResponse($res->toArray());
+            return $this->jsonResponseData($res->toArray());
         } catch (Exception $e) {
             return new JsonResponse(
                 ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
     }
 
-    #[Route('/text/{id}/flags', name: 'text_flags_update', methods: ['PATCH'])]
+    #[Route('/api/text/{id}/annotations', name: 'text_get_annotations_options', methods: ['OPTIONS'])]
+    public function getAnnotationsOptions(int $id, Request $request): JsonResponse
+    {
+        return $this->jsonResponseData(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/api/text/{id}/flags', name: 'text_flags_update', methods: ['PATCH'])]
     #[IsGranted('ROLE_EDITOR')]
     public function patchTextFlags(string $id, Request $request): JsonResponse
     {
-
         // get morphMap
         $morphMap = Relation::morphMap();
 
         $flags = json_decode($request->getContent(), true);
 
-
         if (!isset($flags['needs_attention'], $flags['review_done'])) {
             return $this->jsonFail('Missing required properties', $flags);
         }
 
-
         // insert/update flags
-
         try {
             $repo = $this->getContainer()->get('text_repository');
             $record = $repo->query()->with(['flags'])->find($id);
@@ -259,7 +272,7 @@ class TextController extends BaseController
         }
     }
 
-    #[Route('/annotation/{annotationType}/{annotationId}/override', name: 'annotation_override', methods: ['PATCH'])]
+    #[Route('/api/annotation/{annotationType}/{annotationId}/override', name: 'annotation_override', methods: ['PATCH'])]
     #[IsGranted('ROLE_EDITOR')]
     public function overrideAnnotation(string $annotationType, int $annotationId, Request $request): JsonResponse
     {

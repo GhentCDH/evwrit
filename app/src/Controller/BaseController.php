@@ -169,16 +169,38 @@ class BaseController extends AbstractController
         return $data;
     }
 
-    protected function jsonError($message, $data = null): JsonResponse
+
+    // Return JSend response
+    protected function jsonResponseData($data, int $httpStatusCode = null, ?array $httpHeaders = null): JsonResponse
     {
-        return $this->jsonStatus('error', $message, $data, Response::HTTP_BAD_REQUEST);
+        return $this->json(
+            [
+                'status' => 'success',
+                'data' => $data
+            ],
+            $httpStatusCode ?: Response::HTTP_OK,
+            $httpHeaders ?: [
+                // cors headers
+                'Access-Control-Allow-Origin' => '*',
+                'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, PATCH, DELETE, PUT',
+                'Access-Control-Allow-Headers' => 'Content-Type, Authorization, Accept'
+            ]
+        );
     }
 
+    // Request preconditions have not been met
     protected function jsonFail($message, $data = null): JsonResponse
     {
         return $this->jsonStatus('fail', $message, $data, Response::HTTP_BAD_REQUEST);
     }
 
+    // There was an error processing the request
+    protected function jsonError($message, $data = null): JsonResponse
+    {
+        return $this->jsonStatus('error', $message, $data, Response::HTTP_BAD_REQUEST);
+    }
+
+    // The request was successful
     protected function jsonSuccess($message, $data = null): JsonResponse
     {
         return $this->jsonStatus('success', $message, $data);
@@ -192,5 +214,4 @@ class BaseController extends AbstractController
             'data' => $data
         ], $httpStatusCode ?? Response::HTTP_OK);
     }
-
 }
