@@ -4,8 +4,20 @@ imports:
 
 security:
 #  enable_authenticator_manager: true
+  providers:
+    custom_keycloak_bearer:
+      id: App\Security\User\CustomKeycloakBearerUserProvider
 
   firewalls:
+
+    annotation_flow:
+      pattern: ^/api
+      stateless: true  # Important: no session for API
+      provider: custom_keycloak_bearer # Use custom user provider
+      entry_point: IDCI\Bundle\KeycloakSecurityBundle\Security\EntryPoint\BearerAuthenticationEntryPoint
+      custom_authenticators:
+        - IDCI\Bundle\KeycloakSecurityBundle\Security\Authenticator\KeycloakBearerAuthenticator
+
     main:
       pattern: ^/
       provider: idci_keycloak_security_provider
@@ -16,4 +28,7 @@ security:
         path: idci_keycloak_security_auth_logout
 
   access_control: # access control is configured in controllers
+    - { path: ^/api, methods: [OPTIONS], allow_if: "true" }
     - { path: ^/, roles: PUBLIC_ACCESS }
+    # Allow OPTIONS requests without authentication
+

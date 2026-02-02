@@ -140,3 +140,24 @@ services:
         class: App\Service\Search\TextSearchFlagsService
         arguments: [ ]
         public: true
+
+    # Custom Keycloak Bearer User Provider
+    custom_keycloak_bearer_user_provider:
+        class: App\Security\User\CustomKeycloakBearerUserProvider
+        arguments:
+            $sslVerification: '%idci_keycloak_security.ssl_verification%'
+            $debug: '%kernel.debug%'
+    App\Security\User\CustomKeycloakBearerUserProvider: '@custom_keycloak_bearer_user_provider'
+
+    # Override the Keycloak Bearer Authenticator to use custom provider
+    IDCI\Bundle\KeycloakSecurityBundle\Security\Authenticator\KeycloakBearerAuthenticator:
+        arguments:
+            $userProvider: '@custom_keycloak_bearer_user_provider'
+
+    # Register JSON Exception Listener
+    App\EventListener\JsonExceptionListener:
+        arguments:
+            $logger: '@logger'
+            $debug: '%kernel.debug%'
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, priority: 10 }
