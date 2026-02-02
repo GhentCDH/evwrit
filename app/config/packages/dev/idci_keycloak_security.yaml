@@ -1,4 +1,2 @@
 idci_keycloak_security:
-#  server_public_url: '%env(resolve:KEYCLOAK_SERVER_PUBLIC_URL)%'
-#  server_private_url: '%env(resolve:KEYCLOAK_SERVER_PRIVATE_URL)%'
   ssl_verification: false
