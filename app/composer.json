@@ -14,6 +14,7 @@
         "ext-json": "*",
         "idci/keycloak-security-bundle": "^2.0",
         "illuminate/http": "^10.0",
+        "nelmio/cors-bundle": "^2.6",
         "phpdocumentor/reflection-docblock": "^5.2",
         "ramsey/uuid": "^4.2",
         "ruflin/elastica": "^7.1",
