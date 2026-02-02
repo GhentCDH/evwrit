@@ -148,14 +148,6 @@ class TextController extends BaseController
         return $this->jsonResponseData($data);
     }
 
-    #[Route('/api/text/search_flags/filters', name: 'text_search_flags_filters_options', methods: ['OPTIONS'])]
-    public function search_flags_filters_options(
-        Request $request
-    ): JsonResponse
-    {
-        return $this->jsonResponseData(null, Response::HTTP_NO_CONTENT);
-    }
-
     #[Route('/api/text/search_flags', name: 'text_search_flags', methods: ['GET'])]
     #[IsGranted('ROLE_EDITOR')]
     public function search_flags(
@@ -166,14 +158,6 @@ class TextController extends BaseController
         $data = $search_service->search($request);
 
         return $this->jsonResponseData($data);
-    }
-
-    #[Route('/api/text/search_flags', name: 'text_search_flags_options', methods: ['OPTIONS'])]
-    public function search_flags_options(
-        Request $request
-    ): JsonResponse
-    {
-        return $this->jsonResponseData(null, Response::HTTP_NO_CONTENT);
     }
 
     #[Route('/api/text/{id}/annotations', name: 'text_get_annotations', methods: ['GET'])]
@@ -234,12 +218,6 @@ class TextController extends BaseController
                 Response::HTTP_NOT_FOUND,
             );
         }
-    }
-
-    #[Route('/api/text/{id}/annotations', name: 'text_get_annotations_options', methods: ['OPTIONS'])]
-    public function getAnnotationsOptions(int $id, Request $request): JsonResponse
-    {
-        return $this->jsonResponseData(null, Response::HTTP_NO_CONTENT);
     }
 
     #[Route('/api/text/{id}/flags', name: 'text_flags_update', methods: ['PATCH'])]
@@ -309,5 +287,4 @@ class TextController extends BaseController
             return $this->jsonError($e->getMessage(), $annotation);
         }
     }
-
 }
