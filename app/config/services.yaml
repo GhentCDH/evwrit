@@ -153,3 +153,11 @@ services:
     IDCI\Bundle\KeycloakSecurityBundle\Security\Authenticator\KeycloakBearerAuthenticator:
         arguments:
             $userProvider: '@custom_keycloak_bearer_user_provider'
+
+    # Register JSON Exception Listener
+    App\EventListener\JsonExceptionListener:
+        arguments:
+            $logger: '@logger'
+            $debug: '%kernel.debug%'
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, priority: 10 }
