@@ -11,7 +11,7 @@ class DefaultController extends AbstractController
 {
     protected string $templateFolder = 'Default';
 
-    #[Route('/', name: 'default', methods: ['GET'])]
+    #[Route('/', name: 'homepage', methods: ['GET'])]
     public function index(Request $request): Response
     {
         return $this->render(
