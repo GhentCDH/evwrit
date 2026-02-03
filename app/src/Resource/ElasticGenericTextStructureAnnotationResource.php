@@ -18,4 +18,15 @@ class ElasticGenericTextStructureAnnotationResource extends BaseElasticAnnotatio
     protected array $includeAttributes = ['part','partNumber', 'textLevel',];
     protected bool $generateContext = true;
     protected bool $allowEmptyRelationProperties = true;
+
+    public function toArray($request=null): array
+    {
+        $ret = parent::toArray($request);
+        if ($ret === []) {
+            return $ret;
+        }
+
+        $ret['generic_text_structure_id'] = $this->generic_text_structure_id;
+        return $ret;
+    }
 }
