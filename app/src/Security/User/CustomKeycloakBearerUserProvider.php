@@ -15,6 +15,8 @@ use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Custom Keycloak Bearer User Provider that introspects tokens and extracts roles.
@@ -32,14 +34,74 @@ class CustomKeycloakBearerUserProvider extends OAuthUserProvider implements Keyc
         private HttpClientInterface $httpClient,
         private mixed $sslVerification,
         private LoggerInterface $logger,
+        private CacheInterface $cache,
         private readonly bool $debug = false,
     ) {
     }
 
     public function loadUserByIdentifier(string $accessToken): UserInterface
     {
-        $this->logger->debug("User provider", [self::class]);
+        $cacheKey = 'keycloak_token_' . hash('sha256', $accessToken);
 
+        $this->debug && $this->logger->debug('Loading user by identifier. Trying cache first.', [
+            'cache_key' => $cacheKey,
+        ]);
+
+        return $this->cache->get($cacheKey, function (ItemInterface $item) use ($accessToken) {
+
+            $this->debug && $this->logger->debug('Cache miss. Authentication requires introspecting bearer token.', [
+                'access_token' => $accessToken,
+            ]);
+
+            // only trust the cache if the token is valid, otherwise we might cache invalid tokens
+            $jwt = $this->introspectToken($accessToken);
+
+            // create the user from the token payload
+            $bearerUser = $this->createUserFromJwt($jwt);
+            $bearerUser->setAccessToken($accessToken);
+
+            // check expiry from token payload if available
+            $verifiedToken = $bearerUser->getAccessToken();
+            if ($jwt['exp'] ?? null) {
+                $now = time();
+                $expiresAt = $jwt['exp'];
+                if ($expiresAt > $now) {
+                    $item->expiresAfter($expiresAt - $now);
+                }
+            } else {
+                $item->expiresAfter(300);
+            }
+
+            return $bearerUser;
+        });
+    }
+
+    public function createUserFromJwt(array $jwt): UserInterface
+    {
+        // Extract roles from both realm and all clients
+        $roles = $this->extractRoles($jwt);
+        $this->debug && $this->logger->debug('Extracted roles from token', [
+            'roles' => $roles,
+        ]);
+
+        $this->debug && $this->logger->info('User loaded from token introspection', [
+            'username' => $jwt['username'],
+            'realm_roles' => $jwt['realm_access']['roles'] ?? [],
+            'client_roles' => $this->getClientRoles($jwt),
+            'symfony_roles' => $roles,
+        ]);
+
+        // Create and return the KeycloakBearerUser
+        return (new KeycloakBearerUser($jwt['username'], $roles))
+            ->setClientId($jwt['client_id'])
+            ->setFirstName($jwt['given_name'] ?? null)
+            ->setLastName($jwt['family_name'] ?? null)
+            ->setEmail($jwt['email'] ?? null)
+            ->setEmailVerified($jwt['email_verified'] ?? false);
+    }
+
+    public function introspectToken(string $accessToken): array
+    {
         $provider = $this->getKeycloakClient()->getOAuth2Provider();
 
         // Ensure the provider is an instance of KeycloakProvider
@@ -48,6 +110,9 @@ class CustomKeycloakBearerUserProvider extends OAuthUserProvider implements Keyc
         }
 
         // Introspect the token
+        $this->debug && $this->logger->debug('Introspecting token with Keycloak', [
+            'introspection_url' => $provider->getTokenIntrospectionUrl(),
+        ]);
         $response = $this->httpClient->request(Request::METHOD_POST, $provider->getTokenIntrospectionUrl(), [
             'body' => [
                 'client_id' => $provider->getClientId(),
@@ -69,27 +134,7 @@ class CustomKeycloakBearerUserProvider extends OAuthUserProvider implements Keyc
             throw new TokenNotFoundException('The token does not exist or is not valid anymore');
         }
 
-        // Extract roles from both realm and all clients
-        $roles = $this->extractRoles($jwt);
-        $this->debug && $this->logger->debug('Extracted roles from token', [
-            'roles' => $roles,
-        ]);
-
-        $this->debug && $this->logger->info('User loaded from token introspection', [
-            'username' => $jwt['username'],
-            'realm_roles' => $jwt['realm_access']['roles'] ?? [],
-            'client_roles' => $this->getClientRoles($jwt),
-            'symfony_roles' => $roles,
-        ]);
-
-        // Create and return the KeycloakBearerUser
-        return (new KeycloakBearerUser($jwt['username'], $roles))
-            ->setAccessToken($accessToken)
-            ->setClientId($jwt['client_id'])
-            ->setFirstName($jwt['given_name'] ?? null)
-            ->setLastName($jwt['family_name'] ?? null)
-            ->setEmail($jwt['email'] ?? null)
-            ->setEmailVerified($jwt['email_verified'] ?? false);
+        return $jwt;
     }
 
     private function extractRoles(array $jwt): array
