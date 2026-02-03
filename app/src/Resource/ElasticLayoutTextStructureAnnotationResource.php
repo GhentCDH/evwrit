@@ -22,8 +22,11 @@ class ElasticLayoutTextStructureAnnotationResource extends BaseElasticAnnotation
     public function toArray($request=null): array
     {
         $ret = parent::toArray($request);
-        $ret['layout_text_structure_id'] = $this->layout_text_structure_id;
+        if ($ret === []) {
+            return $ret;
+        }
 
+        $ret['layout_text_structure_id'] = $this->layout_text_structure_id;
         return $ret;
     }
 }
