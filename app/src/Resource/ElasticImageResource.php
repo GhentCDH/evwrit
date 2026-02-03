@@ -19,6 +19,9 @@ class ElasticImageResource extends ElasticBaseResource
     public function toArray($request=null): array
     {
         $ret = parent::toArray($request);
+        if ($ret === []) {
+            return $ret;
+        }
         $ret['kollemata'] = A::create(explode('|', $ret['kollemata']))
             ->map(fn($i) => trim($i))
             ->filter(fn($i) => !empty($i))

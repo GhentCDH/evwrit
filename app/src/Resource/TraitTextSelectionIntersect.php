@@ -8,9 +8,17 @@ trait TraitTextSelectionIntersect {
 
     private function annotationIntersect(&$annotationSource, $annotations, $limitProperties= []): void
     {
+//        if (!isset($annotationSource['type'])) {
+//            dump($annotationSource);
+//            die();
+//        } // skip annotations without type}
         $additionalProperties = [];
         foreach( $annotations as $annotationTest ) {
             $type = $annotationTest['type'];
+//            if (!$type) {
+//                dump($annotationTest);
+//                die();
+//            } // skip annotations without type
             if ($this->textSelectionIntersect($annotationSource['text_selection'], $annotationTest['text_selection'])) {
                 $properties = count($limitProperties) ? array_intersect_key($annotationTest['properties'], array_flip($limitProperties)) : array_filter($annotationTest['properties'], fn($v,$k) => $v && str_starts_with($k, $type), ARRAY_FILTER_USE_BOTH);
                 foreach ($properties as $propertyKey => $propertyValue) {

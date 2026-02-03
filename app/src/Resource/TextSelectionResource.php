@@ -22,6 +22,9 @@ class TextSelectionResource extends ElasticBaseResource
     public function toArray($request=null): array
     {
         $ret = parent::toArray();
+        if ($ret === []) {
+            return $ret;
+        }
         $ret['text'] = TextSelectionResource::convertNewlines($ret['text']);
 
         return $ret;

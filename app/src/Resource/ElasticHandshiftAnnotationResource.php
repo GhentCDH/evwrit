@@ -21,6 +21,9 @@ class ElasticHandshiftAnnotationResource extends BaseElasticAnnotationResource
         $resource = $this->resource;
 
         $ret = parent::toArray($request);
+        if ($ret === []) {
+            return $ret;
+        }
         $ret['internal_hand_num'] = $resource->internal_hand_num;
         $ret['ancient_person'] = new AttestationAncientPersonOnlyResource($resource->attestation);
 
