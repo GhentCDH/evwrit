@@ -22,7 +22,7 @@ class CustomRedirectController extends BaseController
             return $this->redirect($redirectUrl);
         }
 
-        $redirectUrl = $this->generateUrl('default');
+        $redirectUrl = $this->generateUrl('homepage');
         return $this->redirect($redirectUrl);
     }
 }

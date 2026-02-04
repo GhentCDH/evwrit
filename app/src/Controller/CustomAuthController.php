@@ -23,7 +23,7 @@ class CustomAuthController extends AbstractController
     #[Route(path: '/user/logout', name: 'logout', methods: ['GET'])]
     public function logout(Request $request, SessionInterface $session): RedirectResponse
     {
-        $referer = $request->headers->get('referer', $this->generateUrl('default'));
+        $referer = $request->headers->get('referer', $this->generateUrl('homepage'));
 
         $response = $this->redirectToRoute('idci_keycloak_security_auth_logout');
         $response->headers->setCookie(
