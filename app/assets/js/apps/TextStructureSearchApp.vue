@@ -39,11 +39,6 @@
                                         <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Advanced mode"></CheckboxSwitch>
                                     </div>
                                 </li>
-                                <li>
-                                    <div class="form-group">
-                                        <CheckboxSwitch v-model="config.legacyMode" class="switch-primary" label="Show legacy viewer"></CheckboxSwitch>
-                                    </div>
-                                </li>
                             </ul>
                         </div>
                         <div class="btn-group">
@@ -99,10 +94,6 @@
                     </template>
                     <template v-slot:annotations="props">
                         <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)">
-                            <GreekText
-                                    v-if="config.legacyMode"
-                                    :text="annotation.text_selection.text">
-                            </GreekText>
                             <AnnotatedText :text="annotation.text_selection.text"></AnnotatedText>
                             <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation" :type-only-properties="config.showAnnotationTypeOnlyProperties"></AnnotationDetailsFlat>
                         </div>
@@ -144,7 +135,6 @@ import AnnotatedText from "../components/Text/AnnotatedText.vue";
 import AnnotationDetailsFlat from '../components/Annotations/AnnotationDetailsFlat'
 
 import fieldRadio from '../components/FormFields/fieldRadio'
-import GreekText from '../components/Text/GreekText'
 
 import PersistentConfig from "../components/Shared/PersistentConfig";
 import SharedSearch from "../components/Search/SharedSearch";
@@ -158,7 +148,6 @@ Vue.component('fieldRadio', fieldRadio);
 
 export default {
     components: {
-        GreekText,
         AnnotationDetailsFlat,
         CheckboxSwitch,
         VtPerPageSelector,
@@ -182,7 +171,6 @@ export default {
                 showAnnotationDetails: true,
                 showAnnotationTypeOnlyProperties: false,
                 expertMode: false,
-                legacyMode: false,
             },
             model: {
                 date_search_type: 'exact',
