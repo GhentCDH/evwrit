@@ -101,7 +101,7 @@
                             <div :class="textViewerClass">
                                 <h3 v-if="config.legacyMode">SVG viewer</h3>
                                 <AnnotatedText :text="textStructure.text_selection.text"
-                                               :annotations="visibleAnnotationsFormattedNoGts"
+                                               :annotations="visibleAnnotationsFormattedNoGtsNew"
                                                @annotation-click="onClickAnnotationNew"
                                                :textOffset="textStructure.text_selection.selection_start"
                                 ></AnnotatedText>
