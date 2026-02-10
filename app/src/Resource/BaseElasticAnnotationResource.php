@@ -101,10 +101,18 @@ class BaseElasticAnnotationResource extends BaseResource
 
     /**
      * calculate text selection context
-     * start/end are PHP string offsets (starting with 0)!
-     * todo: use TextSelection overrides when available
+     * database offsets are 1-based, end offset not inclusive, length should be (end - start)
      */
-    protected function createTextSelectionContext(string $text, int $selectionStart, int $selectionEnd): array {
+    protected function createTextSelectionContext(string $text, int $selectionStart, int $selectionEnd, int $offset = 1, bool $endInclusive = false): array {
+
+//        dump([$selectionStart, $selectionEnd]);
+
+        // convert selection start/end to 0-based inclusive offsets
+        $selectionStart -= $offset;
+        $selectionEnd -= $offset;
+        if (!$endInclusive) {
+            $selectionEnd -= 1;
+        }
 
         // text end
         $textLength = mb_strlen($text);
@@ -112,14 +120,16 @@ class BaseElasticAnnotationResource extends BaseResource
 
         // selection start/end
         $selectionStart = min(max(0, $selectionStart), $textEnd); // fix incorrect selection start
-        $selectionEnd = min($selectionEnd, $textEnd); // fix incorrect selection end
+        $selectionEnd = min(max(0,$selectionEnd), $textEnd); // fix incorrect selection end
+
+//        dump([$selectionStart, $selectionEnd]);
 
         // context start: if selection start > 0, find last vertical tab in string before selection start
         $contextStart = 0;
         if ($selectionStart) {
-            $selection_prefix = mb_substr($text, 0, $selectionStart);
-            $contextStart = mb_strrpos($selection_prefix, "\v");
-            $contextStart = $contextStart !== false ? min($textEnd, $contextStart + 1) : $textEnd;
+            $selectionPrefix = mb_substr($text, 0, $selectionStart); // extract string before selection start
+            $contextStart = mb_strrpos($selectionPrefix, "\v");
+            $contextStart = $contextStart !== false ? min($textEnd, $contextStart + 1) : 0;
         }
 
         // context end: find first vertical tab to the right of selection_end
@@ -129,11 +139,13 @@ class BaseElasticAnnotationResource extends BaseResource
             $contextEnd = $contextEnd !== false ? max(0, $contextEnd - 1) : $textEnd;
         }
 
-        // left pos
+//        dump([$selectionStart, $selectionEnd, $contextStart, $contextEnd]);
+
+        // create context array
         $context = [
             'text' => mb_substr($text, $contextStart, $contextEnd - $contextStart + 1 ),
-            'start' => $contextStart,
-            'end' => $contextEnd
+            'start' => $contextStart + $offset,
+            'end' => $contextEnd + $offset + ($endInclusive ? 0 : 1),
         ];
 
         $context['text'] = TextSelectionResource::convertNewlines($context['text']);

@@ -39,6 +39,11 @@
                                         <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Advanced mode"></CheckboxSwitch>
                                     </div>
                                 </li>
+                                <li>
+                                    <div class="form-group">
+                                        <CheckboxSwitch v-model="config.legacyMode" class="switch-primary" label="Show legacy viewer"></CheckboxSwitch>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
                         <div class="btn-group">
@@ -95,8 +100,10 @@
                     <template v-slot:annotations="props">
                         <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)">
                             <GreekText
+                                    v-if="config.legacyMode"
                                     :text="annotation.text_selection.text">
                             </GreekText>
+                            <AnnotatedText :text="annotation.text_selection.text"></AnnotatedText>
                             <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation" :type-only-properties="config.showAnnotationTypeOnlyProperties"></AnnotationDetailsFlat>
                         </div>
                         <div class="annotation-count" v-if="config.limitVisibleAnnotations && props.row.annotations.length > 3">
@@ -132,6 +139,7 @@ import AbstractField from '../components/FormFields/AbstractField'
 import AbstractSearch from '../components/Search/AbstractSearch'
 import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
 
+import AnnotatedText from "../components/Text/AnnotatedText.vue";
 
 import AnnotationDetailsFlat from '../components/Annotations/AnnotationDetailsFlat'
 
@@ -155,7 +163,8 @@ export default {
         CheckboxSwitch,
         VtPerPageSelector,
         VtPagination,
-        VtPaginationCount
+        VtPaginationCount,
+        AnnotatedText
     },
     mixins: [
         PersistentConfig('TextStructureSearchConfig'),
@@ -173,6 +182,7 @@ export default {
                 showAnnotationDetails: true,
                 showAnnotationTypeOnlyProperties: false,
                 expertMode: false,
+                legacyMode: false,
             },
             model: {
                 date_search_type: 'exact',

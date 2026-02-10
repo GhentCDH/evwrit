@@ -55,4 +55,4 @@ const createDefaultStyles = () => {
     return styles
 }
 
-export const defaultAnnotationStyles = createDefaultStyles()
+export default createDefaultStyles()

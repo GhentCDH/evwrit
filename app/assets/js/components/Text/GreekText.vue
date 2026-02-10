@@ -20,7 +20,7 @@ export default {
         },
         annotationOffset: {
             type: Number,
-            default: 0
+            default: 1
         },
         compact: {
             type: Boolean,

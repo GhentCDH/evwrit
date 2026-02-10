@@ -60,6 +60,11 @@
                                         <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Advanced mode"></CheckboxSwitch>
                                     </div>
                                 </li>
+                                <li>
+                                    <div class="form-group">
+                                        <CheckboxSwitch v-model="config.legacyMode" class="switch-primary" label="Show legacy viewer"></CheckboxSwitch>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
                         <div class="btn-group">
@@ -116,16 +121,23 @@
                     <template v-slot:annotations="props">
                         <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)">
                             <GreekText
+                                    v-if="config.legacyMode"
                                     v-show="config.showAnnotationContext"
                                     :text="annotation.context.text"
-                                    :annotations="[ [annotation.text_selection.selection_start, annotation.text_selection.selection_end - 1, { id: annotation.id, type: annotation.type, class: 'annotation annotation-' + annotation.type }] ]"
-                                    :annotationOffset="annotation.context.start + 1"
+                                    :annotations="[ formatGreekTextAnnotation(annotation) ]"
+                                    :annotationOffset="annotation.context.start"
                                     :compact="true">
                             </GreekText>
-                            <GreekText
-                                    v-show="!config.showAnnotationContext"
-                                    :text="annotation.text_selection.text">
-                            </GreekText>
+                            <AnnotatedText
+                                v-show="config.showAnnotationContext"
+                                :text="annotation.context.text"
+                                :annotations="[ formatAnnotatedTextAnnotation(annotation) ]"
+                                :textOffset="annotation.context.start"
+                                >
+                            </AnnotatedText>
+                            <AnnotatedText :text="annotation.text_selection.text"
+                                           v-show="!config.showAnnotationContext"
+                            ></AnnotatedText>
                             <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation" :type-only-properties="config.showAnnotationTypeOnlyProperties"></AnnotationDetailsFlat>
                         </div>
                         <div class="annotation-count" v-if="config.limitVisibleAnnotations && props.row.annotations.length > 3">
@@ -184,11 +196,14 @@ import SearchAppFields from '../components/Search/Config'
 import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
 import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";
 import VtPaginationCount from "vue-tables-2-premium/compiled/components/VtPaginationCount";
+import AnnotatedText from "../components/Text/AnnotatedText.vue";
+import {formatAnnotatedTextAnnotation, formatGreekTextAnnotation} from "../components/Annotations/AnnotationFormatters";
 
 Vue.component('fieldRadio', fieldRadio);
 
 export default {
     components: {
+        AnnotatedText,
         GreekText,
         AnnotationDetailsFlat,
         CheckboxSwitch,
@@ -216,6 +231,7 @@ export default {
                 showAnnotationDetails: false,
                 showAnnotationTypeOnlyProperties: true,
                 limitVisibleAnnotations: true,
+                legacyMode: false,
             },
             model: {
                 date_search_type: 'exact',
@@ -292,6 +308,8 @@ export default {
         },
     },
     methods: {
+        formatGreekTextAnnotation,
+        formatAnnotatedTextAnnotation,
         update() {
             // Don't create a new history item
             this.noHistory = true;
