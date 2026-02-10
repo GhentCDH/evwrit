@@ -66,6 +66,9 @@ $nau-font-path: '../../fonts/new-athena-unicode';
   &.greek-text-lines {
     .gutter.text {
       color: #ccc;
+      border-right: 1px solid #ccc;
+      margin-right: 0.2em;
+      min-width: 30px;
     }
 
     .content {
