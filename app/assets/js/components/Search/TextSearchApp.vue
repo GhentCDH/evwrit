@@ -117,15 +117,15 @@
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
-import AbstractField from '../components/FormFields/AbstractField'
-import AbstractSearch from '../components/Search/AbstractSearch'
-import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
+import AbstractField from '../FormFields/AbstractField'
+import AbstractSearch from './AbstractSearch'
+import CheckboxSwitch from '../FormFields/CheckboxSwitch.vue'
 
-import fieldRadio from '../components/FormFields/fieldRadio'
+import fieldRadio from '../FormFields/fieldRadio.vue'
 
-import PersistentConfig from "../components/Shared/PersistentConfig"
-import SharedSearch from "../components/Search/SharedSearch"
-import SearchAppFields from '../components/Search/Config'
+import PersistentConfig from "../Shared/PersistentConfig"
+import SharedSearch from "./SharedSearch"
+import SearchAppFields from './Config'
 
 import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
 import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";

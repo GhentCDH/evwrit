@@ -19,12 +19,12 @@
                         :options="formOptions"
                         :schema="schema"
                         @validated="onValidated"
-                        @model-updated="onAnnotationTypeUpdate"
+                        @model-updated="modelUpdated"
                         @toggle-collapsed="onToggleCollapsed"
                 />
             </div>
         </aside>
-        <article class="col-sm-9 search-app__search-page">
+        <article class="col-sm-9 search-page search-app__search-page">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
                 <div class="search-page__actions">
@@ -34,27 +34,6 @@
                                 <i class="fa fa-cog"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right" onclick="event.stopPropagation()">
-                                <li>
-                                    <div class="form-group">
-                                        <CheckboxSwitch v-model="config.showAnnotationContext" class="switch-primary" label="Show annotation context"></CheckboxSwitch>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="form-group">
-                                        <CheckboxSwitch v-model="config.showAnnotationDetails" class="switch-primary" label="Show annotation details"></CheckboxSwitch>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="form-group">
-                                        <CheckboxSwitch v-model="config.showAnnotationTypeOnlyProperties" class="switch-primary" label="Limit visible annotation properties to own type"></CheckboxSwitch>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="form-group">
-                                        <CheckboxSwitch v-model="config.limitVisibleAnnotations" class="switch-primary" label="Show maximum 3 annotations per text"></CheckboxSwitch>
-                                    </div>
-                                </li>
-                                <li role="separator" class="divider"></li>
                                 <li>
                                     <div class="form-group">
                                         <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Advanced mode"></CheckboxSwitch>
@@ -67,7 +46,7 @@
                                 <i class="fa fa-download"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right">
-                                <li><a :href="urls.export_csv + '?' + querystring">Export as CSV</a></li>
+                                <li><a :href="getUrl('export_csv') + '?' + querystring">Export as CSV</a></li>
                             </ul>
                         </div>
                     </div>
@@ -98,48 +77,29 @@
                     </template>
 
                     <template v-slot:title="props">
-                        <!-- TODO why is title an array when doing a search on title???-->
-                        <a :href="getTextUrl(props.row.id, props.index)" @mouseup="handleLinkCLick"
+                        <!--TODO why is title an array when doing a search on title???-->
+                        <a :href="getTextUrl(props.row.text_id, props.index)" @mouseup="handleLinkCLick"
                            v-html="Array.isArray(props.row.title) ?
                            props.row.title[0] : props.row.title "/>
                     </template>
-                    <template v-slot:id="props">
-                        <a :href="getTextUrl(props.row.id, props.index)" @mouseup="handleLinkCLick">
-                            {{ props.row.id }}
+                    <template v-slot:text_id="props">
+                        <a :href="getTextUrl(props.row.text_id, props.index)" @mouseup="handleLinkCLick">
+                            {{ props.row.text_id }}
                         </a>
                     </template>
                     <template v-slot:tm_id="props">
-                        <a :href="getTextUrl(props.row.id, props.index)" @mouseup="handleLinkCLick">
+                        <a :href="getTextUrl(props.row.text_id, props.index)" @mouseup="handleLinkCLick">
                             {{ props.row.tm_id }}
                         </a>
                     </template>
                     <template v-slot:annotations="props">
                         <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)">
-                            <AnnotatedText
-                                v-show="config.showAnnotationContext"
-                                :text="annotation.context.text"
-                                :annotations="[ formatAnnotatedTextAnnotation(annotation) ]"
-                                :textOffset="annotation.context.start"
-                                >
-                            </AnnotatedText>
-                            <AnnotatedText :text="annotation.text_selection.text"
-                                           v-show="!config.showAnnotationContext"
-                            ></AnnotatedText>
+                            <AnnotatedText :text="annotation.text_selection.text"></AnnotatedText>
                             <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation" :type-only-properties="config.showAnnotationTypeOnlyProperties"></AnnotationDetailsFlat>
                         </div>
                         <div class="annotation-count" v-if="config.limitVisibleAnnotations && props.row.annotations.length > 3">
                             <span class="bg-tertiary small">Showing 3 of {{ props.row.annotations.length }} annotations.</span>
                         </div>
-                    </template>
-                    <template v-slot:instances_in_text="props">
-                        <td>
-                            {{ props.row.annotations_hits_count }}
-                        </td>
-                    </template>
-                    <template v-slot:frequency_per_line="props">
-                        <td>
-                            {{ (props.row.annotations_hits_count / props.row.line_count).toFixed(2) }}
-                        </td>
                     </template>
                     <template v-slot:level_category="props">
                         <td>
@@ -166,100 +126,89 @@
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
-import AbstractField from '../components/FormFields/AbstractField'
-import AbstractSearch from '../components/Search/AbstractSearch'
-import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
+import AbstractField from '../FormFields/AbstractField'
+import AbstractSearch from './AbstractSearch'
+import CheckboxSwitch from '../FormFields/CheckboxSwitch.vue'
 
-import fieldRadio from '../components/FormFields/fieldRadio'
+import AnnotatedText from "../Text/AnnotatedText.vue";
 
-import AnnotationDetailsFlat from '../components/Annotations/AnnotationDetailsFlat'
+import AnnotationDetailsFlat from '../Annotations/AnnotationDetailsFlat.vue'
 
-import PersistentConfig from "../components/Shared/PersistentConfig";
-import SharedSearch from "../components/Search/SharedSearch";
-import SearchAppFields from '../components/Search/Config'
+import fieldRadio from '../FormFields/fieldRadio.vue'
+
+import PersistentConfig from "../Shared/PersistentConfig";
+import SharedSearch from "./SharedSearch";
+import SearchAppFields from './Config'
 
 import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
 import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";
 import VtPaginationCount from "vue-tables-2-premium/compiled/components/VtPaginationCount";
-import AnnotatedText from "../components/Text/AnnotatedText.vue";
-import {formatAnnotatedTextAnnotation} from "../components/Annotations/AnnotationFormatters";
 
 Vue.component('fieldRadio', fieldRadio);
 
 export default {
     components: {
-        AnnotatedText,
         AnnotationDetailsFlat,
         CheckboxSwitch,
         VtPerPageSelector,
         VtPagination,
-        VtPaginationCount
+        VtPaginationCount,
+        AnnotatedText
     },
     mixins: [
-        PersistentConfig('BaseAnnotationSearchConfig'),
+        PersistentConfig('TextStructureSearchConfig'),
         AbstractField,
         AbstractSearch,
         SharedSearch,
         SearchAppFields,
     ],
     props: {
-        defaultAnnotationType: {
-            type: String,
-            default: null
-        }
     },
     data() {
         let data = {
             defaultConfig: {
-                showAnnotationContext: true,
-                showAnnotationDetails: false,
-                showAnnotationTypeOnlyProperties: true,
                 limitVisibleAnnotations: true,
-                legacyMode: false,
+                showAnnotationDetails: true,
+                showAnnotationTypeOnlyProperties: false,
+                expertMode: false,
             },
             model: {
                 date_search_type: 'exact',
                 title_combination: 'any',
-                lines: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
-                columns: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
-                letters_per_line: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
-                width: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
-                height: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
             },
             schema: {
                 groups: [
-                    this.annotationsFields(false, this.defaultAnnotationType),
+                    this.genericStructureFields(),
+                    this.layoutStructureFields(),
+                    this.handshiftFields(),
                     this.generalInformationFields(),
+                    this.communicativeInformationFields(true),
                     this.materialityFields(true),
                     this.ancientPersonFields(true),
-                    this.communicativeInformationFields(true),
-                    this.handshiftFields(true),
-                    this.genericStructureFieldsAnnotations(true),
-                    this.administrativeInformationFields(true),
+                    this.administrativeInformationFields(true)
                 ],
             },
             tableOptions: {
                 filterByColumn: false,
                 filterable: false,
                 headings: {
-                    id: 'ID',
+                    text_id: 'Text ID',
                     tm_id: 'Tm ID ',
+                    number: 'Level',
                     title: 'Title',
-                    annotations: 'Annotations',
                     level_category: 'Text type'
                 },
                 columnsClasses: {
-                    id: 'vue-tables__col vue-tables__col--id',
+                    text_id: 'vue-tables__col vue-tables__col--id',
                     tm_id: 'vue-tables__col vue-tables__col--tm-id',
-                    title: 'vue-tables__col vue-tables__col--title',
-                    annotations: 'vue-tables__col vue-tables__col--annotations'
+                    title: 'vue-tables__col vue-tables__col--title'
                 },
                 orderBy: {
                     'column': 'title'
                 },
                 perPage: 25,
                 perPageValues: [25, 50, 100],
-                sortable: ['id', 'tm_id', 'title', 'instances_in_text', 'frequency_per_line'],
+                sortable: ['text_id', 'tm_id', 'number', 'title'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
@@ -283,7 +232,12 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['id', 'tm_id', 'title', 'annotations', 'instances_in_text', 'frequency_per_line', 'level_category', 'location_found']
+            let columns = []
+            if (this.config.expertMode) {
+                columns = ['text_id', 'tm_id', 'number', 'title', 'annotations', 'level_category', 'location_found']
+            } else {
+                columns = ['text_id', 'tm_id', 'number', 'title', 'level_category', 'location_found']
+            }
             return columns
         },
     },
@@ -292,7 +246,12 @@ export default {
         },
     },
     methods: {
-        formatAnnotatedTextAnnotation,
+        formatLevelCategory(data) {
+            // console.log(data)
+            if (!data) return 'None';
+
+            return data.map( item => item.level_category_category.name ).join(', ')
+        },
         update() {
             // Don't create a new history item
             this.noHistory = true;
@@ -301,33 +260,9 @@ export default {
         limitAnnotations(annotations) {
             return this.config.limitVisibleAnnotations ? annotations.slice(0,3) : annotations
         },
-        formatLevelCategory(data) {
-            if (!data) return 'None';
-
-            return data.map( item => item.level_category_category.name ).join(', ')
-        },
-        onAnnotationTypeUpdate(newVal, schema) {
-            this.modelUpdated(newVal, schema);
-
-            if ( schema === 'annotation_type' ) {
-                const field_prefix = newVal.id
-
-                this.schema.groups.filter( group => group?.id === 'annotations')[0].fields
-                    .filter( field => field.model != 'annotation_type' )
-                    .map( field => delete this.model[field.model] );
-            }
-        }
-
     },
 }
 </script>
 
 <style lang="scss">
-.annotation-result {
-  border: 0;
-  border-top: 1px solid #ccc;
-}
-.annotation-result:first-child {
-  border: 0;
-}
 </style>

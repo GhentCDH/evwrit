@@ -24,12 +24,12 @@ Encore
     // Add javascripts
     .autoProvidejQuery()
 
-    .addEntry('main', './assets/js/main/main.js')
-    .addEntry('text-search', './assets/js/main/text-search.js')
-    .addEntry('materiality-search', './assets/js/main/materiality-search.js')
-    .addEntry('base-annotation-search', './assets/js/main/base-annotation-search.js')
-    .addEntry('text-structure-search', './assets/js/main/text-structure-search.js')
-    .addEntry('text-view', './assets/js/main/text-view.js')
+    .addEntry('main', './assets/js/apps/main.js')
+    .addEntry('text-search', './assets/js/apps/text-search.js')
+    .addEntry('materiality-search', './assets/js/apps/materiality-search.js')
+    .addEntry('base-annotation-search', './assets/js/apps/base-annotation-search.js')
+    .addEntry('text-structure-search', './assets/js/apps/text-structure-search.js')
+    .addEntry('text-view', './assets/js/apps/text-view.js')
 
     // allow sass/scss files to be processed
     .enableSassLoader((options) => {
