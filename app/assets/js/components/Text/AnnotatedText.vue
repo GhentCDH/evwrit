@@ -4,14 +4,13 @@ import {type Annotation, AnnotationStyle} from '@ghentcdh/annotated-text';
 export type RenderedAnnotation = Annotation & {
     render: "highlight" | "underline" | "gutter";
 }
-
 </script>
 
 
 <script setup lang="ts">
 import {ref, toRefs, watch, onMounted, onUnmounted, PropType} from 'vue'
 import {createAnnotatedText, TextLineAdapter} from '@ghentcdh/annotated-text';
-import {defaultAnnotationStyles} from './AnnotatedTextDefaults';
+import defaultAnnotationStyles from './AnnotatedTextDefaults';
 
 // Props
 const props = defineProps({
@@ -64,6 +63,7 @@ const onAnnotationClick = ({ mouseEvent: _mouseEvent, event: _event, data }) => 
 
 // Hooks
 onMounted(() => {
+    // todo: set lineOffset style property of text adapter
     annotatedText.value = createAnnotatedText(id as string, {
         text: TextLineAdapter({
             textOffset: textOffset.value as number
