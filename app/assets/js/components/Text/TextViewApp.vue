@@ -22,7 +22,7 @@
                         <div class="row">
                             <div :class="textViewerClass" v-if="config.legacyMode">
                                 <h3>Legacy viewer</h3>
-                                <GreekText :text="text.text" :annotations="visibleAnnotationsFormatted" :annotation-offset="1"/>
+                                <GreekText :text="text.text" :annotations="visibleAnnotationsFormatted"/>
                             </div>
                             <div :class="textViewerClass">
                                 <h3 v-if="config.legacyMode">SVG viewer</h3>
@@ -115,7 +115,7 @@
                         <div class="row">
                             <div :class="textViewerClass" v-if="config.legacyMode">
                                 <h3>Legacy viewer</h3>
-                        <GreekText :text="text.text_lemmas" />
+                                <GreekText :text="text.text_lemmas" />
                             </div>
                             <div :class="textViewerClass">
                                 <h3 v-if="config.legacyMode">SVG viewer</h3>
@@ -130,7 +130,7 @@
                         <div class="row">
                             <div :class="textViewerClass" v-if="config.legacyMode">
                                 <h3>Legacy viewer</h3>
-                        <GreekText :text="text.apparatus" />
+                                <GreekText :text="text.apparatus" />
                             </div>
                             <div :class="textViewerClass">
                                 <h3 v-if="config.legacyMode">SVG viewer</h3>
@@ -143,7 +143,16 @@
                     <div v-if="config.translation.show && arrayIsNotEmpty(text?.translation)" :class="textContainerClass" class="text-translations">
                         <div v-for="translation in text.translation" class="greek">
                             <h2>{{ translation.language.name}} Translation</h2>
-                            <GreekText :text="translation.text"></GreekText>
+                            <div class="row">
+                                <div :class="textViewerClass" v-if="config.legacyMode">
+                                    <h3>Legacy viewer</h3>
+                                    <GreekText :text="translation.text" />
+                                </div>
+                                <div :class="textViewerClass">
+                                    <h3 v-if="config.legacyMode">SVG viewer</h3>
+                                    <AnnotatedText :text="translation.text" />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -155,7 +164,7 @@
                         <h2 v-if="showText || config.text.showLemmas || config.genericTextStructure.show">Annotations</h2>
                         <div class="annotation-result" v-for="annotation in visibleAnnotations">
                             <GreekText
-                                    v-if="config.annotations.showContext && annotationHasContext(annotation)"
+                                    v-if="config.annotations.showContext && annotationHasContext(annotation) && config.legacyMode"
                                     :text="annotation.context.text"
                                     :annotations="[ formatGreekTextAnnotation(annotation) ]"
                                     :annotation-offset="annotation.context.start"
@@ -599,11 +608,13 @@ export default {
         return data
     },
     computed: {
+        selectedAnnotationId() {
+            return this.selection?.annotationId || null
+        },
         isDebugMode() {
             return this.debug === true || this.debug === 'true'
         },
         userIsAuthenticated() {
-            console.log('user', this.user)
             return this.user ? (this.user?.isAuthenticated ?? false) : false
         },
         userRoles() {
@@ -836,7 +847,14 @@ export default {
         hasSelection() {
             return Object.values(this.selection).filter(item => item).length !== 0
         },
-
+        offsetConfig() {
+            return {
+                start: parseInt(this.config.annotationOffsets.start) ?? 0,
+                end: parseInt(this.config.annotationOffsets.end) ?? 0,
+                startOverride: parseInt(this.config.annotationOffsets.startOverride) ?? 0,
+                endOverride: parseInt(this.config.annotationOffsets.endOverride) ?? 0,
+            }
+        }
     },
     methods: {
         formatGreekTextAnnotation,
@@ -898,6 +916,9 @@ export default {
         },
         annotationHasContext(annotation) {
            return !!annotation?.context
+        },
+        annotationIsActive(annotation) {
+            return ( this.selection?.annotatonId && this.getAnnotationTypeId(annotation) === this.selection?.annotatonId );
         },
         filterAnnotationsByConfig(annotations) {
             let that = this
