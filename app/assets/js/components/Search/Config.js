@@ -1,13 +1,13 @@
 import Vue from 'vue'
-import AbstractSearch from './AbstractSearch'
 import VueFormGenerator from 'vue-form-generator'
+import AbstractSearch from '../../mixins/AbstractSearch'
 
 import AbstractField from '../FormFields/AbstractField'
 import CheckboxSwitch from '../FormFields/CheckboxSwitch'
 
 import fieldRadio from '../FormFields/fieldRadio'
 
-import SharedSearch from "./SharedSearch"
+import SharedSearch from "../../mixins/SharedSearch"
 
 import Case from 'case'
 

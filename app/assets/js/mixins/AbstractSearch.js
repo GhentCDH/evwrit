@@ -7,17 +7,17 @@ import VueFormGenerator from 'vue-form-generator'
 import VueMultiselect from 'vue-multiselect'
 // import VueTables from 'vue-tables-2'
 
-import fieldMultiselectClear from '../FormFields/fieldMultiselectClear'
-import fieldCheckboxes from '../FormFields/fieldCheckboxes'
-import fieldNoUiSlider from '../FormFields/fieldNoUiSlider'
+import fieldMultiselectClear from '../components/FormFields/fieldMultiselectClear.vue'
+import fieldCheckboxes from '../components/FormFields/fieldCheckboxes.vue'
+import fieldNoUiSlider from '../components/FormFields/fieldNoUiSlider.vue'
 
 
 Vue.use(VueFormGenerator)
 // Vue.use(VueTables.ServerTable)
 
 import {ServerTable, ClientTable, Event} from 'vue-tables-2-premium';
-Vue.use(ClientTable, {}, false, require('../../theme/vue-tables-2/bootstrap3'), {});
-Vue.use(ServerTable, {}, false, require('../../theme/vue-tables-2/bootstrap3'), {});
+Vue.use(ClientTable, {}, false, require('../theme/vue-tables-2/bootstrap3'), {});
+Vue.use(ServerTable, {}, false, require('../theme/vue-tables-2/bootstrap3'), {});
 
 
 Vue.component('multiselect', VueMultiselect)

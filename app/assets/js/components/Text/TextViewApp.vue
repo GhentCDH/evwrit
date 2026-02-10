@@ -391,17 +391,17 @@ import AncientPersonMetadata from "../Sidebar/AncientPersonMetadata.vue";
 import LevelMetadata from "../Sidebar/LevelMetadata.vue";
 import TextMetadata from "../Sidebar/TextMetadata.vue";
 
-import PersistentConfig from "../Shared/PersistentConfig";
-import ResultSet from "../Search/ResultSet";
-import SearchSession from "../Search/SearchSession";
-import SearchContext from "../Search/SearchContext";
+import PersistentConfig from "../../mixins/PersistentConfig";
+import ResultSet from "../../mixins/ResultSet";
+import SearchSession from "../../mixins/SearchSession";
+import SearchContext from "../../mixins/SearchContext";
 
 import CoolLightBox from 'vue-cool-lightbox'
 import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 
 import axios from 'axios'
 import qs from 'qs'
-import SharedSearch from "../Search/SharedSearch";
+import SharedSearch from "../../mixins/SharedSearch";
 
 import AnnotatedText from "./AnnotatedText";
 
