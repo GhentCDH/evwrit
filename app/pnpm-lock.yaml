@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@ghentcdh/annotated-text':
-        specifier: ^0.12.20
-        version: 0.12.20
+        specifier: ^0.12.21
+        version: 0.12.21
     devDependencies:
       '@symfony/webpack-encore':
         specifier: 1.6.1
@@ -719,8 +719,8 @@ packages:
     resolution: {integrity: sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==}
     engines: {node: '>=10.0.0'}
 
-  '@ghentcdh/annotated-text@0.12.20':
-    resolution: {integrity: sha512-R51SH4rzHJmnz9SUIHyaHiyNPhtzOJGrSrIqmb1aPHyAq+yxtqgGAbxo2aoQSzDFH1QQJjgckQ3Vu+rXNbmNbA==}
+  '@ghentcdh/annotated-text@0.12.21':
+    resolution: {integrity: sha512-VKs3oibQWizY66j5T8pROQgygVAtHXFJJfWqSAmLbShJUsE6jOuiZ2KWl/DI2Za1hdAauWEXhHfPM4dEtWD07g==}
 
   '@jridgewell/gen-mapping@0.3.5':
     resolution: {integrity: sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg==}
@@ -5135,7 +5135,7 @@ snapshots:
 
   '@discoveryjs/json-ext@0.5.7': {}
 
-  '@ghentcdh/annotated-text@0.12.20':
+  '@ghentcdh/annotated-text@0.12.21':
     dependencies:
       d3: 7.9.0
       lodash-es: 4.17.21
