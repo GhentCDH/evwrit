@@ -157,12 +157,18 @@
                             <GreekText
                                     v-if="config.annotations.showContext && annotationHasContext(annotation)"
                                     :text="annotation.context.text"
-                                    :annotations="formatAnnotation(annotation)"
-                                    :annotationOffset="annotation.context.start + 1"
+                                    :annotations="[ formatGreekTextAnnotation(annotation) ]"
+                                    :annotation-offset="annotation.context.start"
                                     :compact="true">
                             </GreekText>
+                            <AnnotatedText :text="annotation.context.text" :text-offset="annotation.context.start"
+                                           v-if="config.annotations.showContext && annotationHasContext(annotation)"
+                                           :annotations="[ formatAnnotatedTextAnnotation(annotation) ]"
+                                           @annotation-click="onClickAnnotationNew"
+                            >
+                            </AnnotatedText>
                             <GreekText
-                                    v-if="!config.annotations.showContext || !annotationHasContext(annotation)"
+                                    v-if="(!config.annotations.showContext || !annotationHasContext(annotation)) && config.legacyMode"
                                     :text="annotation.text_selection.text">
                             </GreekText>
                             <AnnotationDetailsFlat v-show="config.annotations.showDetails" :annotation="annotation"></AnnotationDetailsFlat>
@@ -474,6 +480,12 @@ import SharedSearch from "../Search/SharedSearch";
 
 import AnnotatedText from "./AnnotatedText";
 
+import {
+    formatAnnotatedTextAnnotation,
+    formatGreekTextAnnotation,
+    getAnnotationClass
+} from "../Annotations/AnnotationFormatters";
+
 export default {
     name: "TextViewApp",
     components: {
@@ -711,22 +723,22 @@ export default {
             return ret
         },
         visibleAnnotationsFormatted() {
-            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(this.formatAnnotation(annotation)), [] );
+            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(formatGreekTextAnnotation(annotation, this.annotationIsActive(annotation), this.offsetConfig)), [] );
         },
         visibleAnnotationsFormattedNew() {
-            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(this.formatAnnotationNew(annotation)), [] );
+            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(formatAnnotatedTextAnnotation(annotation, this.annotationIsActive(annotation), this.offsetConfig)), [] );
         },
         visibleAnnotationsFormattedNoGts() {
-            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type != 'gtsa' ? this.formatAnnotation(annotation) : []), [] );
+            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type !== 'gtsa' ? formatGreekTextAnnotation(annotation, this.annotationIsActive(annotation), this.offsetConfig) : []), [] );
         },
         visibleAnnotationsFormattedNoGtsNew() {
-            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type != 'gtsa' ? this.formatAnnotationNew(annotation) : []), [] );
+            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type !== 'gtsa' ? formatAnnotatedTextAnnotation(annotation, this.annotationIsActive(annotation), this.offsetConfig) : []), [] );
         },
         visibleAnnotationsFormattedNoLts() {
-            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type != 'ltsa' ? this.formatAnnotation(annotation) : []), [] );
+            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type !== 'ltsa' ? formatGreekTextAnnotation(annotation, this.annotationIsActive(annotation), this.offsetConfig) : []), [] );
         },
         visibleAnnotationsFormattedNoLtsNew() {
-            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type != 'ltsa' ? this.formatAnnotationNew(annotation) : []), [] );
+            return this.visibleAnnotations.reduce( (result, annotation) => result.concat(annotation.type !== 'ltsa' ? formatAnnotatedTextAnnotation(annotation, this.annotationIsActive(annotation), this.offsetConfig) : []), [] );
         },
         showText() {
             return  (!this.config.genericTextStructure.show || !this.genericTextStructure.length) && (!this.config.layoutTextStructure.show || !this.layoutTextStructure.length)
@@ -827,6 +839,9 @@ export default {
 
     },
     methods: {
+        formatGreekTextAnnotation,
+        formatAnnotatedTextAnnotation,
+        getAnnotationClass,
         openSelectionWidget() {
             this.config.widgets.selectionDetails.isCollapsed = false
             this.$refs.sidebar.scrollTop = 0;
@@ -958,137 +973,6 @@ export default {
                         return [props[contextParam]?.id]
                     return props[contextParam].map( i => i.id )
             }
-        },
-        formatAnnotation(annotation) {
-            switch ( annotation.text_selection.selection_start - (annotation.text_selection.selection_end -1) ) {
-                case 1:
-                    return [
-                        [
-                            annotation.text_selection.selection_start,
-                            annotation.text_selection.selection_end -1,
-                            { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation) }
-                        ]
-                    ]
-                case 2:
-                    return [
-                        [
-                            annotation.text_selection.selection_start,
-                            annotation.text_selection.selection_start,
-                            { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation) }
-                        ],
-                        [
-                            annotation.text_selection.selection_start + 1,
-                            annotation.text_selection.selection_end -1,
-                            { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation) }
-                        ]
-                    ]
-                default:
-                    return [
-                        [
-                            annotation.text_selection.selection_start,
-                            annotation.text_selection.selection_start,
-                            { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation, 'annotation-start') }
-                        ],
-                        [
-                            annotation.text_selection.selection_start + 1,
-                            annotation.text_selection.selection_end - 2,
-                            { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation) }
-                        ],
-                        [
-                            annotation.text_selection.selection_end - 1,
-                            annotation.text_selection.selection_end - 1,
-                            { data: { id: annotation.type + ':' + annotation.id }, class: this.getAnnotationClass(annotation, 'annotation-end') }
-                        ]
-                    ]
-            }
-        },
-        formatAnnotationNew(annotation) {
-
-            const weights = {
-                "unit": 4,
-                "subunit": 3,
-                "element": 2,
-                "modifier": 1,
-            }
-
-            let style = null;
-            let weight = null;
-            let render = 'highlight';
-            style = annotation.type;
-            switch (annotation.type) {
-                case 'typography':
-                case 'orthography':
-                case 'language':
-                case 'morpho_syntactical':
-                case 'lexis':
-                case 'morphology':
-                    style = annotation.type;
-                    break;
-                case 'gtsa':
-                    render = 'underline';
-                    if ( annotation.properties?.gtsa_type?.name ) {
-                        style = annotation.properties.gtsa_type.name.toLowerCase();
-                        weight = weights[style] ?? 0;
-                    }
-                    break;
-                case 'ltsa':
-                    render = 'underline';
-                    if ( annotation.properties?.ltsa_type?.name ) {
-                        style = annotation.properties.ltsa_type.name.toLowerCase();
-                        weight = weights[style] ?? 0;
-                    }
-                    break;
-                case 'handshift':
-                    render = 'gutter';
-                    if ( annotation.internal_hand_num && annotation.internal_hand_num.match(/(\d+)/) ) {
-                        style = 'handshift-' + annotation.internal_hand_num.match(/(\d+)/)[0];
-                    }
-                    break;
-            }
-
-            const ret = {
-                id: annotation.type + ':' + annotation.id,
-                start: annotation.text_selection.selection_start + parseInt(annotation?.hasOverride ? this.config.annotationOffsets.startOverride : this.config.annotationOffsets.start),
-                end: annotation.text_selection.selection_end + parseInt(annotation?.hasOverride ? this.config.annotationOffsets.endOverride : this.config.annotationOffsets.end),
-                render,
-                style,
-            }
-
-            if ( weight !== null ) {
-                ret.weight = weight;
-            }
-
-            return ret;
-        },
-        getAnnotationClass(annotation, extra = null) {
-            let classes = [];
-            switch(annotation.type) {
-                case 'gtsa':
-                    if ( annotation.properties?.gtsa_type?.name ) {
-                        classes = classes.concat( ['annotation-' + annotation.type + '-' + annotation.properties.gtsa_type.name.toLowerCase()] );
-                    }
-                case 'ltsa':
-                    if ( annotation.properties?.ltsa_type?.name ) {
-                        classes = classes.concat( ['annotation-' + annotation.type + '-' + annotation.properties.ltsa_type.name.toLowerCase()] );
-                    }
-                case 'handshift':
-                    if ( annotation.internal_hand_num && annotation.internal_hand_num.match(/(\d+)/) ) {
-                        classes = classes.concat( ['annotation-handshift-' + annotation.internal_hand_num.match(/(\d+)/)[0]] );
-                    }
-                default:
-                    classes = classes.concat(['annotation', 'annotation-' + annotation.type, 'annotation-' + annotation.type + '-' + annotation.id]);
-            }
-            // annotation active?
-            if ( this.selection?.annotationId ) {
-                if ( this.getAnnotationTypeId(annotation) === this.selection?.annotatonId ) {
-                    classes.push('annotation--active')
-                }
-            }
-            // extra's?
-            if ( extra ) {
-                classes.push(extra)
-            }
-            return classes.join(' ')
         },
         getLevelClass(level) {
             let classes = ['level']
