@@ -24,7 +24,7 @@
                 />
             </div>
         </aside>
-        <article class="col-sm-9 search-page search-app__search-page">
+        <article class="col-sm-9 search-app__search-page">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
                 <div class="search-page__actions">
@@ -37,11 +37,6 @@
                                 <li>
                                     <div class="form-group">
                                         <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Advanced mode"></CheckboxSwitch>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="form-group">
-                                        <CheckboxSwitch v-model="config.legacyMode" class="switch-primary" label="Show legacy viewer"></CheckboxSwitch>
                                     </div>
                                 </li>
                             </ul>
@@ -83,32 +78,19 @@
 
                     <template v-slot:title="props">
                         <!--TODO why is title an array when doing a search on title???-->
-                        <a :href="getTextUrl(props.row.text_id, props.index)" @mouseup="handleLinkCLick"
+                        <a :href="getTextUrl(props.row.id, props.index)" @mouseup="handleLinkCLick"
                            v-html="Array.isArray(props.row.title) ?
                            props.row.title[0] : props.row.title "/>
                     </template>
-                    <template v-slot:text_id="props">
-                        <a :href="getTextUrl(props.row.text_id, props.index)" @mouseup="handleLinkCLick">
-                            {{ props.row.text_id }}
+                    <template v-slot:id="props">
+                        <a :href="getTextUrl(props.row.id, props.index)" @mouseup="handleLinkCLick">
+                            {{ props.row.id }}
                         </a>
                     </template>
                     <template v-slot:tm_id="props">
-                        <a :href="getTextUrl(props.row.text_id, props.index)" @mouseup="handleLinkCLick">
+                        <a :href="getTextUrl(props.row.id, props.index)" @mouseup="handleLinkCLick">
                             {{ props.row.tm_id }}
                         </a>
-                    </template>
-                    <template v-slot:annotations="props">
-                        <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)">
-                            <GreekText
-                                    v-if="config.legacyMode"
-                                    :text="annotation.text_selection.text">
-                            </GreekText>
-                            <AnnotatedText :text="annotation.text_selection.text"></AnnotatedText>
-                            <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation" :type-only-properties="config.showAnnotationTypeOnlyProperties"></AnnotationDetailsFlat>
-                        </div>
-                        <div class="annotation-count" v-if="config.limitVisibleAnnotations && props.row.annotations.length > 3">
-                            <span class="bg-tertiary small">Showing 3 of {{ props.row.annotations.length }} annotations.</span>
-                        </div>
                     </template>
                     <template v-slot:level_category="props">
                         <td>
@@ -117,7 +99,7 @@
                     </template>
                     <template v-slot:location_found="props">
                         <td>
-                            {{ props.row.location_found[0]?.name }}
+                            {{ props.row.location_found[0]?.name ?? '' }}
                         </td>
                     </template>
                 </v-server-table>
@@ -135,39 +117,35 @@
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
-import AbstractField from '../components/FormFields/AbstractField'
-import AbstractSearch from '../components/Search/AbstractSearch'
-import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
+import AbstractField from '../FormFields/AbstractField'
+import AbstractSearch from '../../mixins/AbstractSearch'
+import CheckboxSwitch from '../FormFields/CheckboxSwitch.vue'
 
-import AnnotatedText from "../components/Text/AnnotatedText.vue";
+import fieldRadio from '../FormFields/fieldRadio.vue'
 
-import AnnotationDetailsFlat from '../components/Annotations/AnnotationDetailsFlat'
-
-import fieldRadio from '../components/FormFields/fieldRadio'
-import GreekText from '../components/Text/GreekText'
-
-import PersistentConfig from "../components/Shared/PersistentConfig";
-import SharedSearch from "../components/Search/SharedSearch";
-import SearchAppFields from '../components/Search/Config'
+import PersistentConfig from "../../mixins/PersistentConfig"
+import SharedSearch from "../../mixins/SharedSearch"
+import SearchAppFields from './Config'
 
 import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
 import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";
 import VtPaginationCount from "vue-tables-2-premium/compiled/components/VtPaginationCount";
 
+import VueCookies from 'vue-cookies'
+
+Vue.use(VueCookies)
+
 Vue.component('fieldRadio', fieldRadio);
 
 export default {
     components: {
-        GreekText,
-        AnnotationDetailsFlat,
         CheckboxSwitch,
         VtPerPageSelector,
         VtPagination,
-        VtPaginationCount,
-        AnnotatedText
+        VtPaginationCount
     },
     mixins: [
-        PersistentConfig('TextStructureSearchConfig'),
+        PersistentConfig('TextSearchConfig'),
         AbstractField,
         AbstractSearch,
         SharedSearch,
@@ -177,50 +155,35 @@ export default {
     },
     data() {
         let data = {
-            defaultConfig: {
-                limitVisibleAnnotations: true,
-                showAnnotationDetails: true,
-                showAnnotationTypeOnlyProperties: false,
-                expertMode: false,
-                legacyMode: false,
-            },
             model: {
                 date_search_type: 'exact',
                 title_combination: 'any',
             },
+            persons: null,
             schema: {
                 groups: [
-                    this.genericStructureFields(),
-                    this.layoutStructureFields(),
-                    this.handshiftFields(),
-                    this.generalInformationFields(),
-                    this.communicativeInformationFields(true),
-                    this.materialityFields(true),
-                    this.ancientPersonFields(true),
-                    this.administrativeInformationFields(true)
+                    this.generalInformationFields(true),
+                    this.communicativeInformationFields(),
+                    this.charachterRecognitionToolFields(),
+                    this.ancientPersonFields(),
+                    this.administrativeInformationFields(),
                 ],
             },
             tableOptions: {
                 filterByColumn: false,
                 filterable: false,
                 headings: {
-                    text_id: 'Text ID',
-                    tm_id: 'Tm ID ',
-                    number: 'Level',
-                    title: 'Title',
                     level_category: 'Text type'
                 },
                 columnsClasses: {
-                    text_id: 'vue-tables__col vue-tables__col--id',
-                    tm_id: 'vue-tables__col vue-tables__col--tm-id',
-                    title: 'vue-tables__col vue-tables__col--title'
+                    name: 'no-wrap',
                 },
                 orderBy: {
                     'column': 'title'
                 },
                 perPage: 25,
                 perPageValues: [25, 50, 100],
-                sortable: ['text_id', 'tm_id', 'number', 'title'],
+                sortable: ['id', 'tm_id','title', 'year_begin', 'year_end'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
@@ -237,26 +200,21 @@ export default {
                 person: {},
             },
             defaultOrdering: 'title',
-            annotationFilter: null,
+        }
+
+        // Add view internal only fields
+        if (this.isViewInternal) {
         }
 
         return data
     },
     computed: {
         tableColumns() {
-            let columns = []
-            if (this.config.expertMode) {
-                columns = ['text_id', 'tm_id', 'number', 'title', 'annotations', 'level_category', 'location_found']
-            } else {
-                columns = ['text_id', 'tm_id', 'number', 'title', 'level_category', 'location_found']
-            }
+            let columns = ['id', 'tm_id', 'title', 'level_category', 'location_found', 'year_begin', 'year_end']
             return columns
         },
     },
-    watch: {
-        defaultOrdering: function(val) {
-        },
-    },
+    watch: {},
     methods: {
         formatLevelCategory(data) {
             // console.log(data)
@@ -269,12 +227,6 @@ export default {
             this.noHistory = true;
             this.$refs.resultTable.refresh();
         },
-        limitAnnotations(annotations) {
-            return this.config.limitVisibleAnnotations ? annotations.slice(0,3) : annotations
-        },
     },
 }
 </script>
-
-<style lang="scss">
-</style>

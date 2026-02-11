@@ -60,7 +60,8 @@
                         :url="getUrl('search_api')"
                         @data="onData"
                         @loaded="onLoaded"
-                        class="form-group-sm"
+                        class="form-group-sm "
+                        perPageValues="5"
                 >
                     <template v-slot:beforeTable>
                         <div class="VueTables__beforeTable row form-group form-inline">
@@ -99,7 +100,7 @@
                     </template>
                     <template v-slot:location_found="props">
                         <td>
-                            {{ props.row.location_found[0]?.name ?? '' }}
+                            {{ props.row.location_found[0]?.name }}
                         </td>
                     </template>
                 </v-server-table>
@@ -117,23 +118,19 @@
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
-import AbstractField from '../components/FormFields/AbstractField'
-import AbstractSearch from '../components/Search/AbstractSearch'
-import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
+import AbstractField from '../FormFields/AbstractField'
+import AbstractSearch from '../../mixins/AbstractSearch'
+import CheckboxSwitch from '../FormFields/CheckboxSwitch.vue'
 
-import fieldRadio from '../components/FormFields/fieldRadio'
+import fieldRadio from '../FormFields/fieldRadio.vue'
 
-import PersistentConfig from "../components/Shared/PersistentConfig"
-import SharedSearch from "../components/Search/SharedSearch"
-import SearchAppFields from '../components/Search/Config'
+import PersistentConfig from "../../mixins/PersistentConfig";
+import SharedSearch from "../../mixins/SharedSearch";
+import SearchAppFields from './Config'
 
 import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
 import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";
 import VtPaginationCount from "vue-tables-2-premium/compiled/components/VtPaginationCount";
-
-import VueCookies from 'vue-cookies'
-
-Vue.use(VueCookies)
 
 Vue.component('fieldRadio', fieldRadio);
 
@@ -145,7 +142,7 @@ export default {
         VtPaginationCount
     },
     mixins: [
-        PersistentConfig('TextSearchConfig'),
+        PersistentConfig('MaterialitySearchConfig'),
         AbstractField,
         AbstractSearch,
         SharedSearch,
@@ -158,15 +155,20 @@ export default {
             model: {
                 date_search_type: 'exact',
                 title_combination: 'any',
+                lines: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
+                columns: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
+                letters_per_line: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
+                width: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
+                height: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
             },
             persons: null,
             schema: {
                 groups: [
-                    this.generalInformationFields(true),
-                    this.communicativeInformationFields(),
-                    this.charachterRecognitionToolFields(),
-                    this.ancientPersonFields(),
-                    this.administrativeInformationFields(),
+                    this.materialityFields(),
+                    this.generalInformationFields(),
+                    this.ancientPersonFields(true),
+                    this.communicativeInformationFields(true),
+                    this.administrativeInformationFields(true),
                 ],
             },
             tableOptions: {
@@ -183,7 +185,7 @@ export default {
                 },
                 perPage: 25,
                 perPageValues: [25, 50, 100],
-                sortable: ['id', 'tm_id','title', 'year_begin', 'year_end'],
+                sortable: ['id','tm_id','title', 'year_begin', 'year_end'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
@@ -210,22 +212,22 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['id', 'tm_id', 'title', 'level_category', 'location_found', 'year_begin', 'year_end']
+            let columns = ['id', 'tm_id', 'title', 'level_category', 'location_found','year_begin','year_end']
             return columns
         },
     },
     watch: {},
     methods: {
+        update() {
+            // Don't create a new history item
+            this.noHistory = true;
+            this.$refs.resultTable.refresh();
+        },
         formatLevelCategory(data) {
             // console.log(data)
             if (!data) return 'None';
 
             return data.map( item => item.level_category_category.name ).join(', ')
-        },
-        update() {
-            // Don't create a new history item
-            this.noHistory = true;
-            this.$refs.resultTable.refresh();
         },
     },
 }

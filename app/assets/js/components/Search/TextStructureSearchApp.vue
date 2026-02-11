@@ -24,7 +24,7 @@
                 />
             </div>
         </aside>
-        <article class="col-sm-9 search-app__search-page">
+        <article class="col-sm-9 search-page search-app__search-page">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
                 <div class="search-page__actions">
@@ -60,8 +60,7 @@
                         :url="getUrl('search_api')"
                         @data="onData"
                         @loaded="onLoaded"
-                        class="form-group-sm "
-                        perPageValues="5"
+                        class="form-group-sm"
                 >
                     <template v-slot:beforeTable>
                         <div class="VueTables__beforeTable row form-group form-inline">
@@ -79,19 +78,28 @@
 
                     <template v-slot:title="props">
                         <!--TODO why is title an array when doing a search on title???-->
-                        <a :href="getTextUrl(props.row.id, props.index)" @mouseup="handleLinkCLick"
+                        <a :href="getTextUrl(props.row.text_id, props.index)" @mouseup="handleLinkCLick"
                            v-html="Array.isArray(props.row.title) ?
                            props.row.title[0] : props.row.title "/>
                     </template>
-                    <template v-slot:id="props">
-                        <a :href="getTextUrl(props.row.id, props.index)" @mouseup="handleLinkCLick">
-                            {{ props.row.id }}
+                    <template v-slot:text_id="props">
+                        <a :href="getTextUrl(props.row.text_id, props.index)" @mouseup="handleLinkCLick">
+                            {{ props.row.text_id }}
                         </a>
                     </template>
                     <template v-slot:tm_id="props">
-                        <a :href="getTextUrl(props.row.id, props.index)" @mouseup="handleLinkCLick">
+                        <a :href="getTextUrl(props.row.text_id, props.index)" @mouseup="handleLinkCLick">
                             {{ props.row.tm_id }}
                         </a>
+                    </template>
+                    <template v-slot:annotations="props">
+                        <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)">
+                            <AnnotatedText :text="annotation.text_selection.text"></AnnotatedText>
+                            <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation" :type-only-properties="config.showAnnotationTypeOnlyProperties"></AnnotationDetailsFlat>
+                        </div>
+                        <div class="annotation-count" v-if="config.limitVisibleAnnotations && props.row.annotations.length > 3">
+                            <span class="bg-tertiary small">Showing 3 of {{ props.row.annotations.length }} annotations.</span>
+                        </div>
                     </template>
                     <template v-slot:level_category="props">
                         <td>
@@ -118,15 +126,19 @@
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
-import AbstractField from '../components/FormFields/AbstractField'
-import AbstractSearch from '../components/Search/AbstractSearch'
-import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
+import AbstractField from '../FormFields/AbstractField'
+import AbstractSearch from '../../mixins/AbstractSearch'
+import CheckboxSwitch from '../FormFields/CheckboxSwitch.vue'
 
-import fieldRadio from '../components/FormFields/fieldRadio'
+import AnnotatedText from "../Text/AnnotatedText.vue";
 
-import PersistentConfig from "../components/Shared/PersistentConfig";
-import SharedSearch from "../components/Search/SharedSearch";
-import SearchAppFields from '../components/Search/Config'
+import AnnotationDetailsFlat from '../Annotations/AnnotationDetailsFlat.vue'
+
+import fieldRadio from '../FormFields/fieldRadio.vue'
+
+import PersistentConfig from "../../mixins/PersistentConfig";
+import SharedSearch from "../../mixins/SharedSearch";
+import SearchAppFields from './Config'
 
 import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
 import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";
@@ -136,13 +148,15 @@ Vue.component('fieldRadio', fieldRadio);
 
 export default {
     components: {
+        AnnotationDetailsFlat,
         CheckboxSwitch,
         VtPerPageSelector,
         VtPagination,
-        VtPaginationCount
+        VtPaginationCount,
+        AnnotatedText
     },
     mixins: [
-        PersistentConfig('MaterialitySearchConfig'),
+        PersistentConfig('TextStructureSearchConfig'),
         AbstractField,
         AbstractSearch,
         SharedSearch,
@@ -152,40 +166,49 @@ export default {
     },
     data() {
         let data = {
+            defaultConfig: {
+                limitVisibleAnnotations: true,
+                showAnnotationDetails: true,
+                showAnnotationTypeOnlyProperties: false,
+                expertMode: false,
+            },
             model: {
                 date_search_type: 'exact',
                 title_combination: 'any',
-                lines: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
-                columns: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
-                letters_per_line: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
-                width: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
-                height: [AbstractField.RANGE_MIN_INVALID,AbstractField.RANGE_MAX_INVALID],
             },
-            persons: null,
             schema: {
                 groups: [
-                    this.materialityFields(),
+                    this.genericStructureFields(),
+                    this.layoutStructureFields(),
+                    this.handshiftFields(),
                     this.generalInformationFields(),
-                    this.ancientPersonFields(true),
                     this.communicativeInformationFields(true),
-                    this.administrativeInformationFields(true),
+                    this.materialityFields(true),
+                    this.ancientPersonFields(true),
+                    this.administrativeInformationFields(true)
                 ],
             },
             tableOptions: {
                 filterByColumn: false,
                 filterable: false,
                 headings: {
+                    text_id: 'Text ID',
+                    tm_id: 'Tm ID ',
+                    number: 'Level',
+                    title: 'Title',
                     level_category: 'Text type'
                 },
                 columnsClasses: {
-                    name: 'no-wrap',
+                    text_id: 'vue-tables__col vue-tables__col--id',
+                    tm_id: 'vue-tables__col vue-tables__col--tm-id',
+                    title: 'vue-tables__col vue-tables__col--title'
                 },
                 orderBy: {
                     'column': 'title'
                 },
                 perPage: 25,
                 perPageValues: [25, 50, 100],
-                sortable: ['id','tm_id','title', 'year_begin', 'year_end'],
+                sortable: ['text_id', 'tm_id', 'number', 'title'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
@@ -202,33 +225,44 @@ export default {
                 person: {},
             },
             defaultOrdering: 'title',
-        }
-
-        // Add view internal only fields
-        if (this.isViewInternal) {
+            annotationFilter: null,
         }
 
         return data
     },
     computed: {
         tableColumns() {
-            let columns = ['id', 'tm_id', 'title', 'level_category', 'location_found','year_begin','year_end']
+            let columns = []
+            if (this.config.expertMode) {
+                columns = ['text_id', 'tm_id', 'number', 'title', 'annotations', 'level_category', 'location_found']
+            } else {
+                columns = ['text_id', 'tm_id', 'number', 'title', 'level_category', 'location_found']
+            }
             return columns
         },
     },
-    watch: {},
-    methods: {
-        update() {
-            // Don't create a new history item
-            this.noHistory = true;
-            this.$refs.resultTable.refresh();
+    watch: {
+        defaultOrdering: function(val) {
         },
+    },
+    methods: {
         formatLevelCategory(data) {
             // console.log(data)
             if (!data) return 'None';
 
             return data.map( item => item.level_category_category.name ).join(', ')
         },
+        update() {
+            // Don't create a new history item
+            this.noHistory = true;
+            this.$refs.resultTable.refresh();
+        },
+        limitAnnotations(annotations) {
+            return this.config.limitVisibleAnnotations ? annotations.slice(0,3) : annotations
+        },
     },
 }
 </script>
+
+<style lang="scss">
+</style>

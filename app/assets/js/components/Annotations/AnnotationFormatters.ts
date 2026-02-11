@@ -73,63 +73,6 @@ export const formatAnnotatedTextAnnotation = (annotation: any, isActive: boolean
     return ret;
 }
 
-// Formats a Filemaker annotation for use in the AnnotatedText component
-// Greek Text: end offset is INCLUSIVE
-// Filemaker: end offset is EXCLUSIVE
-export const formatGreekTextAnnotation = (annotation: any, isActive: boolean = false, annotationOffsets: AnnotationOffsetConfig = null): any[] => {
-    const ts = {
-        start: annotation.text_selection.selection_start,
-        end: annotation.text_selection.selection_end,
-    }
-
-    if (annotationOffsets) {
-        ts.start += (Number(annotation?.hasOverride ? annotationOffsets?.startOverride : annotationOffsets?.start) || 0);
-        ts.end += (Number(annotation?.hasOverride ? annotationOffsets?.endOverride : annotationOffsets?.end) || 0);
-    }
-
-    switch ( ts.end - ts.start + 1 ) {
-        case 1:
-            return [
-                [
-                    ts.start,
-                    ts.end -1,
-                    { data: { id: annotation.type + ':' + annotation.id }, class: getAnnotationClass(annotation, isActive) }
-                ]
-            ]
-        case 2:
-            return [
-                [
-                    ts.start,
-                    ts.start,
-                    { data: { id: annotation.type + ':' + annotation.id }, class: getAnnotationClass(annotation, isActive) }
-                ],
-                [
-                    ts.start + 1,
-                    ts.end -1,
-                    { data: { id: annotation.type + ':' + annotation.id }, class: getAnnotationClass(annotation, isActive) }
-                ]
-            ]
-        default:
-            return [
-                [
-                    ts.start,
-                    ts.start,
-                    { data: { id: annotation.type + ':' + annotation.id }, class: getAnnotationClass(annotation, isActive, 'annotation-start', ) }
-                ],
-                [
-                    ts.start + 1,
-                    ts.end - 2,
-                    { data: { id: annotation.type + ':' + annotation.id }, class: getAnnotationClass(annotation, isActive) }
-                ],
-                [
-                    ts.end - 1,
-                    ts.end - 1,
-                    { data: { id: annotation.type + ':' + annotation.id }, class: getAnnotationClass(annotation, isActive, 'annotation-end') }
-                ]
-            ]
-    }
-}
-
 export const getAnnotationClass = (annotation: any, isActive: boolean = false, customClass: string = null): string => {
     let classes = [];
     switch(annotation.type) {

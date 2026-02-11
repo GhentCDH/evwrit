@@ -60,11 +60,6 @@
                                         <CheckboxSwitch v-model="config.expertMode" class="switch-primary" label="Advanced mode"></CheckboxSwitch>
                                     </div>
                                 </li>
-                                <li>
-                                    <div class="form-group">
-                                        <CheckboxSwitch v-model="config.legacyMode" class="switch-primary" label="Show legacy viewer"></CheckboxSwitch>
-                                    </div>
-                                </li>
                             </ul>
                         </div>
                         <div class="btn-group">
@@ -120,14 +115,6 @@
                     </template>
                     <template v-slot:annotations="props">
                         <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)">
-                            <GreekText
-                                    v-if="config.legacyMode"
-                                    v-show="config.showAnnotationContext"
-                                    :text="annotation.context.text"
-                                    :annotations="[ formatGreekTextAnnotation(annotation) ]"
-                                    :annotationOffset="annotation.context.start"
-                                    :compact="true">
-                            </GreekText>
                             <AnnotatedText
                                 v-show="config.showAnnotationContext"
                                 :text="annotation.context.text"
@@ -179,32 +166,29 @@
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
-import AbstractField from '../components/FormFields/AbstractField'
-import AbstractSearch from '../components/Search/AbstractSearch'
-import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
+import AbstractField from '../FormFields/AbstractField'
+import AbstractSearch from '../../mixins/AbstractSearch'
+import CheckboxSwitch from '../FormFields/CheckboxSwitch.vue'
 
-import fieldRadio from '../components/FormFields/fieldRadio'
+import fieldRadio from '../FormFields/fieldRadio.vue'
 
-import AnnotationDetailsFlat from '../components/Annotations/AnnotationDetailsFlat'
+import AnnotationDetailsFlat from '../Annotations/AnnotationDetailsFlat.vue'
 
-import GreekText from '../components/Text/GreekText'
-
-import PersistentConfig from "../components/Shared/PersistentConfig";
-import SharedSearch from "../components/Search/SharedSearch";
-import SearchAppFields from '../components/Search/Config'
+import PersistentConfig from "../../mixins/PersistentConfig";
+import SharedSearch from "../../mixins/SharedSearch";
+import SearchAppFields from './Config'
 
 import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
 import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";
 import VtPaginationCount from "vue-tables-2-premium/compiled/components/VtPaginationCount";
-import AnnotatedText from "../components/Text/AnnotatedText.vue";
-import {formatAnnotatedTextAnnotation, formatGreekTextAnnotation} from "../components/Annotations/AnnotationFormatters";
+import AnnotatedText from "../Text/AnnotatedText.vue";
+import {formatAnnotatedTextAnnotation} from "../Annotations/AnnotationFormatters";
 
 Vue.component('fieldRadio', fieldRadio);
 
 export default {
     components: {
         AnnotatedText,
-        GreekText,
         AnnotationDetailsFlat,
         CheckboxSwitch,
         VtPerPageSelector,
@@ -308,7 +292,6 @@ export default {
         },
     },
     methods: {
-        formatGreekTextAnnotation,
         formatAnnotatedTextAnnotation,
         update() {
             // Don't create a new history item
