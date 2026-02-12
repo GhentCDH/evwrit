@@ -21,14 +21,29 @@ security:
     main:
       pattern: ^/
       provider: idci_keycloak_security_provider
-      entry_point: IDCI\Bundle\KeycloakSecurityBundle\Security\EntryPoint\AuthenticationEntryPoint
+      entry_point: App\Security\EntryPoint\CustomAuthenticationEntryPoint
       custom_authenticators:
         - IDCI\Bundle\KeycloakSecurityBundle\Security\Authenticator\KeycloakAuthenticator
       logout:
         path: idci_keycloak_security_auth_logout
 
-  access_control: # access control is configured in controllers
+  access_control:
+    # Allow web profiler in dev environment without authentication
+    - { path: ^/_profiler, roles: PUBLIC_ACCESS }
+    - { path: ^/_wdt, roles: PUBLIC_ACCESS }
+
+    # Allow OPTIONS requests (CORS preflight) without authentication
     - { path: ^/api, methods: [OPTIONS], allow_if: "true" }
-    - { path: ^/, roles: PUBLIC_ACCESS }
-    # Allow OPTIONS requests without authentication
+
+    # Keycloak authentication routes - public access
+    - { path: ^/auth, roles: PUBLIC_ACCESS }
+    - { path: ^/login, roles: PUBLIC_ACCESS }
+    - { path: ^/logout, roles: PUBLIC_ACCESS }
+    - { path: ^/user, roles: PUBLIC_ACCESS }
+
+    # API endpoints - require ROLE_EDITOR
+    - { path: ^/api, roles: ROLE_EDITOR }
+
+    # All other routes - require authentication (any role)
+    - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
