@@ -6,6 +6,7 @@ use App\Service\Lookup\LookupService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 use Throwable;
 
 class LookupServiceController extends BaseController
@@ -21,16 +22,15 @@ class LookupServiceController extends BaseController
     public function lookupServiceInfo(Request $request, string $modelName): ?JsonResponse
     {
         try {
-
             $lookupService = LookupService::factory($modelName);
 
             $ret = [
                 'id' => 'lookup_service_' . $modelName,
-                'uri' => $this->generateUrl('lookup_service_info', ['modelName' => $modelName]),
+                'uri' => $this->generateUrl('lookup_service_info', ['modelName' => $modelName], UrlGenerator::ABSOLUTE_URL),
                 'operations' => [
-                    'lookup' => $this->generateUrl('lookup_service_lookup', ['model' => $modelName]) . "?q={text}",
+                    'lookup' => $this->generateUrl('lookup_service_lookup', ['modelName' => $modelName], UrlGenerator::ABSOLUTE_URL) . "?q={text}",
                     'create' => [
-                        'uri' => $this->generateUrl('lookup_service_create', ['model' => $modelName]),
+                        'uri' => $this->generateUrl('lookup_service_create', ['modelName' => $modelName], UrlGenerator::ABSOLUTE_URL),
                         'method' => 'POST',
                     ],
                 ],
