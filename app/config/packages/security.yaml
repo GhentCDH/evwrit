@@ -10,6 +10,10 @@ security:
 
   firewalls:
 
+    lookup:
+      pattern: ^/api/lookup/
+      security: false
+
     annotation_flow:
       pattern: ^/api
       stateless: true  # Important: no session for API
@@ -34,6 +38,9 @@ security:
 
     # Allow OPTIONS requests (CORS preflight) without authentication
     - { path: ^/api, methods: [OPTIONS], allow_if: "true" }
+
+    # Lookup endpoints - public access
+    - { path: ^/api/lookup/, roles: PUBLIC_ACCESS }
 
     # Keycloak authentication routes - public access
     - { path: ^/auth, roles: PUBLIC_ACCESS }

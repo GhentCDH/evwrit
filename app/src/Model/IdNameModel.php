@@ -12,6 +12,8 @@ use App\Model\AbstractModel;
  */
 class IdNameModel extends AbstractModel implements IdNameModelInterface
 {
+    protected $fillable = ['name'];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
