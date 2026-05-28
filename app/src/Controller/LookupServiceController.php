@@ -5,100 +5,83 @@ namespace App\Controller;
 use App\Service\Lookup\LookupService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\Generator\UrlGenerator;
-use Throwable;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class LookupServiceController extends BaseController
 {
-    private array $allowedModels = [];
-    private array $allowedModelPrefixes = [];
+    private const OPERATION_MAP = [
+        'lookup' => ['route' => 'lookup_service_lookup', 'method' => 'GET',    'params' => [],            'query' => ['q' => '{text}']],
+        'create' => ['route' => 'lookup_service_create', 'method' => 'POST',   'params' => [],           'query' => []],
+        'update' => ['route' => 'lookup_service_update', 'method' => 'PUT',    'params' => ['id'=>'{id}'],'query' => []],
+        'delete' => ['route' => 'lookup_service_delete', 'method' => 'DELETE', 'params' => ['id'=>'{id}'],'query' => []],
+    ];
 
-    public function __construct(
-    ) {
-    }
-
-    #[Route('/api/lookup/{modelName}/info.json', name: 'lookup_service_info', methods: ['GET'])]
-    public function lookupServiceInfo(Request $request, string $modelName): ?JsonResponse
+    #[Route('/api/lookup/{modelName}', name: 'lookup_service_info', methods: ['GET'])]
+    public function lookupServiceInfo(string $modelName): JsonResponse
     {
-        try {
-            $lookupService = LookupService::factory($modelName);
+        $lookupService = LookupService::factory($modelName);
+        $info = $lookupService->getInfo();
 
-            $ret = [
-                'id' => 'lookup_service_' . $modelName,
-                'uri' => $this->generateUrl('lookup_service_info', ['modelName' => $modelName], UrlGenerator::ABSOLUTE_URL),
-                'operations' => [
-                    'lookup' => $this->generateUrl('lookup_service_lookup', ['modelName' => $modelName], UrlGenerator::ABSOLUTE_URL) . "?q={text}",
-                    'create' => [
-                        'uri' => $this->generateUrl('lookup_service_create', ['modelName' => $modelName], UrlGenerator::ABSOLUTE_URL),
-                        'method' => 'POST',
-                    ],
-                ],
-                'schema' => [
-                    'data' => [
-                        '$schema' => 'http://json-schema.org/draft-07/schema#',
-                        'type' => 'object',
-                        'properties' => [
-                            'name' => [
-                                'type' => 'string',
-                                'minLength' => 1,
-                            ]
-                        ],
-                        'required' => [
-                            "name"
-                        ]
-                    ],
-                ]
+        $params = ['modelName' => $modelName];
+        $info['uri'] = $this->generateUrl('lookup_service_info', $params, UrlGeneratorInterface::ABSOLUTE_URL);
+
+        $info['operations'] = [];
+        foreach ($info['capabilities'] as $capability) {
+            $def = self::OPERATION_MAP[$capability];
+            $routeParams = array_merge($params, $def['params']);
+            $uri = urldecode($this->generateUrl($def['route'], $routeParams, UrlGeneratorInterface::ABSOLUTE_URL));
+            if (!empty($def['query'])) {
+                $uri .= '?' . urldecode(http_build_query($def['query']));
+            }
+            $info['operations'][$capability] = [
+                'uri' => $uri,
+                'method' => $def['method'],
             ];
-
-            return new JsonResponse($ret);
-        } catch (\InvalidArgumentException $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 400);
-        } catch (Throwable $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 500);
         }
+
+        return new JsonResponse($info);
     }
 
-    // create a lookup route that expects a querystring parameter q
-    #[Route('/api/lookup/{modelName}', name: 'lookup_service_lookup', methods: ['GET'])]
+    #[Route('/api/lookup/{modelName}/lookup', name: 'lookup_service_lookup', methods: ['GET'])]
     public function lookup(Request $request, string $modelName): JsonResponse
     {
-        $query = $request->query->get('q');
+        $query = $request->query->get('q', '');
+        $lookupService = LookupService::factory($modelName);
 
-        try {
-            $lookupService = LookupService::factory($modelName);
-            $results = $lookupService->lookup($query);
-
-            $ret = [
-                'data' => $results,
-            ];
-
-            return new JsonResponse($ret);
-        } catch (\InvalidArgumentException $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 400);
-        } catch (Throwable $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 500);
-        }
+        return new JsonResponse([
+            'data' => $lookupService->lookup($query),
+        ]);
     }
 
     #[Route('/api/lookup/{modelName}', name: 'lookup_service_create', methods: ['POST'])]
     public function create(Request $request, string $modelName): JsonResponse
     {
-        try {
-            $name = $request->getPayload()->get('name');
-            if (empty($name) || !is_string($name)) {
-                throw new \InvalidArgumentException("Invalid or missing 'name' property in request body");
-            }
+        $lookupService = LookupService::factory($modelName);
 
-            $lookupService = LookupService::factory($modelName);
-            $ret = $lookupService->create($name);
-
-            return new JsonResponse($ret);
-        } catch (\InvalidArgumentException $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 400);
-        } catch (Throwable $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 500);
-        }
+        return new JsonResponse(
+            $lookupService->create($request->getPayload()->all()),
+            Response::HTTP_CREATED
+        );
     }
 
+    #[Route('/api/lookup/{modelName}/{id}', name: 'lookup_service_update', methods: ['PUT'])]
+    public function update(Request $request, string $modelName, int $id): JsonResponse
+    {
+        $lookupService = LookupService::factory($modelName);
+
+        return new JsonResponse(
+            $lookupService->update($id, $request->getPayload()->all()),
+        );
+    }
+
+    #[Route('/api/lookup/{modelName}/{id}', name: 'lookup_service_delete', methods: ['DELETE'])]
+    public function delete(string $modelName, int $id): JsonResponse
+    {
+        $lookupService = LookupService::factory($modelName);
+        $lookupService->delete($id);
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
 }

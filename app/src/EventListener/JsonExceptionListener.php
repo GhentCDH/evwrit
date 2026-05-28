@@ -2,6 +2,9 @@
 
 namespace App\EventListener;
 
+use App\Exception\DuplicateRecordException;
+use App\Exception\ModelNotFoundException;
+use App\Exception\RecordNotFoundException;
 use Elastica\Exception\NotFoundException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,29 +38,31 @@ class JsonExceptionListener
         $responseData = match($exception::class) {
             AccessDeniedException::class,
             AccessDeniedHttpException::class => $this->getResponseData(
-                $exception,
-                'Access Denied',
-                Response::HTTP_FORBIDDEN
+                $exception, 'access_denied', 'Access Denied', Response::HTTP_FORBIDDEN
             ),
             AuthenticationException::class => $this->getResponseData(
-                $exception,
-                'Authentication Required',
-                Response::HTTP_UNAUTHORIZED
+                $exception, 'authentication_required', 'Authentication Required', Response::HTTP_UNAUTHORIZED
             ),
-            NotFoundHttpException::class => $this->getResponseData(
-                $exception,
-                'Resource Not Found',
-                Response::HTTP_NOT_FOUND
-            ),
-            // Elastica Not Found Exception
+            NotFoundHttpException::class,
             NotFoundException::class => $this->getResponseData(
-                $exception,
-                'Resource Not Found',
-                Response::HTTP_NOT_FOUND
+                $exception, 'not_found', 'Resource Not Found', Response::HTTP_NOT_FOUND
+            ),
+            \InvalidArgumentException::class => $this->getResponseData(
+                $exception, 'invalid_argument', $exception->getMessage(), Response::HTTP_BAD_REQUEST
+            ),
+            ModelNotFoundException::class => $this->getResponseData(
+                $exception, 'model_not_found', $exception->getMessage(), Response::HTTP_BAD_REQUEST
+            ),
+            DuplicateRecordException::class => $this->getResponseData(
+                $exception, 'duplicate_entry', $exception->getMessage(), Response::HTTP_CONFLICT
+            ),
+            RecordNotFoundException::class => $this->getResponseData(
+                $exception, 'record_not_found', $exception->getMessage(), Response::HTTP_NOT_FOUND
             ),
             default => $this->getResponseData(
                 $exception,
-                'Ooops, something went wrong.',
+                'server_error',
+                'An unexpected error occurred.',
                 $exception instanceof HttpExceptionInterface
                     ? $exception->getStatusCode()
                     : Response::HTTP_INTERNAL_SERVER_ERROR
@@ -67,11 +72,11 @@ class JsonExceptionListener
         $this->logger->error('API Exception', [
             'exception' => get_class($exception),
             'message' => $exception->getMessage(),
-            'status' => $responseData['code'],
+            'status' => $responseData['status'],
             'path' => $request->getPathInfo(),
         ]);
 
-        $response = new JsonResponse($responseData, $responseData['code']);
+        $response = new JsonResponse($responseData, $responseData['status']);
         $event->setResponse($response);
     }
 
@@ -95,12 +100,14 @@ class JsonExceptionListener
         return false;
     }
 
-    private function getResponseData(\throwable $ex, string $message, int $statusCode): array
+    private function getResponseData(\Throwable $ex, string $errorCode, string $message, int $statusCode): array
     {
         $data = [
-            'status' => 'error',
-            'message' => $message,
-            'code' => $statusCode,
+            'error' => [
+                'code' => $errorCode,
+                'message' => $message,
+            ],
+            'status' => $statusCode,
         ];
 
         if ($this->debug) {

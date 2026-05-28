@@ -1,9 +1,13 @@
 <?php
 namespace App\Service\Lookup;
 
+use App\Exception\DuplicateRecordException;
+use App\Exception\ModelNotFoundException;
+use App\Exception\RecordNotFoundException;
 use App\Model\IdNameModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Database\UniqueConstraintViolationException;
 
 class LookupService
 {
@@ -163,17 +167,37 @@ class LookupService
     /** @var $model class-string<Model> */
     private ?string $model = null;
 
+    private LookupUriTranslator $uriTranslator;
+
     public static function factory(string $modelName) {
         return new LookupService($modelName);
     }
 
     public function __construct(string $modelName) {
         if (!$this->isModelSupported($modelName)) {
-            throw new \InvalidArgumentException("Model not supported: " . $modelName);
+            throw new ModelNotFoundException($modelName);
         }
 
         $this->modelName = $modelName;
         $this->model = $this->resolveModelClass($modelName);
+        $this->uriTranslator = new LookupUriTranslator($modelName);
+    }
+
+    public function getInfo(): array {
+        return [
+            'id' => 'lookup_service_' . $this->modelName,
+            'capabilities' => ['lookup', 'create', 'update', 'delete'],
+            'schema' => [
+                'data' => [
+                    '$schema' => 'http://json-schema.org/draft-07/schema#',
+                    'type' => 'object',
+                    'properties' => [
+                        'name' => ['type' => 'string', 'minLength' => 1],
+                    ],
+                    'required' => ['name'],
+                ],
+            ],
+        ];
     }
 
     private function isModelSupported(string $modelName): bool {
@@ -195,7 +219,7 @@ class LookupService
 
         $data = $results->map(function (IdNameModel $item) {
             return [
-                'id' => $this->uriFromId($item->getId()),
+                'id' => $this->uriTranslator->toUri($item->getId()),
                 'name' => $item->name,
             ];
         })->toArray();
@@ -203,23 +227,56 @@ class LookupService
         return $data;
     }
 
-    public function create(string $name): array {
-        $item = $this->model::create(['name' => $name]);
+    public function create(array $data): array {
+        $data = $this->filterData($data);
+        try {
+            $item = $this->model::create($data);
+        } catch (UniqueConstraintViolationException) {
+            throw new DuplicateRecordException($this->modelName, $data['name'] ?? '');
+        }
+
+        return $this->serialize($item);
+    }
+
+    public function update(int $id, array $data): array {
+        $item = $this->findOrFail($id);
+        $data = $this->filterData($data);
+        try {
+            $item->update($data);
+        } catch (UniqueConstraintViolationException) {
+            throw new DuplicateRecordException($this->modelName, $data['name'] ?? '');
+        }
+
+        return $this->serialize($item);
+    }
+
+    public function delete(int $id): void {
+        $item = $this->findOrFail($id);
+        $item->delete();
+    }
+
+    private function findOrFail(int $id): IdNameModel {
+        $item = $this->model::find($id);
+        if ($item === null) {
+            throw new RecordNotFoundException($this->modelName, (string) $id);
+        }
+        return $item;
+    }
+
+    private function filterData(array $data): array {
+        /** @var IdNameModel $instance */
+        $instance = new $this->model();
+        $fillable = array_diff($instance->getFillable(), [$instance->getKeyName()]);
+        return array_intersect_key($data, array_flip($fillable));
+    }
+
+    private function serialize(IdNameModel $item): array {
         return [
-            'id' => $this->uriFromId($item->getId()),
+            'id' => $this->uriTranslator->toUri($item->getId()),
             'name' => $item->name,
         ];
     }
 
-    protected function uriFromId(int $id): string {
-        return "evrwit:{$this->modelName}:{$id}";
-    }
 
-    protected function idFromUri(string $uri): ?int {
-        $pattern = "/^evrwit:{$this->modelName}:(\d+)$/";
-        if (preg_match($pattern, $uri, $matches)) {
-            return (int)$matches[1];
-        }
-        return null;
-    }
+
 }
