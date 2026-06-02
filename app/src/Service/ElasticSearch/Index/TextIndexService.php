@@ -60,6 +60,9 @@ class TextIndexService extends AbstractIndexService
             'width' => ['type' => 'half_float'],
             'height' => ['type' => 'half_float'],
 
+            'has_images' => ['type' => 'boolean'],
+            'has_translations' => ['type' => 'boolean'],
+
             'is_recto' => ['type' => 'boolean'],
             'is_verso' => ['type' => 'boolean'],
             'is_transversa_charta' => ['type' => 'boolean'],

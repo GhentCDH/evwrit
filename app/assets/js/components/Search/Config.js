@@ -141,6 +141,7 @@ export default {
                             model: 'keyword'
                         }
                     ),
+                    this.createMultiSelect('Has images', {model: 'has_images'}),
                 ].filter( item => item !== null )
             }
         },
