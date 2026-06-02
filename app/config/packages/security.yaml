@@ -7,6 +7,8 @@ security:
   providers:
     custom_keycloak_bearer:
       id: App\Security\User\CustomKeycloakBearerUserProvider
+    custom_keycloak_user_provider:
+      id: App\Security\User\CustomKeycloakUserProvider
 
   firewalls:
 
@@ -20,7 +22,7 @@ security:
 
     main:
       pattern: ^/
-      provider: idci_keycloak_security_provider
+      provider: custom_keycloak_user_provider
       entry_point: App\Security\EntryPoint\CustomAuthenticationEntryPoint
       custom_authenticators:
         - IDCI\Bundle\KeycloakSecurityBundle\Security\Authenticator\KeycloakAuthenticator
