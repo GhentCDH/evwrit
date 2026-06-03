@@ -327,6 +327,7 @@ class Configs implements SearchConfigInterface
         $filters = [
             'production_stage' => ['type' => self::FILTER_OBJECT_ID],
             'material' => ['type' => self::FILTER_OBJECT_ID],
+            'form' => ['type' => self::FILTER_OBJECT_ID],
             'text_format' => ['type' => self::FILTER_OBJECT_ID],
             'writing_direction' => ['type' => self::FILTER_OBJECT_ID],
 
@@ -450,7 +451,6 @@ class Configs implements SearchConfigInterface
             'drawing' => ['type' => self::FILTER_OBJECT_ID],
             'margin_writing' => ['type' => self::FILTER_OBJECT_ID],
             'margin_filler' => ['type' => self::FILTER_OBJECT_ID],
-            'form' => ['type' => self::FILTER_OBJECT_ID],
         ];
         return $this->mergeFilterDefaults($filters);
     }
