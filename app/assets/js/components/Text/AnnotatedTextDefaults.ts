@@ -35,7 +35,15 @@ const createDefaultStyles = (): Record<string, AnnotationStyle> => {
     }
 
     const defaultGutterStyle = {
+        backgroundOpacity: 0.6,
+        borderWidth: 0,
+    }
+
+    const defaultActiveGutterStyle = {
+        ...defaultGutterStyle,
         backgroundOpacity: 1,
+        borderWidth: 2,
+        borderOpacity: 1,
     }
 
     const baseAnnotationColors = {
@@ -86,7 +94,9 @@ const createDefaultStyles = (): Record<string, AnnotationStyle> => {
 
     for (const [key, hexColor] of Object.entries(handShiftColors)) {
         styles[key] = {
-            default: createGutterStyle(hexColor, { backgroundColor: hexColor })
+            default: createGutterStyle(hexColor, defaultGutterStyle),
+            hover: createGutterStyle(hexColor, defaultActiveGutterStyle),
+            active: createGutterStyle(hexColor, defaultActiveGutterStyle),
         }
     }
 
