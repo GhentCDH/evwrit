@@ -149,6 +149,11 @@ services:
             $debug: '%kernel.debug%'
     App\Security\User\CustomKeycloakBearerUserProvider: '@custom_keycloak_bearer_user_provider'
 
+    # Override the Keycloak Authenticator to use custom provider (adds realm role support)
+    IDCI\Bundle\KeycloakSecurityBundle\Security\Authenticator\KeycloakAuthenticator:
+        arguments:
+            $userProvider: '@App\Security\User\CustomKeycloakUserProvider'
+
     # Override the Keycloak Bearer Authenticator to use custom provider
     IDCI\Bundle\KeycloakSecurityBundle\Security\Authenticator\KeycloakBearerAuthenticator:
         arguments:

@@ -19,7 +19,7 @@ export const formatAnnotatedTextAnnotation = (annotation: any, isActive: boolean
 
     let style = null;
     let weight = null;
-    let render = isActive ? 'highlight-active' : 'highlight';
+    let render = 'highlight';
     style = annotation.type;
     switch (annotation.type) {
         case 'typography':
@@ -28,6 +28,7 @@ export const formatAnnotatedTextAnnotation = (annotation: any, isActive: boolean
         case 'morpho_syntactical':
         case 'lexis':
         case 'morphology':
+            render = 'highlight';
             style = annotation.type;
             break;
         case 'gtsa':
@@ -47,7 +48,7 @@ export const formatAnnotatedTextAnnotation = (annotation: any, isActive: boolean
         case 'handshift':
             render = 'gutter';
             if ( annotation.internal_hand_num && annotation.internal_hand_num.match(/(\d+)/) ) {
-                style = 'handshift-' + annotation.internal_hand_num.match(/(\d+)/)[0];
+                style = 'handshift_' + annotation.internal_hand_num.match(/(\d+)/)[0];
             }
             break;
     }
@@ -68,7 +69,7 @@ export const formatAnnotatedTextAnnotation = (annotation: any, isActive: boolean
         ret['weight'] = weight;
     }
 
-    isActive && console.log(ret)
+    // isActive && console.log(ret)
 
     return ret;
 }

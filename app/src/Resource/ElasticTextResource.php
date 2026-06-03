@@ -88,6 +88,8 @@ class ElasticTextResource extends ElasticBaseResource
             'annotations' => []
         ]);
 
+        $ret['has_images'] = self::boolean( count($ret['image']) > 0 );
+
         $ret['used_area'] = $ret['central_width'] * $ret['central_height'];
         $ret['whitespace_area'] = $ret['total_area'] - $ret['used_area'];
         $ret['whitespace_percentage'] = $ret['whitespace_area'] != 0 && $ret['total_area'] != 0 ? $ret['whitespace_area'] / $ret['total_area'] * 100 : null;

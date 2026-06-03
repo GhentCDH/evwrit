@@ -100,9 +100,9 @@ class Configs implements SearchConfigInterface
                 'type' => self::FILTER_EXISTS,
                 'field' => 'translation',
             ],
-            'has_image' => [
-                'type' => self::FILTER_EXISTS,
-                'field' => 'image',
+            'has_images' => [
+                'type' => self::FILTER_BOOLEAN,
+                'field' => 'has_images',
             ],
         ];
 
@@ -137,6 +137,7 @@ class Configs implements SearchConfigInterface
             'location_written' => ['type' => self::AGG_OBJECT_ID_NAME],
             'location_found' => ['type' => self::AGG_OBJECT_ID_NAME],
             'form'  => ['type' => self::AGG_OBJECT_ID_NAME],
+            'has_images' => ['type' => self::AGG_BOOLEAN],
         ];
     }
 

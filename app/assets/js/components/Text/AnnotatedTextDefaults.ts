@@ -1,6 +1,43 @@
-import {createAnnotationColor} from "@ghentcdh/annotated-text";
+import {
+    createHighlightStyle,
+    createGutterStyle,
+    createUnderlineStyle,
+    CustomAnnotationStyle,
+    AnnotationStyle
+} from "@ghentcdh/annotated-text";
 
-const createDefaultStyles = () => {
+const createDefaultStyles = (): Record<string, AnnotationStyle> => {
+    const defaultHighlightStyle = {
+        borderWidth: 0.5,
+        borderRadius: 2,
+        borderOpacity: 0.5,
+        backgroundOpacity: 0.1,
+    }
+
+    const defaultActiveHighlightStyle = {
+        ...defaultHighlightStyle,
+        borderWidth: 1,
+        borderOpacity: 0.9,
+        // backgroundColor: '#ffffff',
+        backgroundOpacity: 0.4,
+    }
+
+    const defaultUnderlineStyle = {
+        backgroundOpacity: 0,
+        borderWidth: 1.5,
+    }
+
+    const defaultActiveUnderlineStyle = {
+        ...defaultUnderlineStyle,
+        backgroundOpacity: 0,
+        borderWidth: 3,
+        borderOpacity: 0.9,
+    }
+
+    const defaultGutterStyle = {
+        backgroundOpacity: 1,
+    }
+
     const baseAnnotationColors = {
         "orthography": "#f58231",
         "typography": "#e61919",
@@ -18,39 +55,42 @@ const createDefaultStyles = () => {
     }
 
     const handShiftColors = {
-        "handshift-1": "#6200D1",
-        "handshift-2": "#008D75",
-        "handshift-3": "#FFBC00",
-        "handshift-4": "#8AFF00",
-        "handshift-5": "#FF7ECD",
-        "handshift-6": "#005D1F",
-        "handshift-7": "#F51772",
-        "handshift-8": "#424600",
-        "handshift-9": "#613990",
+        "handshift_1": "#6200D1",
+        "handshift_2": "#008D75",
+        "handshift_3": "#FFBC00",
+        "handshift_4": "#8AFF00",
+        "handshift_5": "#FF7ECD",
+        "handshift_6": "#005D1F",
+        "handshift_7": "#F51772",
+        "handshift_8": "#424600",
+        "handshift_9": "#613990",
     }
 
     const styles = {}
 
     for (const [key, hexColor] of Object.entries(baseAnnotationColors)) {
         styles[key] = {
-            color: createAnnotationColor(hexColor),
-            borderRadius: "1px",
+            default: createHighlightStyle(hexColor, defaultHighlightStyle),
+            hover: createHighlightStyle(hexColor, defaultActiveHighlightStyle),
+            active: createHighlightStyle(hexColor, defaultActiveHighlightStyle),
         }
     }
 
     for (const [key, hexColor] of Object.entries(structureAnnotationColors)) {
         styles[key] = {
-            color: createAnnotationColor(hexColor)
+            default: createUnderlineStyle(hexColor, defaultUnderlineStyle),
+            hover: createHighlightStyle(hexColor, defaultActiveUnderlineStyle),
+            active: createHighlightStyle(hexColor, defaultActiveUnderlineStyle),
         }
     }
 
     for (const [key, hexColor] of Object.entries(handShiftColors)) {
         styles[key] = {
-            color: createAnnotationColor(hexColor)
+            default: createGutterStyle(hexColor, { backgroundColor: hexColor })
         }
     }
 
-    styles["default"] = createAnnotationColor("#808080")
+    styles["default"] = createHighlightStyle("#808080", defaultHighlightStyle)
 
     return styles
 }

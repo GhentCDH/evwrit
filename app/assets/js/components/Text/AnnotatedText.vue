@@ -6,13 +6,22 @@ export type RenderedAnnotation = Annotation & {
 }
 </script>
 
-
 <script setup lang="ts">
 import {ref, toRefs, watch, onMounted, onUnmounted, PropType} from 'vue'
-import {createAnnotatedText, TextLineAdapter} from '@ghentcdh/annotated-text';
+import {createAnnotatedText, createHighlightStyle, type AnnotatedText, TextLineAdapter} from '@ghentcdh/annotated-text';
 import defaultAnnotationStyles from './AnnotatedTextDefaults';
 
 // Props
+type Props = {
+    text: string;
+    annotations: RenderedAnnotation[];
+    activeAnnotations: string[] | null;
+    highlightedAnnotations: string[] | null;
+    styles: Record<string, AnnotationStyle>;
+    id: string | null;
+    textOffset: number;
+}
+
 const props = defineProps({
     text: {
         type: String,
@@ -20,6 +29,18 @@ const props = defineProps({
     },
     annotations: {
         type: Array as PropType<RenderedAnnotation[]>,
+        default: function() {
+            return [];
+        }
+    },
+    activeAnnotations: {
+        type: Array as PropType<string[]>,
+        default: function() {
+            return [];
+        }
+    },
+    highlightedAnnotations: {
+        type: Array as PropType<string[]>,
         default: function() {
             return [];
         }
@@ -43,10 +64,10 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['annotation-click']);
 
-const { text, annotations, textOffset, styles } = toRefs(props);
-const id = props.id || `annotated-text-${Math.random().toString(36).substring(2, 15)}`;
+const { text, annotations, textOffset, styles, highlightedAnnotations, activeAnnotations } = toRefs(props as Props);
+const id: string = (props.id as string | null) || `annotated-text-${Math.random().toString(36).substring(2, 15)}`;
 
-const annotatedText = ref(null);
+const annotatedText = ref<AnnotatedText<Annotation>>(null);
 
 // Watchers
 watch([text, annotations], ([newText, newAnnotations]) => {
@@ -57,6 +78,18 @@ watch([text, annotations], ([newText, newAnnotations]) => {
     }
 });
 
+watch(activeAnnotations, (newAnnotations, oldAnnotations) => {
+    if (annotatedText.value) {
+        annotatedText.value.selectAnnotations(newAnnotations);
+    }
+})
+
+watch(highlightedAnnotations, (newAnnotations, oldAnnotations) => {
+    if (annotatedText.value) {
+        annotatedText.value.highlightAnnotations(newAnnotations);
+    }
+})
+
 const onAnnotationClick = ({ mouseEvent: _mouseEvent, event: _event, data }) => {
     emit('annotation-click', data.annotation);
 }
@@ -64,28 +97,21 @@ const onAnnotationClick = ({ mouseEvent: _mouseEvent, event: _event, data }) => 
 // Hooks
 onMounted(() => {
     // todo: set lineOffset style property of text adapter
-    annotatedText.value = createAnnotatedText(id as string, {
-        text: TextLineAdapter({
-            textOffset: textOffset.value as number
-        }),
-        annotation: {
-            style: {
-                // @ts-nocheck
-                styleFn: (annotation: any): string => {
-                    return ((annotation.style as string) ?? "default");
-                }
-            },
-            render: {
-                renderFn: (annotation: any): string => annotation.render as string,
-            },
+    annotatedText.value = createAnnotatedText(id as string)
+    .setTextAdapter(TextLineAdapter())
+    .setRenderParams({
+        defaultRenderer: 'highlight',
+        renderFn: (annotation: any): string | null => annotation?.render,
+    })
+    .registerStyle('default', ((styles.value as Record<string, AnnotationStyle>)?.default ?? {default: createHighlightStyle("#808080")}) as AnnotationStyle)
+    .setStyleParams({
+        styleFn: (annotation: any): string | null => {
+            return annotation?.style;
         },
-    } as any)
+        defaultStyle: 'default'
+    })
+    .setAnnotationAdapter({ startOffset: textOffset.value as number })
     .registerStyles(styles.value as Record<string, AnnotationStyle>)
-    .updateRenderStyle('highlight', {
-        borderWidth: 1,
-        borderRadius: 2,
-        padding: 4,
-    } as any)
     .setText(text.value as string)
     .setAnnotations(annotations.value as Annotation[])
     .on('click', onAnnotationClick)
@@ -95,6 +121,8 @@ onMounted(() => {
     .on('mouse-leave', () => {
         document.body.style.cursor = 'default';
     });
+
+    console.log('text length', text.value.length)
 })
 
 onUnmounted(() => {
