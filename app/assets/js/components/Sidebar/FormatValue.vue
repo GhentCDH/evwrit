@@ -31,6 +31,10 @@ export default {
             type: String,
             default: null
         },
+        decimals: {
+            type: Number,
+            default: 1
+        }
     },
     methods: {
         formatValue(value) {
@@ -51,7 +55,23 @@ export default {
                         return ret
                     }
                     break;
+                case 'number':
+                    let num = value
+                    if ( typeof value !== 'number' ) {
+                        num = Number(value)
+                    }
+                    if (Number.isNaN(num)) {
+                        return this.unknown
+                    }
+                    if (!Number.isInteger(num)) {
+                        return num.toFixed(2)
+                    }
+                    return value
                 default:
+                    // check if value is a float. If value is float, round (max 2 decimals)
+                    if ( typeof value === 'number' && !Number.isInteger(value) ) {
+                        return value.toFixed(2)
+                    }
                     return this.locale ? String(value[this.locale]).trim() : String(value).trim()
             }
 

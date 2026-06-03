@@ -1,9 +1,9 @@
 <template>
-    <div class="labelvalue row" :class="'labelvalue--' + type" v-if="visible">
-        <div :class="outputLabelClass">
+    <div class="labelvalue row" :class="'labelvalue--' + type" v-if="isVisible">
+        <div :class="labelClassAttr">
             {{ label }}
         </div>
-        <div :class="outputValueClass">
+        <div :class="valueClassAttr">
             <template v-if="value != null">
                 <FormatValue
                         v-if="outputValues && outputValues.length"
@@ -60,6 +60,10 @@ export default {
             type: String,
             default: 'string'
         },
+        grid: {
+            type: String,
+            default: '7|5'
+        },
         url: {
             type: String|Function,
             default: null
@@ -78,17 +82,23 @@ export default {
         }
     },
     computed: {
-        outputLabelClass() {
-            return ['labelvalue__label', this.inline ? 'labelvalue__label--inline col-xs-5' : 'col-xs-12', this.labelClass ? this.labelClass : ''].join(' ')
+        labelGridCols() {
+            return this.grid.split('|')[0] ?? 7;
         },
-        outputValueClass() {
-            return ['labelvalue__value', this.inline ? 'labelvalue__value--inline col-xs-7' : 'col-xs-12'].join(' ')
+        valueGridCols() {
+            return this.grid.split('|')[1] ?? 5;
+        },
+        labelClassAttr() {
+            return ['labelvalue__label', this.inline ? 'labelvalue__label--inline col-xs-' + this.labelGridCols : 'col-xs-12', this.labelClass ?? ''].join(' ')
+        },
+        valueClassAttr() {
+            return ['labelvalue__value', this.inline ? 'labelvalue__value--inline col-xs-' + this.valueGridCols : 'col-xs-12', this.valueClass ?? ''].join(' ')
         },
         outputValues() {
             let values = this.value ? ( Array.isArray(this.value) ? this.value : [ this.value ] ) : ( this.unknown ? [ this.unknown ] : [] )
             switch(this.type) {
                 case 'id_name':
-                    values = values.filter( (item) => !this.ignoreValue.includes(item.name) )
+                    values = values.filter( (item) => !this.ignoreValue.includes(item?.name) )
                     break
                 case 'string':
                     values = values.filter( (value) => !value || !this.ignoreValue.includes(value) )
@@ -96,16 +106,13 @@ export default {
 
             return values
         },
-        visible() {
+        isVisible() {
             return this.outputValues.length || this.$scopedSlots.default
         }
     },
     methods: {
         isCallable(prop) {
-            if ( prop instanceof Function ) {
-                return true
-            }
-            return false
+            return (prop instanceof Function)
         }
     }
 }
