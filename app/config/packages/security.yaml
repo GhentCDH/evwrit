@@ -46,6 +46,9 @@ security:
     # API endpoints - require ROLE_EDITOR
     - { path: ^/api, roles: ROLE_EDITOR }
 
+    # Health check endpoint - public access
+    - { path: ^/health, roles: PUBLIC_ACCESS }
+
     # All other routes - require authentication (any role)
     - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
