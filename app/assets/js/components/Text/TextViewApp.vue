@@ -21,6 +21,7 @@
                         <h2>Text</h2>
                         <AnnotatedText :text="text.text"
                                        :annotations="visibleAnnotationsFormattedNew"
+                                       :active-annotations="selectedAnnotationIds"
                                        @annotation-click="onClickTextAnnotation"
                                        :textOffset="1"
                         ></AnnotatedText>
@@ -37,6 +38,7 @@
                                     <label @click="onClickAnnotation(textStructure)"><span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span></label>
                                     <AnnotatedText :text="textStructure.text_selection.text"
                                                    :annotations="visibleAnnotationsFormattedNoLtsNew"
+                                                   :active-annotations="selectedAnnotationIds"
                                                    @annotation-click="onClickTextAnnotation"
                                                    :textOffset="textStructure.text_selection.selection_start"
                                     ></AnnotatedText>
@@ -51,6 +53,7 @@
                                 </label>
                                 <AnnotatedText :text="textStructure.text_selection.text"
                                                :annotations="visibleAnnotationsFormattedNoLtsNew"
+                                               :active-annotations="selectedAnnotationIds"
                                                @annotation-click="onClickTextAnnotation"
                                                :textOffset="textStructure.text_selection.selection_start"
                                 ></AnnotatedText>
@@ -67,6 +70,7 @@
                             </label>
                             <AnnotatedText :text="textStructure.text_selection.text"
                                            :annotations="visibleAnnotationsFormattedNoGtsNew"
+                                           :active-annotations="selectedAnnotationIds"
                                            @annotation-click="onClickTextAnnotation"
                                            :textOffset="textStructure.text_selection.selection_start"
                             ></AnnotatedText>
@@ -522,8 +526,8 @@ export default {
         return data
     },
     computed: {
-        selectedAnnotationId() {
-            return this.selection?.annotationId || null
+        selectedAnnotationIds() {
+            return this.selection?.annotationId ? [ this.selection.annotationId ] : []
         },
         isDebugMode() {
             return this.debug === true || this.debug === 'true'
@@ -769,16 +773,16 @@ export default {
             }
         },
         onClickAnnotation(annotation) {
-            if (this.selection?.annotationId === this.getAnnotationTypeId(annotation) )
+            if (this.annotationIsActive(annotation) )
                 this.$set(this.selection, 'annotationId', null)
             else {
                 this.resetSelection()
-                this.$set(this.selection, 'annotationId', this.getAnnotationTypeId(annotation))
+                this.$set(this.selection, 'annotationId', this.getSafeAnnotationId(annotation))
                 this.openSelectionWidget()
             }
         },
         onClickLevel(level) {
-            if (this.selection.levelId === level.id )
+            if (this.levelIsActive(level) )
                 this.$set(this.selection, 'levelId', null)
             else {
                 this.resetSelection()
@@ -786,14 +790,17 @@ export default {
                 this.openSelectionWidget()
             }
         },
-        getAnnotationTypeId(annotation) {
+        getSafeAnnotationId(annotation) {
             return ( annotation?.type ?? 'none' ) + ':' + annotation.id
         },
         annotationHasContext(annotation) {
            return !!annotation?.context
         },
         annotationIsActive(annotation) {
-            return ( this.selection?.annotatonId && this.getAnnotationTypeId(annotation) === this.selection?.annotatonId );
+            return this.selection?.annotatonId && this.getSafeAnnotationId(annotation) === this.selection?.annotatonId;
+        },
+        levelIsActive(level) {
+            return this.selection?.levelId && this.selection.levelId === level.id
         },
         filterAnnotationsByConfig(annotations) {
             let that = this
@@ -872,14 +879,14 @@ export default {
         },
         getLevelClass(level) {
             let classes = ['level']
-            if (this.selection?.levelId && this.selection.levelId === level.id ) {
+            if (this.levelIsActive(level) ) {
                 classes.push('level--active')
             }
             return classes.join(' ')
         },
         getStructureClass(annotation) {
             let classes = ['structure']
-            if (this.selection?.annotationId && this.selection.annotationId === this.getAnnotationTypeId(annotation) ) {
+            if (this.annotationIsActive(annotation) ) {
                 classes.push('structure--active')
             }
             return classes.join(' ')
