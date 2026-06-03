@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@ghentcdh/annotated-text": "^1.0.10",
     "@symfony/webpack-encore": "1.6.1",
     "@types/node": "^24.10.0",
     "articles": "^0.2.2",
@@ -41,8 +42,5 @@
     "wnumb": "^1.2.0",
     "yargs": "^17.7.2"
   },
-  "packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903",
-  "dependencies": {
-    "@ghentcdh/annotated-text": "^0.12.21"
-  }
+  "packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903"
 }
