@@ -73,7 +73,7 @@ class ElasticTextResource extends ElasticBaseResource
             'lines' => !is_null($text->count_lines) ? [ 'min' => $text->count_lines, 'max' => $text->count_lines ] : ( is_null($text->lines_min) ? null : [ 'min' => $text->lines_min, 'max' => $text->lines_max ] ),
             'columns' => is_null($text->columns_min) ? null : [ 'min' => $text->columns_min, 'max' => $text->columns_max ],
             'letters_per_line' => is_null($text->letters_per_line_min) ? null : [ 'min' => $text->letters_per_line_min, 'max' => $text->letters_per_line_max ],
-//            'interlinear_space' => $text->interlinear_space,
+            'interlinear_space' => $text->interlinear_space,
 
             'writing_direction' => ElasticIdNameResource::collection($text->writingDirections)->toArray(),
             'text_format' => new ElasticIdNameResource($text->textFormat),
