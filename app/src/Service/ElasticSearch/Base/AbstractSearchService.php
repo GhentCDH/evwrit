@@ -879,7 +879,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $text = implode(' OR ', $text);
             }
         }
-        dump($field);
         return (new Query\QueryString($text))->setDefaultField($field)->setAnalyzer("standard");
     }
 

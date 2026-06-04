@@ -197,13 +197,30 @@
                         <PageMetrics v-bind="text" unit="cm"></PageMetrics>
                     </PropertyGroup>
                     <PropertyGroup>
-                        <LabelValue label="Lines" :value="arrayToRange(text?.lines)"  type="range"></LabelValue>
-                        <LabelValue label="Lines (calculated)" :value="text?.count_lines_auto"></LabelValue>
-                        <LabelValue label="Columns" :value="minMaxToRange(text?.columns)"  type="range"></LabelValue>
-                        <LabelValue label="Letters per line" :value="minMaxToRange(text?.letters_per_line)" type="range"></LabelValue>
-                        <LabelValue label="Letters per line (calculated)" :value="text?.letters_per_line_auto"></LabelValue>
-                        <LabelValue label="Interlinear space" :value="text?.interlinear_space" ></LabelValue>
-                        <LabelValue label="Line Height" :value="text?.image?.[0]?.line_height" ></LabelValue>
+                        <LabelValue label="Lines" :value="arrayToRange(text?.lines)"  type="range" grid="8|4"></LabelValue>
+                        <LabelValue label="Lines (calculated)" :value="text?.count_lines_auto" grid="8|4" type="number"></LabelValue>
+                        <LabelValue label="Columns" :value="minMaxToRange(text?.columns)"  type="range" grid="8|4"></LabelValue>
+                        <LabelValue label="Letters per line" :value="minMaxToRange(text?.letters_per_line)" type="range" grid="8|4"></LabelValue>
+                        <LabelValue label="Letters per line (calculated)" :value="text?.letters_per_line_auto" grid="8|4" type="number"></LabelValue>
+                        <LabelValue label="Interlinear space" :value="text?.interlinear_space" grid="8|4" type="number"></LabelValue>
+                        <LabelValue label="Line Height" :value="text?.image?.[0]?.line_height" grid="8|4" type="number"></LabelValue>
+                    </PropertyGroup>
+                    <PropertyGroup v-if="config.expertMode">
+                        <LabelValue label="Whitespace Area" :value="text?.whitespace_area" grid="8|4" type="number"></LabelValue>
+                        <LabelValue label="Whitespace %" :value="text?.whitespace_percentage" grid="8|4" type="number"></LabelValue>
+                        <LabelValue label="Total Document Area" :value="text?.total_area" grid="8|4" type="number"></LabelValue>
+                        <LabelValue label="Used Area" :value="text?.used_area" grid="8|4" type="number"></LabelValue>
+                    </PropertyGroup>
+                    <PropertyGroup v-if="config.expertMode">
+                        <LabelValue label="Central Width" :value="text?.central_width" grid="8|4" type="number"></LabelValue>
+                        <LabelValue label="Central Height" :value="text?.central_height" grid="8|4" type="number"></LabelValue>
+                        <LabelValue label="Width to Height ratio" :value="text?.width_height_ratio" grid="8|4" type="number"></LabelValue>
+                        <LabelValue label="Line Height to Interlinear Space ratio" :value="text?.lineheight_interlinearspace_ratio" grid="8|4" type="number"></LabelValue>
+                    </PropertyGroup>
+                    <PropertyGroup v-if="config.expertMode">
+                        <LabelValue label="Average Line Space" :value="text?.average_line_space" grid="8|4" type="number"></LabelValue>
+                        <LabelValue label="Average Letter Space" :value="text?.average_letter_space" grid="8|4" type="number"></LabelValue>
+                        <LabelValue label="Average Words per Line" :value="text?.average_words_per_line" grid="8|4" type="number"></LabelValue>
                     </PropertyGroup>
                 </Widget>
 
