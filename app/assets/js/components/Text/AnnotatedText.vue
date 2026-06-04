@@ -121,8 +121,6 @@ onMounted(() => {
     .on('mouse-leave', () => {
         document.body.style.cursor = 'default';
     });
-
-    console.log('text length', text.value.length)
 })
 
 onUnmounted(() => {
