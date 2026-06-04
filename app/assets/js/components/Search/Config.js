@@ -240,7 +240,7 @@ export default {
             }
         },
         materialityFields(expertOnly = false) {
-            return filters = {
+            return {
                 expertOnly: expertOnly,
                 visible: this.fieldVisible,
                 collapsible: true,
