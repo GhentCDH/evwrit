@@ -114,7 +114,7 @@
                         </a>
                     </template>
                     <template v-slot:annotations="props">
-                        <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)">
+                        <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)" :key="annotation.id">
                             <AnnotatedText
                                 v-show="config.showAnnotationContext"
                                 :text="annotation.context.text"

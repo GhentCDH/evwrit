@@ -93,7 +93,7 @@
                         </a>
                     </template>
                     <template v-slot:annotations="props">
-                        <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)">
+                        <div class="annotation-result" v-for="annotation in limitAnnotations(props.row.annotations)" :key="annotation.id">
                             <AnnotatedText :text="annotation.text_selection.text"></AnnotatedText>
                             <AnnotationDetailsFlat v-show="config.showAnnotationDetails" :annotation="annotation" :type-only-properties="config.showAnnotationTypeOnlyProperties"></AnnotationDetailsFlat>
                         </div>

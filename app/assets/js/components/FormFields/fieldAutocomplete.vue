@@ -13,7 +13,7 @@
             @keydown.esc = "esc"
         >
         <ul class="dropdown-menu" style="width:100%">
-            <li v-for="(suggestion, index) in suggestions"
+            <li v-for="(suggestion, index) in suggestions" :key="index"
                 @click="suggestionClick(suggestion)"
                 @mouseover="mouseOver(index)"
             >

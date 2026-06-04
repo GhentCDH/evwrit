@@ -1,7 +1,7 @@
 <template lang="pug">
     .wrapper(v-attributes="'wrapper'")
         .checkbox-list
-            label(v-for="item in items", :class="getItemCssClasses(item)")
+            label(v-for="item in items", :key="getItemValue(item)", :class="getItemCssClasses(item)")
                 input(:id="getFieldID(schema, true)", type="checkbox", :checked="isItemChecked(item)", :disabled="isItemDisabled(item)", @change="onChanged($event, item)", :name="getInputName(item)", v-attributes="'input'")
                 | {{ getItemName(item) }}
 </template>

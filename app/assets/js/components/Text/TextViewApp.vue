@@ -31,10 +31,10 @@
                     <div v-if="config.genericTextStructure.show && arrayIsNotEmpty(genericTextStructure)" :class="textContainerClass" class="text-structure">
                         <h2>Generic structure</h2>
                         <template v-if="config.genericTextStructure.groupByLevel">
-                            <div :class="getLevelClass(getTextLevel(level.id))" v-for="level in genericTextStructureGroupedByLevel">
+                            <div :class="getLevelClass(getTextLevel(level.id))" v-for="level in genericTextStructureGroupedByLevel" :key="level.id">
                                 <label class="level__number" @click.stop="onClickLevel(getTextLevel(level.id))"><span>Level {{ level.number }} {{ level.type }}</span></label>
-                                <label class="level__category" @click.stop="onClickLevel(getTextLevel(level.id))" v-if="level.id" v-for="category in formatLevelCategory(getTextLevel(level.id))"><span>{{ category }}</span></label>
-                                <div :class="getStructureClass(textStructure)" v-for="textStructure in level.genericTextStructure">
+                                <label class="level__category" @click.stop="onClickLevel(getTextLevel(level.id))" v-if="level.id" v-for="category in formatLevelCategory(getTextLevel(level.id))" :key="category"><span>{{ category }}</span></label>
+                                <div :class="getStructureClass(textStructure)" v-for="textStructure in level.genericTextStructure" :key="textStructure.id">
                                     <label @click="onClickAnnotation(textStructure)"><span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span></label>
                                     <AnnotatedText :text="textStructure.text_selection.text"
                                                    :annotations="visibleAnnotationsFormattedNoLtsNew"
@@ -46,7 +46,7 @@
                             </div>
                         </template>
                         <template v-if="!config.genericTextStructure.groupByLevel">
-                            <div :class="getStructureClass(textStructure)" v-for="textStructure in genericTextStructure">
+                            <div :class="getStructureClass(textStructure)" v-for="textStructure in genericTextStructure" :key="textStructure.id">
                                 <label @click="onClickAnnotation(textStructure)">
                                     <span v-if="textStructure.gts_textLevel">Level {{ textStructure.gts_textLevel.number }}</span>
                                     <span>{{ textStructure.properties.gts_part.name }} {{ textStructure.properties.gts_part.part_number}}</span>
@@ -64,7 +64,7 @@
                     <!-- Layout Text Structure -->
                     <div v-if="config.layoutTextStructure.show && arrayIsNotEmpty(layoutTextStructure)" :class="textContainerClass" class="text-structure">
                         <h2>Layout structure</h2>
-                        <div :class="getStructureClass(textStructure)" v-for="textStructure in layoutTextStructure">
+                        <div :class="getStructureClass(textStructure)" v-for="textStructure in layoutTextStructure" :key="textStructure.id">
                             <label @click="onClickAnnotation(textStructure)">
                                 <span>{{ textStructure.properties.lts_part.name }}</span>
                             </label>
@@ -91,7 +91,7 @@
 
                     <!-- Translations -->
                     <div v-if="config.translation.show && arrayIsNotEmpty(text?.translation)" :class="textContainerClass" class="text-translations">
-                        <div v-for="translation in text.translation" class="greek">
+                        <div v-for="translation in text.translation" :key="translation.id" class="greek">
                             <h2>{{ translation.language.name}} Translation</h2>
                             <AnnotatedText :text="translation.text" />
                         </div>
@@ -103,7 +103,7 @@
                     <!-- Annotations -->
                     <div v-if="config.annotations.showList" class="col-xs-12">
                         <h2 v-if="showText || config.text.showLemmas || config.genericTextStructure.show">Annotations</h2>
-                        <div class="annotation-result" v-for="annotation in visibleAnnotations">
+                        <div class="annotation-result" v-for="annotation in visibleAnnotations" :key="annotation.id">
                             <AnnotatedText :text="annotation.context.text" :text-offset="annotation.context.start"
                                            v-if="config.annotations.showContext && annotationHasContext(annotation)"
                                            :annotations="[ formatAnnotatedTextAnnotation(annotation) ]"
@@ -225,7 +225,7 @@
                 </Widget>
 
                 <Widget title="People" :collapsed.sync="config.widgets.attestation.isCollapsed" :count="arrayGetLength(people)">
-                    <ancient-person-details v-for="person in people" :person="person" :key="'key_person:' + person.id"
+                    <ancient-person-details v-for="(person, index) in people" :person="person" :key="'key_person:' + index + ':' + person.id"
                                             :export-mode="config.expertMode"
                                             :url-generator="urlGeneratorIdName"
                                             class="mbottom-small"
@@ -382,7 +382,7 @@
                 </Widget>
 
                 <Widget title="Links" :count="arrayGetLength(links)" :collapsed.sync="config.widgets.links.isCollapsed">
-                    <div v-for="link in links">
+                    <div v-for="link in links" :key="link.url">
                         <a :href="link.url" target="_blank">{{ link.title }}</a>
                     </div>
                 </Widget>

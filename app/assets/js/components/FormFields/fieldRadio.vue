@@ -3,7 +3,7 @@
         <ul class="list-unstyled">
             <li
                 v-for="(item, index) in items"
-                :key="index">
+                :key="getItemValue(item)">
                 <input
                     :id="getItemValue(item)"
                     type="radio"
