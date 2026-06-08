@@ -1,5 +1,3 @@
-import {getLength} from "./ArrayHelper";
-
 const roleMap = {
     'initiator': 10,
     'initiator?': 10,
