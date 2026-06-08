@@ -430,6 +430,7 @@ import {
     formatAnnotatedTextAnnotation,
     getAnnotationClass
 } from "../Annotations/AnnotationFormatters";
+import {sortAncientPeopleByRole} from "@/js/helpers/AncientPeopleSorter";
 
 export default {
     name: "TextViewApp",
@@ -591,10 +592,9 @@ export default {
             if (this.text.ancient_person) {
                 return this.text.ancient_person.filter(
                     person => this.arrayGetLength(person?.role) // && !['Unknown','unknown'].includes(person.role)
-                )
+                ).sort(sortAncientPeopleByRole)
             }
             return [];
-
         },
         annotationsByTypeId() {
             let result = []
