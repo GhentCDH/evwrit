@@ -72,7 +72,10 @@ Encore.configureDefinePlugin(options => {
     };
 });
 
-Encore.addAliases({ vue$: 'vue/dist/vue.esm.js' });
+Encore.addAliases({
+    vue$: 'vue/dist/vue.esm.js',
+    '@': path.resolve(__dirname, 'assets')
+});
 
 // further config tweaking
 const config = Encore.getWebpackConfig();
