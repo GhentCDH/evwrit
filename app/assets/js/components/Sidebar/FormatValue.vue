@@ -1,9 +1,13 @@
 <template>
-    <span v-if="value != null">
-        <a v-if="url" :href="url">{{formatValue(value)}}</a>
-        <template v-else>{{formatValue(value)}}</template>
+    <span class="format-value" v-if="value != null">
+        <span class="prefix" v-if="prefix">{{ prefix }}</span>
+        <span class="value" v-if="url">
+            <a v-if="url" :href="url">{{formatValue(value)}}</a>
+        </span>
+        <span class="value" v-if="!url">{{formatValue(value)}}</span>
+        <span class="suffix" v-if="suffix">{{ suffix }}</span>
     </span>
-    <span v-else>{{unknown}}</span>
+    <span  class="format-value format-value--unknown" v-else>{{unknown}}</span>
 </template>
 
 <script>
@@ -15,7 +19,7 @@ export default {
         },
         unknown: {
             type: String,
-            default: 'unknown'
+            default: null
         },
         url: {
             type: String,
@@ -23,17 +27,17 @@ export default {
         type: {
             type: String,
         },
-        locale: {
-            type: String,
-            default: null
-        },
-        secondLocale: {
-            type: String,
-            default: null
-        },
         decimals: {
             type: Number,
-            default: 1
+            default: 2
+        },
+        prefix: {
+            type: String,
+            default: null
+        },
+        suffix: {
+            type: String,
+            default: null
         }
     },
     methods: {
@@ -50,9 +54,7 @@ export default {
                     break;
                 case 'id_name':
                     if ( value?.name ) {
-                        let ret = (this.locale && value?.name?.[this.locale]) ? String(value.name[this.locale]).trim() : String(value.name).trim()
-                        ret = this.secondLocale && value?.name?.[this.secondLocale] ? ret + ' (' + value.name[this.secondLocale] + ')' : ret
-                        return ret
+                        return String(value.name).trim()
                     }
                     break;
                 case 'number':
@@ -64,13 +66,13 @@ export default {
                         return this.unknown
                     }
                     if (!Number.isInteger(num)) {
-                        return num.toFixed(2)
+                        return num.toFixed(this.decimals)
                     }
                     return value
                 default:
                     // check if value is a float. If value is float, round (max 2 decimals)
                     if ( typeof value === 'number' && !Number.isInteger(value) ) {
-                        return value.toFixed(2)
+                        return value.toFixed(this.decimals)
                     }
                     return this.locale ? String(value[this.locale]).trim() : String(value).trim()
             }

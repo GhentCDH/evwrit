@@ -6,7 +6,6 @@
         <div :class="valueClassAttr">
             <template v-if="value != null">
                 <FormatValue
-                        v-if="outputValues && outputValues.length"
                         v-for="(item, index) in outputValues"
                         :key="index"
                         :type="type"
@@ -15,6 +14,7 @@
                         :class="isCallable(valueClass) ? valueClass(item) : valueClass"
                         :locale="locale"
                         :second-locale="secondLocale"
+                        v-bind="$attrs"
                 />
             </template>
             <template v-else-if="$scopedSlots.default">
@@ -30,6 +30,7 @@ import FormatValue from "./FormatValue";
 
 export default {
     name: "LabelValue",
+    inheritAttrs: false,
     components: {
         FormatValue
     },
@@ -38,7 +39,7 @@ export default {
             type: String,
         },
         value: {
-            type: String|Number|Object|Array
+            type: [String, Number, Object, Array]
         },
         unknown: {
             type: String,
@@ -65,15 +66,7 @@ export default {
             default: '7|5'
         },
         url: {
-            type: String|Function,
-            default: null
-        },
-        locale: {
-            type: String,
-            default: null
-        },
-        secondLocale: {
-            type: String,
+            type: [String, Function],
             default: null
         },
         ignoreValue: {
