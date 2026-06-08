@@ -12,8 +12,15 @@
             <LabelValue label="Gender" :value="person.gender"  type="id_name" :ignore-value="['Unknown','unknown']"></LabelValue>
             <LabelValue label="Education" :value="person.education"  type="id_name" :ignore-value="['Unknown','unknown']"
                         :url="urlGenerator('text_search', 'ap_education')"></LabelValue>
-            <LabelValue label="Occupation" :value="person.occupation"  type="id_name" :ignore-value="['Unknown','unknown']"
-                        :url="urlGenerator('text_search', 'ap_occupation_gr')" locale="gr" second-locale="en"></LabelValue>
+            <LabelValue label="Occupation" v-if="filteredOccupations.length"  type="id_name" :ignore-value="['Unknown','unknown']" v-slot:default="{value}">
+                <span v-for="(occ, index) in filteredOccupations" :key="index">
+                    <a :href="urlGenerator('text_search', 'ap_occupation_gr')(occ)">
+                        {{ occ.name['gr'] ?? '' }}
+                        {{ occ.name['en'] ? ' (' + occ.name['en'] + ')' : '' }}
+                    </a>
+                    <span v-if="index < filteredOccupations.length - 1">, </span>
+                </span>
+            </LabelValue>
             <LabelValue label="Social Rank" :value="person.social_rank"  type="id_name" :ignore-value="['Unknown','unknown']"
                         :url="urlGenerator('text_search', 'ap_social_rank')"></LabelValue>
             <LabelValue label="Graph Type" :value="person.graph_type"  type="id_name" :ignore-value="['Unknown','unknown']"
@@ -47,7 +54,12 @@ export default {
             required: true
         }
     },
-    computed: {},
+    computed: {
+        filteredOccupations() {
+            if (!this.person.occupation) return []
+            return this.person.occupation.filter( value => value?.name?.['en'] !== 'Unknown')
+        }
+    },
     methods: {
         getPersonRoleClass(role) {
             let ret = 'label label-default';
