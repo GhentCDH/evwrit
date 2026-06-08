@@ -1,6 +1,7 @@
 var Encore = require('@symfony/webpack-encore');
 var WebpackShellPluginNext = require('webpack-shell-plugin-next');
 var dotenv = require('dotenv')
+const path = require('path');
 
 dotenv.config({path: '.env.local'})
 
@@ -72,7 +73,10 @@ Encore.configureDefinePlugin(options => {
     };
 });
 
-Encore.addAliases({ vue$: 'vue/dist/vue.esm.js' });
+Encore.addAliases({
+    vue$: 'vue/dist/vue.esm.js',
+    '@': path.resolve(__dirname, 'assets')
+});
 
 // further config tweaking
 const config = Encore.getWebpackConfig();
