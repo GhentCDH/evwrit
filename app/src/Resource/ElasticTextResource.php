@@ -102,7 +102,7 @@ class ElasticTextResource extends ElasticBaseResource
 
         $ret['average_line_space'] = $ret['line_count'] != 0 ? $ret['used_area'] / $ret['line_count'] : null;
         $ret['average_words_per_line'] = $text->count_words && $ret['line_count'] ?   $text->count_words / $ret['line_count'] : null;
-        $ret['average_letter_space'] = $text->letters_per_line_auto && $ret['line_count'] ? $ret['used_area'] / $ret['line_count'] * $text->letters_per_line_auto : null;
+        $ret['average_letter_space'] = $text->letters_per_line_auto && $ret['line_count'] ? $ret['used_area'] / ($ret['line_count'] * $text->letters_per_line_auto ) : null;
 
             // flatten level properties
         // todo: fix legacy 'ancient_person'
