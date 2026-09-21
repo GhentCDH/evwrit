@@ -30,6 +30,15 @@ services:
     # todo: remove this!
     Symfony\Component\DependencyInjection\ContainerInterface: '@service_container'
 
+    # API model schemas: auto-tag every SchemaInterface and collect them in the registry
+    _instanceof:
+        App\Api\Schema\SchemaInterface:
+            tags: ['app.api.schema']
+
+    App\Api\Schema\SchemaRegistry:
+        arguments:
+            $schemas: !tagged_iterator app.api.schema
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     elastic_search_client:

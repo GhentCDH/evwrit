@@ -2,6 +2,11 @@ imports:
   # Import Keycloak security providers
   - { resource: '@IDCIKeycloakSecurityBundle/Resources/config/security.yaml' }
 
+parameters:
+  # Role required to access the /api endpoints. Secure by default (prod);
+  # overridden to PUBLIC_ACCESS in config/packages/dev/security.yaml.
+  app.api_access_role: 'ROLE_EDITOR'
+
 security:
 #  enable_authenticator_manager: true
   providers:
@@ -31,24 +36,26 @@ security:
 
   access_control:
     # Allow web profiler in dev environment without authentication
-    - { path: ^/_profiler, roles: PUBLIC_ACCESS }
-    - { path: ^/_wdt, roles: PUBLIC_ACCESS }
+    - { path: ^/_profiler, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/_wdt, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+    # Keycloak authentication routes - public access
+    - { path: ^/auth, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/logout, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/user, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+    # Health check endpoint - public access
+    - { path: ^/health, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+    # API endpoints - role is environment-configurable (ROLE_EDITOR by default,
+    # PUBLIC_ACCESS in dev via config/packages/dev/security.yaml)
 
     # Allow OPTIONS requests (CORS preflight) without authentication
     - { path: ^/api, methods: [OPTIONS], allow_if: "true" }
 
-    # Keycloak authentication routes - public access
-    - { path: ^/auth, roles: PUBLIC_ACCESS }
-    - { path: ^/login, roles: PUBLIC_ACCESS }
-    - { path: ^/logout, roles: PUBLIC_ACCESS }
-    - { path: ^/user, roles: PUBLIC_ACCESS }
-
-    # API endpoints - require ROLE_EDITOR
-    - { path: ^/api, roles: ROLE_EDITOR }
-
-    # Health check endpoint - public access
-    - { path: ^/health, roles: PUBLIC_ACCESS }
+    - { path: ^/api, roles: '%app.api_access_role%' }
 
     # All other routes - require authentication (any role)
-    - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+    - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 

@@ -183,6 +183,8 @@ class BaseController extends AbstractController
         );
     }
 
+
+
     // Request preconditions have not been met
     protected function jsonFail($message, $data = null): JsonResponse
     {

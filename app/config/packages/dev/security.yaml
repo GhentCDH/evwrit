@@ -1,0 +1,5 @@
+# Dev-only: open the /api endpoints without a Keycloak bearer token.
+# The base config (config/packages/security.yaml) keeps them behind ROLE_EDITOR
+# in every other environment (prod, test).
+parameters:
+    app.api_access_role: 'PUBLIC_ACCESS'
