@@ -42,9 +42,7 @@ class LexisAnnotationSchema extends AbstractSchema
         $this->autowireResources(true);
 
         // lookup foreign keys as {id,label} autocomplete, fully reflection-derived
-//        $this->relations(
-//            'standardForm',
-//        );
+        $this->primaryKey('id')->hiddenInForm()->noFieldInput();
 
         $this->relations(
             'standardForm', 'type', 'subtype', 'wordclass', 'formulaicity',
