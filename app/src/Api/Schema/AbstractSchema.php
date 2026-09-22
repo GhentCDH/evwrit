@@ -143,6 +143,11 @@ abstract class AbstractSchema implements SchemaInterface
         return $this->collector()->date($column, $label);
     }
 
+    protected function primaryKey(string $exposeAs = 'id'): ScalarField
+    {
+        return $this->collector()->primaryKey($exposeAs);
+    }
+
     /**
      * @param array<int, array{value: mixed, label: string}> $values
      */

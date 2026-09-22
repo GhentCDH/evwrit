@@ -42,6 +42,7 @@ abstract class AbstractLookupSchema extends AbstractSchema
                 self::OP_DELETE,
             );
 
+        $this->primaryKey();
         $this->string('name')->required()->max(255);
     }
 }

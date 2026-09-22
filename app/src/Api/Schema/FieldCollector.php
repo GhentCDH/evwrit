@@ -84,6 +84,24 @@ class FieldCollector
     }
 
     /**
+     * The model's primary key, exposed (by default) as "id" and marked
+     * non-creatable/non-updatable (it is assigned by the database).
+     */
+    public function primaryKey(string $exposeAs = 'id'): ScalarField
+    {
+        $pk = (new $this->modelClass())->getKeyName();
+
+        return $this->add(
+            (new ScalarField($pk, ScalarField::TYPE_INTEGER, 'ID'))
+                ->exposeAs($exposeAs)
+                ->creatable(false)
+                ->updatable(false)
+                ->noFieldInput()
+                ->hiddenInForm()
+        );
+    }
+
+    /**
      * A select field. $values is a list of {value,label} option arrays, emitted under
      * fieldInput.options.values.
      *
