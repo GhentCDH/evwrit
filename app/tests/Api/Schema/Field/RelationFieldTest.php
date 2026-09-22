@@ -122,8 +122,8 @@ class RelationFieldTest extends TestCase
         $props = $schema['type']['properties'];
         self::assertArrayHasKey('id', $props);
         self::assertArrayHasKey('label', $props);
-        // projected properties are full column configs
-        self::assertSame('string', $props['name']['type']['type']);
+        // projected properties are JSON-schema-typed (bare `type`), keep their fieldInput
+        self::assertSame('string', $props['name']['type']);
         self::assertSame('text', $props['name']['fieldInput']['type']);
     }
 

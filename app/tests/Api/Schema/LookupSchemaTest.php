@@ -23,14 +23,15 @@ class LookupSchemaTest extends KernelTestCase
         $this->schema = $container->get(SchemaRegistry::class)->get('annotation_type_lexis');
     }
 
-    public function testDescribeExposesIdAndName(): void
+    public function testDescribeExposesIdAndLabel(): void
     {
         $columns = $this->service->describe($this->schema)['columns'];
 
         self::assertArrayHasKey('id', $columns);
-        self::assertArrayHasKey('name', $columns);
+        // the IdName "name" column is exposed as "label"
+        self::assertArrayHasKey('label', $columns);
 
-        self::assertSame('integer', $columns['id']['type']['type']);
+        self::assertSame('integer', $columns['id']['type']);
         self::assertFalse($columns['id']['creatable']);
         self::assertFalse($columns['id']['updatable']);
     }

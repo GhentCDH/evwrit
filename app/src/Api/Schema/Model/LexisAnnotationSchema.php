@@ -49,15 +49,18 @@ class LexisAnnotationSchema extends AbstractSchema
             'prescription', 'proscription', 'positionInWord', 'identifier',
         );
 
+        $this->date('created')->hiddenInForm()->noFieldInput();
+        $this->date('updated')->hiddenInForm()->noFieldInput();
+
         // the annotated text selection, flattened onto the annotation (link hidden)
         $this->embed('textSelection', function (FieldCollector $f): void {
             $f->integer('text_id')->hidden()->required()->hiddenInForm()->noFieldInput()->exposeAs('source_id'); // set programmatically, hidden in UI
             $f->integer('selection_start')->required()->hiddenInForm()->noFieldInput()->exposeAs('start');
             $f->integer('selection_end')->required()->hiddenInForm()->noFieldInput()->exposeAs('end');
-            $f->integer('selection_length')->required()->hiddenInForm()->noFieldInput()->exposeAs('length');
+//            $f->integer('selection_length')->required()->hiddenInForm()->noFieldInput()->exposeAs('length');
             $f->text('text')->required()->hiddenInForm()->noFieldInput()->exposeAs('exact');
 //            $f->text('text_edited')->required()->hiddenInForm()->noFieldInput();
-        }, EmbeddedRelationField::MODE_NESTED)->hideLink();
+        }, EmbeddedRelationField::MODE_NESTED)->hideLink()->exposeAs('selector');
 
     }
 }

@@ -160,7 +160,7 @@ class ScalarField implements FieldInterface
         $column = [
             'id' => $this->getId(),
             'label' => $this->label,
-            'type' => ['type' => $this->schemaDataType()],
+            'type' => $this->schemaDataType(), // scalar type is a bare string
         ];
         if ($this->required) {
             $column['required'] = true;

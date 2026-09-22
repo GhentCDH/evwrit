@@ -44,8 +44,20 @@ class EmbeddedRelationFieldTest extends TestCase
         $schema = $this->field()->toSchemaArray($this->createMock(RouterInterface::class));
 
         self::assertSame('object', $schema['type']['type']);
-        self::assertArrayHasKey('selection_start', $schema['type']['properties']);
-        self::assertArrayHasKey('text_id', $schema['type']['properties']);
+        $props = $schema['type']['properties'];
+        self::assertArrayHasKey('selection_start', $props);
+        self::assertArrayHasKey('text_id', $props);
+        // nested properties are JSON-schema-typed: `type` is a bare string, not {type:X}
+        self::assertSame('integer', $props['selection_start']['type']);
+        self::assertSame('integer', $props['text_id']['type']);
+    }
+
+    public function testExposeAsRenamesTheEmbed(): void
+    {
+        $field = $this->field()->exposeAs('selector');
+
+        self::assertSame('selector', $field->getId());          // exposed alias
+        self::assertSame('textSelection', $field->getSource()); // real relation method
     }
 
     public function testReadValueSerializesSubFieldsFromRelatedModel(): void
