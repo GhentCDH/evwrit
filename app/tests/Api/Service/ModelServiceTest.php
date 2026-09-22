@@ -67,8 +67,17 @@ class ModelServiceTest extends KernelTestCase
         $nested = $byId['textSelection']['type']['properties'];
         self::assertArrayHasKey('selection_start', $nested);
         self::assertArrayHasKey('sourceText', $nested);
-        // nested props are full column configs with their own fieldInput
+        // nested props keep their fieldInput
         self::assertSame('number', $nested['selection_start']['fieldInput']['type']);
+
+        // nested SCALAR property -> bare type string
+        self::assertSame('integer', $nested['selection_start']['type']);
+
+        // nested OBJECT property -> wrapped type with its properties INSIDE `type`
+        self::assertSame('object', $nested['sourceText']['type']['type']);
+        self::assertArrayHasKey('id', $nested['sourceText']['type']['properties']);
+        self::assertArrayHasKey('label', $nested['sourceText']['type']['properties']);
+        self::assertArrayNotHasKey('properties', $nested['sourceText']); // not a sibling
     }
 
     public function testEveryEmittedWidgetIsInTheAllowedSet(): void

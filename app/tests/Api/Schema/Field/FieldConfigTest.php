@@ -93,7 +93,7 @@ class FieldConfigTest extends TestCase
         self::assertArrayNotHasKey('fieldInput', $without);
         // other keys remain
         self::assertSame('x', $without['id']);
-        self::assertSame(['type' => 'integer'], $without['type']);
+        self::assertSame('integer', $without['type']);
 
         $relation = (new RelationField('scriptType', 'annotation_script_type_id', AnnotationScriptType::class))
             ->noFieldInput()

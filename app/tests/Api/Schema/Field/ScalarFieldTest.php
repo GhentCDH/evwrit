@@ -22,7 +22,7 @@ class ScalarFieldTest extends TestCase
 
         self::assertSame('status', $schema['id']);
         self::assertSame('Status', $schema['label']);
-        self::assertSame(['type' => 'string'], $schema['type']);
+        self::assertSame('string', $schema['type']); // scalar type is a bare string
         self::assertSame('text', $schema['fieldInput']['type']);
         self::assertSame(6, $schema['fieldInput']['options']['colspan']);
     }
@@ -34,7 +34,7 @@ class ScalarFieldTest extends TestCase
         self::assertSame('boolean', (new ScalarField('b', ScalarField::TYPE_BOOLEAN))->toSchemaArray($this->router())['fieldInput']['type']);
         self::assertSame('date', (new ScalarField('d', ScalarField::TYPE_DATE))->toSchemaArray($this->router())['fieldInput']['type']);
         // long text is string data with a textarea widget
-        self::assertSame('string', (new ScalarField('c', ScalarField::TYPE_TEXT))->toSchemaArray($this->router())['type']['type']);
+        self::assertSame('string', (new ScalarField('c', ScalarField::TYPE_TEXT))->toSchemaArray($this->router())['type']);
     }
 
     public function testIntegerValueIsCastOnWrite(): void
