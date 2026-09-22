@@ -43,6 +43,6 @@ abstract class AbstractLookupSchema extends AbstractSchema
             );
 
         $this->primaryKey();
-        $this->string('name')->required()->max(255);
+        $this->string('name')->required()->max(255)->exposeAs('label')->label('Label');
     }
 }
