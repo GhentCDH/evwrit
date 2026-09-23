@@ -80,8 +80,6 @@ abstract class AbstractAnnotationSchema extends AbstractSchema
             $f->text('text')->required()->hiddenInForm()->noFieldInput()->exposeAs('exact');
             // NOT NULL columns not part of the public contract, populated by the hooks below
             // so a selection can be created from source_id/start/end/exact.
-            $f->text('text_edited')->hidden()->noFieldInput();
-            $f->integer('selection_length')->hidden()->noFieldInput();
             // text_edited: default once at creation, never clobber later edits.
             $f->onCreate(static fn (TextSelection $s) => $s->text_edited ??= $s->text);
             // selection_length: derived — keep in sync on every write (create/update/patch).
