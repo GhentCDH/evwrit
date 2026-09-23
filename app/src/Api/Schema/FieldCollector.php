@@ -150,6 +150,7 @@ class FieldCollector
                 ->updatable(false)
                 ->noFieldInput()
                 ->hiddenInForm()
+                ->attr('idField', true)
         );
     }
 
