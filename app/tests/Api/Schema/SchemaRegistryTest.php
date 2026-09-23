@@ -57,6 +57,10 @@ class SchemaRegistryTest extends TestCase
                 return [];
             }
 
+            public function applyListFilters(\Illuminate\Database\Eloquent\Builder $query, array $filters): void
+            {
+            }
+
             public function getKind(): string
             {
                 return 'custom';

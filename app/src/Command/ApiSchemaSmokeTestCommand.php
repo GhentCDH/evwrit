@@ -282,7 +282,7 @@ class ServiceCrudDriver implements CrudDriver
 
     public function findAll(): array
     {
-        return $this->service->findAll($this->schema, new Request());
+        return $this->service->findAll($this->schema, new Request())['data'] ?? [];
     }
 
     public function update(mixed $id, array $payload): array
@@ -334,8 +334,10 @@ class HttpCrudDriver implements CrudDriver
     public function findAll(): array
     {
         [$method, $uri] = $this->op(SchemaInterface::OP_FIND_ALL);
+        $body = $this->send($method, $uri, null, [200]);
 
-        return $this->send($method, $uri, null, [200]);
+        // findAll returns the crouton envelope {data, request}; the CRUD contract wants rows.
+        return $body['data'] ?? $body;
     }
 
     public function update(mixed $id, array $payload): array

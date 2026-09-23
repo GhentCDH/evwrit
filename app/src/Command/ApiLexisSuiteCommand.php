@@ -104,8 +104,10 @@ class ApiLexisSuiteCommand extends Command
                     ];
                     $findAll = $this->requireOp($lookupSchema['operations'] ?? [], 'findAll', $col);
 
-                    [$s2, $rows] = $this->send($client, $findAll['method'], $this->resolveUrl($baseUrl, $findAll['uri']), null);
+                    [$s2, $body] = $this->send($client, $findAll['method'], $this->resolveUrl($baseUrl, $findAll['uri']), null);
                     $this->assertStatus($s2, [200], sprintf('GET %s records', $col));
+                    // findAll returns the crouton envelope {data, request}.
+                    $rows = $body['data'] ?? $body;
                     if (!array_is_list($rows)) {
                         throw new RuntimeException(sprintf('%s: expected a list of records', $col));
                     }

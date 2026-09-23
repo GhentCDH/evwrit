@@ -6,6 +6,7 @@ use App\Api\Schema\Field\EmbeddedRelationField;
 use App\Api\Schema\Field\RelationField;
 use App\Api\Schema\Field\ScalarField;
 use App\Model\AbstractModel;
+use Illuminate\Database\Eloquent\Builder;
 use LogicException;
 
 /**
@@ -317,6 +318,15 @@ abstract class AbstractSchema implements SchemaInterface
         $this->ensureConfigured();
 
         return $this->collector()->getWriteHooks();
+    }
+
+    /**
+     * No filters by default; schemas that support list filtering override this.
+     *
+     * @param array<string, mixed> $filters
+     */
+    public function applyListFilters(Builder $query, array $filters): void
+    {
     }
 
     public function getEagerRelations(): array

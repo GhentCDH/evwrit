@@ -129,22 +129,44 @@ class ModelService
     // ---- read ------------------------------------------------------------------
 
     /**
-     * @return array<int, array<string, mixed>>
+     * List rows in the crouton envelope: {data: [...], request: {count, page, pageSize,
+     * totalPages}}. Supports crouton `page`/`pageSize` (and legacy `limit`/`offset`); an
+     * omitted pageSize returns all matching rows in a single page. Schema-specific filters
+     * (e.g. annotations' `source_id`) are applied via SchemaInterface::applyListFilters().
+     *
+     * @return array{data: array<int, array<string, mixed>>, request: array{count: int, page: int, pageSize: int, totalPages: int}}
      */
     public function findAll(SchemaInterface $schema, Request $request): array
     {
         $modelClass = $schema->getModelClass();
         $query = $modelClass::query()->with($schema->getEagerRelations());
 
-        $limit = (int) $request->query->get('limit', 0);
-        $offset = (int) $request->query->get('offset', 0);
-        if ($limit > 0) {
-            $query->limit($limit)->offset(max(0, $offset));
+        $schema->applyListFilters($query, $request->query->all());
+
+        $count = $query->count();
+
+        $pageSize = (int) ($request->query->get('pageSize') ?? $request->query->get('limit') ?? 0);
+        $page = max(1, (int) $request->query->get('page', 1));
+        $offset = $request->query->has('offset')
+            ? max(0, (int) $request->query->get('offset'))
+            : ($pageSize > 0 ? ($page - 1) * $pageSize : 0);
+        if ($pageSize > 0) {
+            $query->limit($pageSize)->offset($offset);
         }
 
-        return $query->get()
+        $rows = $query->get()
             ->map(fn (AbstractModel $model) => $this->serialize($schema, $model))
             ->all();
+
+        return [
+            'data' => $rows,
+            'request' => [
+                'count' => $count,
+                'page' => $page,
+                'pageSize' => $pageSize,
+                'totalPages' => $pageSize > 0 ? (int) max(1, (int) ceil($count / $pageSize)) : 1,
+            ],
+        ];
     }
 
     /**

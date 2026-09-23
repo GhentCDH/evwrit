@@ -4,6 +4,7 @@ namespace App\Api\Schema;
 
 use App\Api\Schema\Field\FieldInterface;
 use App\Model\AbstractModel;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Describes what an external application may do with one model, and how its data
@@ -64,6 +65,14 @@ interface SchemaInterface
      * @return array<int, array{when: string, fn: \Closure}>
      */
     public function getWriteHooks(): array;
+
+    /**
+     * Apply optional list filters (from findAll query params) to the base query. The
+     * default is a no-op; schemas that support filtering override this.
+     *
+     * @param array<string, mixed> $filters
+     */
+    public function applyListFilters(Builder $query, array $filters): void;
 
     /**
      * Resource kind (crouton config). Defaults to "custom".

@@ -5,6 +5,7 @@ namespace App\Api\Schema;
 use App\Api\Schema\Field\EmbeddedRelationField;
 use App\Model\AbstractModel;
 use App\Model\TextSelection;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Base schema for IdName lookup tables (id + name). A concrete lookup service is just
@@ -88,5 +89,19 @@ abstract class AbstractAnnotationSchema extends AbstractSchema
             });
         }, EmbeddedRelationField::MODE_NESTED)->hideLink()->exposeAs('selector');
 
+    }
+
+    /**
+     * Annotations can be filtered by the text they annotate: `?source_id=<text_id>` keeps
+     * only annotations whose text selection points at that text.
+     *
+     * @param array<string, mixed> $filters
+     */
+    public function applyListFilters(Builder $query, array $filters): void
+    {
+        $sourceId = $filters['source_id'] ?? null;
+        if ($sourceId !== null && $sourceId !== '') {
+            $query->whereHas('textSelection', static fn (Builder $q) => $q->where('text_id', (int) $sourceId));
+        }
     }
 }
