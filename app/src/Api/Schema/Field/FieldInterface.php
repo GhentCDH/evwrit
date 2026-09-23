@@ -46,6 +46,18 @@ interface FieldInterface
     public function isRequiredForCreate(): bool;
 
     /**
+     * Whether a default value is configured for when the client omits this field.
+     */
+    public function hasDefault(): bool;
+
+    /**
+     * Resolve the configured default against the given sibling input (keyed by exposed id).
+     *
+     * @param array<string, mixed> $input
+     */
+    public function getDefault(array $input): mixed;
+
+    /**
      * Symfony validator constraints applied to this field's (normalized) value.
      *
      * @return Constraint[]

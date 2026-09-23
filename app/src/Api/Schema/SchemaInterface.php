@@ -59,6 +59,13 @@ interface SchemaInterface
     public function getEagerRelations(): array;
 
     /**
+     * Model write hooks for the top-level model, run before save.
+     *
+     * @return array<int, array{when: string, fn: \Closure}>
+     */
+    public function getWriteHooks(): array;
+
+    /**
      * Resource kind (crouton config). Defaults to "custom".
      */
     public function getKind(): string;

@@ -3,7 +3,9 @@
 namespace App\Api\Schema\Field;
 
 use App\Api\Schema\Field\Concerns\FieldConfig;
+use App\Api\Schema\FieldCollector;
 use App\Api\Schema\ResourceResolver;
+use App\Api\Schema\SchemaInterface;
 use App\Model\AbstractModel;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -33,8 +35,9 @@ class EmbeddedRelationField implements FieldInterface
     private string $prefix = '';
 
     /**
-     * @param class-string<AbstractModel> $relatedModel
-     * @param FieldInterface[] $subFields
+     * @param class-string<AbstractModel>                    $relatedModel
+     * @param FieldInterface[]                               $subFields
+     * @param array<int, array{when: string, fn: \Closure}> $writeHooks sub-model write hooks
      */
     public function __construct(
         private readonly string $id,
@@ -43,6 +46,7 @@ class EmbeddedRelationField implements FieldInterface
         private readonly array $subFields,
         private readonly string $mode = self::MODE_NESTED,
         ?string $label = null,
+        private readonly array $writeHooks = [],
     ) {
         $this->label = $label ?? ScalarField::humanize($id);
     }
@@ -230,8 +234,19 @@ class EmbeddedRelationField implements FieldInterface
             }
             if (array_key_exists($field->getId(), $subData)) {
                 $field->writeValue($related, $subData[$field->getId()], $op);
+                continue;
+            }
+
+            // Absent field: apply its configured default (create/PUT only; PATCH leaves
+            // untouched fields alone — patch-time recompute belongs in a write hook).
+            if ($field->hasDefault() && $op !== SchemaInterface::OP_PATCH) {
+                $field->writeValue($related, $field->getDefault($subData), $op);
             }
         }
+
+        // Model-level hooks for the related row (e.g. derive NOT NULL columns) run before
+        // its save, scoped to this embed's sub-schema only.
+        FieldCollector::runWriteHooks($this->writeHooks, $related, $op);
 
         $related->save();
         $model->setAttribute($this->foreignKey, $related->getKey());

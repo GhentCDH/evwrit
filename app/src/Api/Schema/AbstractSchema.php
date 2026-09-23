@@ -205,6 +205,26 @@ abstract class AbstractSchema implements SchemaInterface
         return $this->collector()->embed($method, $subFields, $mode);
     }
 
+    /**
+     * Hook run on the model before every save (create/update/patch); receives ($model, $op).
+     */
+    protected function onSave(callable $hook): static
+    {
+        $this->collector()->onSave($hook);
+
+        return $this;
+    }
+
+    /**
+     * Hook run on the model before save on CREATE only; receives ($model).
+     */
+    protected function onCreate(callable $hook): static
+    {
+        $this->collector()->onCreate($hook);
+
+        return $this;
+    }
+
     private function collector(): FieldCollector
     {
         if ($this->collector === null) {
@@ -290,6 +310,13 @@ abstract class AbstractSchema implements SchemaInterface
         $this->ensureConfigured();
 
         return $this->listed ?? $this->listedByDefault();
+    }
+
+    public function getWriteHooks(): array
+    {
+        $this->ensureConfigured();
+
+        return $this->collector()->getWriteHooks();
     }
 
     public function getEagerRelations(): array

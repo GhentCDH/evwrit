@@ -22,6 +22,9 @@ class FieldCollector
     /** @var array<string, bool> per-relation autowire overrides (name => enabled) */
     private array $autowireOverrides = [];
 
+    /** @var array<int, array{when: string, fn: \Closure}> model write hooks for this collector's model */
+    private array $writeHooks = [];
+
     /**
      * @param class-string<AbstractModel> $modelClass
      */
@@ -51,6 +54,55 @@ class FieldCollector
         }
 
         return $this;
+    }
+
+    /**
+     * Register a hook that runs on this collector's model before every save
+     * (create/update/patch); the callable receives ($model, $op). Use it to derive or
+     * enforce columns that aren't part of the public contract (e.g. a NOT NULL length).
+     */
+    public function onSave(callable $hook): static
+    {
+        $this->writeHooks[] = ['when' => 'save', 'fn' => \Closure::fromCallable($hook)];
+
+        return $this;
+    }
+
+    /**
+     * Register a hook that runs on this collector's model before save on CREATE only; the
+     * callable receives ($model). Sugar for create-time defaults that must not be
+     * re-applied on later updates.
+     */
+    public function onCreate(callable $hook): static
+    {
+        $this->writeHooks[] = ['when' => 'create', 'fn' => \Closure::fromCallable($hook)];
+
+        return $this;
+    }
+
+    /**
+     * @return array<int, array{when: string, fn: \Closure}>
+     */
+    public function getWriteHooks(): array
+    {
+        return $this->writeHooks;
+    }
+
+    /**
+     * Run write hooks against a model for the given operation: 'save' hooks fire on every
+     * op, 'create' hooks only on CREATE. Hooks are always invoked as ($model, $op); a
+     * one-parameter closure simply ignores the extra argument.
+     *
+     * @param array<int, array{when: string, fn: \Closure}> $hooks
+     */
+    public static function runWriteHooks(array $hooks, AbstractModel $model, string $op): void
+    {
+        foreach ($hooks as $hook) {
+            if ($hook['when'] === 'create' && $op !== SchemaInterface::OP_CREATE) {
+                continue;
+            }
+            ($hook['fn'])($model, $op);
+        }
     }
 
     public function string(string $column, ?string $label = null): ScalarField
@@ -163,6 +215,7 @@ class FieldCollector
             $meta['relatedModel'],
             $sub->getFields(),
             $mode,
+            writeHooks: $sub->getWriteHooks(),
         ));
     }
 

@@ -23,8 +23,8 @@ class ServiceDirectoryTest extends KernelTestCase
     {
         $ids = array_column($this->service->listServices(), 'id');
 
-        self::assertContains('lexis', $ids);
-        self::assertContains('handshift', $ids);
+        self::assertContains('lexis_annotation', $ids);
+        self::assertContains('handshift_annotation', $ids);
         self::assertNotContains('annotation_type_lexis', $ids); // lookup hidden by default
     }
 
@@ -32,7 +32,7 @@ class ServiceDirectoryTest extends KernelTestCase
     {
         $entry = null;
         foreach ($this->service->listServices() as $row) {
-            if ($row['id'] === 'lexis') {
+            if ($row['id'] === 'lexis_annotation') {
                 $entry = $row;
             }
         }
@@ -40,7 +40,7 @@ class ServiceDirectoryTest extends KernelTestCase
         self::assertNotNull($entry);
         self::assertSame(['id', 'label', 'uri'], array_keys($entry));
         self::assertNotEmpty($entry['label']);
-        self::assertSame('/api/model/lexis/schema', $entry['uri']);
+        self::assertSame('/api/model/lexis_annotation/schema', $entry['uri']);
     }
 
     public function testAllIncludesLookups(): void
@@ -54,7 +54,7 @@ class ServiceDirectoryTest extends KernelTestCase
     {
         $registry = self::getContainer()->get(SchemaRegistry::class);
 
-        self::assertTrue($registry->get('lexis')->isListed());          // annotation -> listed
+        self::assertTrue($registry->get('lexis_annotation')->isListed());          // annotation -> listed
         self::assertFalse($registry->get('annotation_type_lexis')->isListed()); // lookup -> hidden
     }
 }

@@ -15,6 +15,8 @@ trait FieldConfig
 {
     /** null = exposed name equals the internal source ($this->id). */
     private ?string $exposedId = null;
+    private bool $hasDefault = false;
+    private mixed $default = null;
     private ?bool $hiddenInTable = null;
     private ?bool $hiddenInForm = null;
     private ?bool $hiddenInView = null;
@@ -54,6 +56,34 @@ trait FieldConfig
     public function getSource(): string
     {
         return $this->id;
+    }
+
+    /**
+     * Value to use when the client omits this field on write (applied on create and full
+     * PUT update, not on partial PATCH). A Closure receives the sibling input (array keyed
+     * by exposed id) and returns the value; any other value is used as-is.
+     */
+    public function default(mixed $default): static
+    {
+        $this->hasDefault = true;
+        $this->default = $default;
+
+        return $this;
+    }
+
+    public function hasDefault(): bool
+    {
+        return $this->hasDefault;
+    }
+
+    /**
+     * Resolve the configured default against the given sibling input.
+     *
+     * @param array<string, mixed> $input
+     */
+    public function getDefault(array $input): mixed
+    {
+        return $this->default instanceof \Closure ? ($this->default)($input) : $this->default;
     }
 
     public function hiddenInTable(bool $hidden = true): static

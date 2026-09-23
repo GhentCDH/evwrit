@@ -52,6 +52,11 @@ class SchemaRegistryTest extends TestCase
                 return [];
             }
 
+            public function getWriteHooks(): array
+            {
+                return [];
+            }
+
             public function getKind(): string
             {
                 return 'custom';

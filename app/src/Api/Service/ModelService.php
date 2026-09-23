@@ -6,6 +6,7 @@ use App\Api\Exception\ValidationException;
 use App\Api\Schema\Field\EmbeddedRelationField;
 use App\Api\Schema\Field\FieldInterface;
 use App\Api\Schema\Field\RelationField;
+use App\Api\Schema\FieldCollector;
 use App\Api\Schema\SchemaInterface;
 use App\Api\Schema\SchemaRegistry;
 use App\Api\Schema\SchemaResourceResolver;
@@ -237,6 +238,9 @@ class ModelService
     {
         $model->getConnection()->transaction(function () use ($schema, $model, $input, $op): void {
             $this->deserialize($schema, $model, $input, $op);
+            // Top-level model hooks run after field writes, before save (embedded sub-model
+            // hooks already ran inside their EmbeddedRelationField::writeValue()).
+            FieldCollector::runWriteHooks($schema->getWriteHooks(), $model, $op);
             $model->save();
         });
 
@@ -265,6 +269,12 @@ class ModelService
             $key = $field->getId();
             if (array_key_exists($key, $input)) {
                 $field->writeValue($model, $input[$key], $op);
+                continue;
+            }
+
+            // Absent key with a configured default: apply it (create/PUT only, not PATCH).
+            if ($field->hasDefault() && $op !== SchemaInterface::OP_PATCH) {
+                $field->writeValue($model, $field->getDefault($input), $op);
                 continue;
             }
 

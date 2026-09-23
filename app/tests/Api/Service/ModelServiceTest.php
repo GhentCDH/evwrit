@@ -22,14 +22,14 @@ class ModelServiceTest extends KernelTestCase
         self::bootKernel();
         $container = self::getContainer();
         $this->service = $container->get(ModelService::class);
-        $this->schema = $container->get(SchemaRegistry::class)->get('handshift');
+        $this->schema = $container->get(SchemaRegistry::class)->get('handshift_annotation');
     }
 
     public function testDescribeExposesAllOperations(): void
     {
         $out = $this->service->describe($this->schema);
 
-        self::assertSame('handshift', $out['id']);
+        self::assertSame('handshift_annotation', $out['id']);
         self::assertSame(
             [
                 SchemaInterface::OP_FIND_ALL,
@@ -42,8 +42,8 @@ class ModelServiceTest extends KernelTestCase
             array_keys($out['operations'])
         );
         self::assertSame('POST', $out['operations']['create']['method']);
-        self::assertSame('/api/model/handshift/{id}', $out['operations']['findOne']['uri']);
-        self::assertSame('#7a8800', $out['annotation']['color']);
+        self::assertSame('/api/model/handshift_annotation/{id}', $out['operations']['findOne']['uri']);
+        self::assertSame('#6200D1', $out['annotation']['color']);
     }
 
     public function testDescribeIncludesScalarsLookupsAndEmbedded(): void
@@ -54,30 +54,27 @@ class ModelServiceTest extends KernelTestCase
             $byId[$col['id']] = $col;
         }
 
-        // 3 scalars + embedded textSelection + attestation + 14 lookups
-        self::assertCount(19, $columns);
+        // id + 3 scalars + created/updated + embedded selector + 14 lookups
+        self::assertCount(21, $columns);
         self::assertSame('number', $byId['internal_hand_num']['fieldInput']['type']);
         self::assertSame('autocomplete', $byId['scriptType']['fieldInput']['type']);
+
+        // a lookup relation -> wrapped object type carrying {id,label} INSIDE `type`
         self::assertSame('object', $byId['scriptType']['type']['type']);
+        self::assertArrayHasKey('id', $byId['scriptType']['type']['properties']);
+        self::assertArrayHasKey('label', $byId['scriptType']['type']['properties']);
 
         // embedded selection is a nested object carrying its own columns, and the
         // object property itself has NO fieldInput (no invalid "fieldset")
-        self::assertSame('object', $byId['textSelection']['type']['type']);
-        self::assertArrayNotHasKey('fieldInput', $byId['textSelection']);
-        $nested = $byId['textSelection']['type']['properties'];
-        self::assertArrayHasKey('selection_start', $nested);
-        self::assertArrayHasKey('sourceText', $nested);
-        // nested props keep their fieldInput
-        self::assertSame('number', $nested['selection_start']['fieldInput']['type']);
+        self::assertSame('object', $byId['selector']['type']['type']);
+        self::assertArrayNotHasKey('fieldInput', $byId['selector']);
+        $nested = $byId['selector']['type']['properties'];
+        self::assertArrayHasKey('start', $nested);
+        self::assertArrayHasKey('exact', $nested);
 
-        // nested SCALAR property -> bare type string
-        self::assertSame('integer', $nested['selection_start']['type']);
-
-        // nested OBJECT property -> wrapped type with its properties INSIDE `type`
-        self::assertSame('object', $nested['sourceText']['type']['type']);
-        self::assertArrayHasKey('id', $nested['sourceText']['type']['properties']);
-        self::assertArrayHasKey('label', $nested['sourceText']['type']['properties']);
-        self::assertArrayNotHasKey('properties', $nested['sourceText']); // not a sibling
+        // nested SCALAR properties -> bare type strings
+        self::assertSame('integer', $nested['start']['type']);
+        self::assertSame('string', $nested['exact']['type']);
     }
 
     public function testEveryEmittedWidgetIsInTheAllowedSet(): void
@@ -110,10 +107,11 @@ class ModelServiceTest extends KernelTestCase
     public function testValidateReportsMissingRequiredEmbedded(): void
     {
         try {
-            $this->service->validate($this->schema, [], SchemaInterface::OP_CREATE);
+            // An empty selector object must report its required sub-fields as missing.
+            $this->service->validate($this->schema, ['selector' => []], SchemaInterface::OP_CREATE);
             self::fail('Expected ValidationException');
         } catch (ValidationException $e) {
-            self::assertArrayHasKey('textSelection', $e->getErrors());
+            self::assertArrayHasKey('selector.source_id', $e->getErrors());
         }
     }
 

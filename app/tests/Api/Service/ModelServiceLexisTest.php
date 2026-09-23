@@ -17,7 +17,7 @@ class ModelServiceLexisTest extends KernelTestCase
     {
         self::bootKernel();
         $container = self::getContainer();
-        $schema = $container->get(SchemaRegistry::class)->get('lexis');
+        $schema = $container->get(SchemaRegistry::class)->get('lexis_annotation');
 
         $columns = $container->get(ModelService::class)->describe($schema)['columns'];
 
