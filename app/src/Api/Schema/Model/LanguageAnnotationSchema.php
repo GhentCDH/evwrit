@@ -21,4 +21,13 @@ class LanguageAnnotationSchema extends AbstractAnnotationSchema
         return LanguageAnnotation::class;
     }
 
+    protected function configure(): void
+    {
+        parent::configure();
+
+        $this->meta([
+            'color' => '#1E64C8',
+            'isRoot' => true,
+        ]);
+    }
 }

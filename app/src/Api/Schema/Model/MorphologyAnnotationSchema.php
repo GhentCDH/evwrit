@@ -21,4 +21,14 @@ class MorphologyAnnotationSchema extends AbstractAnnotationSchema
         return MorphologyAnnotation::class;
     }
 
+    protected function configure(): void
+    {
+        parent::configure();
+
+        $this->meta([
+            'color' => '#5d2802',
+            'isRoot' => true,
+        ]);
+    }
+
 }

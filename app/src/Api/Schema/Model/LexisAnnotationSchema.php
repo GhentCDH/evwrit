@@ -20,4 +20,14 @@ class LexisAnnotationSchema extends AbstractAnnotationSchema
     {
         return LexisAnnotation::class;
     }
+
+    protected function configure(): void
+    {
+        parent::configure();
+
+        $this->meta([
+            'color' => '#f032e6',
+            'isRoot' => true,
+        ]);
+    }
 }

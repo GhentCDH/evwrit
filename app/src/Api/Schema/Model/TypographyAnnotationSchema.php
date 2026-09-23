@@ -21,4 +21,14 @@ class TypographyAnnotationSchema extends AbstractAnnotationSchema
         return TypographyAnnotation::class;
     }
 
+    protected function configure(): void
+    {
+        parent::configure();
+
+        $this->meta([
+            'color' => '#e61919',
+            'isRoot' => true,
+        ]);
+    }
+
 }

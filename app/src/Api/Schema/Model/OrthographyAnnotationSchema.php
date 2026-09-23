@@ -21,4 +21,14 @@ class OrthographyAnnotationSchema extends AbstractAnnotationSchema
         return OrthographyAnnotation::class;
     }
 
+    protected function configure(): void
+    {
+        parent::configure();
+
+        $this->meta([
+            'color' => '#f58231',
+            'isRoot' => true,
+        ]);
+    }
+
 }
