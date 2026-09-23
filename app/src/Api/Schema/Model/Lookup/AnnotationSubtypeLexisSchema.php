@@ -7,17 +7,17 @@ use App\Model\Lookup\AnnotationSubtypeLexis;
 
 class AnnotationSubtypeLexisSchema extends AbstractLookupSchema
 {
-    protected function lookupKey(): string
+    protected function serviceKey(): string
     {
         return 'annotation_subtype_lexis';
     }
 
-    protected function lookupModel(): string
+    protected function serviceModel(): string
     {
         return AnnotationSubtypeLexis::class;
     }
 
-    protected function lookupName(): string
+    protected function serviceName(): string
     {
         return 'Lexis annotation subtype';
     }

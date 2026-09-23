@@ -7,17 +7,17 @@ use App\Model\Lookup\AnnotationPositionInWordLexis;
 
 class AnnotationPositionInWordLexisSchema extends AbstractLookupSchema
 {
-    protected function lookupKey(): string
+    protected function serviceKey(): string
     {
         return 'annotation_position_in_word_lexis';
     }
 
-    protected function lookupModel(): string
+    protected function serviceModel(): string
     {
         return AnnotationPositionInWordLexis::class;
     }
 
-    protected function lookupName(): string
+    protected function serviceName(): string
     {
         return 'Lexis position in word';
     }

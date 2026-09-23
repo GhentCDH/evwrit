@@ -7,17 +7,17 @@ use App\Model\Lookup\AnnotationPrescriptionLexis;
 
 class AnnotationPrescriptionLexisSchema extends AbstractLookupSchema
 {
-    protected function lookupKey(): string
+    protected function serviceKey(): string
     {
         return 'annotation_prescription_lexis';
     }
 
-    protected function lookupModel(): string
+    protected function serviceModel(): string
     {
         return AnnotationPrescriptionLexis::class;
     }
 
-    protected function lookupName(): string
+    protected function serviceName(): string
     {
         return 'Lexis prescription';
     }

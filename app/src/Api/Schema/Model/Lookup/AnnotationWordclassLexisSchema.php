@@ -7,17 +7,17 @@ use App\Model\Lookup\AnnotationWordclassLexis;
 
 class AnnotationWordclassLexisSchema extends AbstractLookupSchema
 {
-    protected function lookupKey(): string
+    protected function serviceKey(): string
     {
         return 'annotation_wordclass_lexis';
     }
 
-    protected function lookupModel(): string
+    protected function serviceModel(): string
     {
         return AnnotationWordclassLexis::class;
     }
 
-    protected function lookupName(): string
+    protected function serviceName(): string
     {
         return 'Lexis word class';
     }

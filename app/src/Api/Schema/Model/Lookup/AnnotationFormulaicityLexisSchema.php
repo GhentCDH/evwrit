@@ -7,17 +7,17 @@ use App\Model\Lookup\AnnotationFormulaicityLexis;
 
 class AnnotationFormulaicityLexisSchema extends AbstractLookupSchema
 {
-    protected function lookupKey(): string
+    protected function serviceKey(): string
     {
         return 'annotation_formulaicity_lexis';
     }
 
-    protected function lookupModel(): string
+    protected function serviceModel(): string
     {
         return AnnotationFormulaicityLexis::class;
     }
 
-    protected function lookupName(): string
+    protected function serviceName(): string
     {
         return 'Lexis formulaicity';
     }

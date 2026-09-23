@@ -7,17 +7,17 @@ use App\Model\Lookup\AnnotationIdentifierLexis;
 
 class AnnotationIdentifierLexisSchema extends AbstractLookupSchema
 {
-    protected function lookupKey(): string
+    protected function serviceKey(): string
     {
         return 'annotation_identifier_lexis';
     }
 
-    protected function lookupModel(): string
+    protected function serviceModel(): string
     {
         return AnnotationIdentifierLexis::class;
     }
 
-    protected function lookupName(): string
+    protected function serviceName(): string
     {
         return 'Lexis identifier';
     }

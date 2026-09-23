@@ -15,7 +15,7 @@ class HandshiftAnnotationSchema extends AbstractSchema
 {
     protected function configure(): void
     {
-        $this->key('handshift')
+        $this->key('handshift_annotation')
             ->name('Handshift annotation')
             ->model(HandshiftAnnotation::class)
             ->allow(

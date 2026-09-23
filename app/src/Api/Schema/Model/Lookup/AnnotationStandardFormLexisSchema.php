@@ -7,17 +7,17 @@ use App\Model\Lookup\AnnotationStandardFormLexis;
 
 class AnnotationStandardFormLexisSchema extends AbstractLookupSchema
 {
-    protected function lookupKey(): string
+    protected function serviceKey(): string
     {
         return 'annotation_standard_form_lexis';
     }
 
-    protected function lookupModel(): string
+    protected function serviceModel(): string
     {
         return AnnotationStandardFormLexis::class;
     }
 
-    protected function lookupName(): string
+    protected function serviceName(): string
     {
         return 'Lexis standard form';
     }
