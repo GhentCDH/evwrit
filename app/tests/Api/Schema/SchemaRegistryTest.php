@@ -61,6 +61,11 @@ class SchemaRegistryTest extends TestCase
             {
                 return [];
             }
+
+            public function isListed(): bool
+            {
+                return true;
+            }
         };
     }
 

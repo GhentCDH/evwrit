@@ -69,4 +69,9 @@ interface SchemaInterface
      * @return array<string, mixed>
      */
     public function getExtra(): array;
+
+    /**
+     * Whether this schema appears in the service directory (GET /api/model).
+     */
+    public function isListed(): bool;
 }

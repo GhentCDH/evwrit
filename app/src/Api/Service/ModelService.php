@@ -40,6 +40,31 @@ class ModelService
     ) {
     }
 
+    // ---- directory -------------------------------------------------------------
+
+    /**
+     * List the registered services as {id, label, uri} (uri = schema descriptor).
+     * Only listed schemas unless $all; keeps registry order.
+     *
+     * @return array<int, array{id: string, label: string, uri: string}>
+     */
+    public function listServices(bool $all = false): array
+    {
+        $out = [];
+        foreach ($this->registry->all() as $schema) {
+            if (!$all && !$schema->isListed()) {
+                continue;
+            }
+            $out[] = [
+                'id' => $schema->getKey(),
+                'label' => $schema->getName(),
+                'uri' => $this->router->generate('api_model_schema', ['key' => $schema->getKey()]),
+            ];
+        }
+
+        return $out;
+    }
+
     // ---- describe --------------------------------------------------------------
 
     /**

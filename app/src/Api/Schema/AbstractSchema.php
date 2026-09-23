@@ -27,6 +27,7 @@ abstract class AbstractSchema implements SchemaInterface
     private string $kind = 'custom';
     /** @var array<string, mixed> */
     private array $extra = [];
+    private ?bool $listed = null;
 
     private ?FieldCollector $collector = null;
 
@@ -109,6 +110,24 @@ abstract class AbstractSchema implements SchemaInterface
         $this->extra = array_merge($this->extra, $attributes);
 
         return $this;
+    }
+
+    /**
+     * Whether this schema appears in the service directory. Overrides the class default.
+     */
+    protected function listed(bool $listed = true): static
+    {
+        $this->listed = $listed;
+
+        return $this;
+    }
+
+    /**
+     * Class-level default for directory listing; overridden by lookups.
+     */
+    protected function listedByDefault(): bool
+    {
+        return true;
     }
 
     // ---- fluent field helpers (delegate to the collector) ----------------------
@@ -264,6 +283,13 @@ abstract class AbstractSchema implements SchemaInterface
         $this->ensureConfigured();
 
         return $this->extra;
+    }
+
+    public function isListed(): bool
+    {
+        $this->ensureConfigured();
+
+        return $this->listed ?? $this->listedByDefault();
     }
 
     public function getEagerRelations(): array

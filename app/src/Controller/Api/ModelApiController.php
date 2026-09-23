@@ -30,6 +30,12 @@ class ModelApiController extends BaseController
         parent::__construct($container);
     }
 
+    #[Route('/api/model', name: 'api_model_list', methods: ['GET'])]
+    public function list(Request $request): JsonResponse
+    {
+        return $this->json($this->service->listServices($request->query->getBoolean('all')));
+    }
+
     #[Route('/api/model/{key}/schema', name: 'api_model_schema', methods: ['GET'])]
     public function schema(string $key): JsonResponse
     {
