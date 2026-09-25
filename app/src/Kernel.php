@@ -2,7 +2,9 @@
 
 namespace App;
 
+use App\DependencyInjection\RegisterLookupSchemasPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -30,6 +32,11 @@ class Kernel extends BaseKernel
             'gts' => 'App\Model\GenericTextStructure',
             'lts' => 'App\Model\LayoutTextStructure',
         ]);
+    }
+
+    protected function build(ContainerBuilder $container): void
+    {
+        $container->addCompilerPass(new RegisterLookupSchemasPass());
     }
 
     protected function configureContainer(ContainerConfigurator $container): void

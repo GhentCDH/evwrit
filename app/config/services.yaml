@@ -20,6 +20,9 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
             - '../src/Tests/'
+            # takes a $model constructor arg; instances are registered per model by
+            # RegisterLookupSchemasPass, so it must not be autodiscovered as one service.
+            - '../src/Api/Schema/GenericLookupSchema.php'
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
