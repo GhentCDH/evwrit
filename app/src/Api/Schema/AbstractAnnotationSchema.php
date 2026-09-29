@@ -70,8 +70,8 @@ abstract class AbstractAnnotationSchema extends AbstractSchema
             $this->relations(...$relations);
         }
 
-        $this->date('created')->hiddenInForm()->noFieldInput();
-        $this->date('updated')->hiddenInForm()->noFieldInput();
+        $this->date('created')->hiddenInForm()->noFieldInput()->updatable(false)->creatable(false);
+        $this->date('modified')->hiddenInForm()->noFieldInput()->updatable(false)->creatable(false);
 
         // the annotated text selection, flattened onto the annotation (link hidden)
         $this->embed('textSelection', function (FieldCollector $f): void {
