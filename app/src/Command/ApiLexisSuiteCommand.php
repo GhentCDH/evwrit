@@ -80,6 +80,7 @@ class ApiLexisSuiteCommand extends Command
             $columns = $schema['columns'] ?? [];
             $lexisCreate = $this->requireOp($operations, 'create', 'lexis');
             $lexisFindOne = $this->requireOp($operations, 'findOne', 'lexis');
+            $lexisUpdate = $this->requireOp($operations, 'update', 'lexis');
             $lexisDelete = $this->requireOp($operations, 'delete', 'lexis');
             $io->writeln(sprintf(' <info>✓</info> loaded schema (%d columns)', count($columns)));
 
@@ -159,6 +160,32 @@ class ApiLexisSuiteCommand extends Command
             [$s, $found] = $this->send($client, $lexisFindOne['method'], $this->fillId($baseUrl, $lexisFindOne['uri'], $createdLexisId), null);
             $this->assertStatus($s, [200], 'GET lexis record');
             $io->writeln(sprintf(' <info>✓</info> fetched lexis record id=%s', $found['id'] ?? '?'));
+
+            // Full update (PUT): exercises the write path — a schema field whose column does
+            // not exist would fail here (this is what only surfaced in client testing before).
+            $io->section('Update');
+            $newStart = (int) ($payload['selector']['start'] ?? 0) + 5;
+            $newEnd = $newStart + 7;
+            $payload['selector']['start'] = $newStart;
+            $payload['selector']['end'] = $newEnd;
+            [$s, $updated] = $this->send($client, $lexisUpdate['method'], $this->fillId($baseUrl, $lexisUpdate['uri'], $createdLexisId), $payload);
+            $this->assertStatus($s, [200], 'PUT lexis', $updated);
+            $io->writeln(sprintf(' <info>✓</info> updated lexis record id=%s', $createdLexisId));
+
+            [$s, $refetched] = $this->send($client, $lexisFindOne['method'], $this->fillId($baseUrl, $lexisFindOne['uri'], $createdLexisId), null);
+            $this->assertStatus($s, [200], 'GET lexis record (after update)');
+            $gotStart = $refetched['selector']['start'] ?? null;
+            $gotEnd = $refetched['selector']['end'] ?? null;
+            if ((int) $gotStart !== $newStart || (int) $gotEnd !== $newEnd) {
+                throw new RuntimeException(sprintf(
+                    'update not applied: selector start/end = %s/%s, expected %d/%d',
+                    json_encode($gotStart),
+                    json_encode($gotEnd),
+                    $newStart,
+                    $newEnd
+                ));
+            }
+            $io->writeln(sprintf(' <info>✓</info> re-fetched: start=%s end=%s', $gotStart, $gotEnd));
         } catch (Throwable $e) {
             $ok = false;
             $io->writeln(sprintf(' <error>✗ %s</error>', $e->getMessage()));

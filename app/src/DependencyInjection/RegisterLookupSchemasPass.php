@@ -23,9 +23,16 @@ class RegisterLookupSchemasPass implements CompilerPassInterface
     /**
      * Models to NOT expose as lookup services. Add fully-qualified class names here.
      *
+     * These three are IdName models with no backing DB table (legacy/unused), so a lookup
+     * service for them would fail on any query. Verified by SchemaColumnsTest.
+     *
      * @var list<class-string>
      */
-    private const DENYLIST = [];
+    private const DENYLIST = [
+        \App\Model\Lookup\TextType::class,
+        \App\Model\Lookup\TextSubtype::class,
+        \App\Model\Lookup\GenericTextStructureComponents::class,
+    ];
 
     public function process(ContainerBuilder $container): void
     {
